@@ -14,22 +14,24 @@ from pathlib import Path
 import environ
 import os
 
-env = environ.Env()
-environ.Env.read_env()
-
+# 1. Опрделяем базовую директорию
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
-SECRET_KEY = env('SECRET_KEY')
-
+# 2. Инициализируем environ ОДИН РАЗ
 env = environ.Env(
     DEBUG=(bool, False)
 )
 
+# 3. Читаем .env, указывая полный путь через BASE_DIR
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+
+# 4. Читаем переменные
+SECRET_KEY = env('SECRET_KEY')
 DEBUG = env('DEBUG')
-ALLOWED_HOSTS = env('ALLOWED_HOSTS').split(' ')
 
-
+# Для ALLOWED_HOSTS лучше использовать встроенный метод .list(),
+# чтобы в .env можно было писать через запятую без пробелов
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[])
 
 # Application definition
 
@@ -53,7 +55,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'Config.urls_func'
+ROOT_URLCONF = 'Config.urls'
 
 TEMPLATES = [
     {
@@ -120,4 +122,14 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+# Папка, куда collectstatic будет копировать файлы
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Папки, где Django ищет статику в процессе разработки (если есть)
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+
+MEDIA_URL = 'media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
