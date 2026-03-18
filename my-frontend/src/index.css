@@ -1,0 +1,124 @@
+/* ========== CSS Variables — Light Theme ========== */
+:root,
+[data-theme="light"] {
+  --bg-primary: #f8f9fb;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f1f3f5;
+  --bg-glass: rgba(255, 255, 255, 0.75);
+
+  --text-primary: #1a1a2e;
+  --text-secondary: #555770;
+  --text-muted: #9ca3af;
+  --text-inverse: #ffffff;
+
+  --border-color: #e5e7eb;
+  --border-light: #f0f0f0;
+
+  --accent-1: #e53935;
+  --accent-2: #ff6f61;
+  --accent-3: #ff8a80;
+  --accent-gradient: linear-gradient(135deg, #e53935, #ff6f61, #ff8a80);
+  --accent-gradient-hover: linear-gradient(135deg, #d32f2f, #e53935, #ff6f61);
+
+  --purple: #7c3aed;
+  --purple-light: #ede9fe;
+  --blue: #2196f3;
+  --blue-light: #e3f2fd;
+  --green: #10b981;
+  --green-light: #d1fae5;
+  --gold: #f59e0b;
+  --gold-light: #fef3c7;
+
+  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  --card-shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --glass-blur: blur(12px);
+
+  --gradient-card-1: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  --gradient-card-2: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  --gradient-card-3: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+  --gradient-card-4: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+  --gradient-card-5: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+  --gradient-warm: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+  --gradient-sunset: linear-gradient(135deg, #fccb90 0%, #d57eeb 100%);
+
+  --story-ring: conic-gradient(#e53935, #ff6f61, #ffd54f, #4caf50, #2196f3, #9c27b0, #e53935);
+}
+
+/* ========== CSS Variables — Dark Theme ========== */
+[data-theme="dark"] {
+  --bg-primary: #0f0f1a;
+  --bg-secondary: #1a1a2e;
+  --bg-tertiary: #16213e;
+  --bg-glass: rgba(26, 26, 46, 0.85);
+
+  --text-primary: #e8e8f0;
+  --text-secondary: #a0a0b8;
+  --text-muted: #6b6b80;
+  --text-inverse: #0f0f1a;
+
+  --border-color: #2a2a3e;
+  --border-light: #222238;
+
+  --accent-1: #ff6f61;
+  --accent-2: #ff8a80;
+  --accent-3: #ffab91;
+  --accent-gradient: linear-gradient(135deg, #ff6f61, #ff8a80, #ffab91);
+  --accent-gradient-hover: linear-gradient(135deg, #e53935, #ff6f61, #ff8a80);
+
+  --purple: #a78bfa;
+  --purple-light: rgba(167, 139, 250, 0.15);
+  --blue: #60a5fa;
+  --blue-light: rgba(96, 165, 250, 0.15);
+  --green: #34d399;
+  --green-light: rgba(52, 211, 153, 0.15);
+  --gold: #fbbf24;
+  --gold-light: rgba(251, 191, 36, 0.15);
+
+  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  --card-shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.5);
+
+  --gradient-card-1: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+  --gradient-card-2: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+  --gradient-card-3: linear-gradient(135deg, #22c55e 0%, #14b8a6 100%);
+  --gradient-card-4: linear-gradient(135deg, #f43f5e 0%, #eab308 100%);
+  --gradient-card-5: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+  --gradient-warm: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+  --gradient-sunset: linear-gradient(135deg, #f97316 0%, #a855f7 100%);
+
+  --story-ring: conic-gradient(#ff6f61, #ffd54f, #34d399, #60a5fa, #a78bfa, #ff6f61);
+}
+
+/* ========== Global Resets ========== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+#root {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  text-align: left;
+}
+
+a { text-decoration: none; color: inherit; }
+button { font-family: inherit; }
+
+::selection {
+  background: var(--accent-1);
+  color: #fff;
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 3px; }

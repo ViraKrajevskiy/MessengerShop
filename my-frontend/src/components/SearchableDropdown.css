@@ -1,0 +1,125 @@
+.sd {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.sd__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px 10px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--bg-secondary);
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.25s;
+}
+
+.sd__trigger--open {
+  border-color: var(--accent-1);
+  box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.1);
+}
+
+.sd__trigger--active {
+  border-color: var(--accent-1);
+  background: var(--bg-tertiary);
+}
+
+.sd__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sd__icons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.sd__clear {
+  font-size: 18px;
+  color: var(--text-muted);
+  line-height: 1;
+  padding: 0 2px;
+  cursor: pointer;
+}
+
+.sd__clear:hover { color: var(--accent-1); }
+
+.sd__arrow {
+  font-size: 12px;
+  color: var(--text-muted);
+  transition: transform 0.2s;
+}
+
+.sd__arrow--up { transform: rotate(180deg); }
+
+.sd__dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.15);
+  z-index: 50;
+  overflow: hidden;
+}
+
+.sd__search {
+  width: 100%;
+  padding: 10px 14px;
+  border: none;
+  border-bottom: 1px solid var(--border-light);
+  font-size: 13px;
+  outline: none;
+  box-sizing: border-box;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.sd__search::placeholder { color: var(--text-muted); }
+
+.sd__list {
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.sd__option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  font-size: 13px;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.sd__option:hover { background: var(--bg-tertiary); }
+
+.sd__option--selected {
+  color: var(--accent-1);
+  font-weight: 600;
+  background: var(--bg-tertiary);
+}
+
+.sd__check { color: var(--accent-1); font-size: 14px; }
+
+.sd__no-results {
+  padding: 12px 14px;
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: center;
+}
