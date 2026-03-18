@@ -7,6 +7,7 @@ import VipSection from '../components/VipSection'
 import NewUsers from '../components/NewUsers'
 import SocialClub from '../components/SocialClub'
 import UserCard from '../components/UserCard'
+import Footer from '../components/Footer'
 import './HomePage.css'
 
 // ---------- mock data ----------
@@ -172,6 +173,7 @@ export default function HomePage() {
           )}
         </section>
       </main>
+      <Footer />
     </div>
   )
 }

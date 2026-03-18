@@ -1,22 +1,23 @@
 .vip-section {
-  padding: 24px 0;
+  padding: 28px 0;
 }
 
 .vip-section__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .vip-section__title {
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 19px;
+  font-weight: 800;
   color: var(--text-primary);
   margin: 0;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  letter-spacing: -0.3px;
 }
 
 .vip-section__crown { font-size: 22px; }
@@ -25,12 +26,12 @@
   background: none;
   border: 2px solid var(--accent-1);
   color: var(--accent-1);
-  padding: 6px 20px;
-  border-radius: 20px;
+  padding: 7px 22px;
+  border-radius: var(--radius-lg);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.25s;
+  transition: all 0.22s;
   white-space: nowrap;
 }
 
@@ -38,42 +39,44 @@
   background: var(--accent-gradient);
   color: #fff;
   border-color: transparent;
-  box-shadow: 0 4px 16px rgba(229, 57, 53, 0.3);
+  box-shadow: 0 4px 18px rgba(229, 57, 53, 0.28);
+  transform: translateY(-1px);
 }
 
 .vip-section__label {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 12px;
+  gap: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
   color: var(--gold);
-  margin-bottom: 14px;
-  padding: 8px 14px;
+  margin-bottom: 18px;
+  padding: 10px 16px;
   background: var(--gold-light);
-  border-radius: 10px;
-  border-left: 3px solid var(--gold);
+  border-radius: var(--radius-md);
+  border-left: 3.5px solid var(--gold);
 }
 
-.vip-section__label-icon { font-size: 14px; }
+.vip-section__label-icon { font-size: 16px; }
 
 .vip-section__grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+  gap: 18px;
 }
 
 .vip-section__empty {
-  padding: 40px 0;
+  padding: 48px 0;
   text-align: center;
   font-size: 14px;
   color: var(--text-muted);
-  background: var(--bg-tertiary);
-  border-radius: 16px;
-  border: 1px dashed var(--border-color);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  border: 1.5px dashed var(--border-color);
 }
 
 .vip-section__counter {
-  margin-top: 12px;
+  margin-top: 14px;
   text-align: center;
   font-size: 13px;
   color: var(--text-muted);
@@ -81,19 +84,19 @@
 
 /* VIP Card */
 .vip-card {
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
   background: var(--bg-secondary);
   box-shadow: var(--card-shadow);
   cursor: pointer;
-  transition: transform 0.25s, box-shadow 0.25s;
-  border: 1px solid rgba(245, 158, 11, 0.15);
+  transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+  border: 1.5px solid rgba(245, 158, 11, 0.18);
 }
 
 .vip-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--card-shadow-hover);
-  border-color: rgba(245, 158, 11, 0.4);
+  transform: translateY(-6px);
+  box-shadow: var(--card-shadow-hover), 0 0 0 2px rgba(245, 158, 11, 0.2);
+  border-color: rgba(245, 158, 11, 0.45);
 }
 
 .vip-card__image {
@@ -108,25 +111,25 @@
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform 0.3s;
+  transition: transform 0.35s;
 }
 
 .vip-card:hover .vip-card__photo {
-  transform: scale(1.05);
+  transform: scale(1.07);
 }
 
 .vip-card__badge {
   position: absolute;
-  top: 8px;
-  left: 8px;
+  top: 10px;
+  left: 10px;
   background: linear-gradient(135deg, #ffd700, #ffb300, #ff8f00);
-  color: #5d4037;
-  font-size: 11px;
-  font-weight: 700;
+  color: #4a3000;
+  font-size: 10.5px;
+  font-weight: 800;
   padding: 4px 12px;
-  border-radius: 6px;
-  letter-spacing: 0.5px;
-  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+  border-radius: 8px;
+  letter-spacing: 0.6px;
+  box-shadow: 0 3px 10px rgba(255, 200, 0, 0.45);
 }
 
 .vip-card__overlay {
@@ -134,29 +137,30 @@
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 24px 8px 8px;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
+  padding: 30px 10px 10px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.65), transparent);
 }
 
 .vip-card__category {
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.9);
-  background: rgba(255, 255, 255, 0.15);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.16);
   padding: 3px 10px;
   border-radius: 10px;
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(6px);
 }
 
 .vip-card__info {
-  padding: 10px 12px 12px;
+  padding: 12px 14px 14px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 
 .vip-card__name {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-primary);
 }
 
@@ -167,17 +171,19 @@
 
 .vip-card__tags {
   display: flex;
-  gap: 4px;
-  margin-top: 6px;
+  gap: 5px;
+  margin-top: 8px;
   flex-wrap: wrap;
 }
 
 .vip-card__tag {
   font-size: 10px;
+  font-weight: 600;
   color: var(--accent-1);
   background: rgba(229, 57, 53, 0.08);
-  padding: 2px 8px;
+  padding: 3px 9px;
   border-radius: 8px;
+  border: 1px solid rgba(229, 57, 53, 0.12);
 }
 
 @media (max-width: 768px) {

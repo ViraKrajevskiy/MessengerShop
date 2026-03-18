@@ -1,42 +1,44 @@
 .new-users {
-  padding: 24px 0;
+  padding: 28px 0;
 }
 
 .new-users__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .new-users__show-all {
   background: none;
-  border: 2px solid var(--text-primary);
-  color: var(--text-primary);
-  padding: 6px 20px;
-  border-radius: 20px;
+  border: 2px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 7px 22px;
+  border-radius: var(--radius-lg);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.25s;
+  transition: all 0.22s;
   white-space: nowrap;
 }
 
 .new-users__show-all:hover {
   background: var(--text-primary);
   color: var(--text-inverse);
+  border-color: var(--text-primary);
+  transform: translateY(-1px);
 }
 
 .new-users__subtitle {
   font-size: 13px;
   color: var(--text-muted);
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .new-users__grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 16px;
+  gap: 14px;
 }
 
 .new-users__grid--expanded {
@@ -47,16 +49,21 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
+  gap: 5px;
   cursor: pointer;
-  padding: 10px 4px;
-  border-radius: 16px;
-  transition: background 0.2s, transform 0.2s;
+  padding: 14px 8px;
+  border-radius: var(--radius-lg);
+  border: 1.5px solid transparent;
+  transition: all 0.22s;
+  background: var(--bg-secondary);
+  box-shadow: var(--card-shadow);
 }
 
 .new-users__item:hover {
-  background: var(--bg-tertiary);
-  transform: scale(1.05);
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+  transform: translateY(-4px);
+  box-shadow: var(--card-shadow-hover);
 }
 
 .new-users__avatar {
@@ -64,7 +71,9 @@
   width: 72px;
   height: 72px;
   border-radius: 50%;
-  overflow: visible;
+  background: var(--story-ring);
+  padding: 2.5px;
+  flex-shrink: 0;
 }
 
 .new-users__avatar-img {
@@ -73,6 +82,7 @@
   border-radius: 50%;
   object-fit: cover;
   display: block;
+  border: 2.5px solid var(--bg-secondary);
 }
 
 .new-users__online-dot {
@@ -84,12 +94,12 @@
   border-radius: 50%;
   background: var(--green);
   border: 2.5px solid var(--bg-secondary);
-  box-shadow: 0 0 6px rgba(16, 185, 129, 0.5);
+  box-shadow: 0 0 8px rgba(5, 150, 105, 0.55);
 }
 
 .new-users__name {
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-primary);
   text-align: center;
   max-width: 80px;
@@ -111,7 +121,7 @@
 }
 
 .new-users__count {
-  margin-top: 14px;
+  margin-top: 16px;
   text-align: center;
   font-size: 13px;
   color: var(--text-muted);

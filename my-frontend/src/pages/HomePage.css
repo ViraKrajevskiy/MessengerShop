@@ -5,55 +5,73 @@
 }
 
 .home-page__content {
-  max-width: 960px;
+  max-width: 980px;
   margin: 0 auto;
-  padding: 0 24px 60px;
+  padding: 0 28px 40px;
 }
 
 .home-page__hero {
-  padding: 28px 0 12px;
+  padding: 32px 0 16px;
+  position: relative;
 }
 
 .home-page__hero h1 {
-  font-size: 28px;
-  font-weight: 800;
-  margin: 0 0 8px;
+  font-size: 32px;
+  font-weight: 900;
+  margin: 0 0 10px;
   background: var(--accent-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  letter-spacing: -0.5px;
+  line-height: 1.2;
 }
 
 .home-page__hero p {
-  font-size: 14px;
+  font-size: 14.5px;
   color: var(--text-secondary);
   margin: 0;
-  line-height: 1.6;
+  line-height: 1.65;
+  max-width: 560px;
 }
 
 /* Section title */
 .section-title {
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 19px;
+  font-weight: 800;
   color: var(--text-primary);
-  margin: 0 0 12px;
+  margin: 0 0 16px;
   transition: color 0.3s;
+  letter-spacing: -0.3px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-title::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 22px;
+  background: var(--accent-gradient);
+  border-radius: 3px;
+  flex-shrink: 0;
 }
 
 /* Viewed wrapper — sticky below header */
 .home-page__viewed-wrapper {
   position: sticky;
-  top: 57px;
+  top: 62px;
   z-index: 40;
-  max-width: 960px;
+  max-width: 980px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 28px;
 }
 
 /* Card grids */
 .card-grid {
   display: grid;
-  gap: 16px;
+  gap: 18px;
 }
 
 .card-grid--4 {
@@ -66,13 +84,13 @@
 
 /* All cards */
 .all-cards-section {
-  padding: 20px 0;
+  padding: 24px 0;
 }
 
 /* Results count */
 .home-page__results-count {
-  margin-top: 10px;
-  font-size: 14px;
+  margin-top: 12px;
+  font-size: 13.5px;
   font-weight: 600;
   background: var(--accent-gradient);
   -webkit-background-clip: text;
@@ -82,17 +100,25 @@
 
 /* No results */
 .no-results {
-  padding: 40px 0;
+  padding: 52px 0;
   text-align: center;
   font-size: 14px;
   color: var(--text-muted);
-  background: var(--bg-tertiary);
-  border-radius: 16px;
-  border: 1px dashed var(--border-color);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  border: 1.5px dashed var(--border-color);
 }
 
 /* Responsive */
 @media (max-width: 768px) {
+  .home-page__content {
+    padding: 0 16px 60px;
+  }
+
+  .home-page__hero h1 {
+    font-size: 26px;
+  }
+
   .card-grid--4 {
     grid-template-columns: repeat(2, 1fr);
   }

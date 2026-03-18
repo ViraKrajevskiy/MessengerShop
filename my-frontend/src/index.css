@@ -1,37 +1,37 @@
 /* ========== CSS Variables — Light Theme ========== */
 :root,
 [data-theme="light"] {
-  --bg-primary: #f8f9fb;
+  --bg-primary: #f4f6fb;
   --bg-secondary: #ffffff;
-  --bg-tertiary: #f1f3f5;
-  --bg-glass: rgba(255, 255, 255, 0.75);
+  --bg-tertiary: #eef1f7;
+  --bg-glass: rgba(255, 255, 255, 0.82);
 
-  --text-primary: #1a1a2e;
-  --text-secondary: #555770;
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
   --text-muted: #9ca3af;
   --text-inverse: #ffffff;
 
-  --border-color: #e5e7eb;
-  --border-light: #f0f0f0;
+  --border-color: #e2e8f0;
+  --border-light: #f1f5f9;
 
   --accent-1: #e53935;
   --accent-2: #ff6f61;
   --accent-3: #ff8a80;
-  --accent-gradient: linear-gradient(135deg, #e53935, #ff6f61, #ff8a80);
-  --accent-gradient-hover: linear-gradient(135deg, #d32f2f, #e53935, #ff6f61);
+  --accent-gradient: linear-gradient(135deg, #e53935 0%, #ff6f61 60%, #ff8a80 100%);
+  --accent-gradient-hover: linear-gradient(135deg, #c62828 0%, #e53935 60%, #ff6f61 100%);
 
   --purple: #7c3aed;
   --purple-light: #ede9fe;
-  --blue: #2196f3;
-  --blue-light: #e3f2fd;
-  --green: #10b981;
+  --blue: #2563eb;
+  --blue-light: #dbeafe;
+  --green: #059669;
   --green-light: #d1fae5;
-  --gold: #f59e0b;
+  --gold: #d97706;
   --gold-light: #fef3c7;
 
-  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-  --card-shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.12);
-  --glass-blur: blur(12px);
+  --card-shadow: 0 2px 12px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.05);
+  --card-shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.13), 0 4px 12px rgba(0, 0, 0, 0.07);
+  --glass-blur: blur(16px);
 
   --gradient-card-1: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
   --gradient-card-2: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
@@ -42,40 +42,45 @@
   --gradient-sunset: linear-gradient(135deg, #fccb90 0%, #d57eeb 100%);
 
   --story-ring: conic-gradient(#e53935, #ff6f61, #ffd54f, #4caf50, #2196f3, #9c27b0, #e53935);
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
 }
 
 /* ========== CSS Variables — Dark Theme ========== */
 [data-theme="dark"] {
-  --bg-primary: #0f0f1a;
-  --bg-secondary: #1a1a2e;
-  --bg-tertiary: #16213e;
-  --bg-glass: rgba(26, 26, 46, 0.85);
+  --bg-primary: #0d0d1a;
+  --bg-secondary: #161625;
+  --bg-tertiary: #1c1c30;
+  --bg-glass: rgba(22, 22, 37, 0.88);
 
-  --text-primary: #e8e8f0;
-  --text-secondary: #a0a0b8;
-  --text-muted: #6b6b80;
-  --text-inverse: #0f0f1a;
+  --text-primary: #f0f0f8;
+  --text-secondary: #a0a8c0;
+  --text-muted: #5a6080;
+  --text-inverse: #0d0d1a;
 
-  --border-color: #2a2a3e;
-  --border-light: #222238;
+  --border-color: #252540;
+  --border-light: #1e1e34;
 
   --accent-1: #ff6f61;
   --accent-2: #ff8a80;
   --accent-3: #ffab91;
-  --accent-gradient: linear-gradient(135deg, #ff6f61, #ff8a80, #ffab91);
-  --accent-gradient-hover: linear-gradient(135deg, #e53935, #ff6f61, #ff8a80);
+  --accent-gradient: linear-gradient(135deg, #ff6f61 0%, #ff8a80 60%, #ffab91 100%);
+  --accent-gradient-hover: linear-gradient(135deg, #e53935 0%, #ff6f61 60%, #ff8a80 100%);
 
   --purple: #a78bfa;
   --purple-light: rgba(167, 139, 250, 0.15);
   --blue: #60a5fa;
-  --blue-light: rgba(96, 165, 250, 0.15);
+  --blue-light: rgba(96, 165, 250, 0.12);
   --green: #34d399;
-  --green-light: rgba(52, 211, 153, 0.15);
+  --green-light: rgba(52, 211, 153, 0.12);
   --gold: #fbbf24;
-  --gold-light: rgba(251, 191, 36, 0.15);
+  --gold-light: rgba(251, 191, 36, 0.12);
 
-  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  --card-shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --card-shadow: 0 2px 16px rgba(0, 0, 0, 0.35), 0 1px 4px rgba(0, 0, 0, 0.25);
+  --card-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.55), 0 4px 16px rgba(0, 0, 0, 0.35);
 
   --gradient-card-1: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
   --gradient-card-2: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
@@ -86,6 +91,11 @@
   --gradient-sunset: linear-gradient(135deg, #f97316 0%, #a855f7 100%);
 
   --story-ring: conic-gradient(#ff6f61, #ffd54f, #34d399, #60a5fa, #a78bfa, #ff6f61);
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
 }
 
 /* ========== Global Resets ========== */
@@ -102,6 +112,8 @@ body {
   background: var(--bg-primary);
   color: var(--text-primary);
   transition: background 0.3s ease, color 0.3s ease;
+  font-size: 15px;
+  line-height: 1.6;
 }
 
 #root {
@@ -119,6 +131,7 @@ button { font-family: inherit; }
   color: #fff;
 }
 
-::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }

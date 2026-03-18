@@ -4,15 +4,17 @@
   z-index: 40;
   background: var(--bg-glass);
   backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border-bottom: 1px solid var(--border-color);
   padding: 12px 0;
   margin: 0 0 4px;
   animation: viewedSlideIn 0.3s ease-out;
   transition: background 0.3s, border-color 0.3s;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
 }
 
 @keyframes viewedSlideIn {
-  from { opacity: 0; transform: translateY(-10px); }
+  from { opacity: 0; transform: translateY(-8px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
@@ -20,20 +22,24 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .viewed-bar__title {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--text-secondary);
   margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  font-size: 11px;
 }
 
 .viewed-bar__clear {
   background: none;
   border: none;
   font-size: 12px;
+  font-weight: 600;
   color: var(--text-muted);
   cursor: pointer;
   padding: 0;
@@ -46,7 +52,7 @@
 
 .viewed-bar__list {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   overflow-x: auto;
   padding-bottom: 4px;
   scrollbar-width: thin;
@@ -58,20 +64,21 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   cursor: pointer;
-  transition: transform 0.15s;
+  transition: transform 0.18s;
 }
 
-.viewed-bar__item:hover { transform: scale(1.08); }
+.viewed-bar__item:hover { transform: scale(1.1) translateY(-2px); }
 
 .viewed-bar__thumb {
   position: relative;
-  width: 56px;
-  height: 72px;
-  border-radius: 10px;
+  width: 52px;
+  height: 68px;
+  border-radius: var(--radius-sm);
   overflow: hidden;
   box-shadow: var(--card-shadow);
+  border: 1.5px solid var(--border-light);
 }
 
 .viewed-bar__thumb-img {
@@ -79,25 +86,26 @@
   height: 100%;
   object-fit: cover;
   display: block;
-  border-radius: 10px;
+  border-radius: calc(var(--radius-sm) - 1px);
 }
 
 .viewed-bar__badge {
   position: absolute;
-  bottom: 2px;
-  left: 2px;
+  bottom: 3px;
+  left: 3px;
   background: var(--accent-gradient);
   color: #fff;
   font-size: 8px;
-  font-weight: 700;
-  padding: 1px 5px;
-  border-radius: 4px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 5px;
 }
 
 .viewed-bar__name {
   font-size: 10px;
+  font-weight: 600;
   color: var(--text-muted);
-  max-width: 56px;
+  max-width: 52px;
   text-align: center;
   overflow: hidden;
   text-overflow: ellipsis;
