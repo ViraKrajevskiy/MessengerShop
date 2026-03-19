@@ -26,7 +26,7 @@ export default function VipSection({ users = [] }) {
 
   const handleCardClick = (user) => {
     addViewed({ id: user.id, name: user.name, city: user.city, badge: 'VIP', type: 'vip' })
-    navigate(`/profile/${user.id}`)
+    navigate(`/business/${user.id}`)
   }
 
   return (
@@ -62,7 +62,14 @@ export default function VipSection({ users = [] }) {
               onClick={() => handleCardClick(user)}
             >
               <div className="vip-card__image">
-                <img className="vip-card__photo" src={VIP_PHOTOS[user.id % VIP_PHOTOS.length]} alt={user.name} loading="lazy" />
+                <img
+                className="vip-card__photo"
+                src={user.logo
+                  ? (user.logo.startsWith('http') ? user.logo : `http://127.0.0.1:8000${user.logo}`)
+                  : VIP_PHOTOS[user.id % VIP_PHOTOS.length]}
+                alt={user.name}
+                loading="lazy"
+              />
                 <span className="vip-card__badge">VIP</span>
                 <div className="vip-card__overlay">
                   <span className="vip-card__category">{user.category}</span>

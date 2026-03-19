@@ -1,105 +1,37 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { apiGetStories } from '../api/businessApi'
 import './Stories.css'
 
-// ---------- avatar photos ----------
-const AVATARS = [
-  'https://i.pravatar.cc/200?img=1',
-  'https://i.pravatar.cc/200?img=5',
-  'https://i.pravatar.cc/200?img=9',
-  'https://i.pravatar.cc/200?img=16',
-  'https://i.pravatar.cc/200?img=20',
-  'https://i.pravatar.cc/200?img=23',
-  'https://i.pravatar.cc/200?img=25',
-  'https://i.pravatar.cc/200?img=32',
-  'https://i.pravatar.cc/200?img=36',
-  'https://i.pravatar.cc/200?img=44',
-]
-
-// ---------- mock stories data ----------
-const storiesData = [
-  {
-    id: 0, userName: 'Анна', city: 'Стамбул', avatar: AVATARS[0],
-    media: [
-      { type: 'image', img: 'https://picsum.photos/id/64/600/900', caption: 'Новая коллекция в нашем салоне!' },
-      { type: 'image', img: 'https://picsum.photos/id/96/600/900', caption: 'Скидки до 50% сегодня' },
-      { type: 'video', img: 'https://picsum.photos/id/180/600/900', caption: 'Видео-обзор новинок' },
-    ],
-    comments: [
-      { id: 0, author: 'Елена', text: 'Красиво! Где находится салон?', time: '10 мин. назад' },
-      { id: 1, author: 'Мария', text: 'Хочу записаться!', time: '5 мин. назад' },
-    ],
-  },
-  {
-    id: 1, userName: 'Елена', city: 'Стамбул', avatar: AVATARS[1],
-    media: [
-      { type: 'image', img: 'https://picsum.photos/id/274/600/900', caption: 'Утренний Стамбул' },
-      { type: 'image', img: 'https://picsum.photos/id/312/600/900', caption: 'Наш новый офис' },
-    ],
-    comments: [
-      { id: 0, author: 'Ольга', text: 'Какой вид!', time: '1 ч. назад' },
-    ],
-  },
-  {
-    id: 2, userName: 'Мария', city: 'Стамбул', avatar: AVATARS[2],
-    media: [
-      { type: 'video', img: 'https://picsum.photos/id/164/600/900', caption: 'Обзор квартиры в центре' },
-      { type: 'image', img: 'https://picsum.photos/id/188/600/900', caption: 'Вид с балкона' },
-      { type: 'image', img: 'https://picsum.photos/id/365/600/900', caption: 'Район Бейоглу' },
-    ],
-    comments: [
-      { id: 0, author: 'Дарья', text: 'Сколько стоит аренда?', time: '30 мин. назад' },
-      { id: 1, author: 'Камила', text: 'Очень уютно!', time: '25 мин. назад' },
-      { id: 2, author: 'Фатима', text: 'Какой этаж?', time: '15 мин. назад' },
-    ],
-  },
-  {
-    id: 3, userName: 'Ольга', city: 'Стамбул', avatar: AVATARS[3],
-    media: [
-      { type: 'image', img: 'https://picsum.photos/id/225/600/900', caption: 'Свежие продукты на рынке' },
-    ],
-    comments: [],
-  },
-  {
-    id: 4, userName: 'Дарья', city: 'Стамбул', avatar: AVATARS[4],
-    media: [
-      { type: 'image', img: 'https://picsum.photos/id/20/600/900', caption: 'Курсы турецкого языка' },
-      { type: 'video', img: 'https://picsum.photos/id/42/600/900', caption: 'Урок #1 — приветствия' },
-    ],
-    comments: [
-      { id: 0, author: 'Нигора', text: 'Когда начало?', time: '2 ч. назад' },
-    ],
-  },
-  {
-    id: 5, userName: 'Камила', city: 'Стамбул', avatar: AVATARS[5],
-    media: [
-      { type: 'image', img: 'https://picsum.photos/id/349/600/900', caption: 'Дизайн интерьера' },
-      { type: 'image', img: 'https://picsum.photos/id/357/600/900', caption: 'Проект кухни' },
-    ],
-    comments: [],
-  },
-  {
-    id: 6, userName: 'Нигора', city: 'Стамбул', avatar: AVATARS[6],
-    media: [
-      { type: 'image', img: 'https://picsum.photos/id/160/600/900', caption: 'Юридическая консультация' },
-    ],
-    comments: [
-      { id: 0, author: 'Анна', text: 'Нужна консультация по ВНЖ', time: '40 мин. назад' },
-    ],
-  },
-  {
-    id: 7, userName: 'Фатима', city: 'Стамбул', avatar: AVATARS[7],
-    media: [
-      { type: 'video', img: 'https://picsum.photos/id/318/600/900', caption: 'Тур по Стамбулу' },
-      { type: 'image', img: 'https://picsum.photos/id/429/600/900', caption: 'Голубая мечеть' },
-      { type: 'image', img: 'https://picsum.photos/id/399/600/900', caption: 'Гранд Базар' },
-    ],
-    comments: [
-      { id: 0, author: 'Елена', text: 'Сколько стоит тур?', time: '3 ч. назад' },
-      { id: 1, author: 'Мария', text: 'Великолепные фото!', time: '2 ч. назад' },
-    ],
-  },
-]
+// ---------- Преобразование ответа API в формат, понятный StoryViewer ----------
+function groupStoriesByAuthor(apiStories) {
+  const map = {}
+  for (const s of apiStories) {
+    if (!s.is_active) continue
+    const aId = s.author?.id
+    if (!aId) continue
+    if (!map[aId]) {
+      map[aId] = {
+        id:       aId,
+        bizId:    aId,              // для навигации на /business/:id
+        userName: s.author.username || 'Бизнес',
+        city:     s.author.city || '',
+        avatar:   s.author.avatar
+          ? (s.author.avatar.startsWith('http') ? s.author.avatar : `http://127.0.0.1:8000${s.author.avatar}`)
+          : `https://i.pravatar.cc/200?u=${aId}`,
+        media:    [],
+        comments: [],
+      }
+    }
+    map[aId].media.push({
+      type:    s.media_type === 'VIDEO' ? 'video' : 'image',
+      img:     s.media_display || `https://picsum.photos/seed/${s.id}/600/900`,
+      caption: s.caption || '',
+      storyId: s.id,
+    })
+  }
+  return Object.values(map)
+}
 
 // ---------- Story Viewer (fullscreen modal) ----------
 function StoryViewer({ stories, startIndex, onClose }) {
@@ -213,11 +145,11 @@ function StoryViewer({ stories, startIndex, onClose }) {
     else goNext()
   }
 
-  // Profile navigation
+  // Profile navigation — переходим на страницу бизнеса
   const handleProfileClick = (e) => {
     e.stopPropagation()
     onClose()
-    navigate(`/profile/${story.id}`)
+    navigate(`/business/${story.bizId || story.id}`)
   }
 
   // Toggle comments panel
@@ -391,6 +323,16 @@ function StoryViewer({ stories, startIndex, onClose }) {
 
 // ---------- Stories carousel ----------
 export default function Stories() {
+  const [storiesData, setStoriesData] = useState([])
+  const [loadingStories, setLoadingStories] = useState(true)
+
+  useEffect(() => {
+    apiGetStories()
+      .then(data => setStoriesData(groupStoriesByAuthor(data)))
+      .catch(() => setStoriesData([]))
+      .finally(() => setLoadingStories(false))
+  }, [])
+
   const [offset, setOffset] = useState(0)
   const [viewerOpen, setViewerOpen] = useState(false)
   const [viewerStart, setViewerStart] = useState(0)
@@ -400,9 +342,10 @@ export default function Stories() {
   const visible = 6
 
   const prev = () => setOffset((o) => Math.max(0, o - 1))
-  const next = () => setOffset((o) => Math.min(storiesData.length - visible, o + 1))
+  const next = () => setOffset((o) => Math.min(Math.max(0, storiesData.length - visible), o + 1))
 
   const openStory = (index) => {
+    if (!storiesData[index]) return
     setViewerStart(index)
     setViewerOpen(true)
     setSeenIds((prev) => new Set(prev).add(storiesData[index].id))
@@ -420,9 +363,30 @@ export default function Stories() {
     if (Math.abs(dx) > 50) { dx < 0 ? next() : prev() }
   }
 
+  if (loadingStories) return (
+    <section className="stories">
+      <h2 className="section-title">Истории</h2>
+      <div className="stories__loading">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="stories__skeleton">
+            <div className="stories__skeleton-avatar" />
+            <div className="stories__skeleton-name" />
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+
+  if (storiesData.length === 0) return (
+    <section className="stories">
+      <h2 className="section-title">Истории</h2>
+      <p className="stories__empty">Пока нет активных историй. Запустите <code>python manage.py seed</code></p>
+    </section>
+  )
+
   return (
     <section className="stories">
-      <h2 className="section-title">Истории - Стамбул</h2>
+      <h2 className="section-title">Истории</h2>
       <div className="stories__carousel">
         <button className="stories__arrow stories__arrow--left" onClick={prev} disabled={offset === 0}>
           &#8249;

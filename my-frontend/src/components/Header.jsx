@@ -37,11 +37,11 @@ export default function Header() {
           <div className="header__user-menu" ref={menuRef}>
             <button className="header__user-btn" onClick={() => setMenuOpen(o => !o)}>
               <img
-                src={user.avatar}
-                alt={user.name}
+                src={user.avatar || `https://i.pravatar.cc/150?u=${user.email}`}
+                alt={user.username}
                 className="header__user-avatar"
               />
-              <span className="header__user-name">{user.name.split(' ')[0]}</span>
+              <span className="header__user-name">{user.username}</span>
               <svg className={`header__user-chevron ${menuOpen ? 'header__user-chevron--open' : ''}`}
                 width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <polyline points="6 9 12 15 18 9"/>
@@ -51,14 +51,14 @@ export default function Header() {
             {menuOpen && (
               <div className="header__dropdown">
                 <div className="header__dropdown-header">
-                  <img src={user.avatar} alt={user.name} className="header__dropdown-avatar" />
+                  <img src={user.avatar || `https://i.pravatar.cc/150?u=${user.email}`} alt={user.username} className="header__dropdown-avatar" />
                   <div>
-                    <div className="header__dropdown-name">{user.name}</div>
+                    <div className="header__dropdown-name">{user.username}</div>
                     <div className="header__dropdown-email">{user.email}</div>
                   </div>
                 </div>
                 <div className="header__dropdown-divider" />
-                <button className="header__dropdown-item" onClick={() => { navigate(`/profile/0`); setMenuOpen(false) }}>
+                <button className="header__dropdown-item" onClick={() => { navigate('/me'); setMenuOpen(false) }}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                   Мой профиль
                 </button>

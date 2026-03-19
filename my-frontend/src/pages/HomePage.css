@@ -131,3 +131,23 @@
     flex-wrap: wrap;
   }
 }
+
+/* Loading state */
+.home-page__loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+.home-page__spinner {
+  width: 22px; height: 22px;
+  border: 2.5px solid var(--border-color);
+  border-top-color: var(--accent-1);
+  border-radius: 50%;
+  animation: hpSpin 0.8s linear infinite;
+  display: inline-block;
+}
+@keyframes hpSpin { to { transform: rotate(360deg); } }

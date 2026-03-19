@@ -1,4 +1,4 @@
 .claude
 .venv
-Config/.env
+.env
 .idea

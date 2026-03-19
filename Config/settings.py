@@ -1,32 +1,37 @@
-from pathlib import Path
-import environ
-import os
 
-# 1. Опрделяем базовую директорию
+from datetime import timedelta
+
+import os
+import environ
+from pathlib import Path
+
+# 1. BASE_DIR - корень проекта (где manage.py)
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# 2. Инициализируем environ ОДИН РАЗ
 env = environ.Env(
     DEBUG=(bool, False)
 )
 
-# 3. Читаем .env, указывая полный путь через BASE_DIR
-environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+# 2. Четко указываем путь к .env
+# Если файл лежит в одной папке с manage.py, путь должен быть таким:
+ENV_PATH = os.path.join(BASE_DIR, '.env')
 
-# 4. Читаем переменные
-SECRET_KEY = env('SECRET_KEY')
-DEBUG = env('DEBUG')
+# 3. Загружаем
+if os.path.exists(ENV_PATH):
+    environ.Env.read_env(ENV_PATH)
+else:
+    # Если файла нет, используем дефолтный ключ, чтобы сервер не падал
+    print(f"--- WARNING: .env not found at {ENV_PATH} ---")
 
-# Для ALLOWED_HOSTS лучше использовать встроенный метод .list(),
-# чтобы в .env можно было писать через запятую без пробелов
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[])
-
-# Application definition
-
+# 4. Присваиваем значения
+SECRET_KEY = env('SECRET_KEY', default='fallback-key-if-env-fails-12345')
+DEBUG = env('DEBUG', default=True)
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['127.0.0.1', 'localhost'])
 INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',  # для logout через blacklist
     'drf_spectacular',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -47,14 +52,30 @@ REST_FRAMEWORK = {
 }
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': '101-school API',
+    'TITLE': 'БизнесТурция API',
+    'DESCRIPTION': 'REST API для бизнес-справочника. Логин, регистрация, профили.',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
     'COMPONENT_SPLIT_PATCH': True,
-    'COMPONENT_SPLIT_COMMAND': True,
+    'SECURITY': [{'BearerAuth': []}],
+    'SWAGGER_UI_SETTINGS': {
+        'persistAuthorization': True,
+    },
 }
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Email — если EMAIL_HOST_PASSWORD задан в .env, используем реальный SMTP
+_email_password = env('EMAIL_HOST_PASSWORD', default='')
+if _email_password and _email_password != 'вставь_сюда_app_password':
+    EMAIL_BACKEND    = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST       = env('EMAIL_HOST', default='smtp.gmail.com')
+    EMAIL_PORT       = env.int('EMAIL_PORT', default=587)
+    EMAIL_USE_TLS    = env.bool('EMAIL_USE_TLS', default=True)
+    EMAIL_HOST_USER  = env('EMAIL_HOST_USER', default='')
+    EMAIL_HOST_PASSWORD = _email_password
+    DEFAULT_FROM_EMAIL = f'БизнесТурция <{EMAIL_HOST_USER}>'
+else:
+    # Пока пароль не задан — пишем код в консоль
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -138,9 +159,7 @@ STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Папки, где Django ищет статику в процессе разработки (если есть)
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-]
+STATICFILES_DIRS = []  # добавь сюда папку, если создашь static/
 
 MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -148,4 +167,19 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:5174",
+    "http://127.0.0.1:5174",
 ]
+
+CORS_ALLOW_CREDENTIALS = True
+
+AUTH_USER_MODEL = 'Shop.User'
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': True,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
