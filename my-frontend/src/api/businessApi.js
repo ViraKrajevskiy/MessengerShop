@@ -1,4 +1,6 @@
-const BASE = 'http://127.0.0.1:8000/api'
+const BASE = import.meta.env.PROD
+  ? 'https://api.101-school.uz/api'
+  : 'http://127.0.0.1:8000/api'
 
 export async function apiGetBusinesses(params = {}) {
   const q = new URLSearchParams()

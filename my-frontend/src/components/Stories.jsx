@@ -7,7 +7,7 @@ import './Stories.css'
 function groupStoriesByAuthor(apiStories) {
   const map = {}
   for (const s of apiStories) {
-    if (!s.is_active) continue
+    if (s.is_active === false) continue
     const aId = s.author?.id
     if (!aId) continue
     if (!map[aId]) {
