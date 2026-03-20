@@ -75,8 +75,8 @@
 
 .product-card__footer {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: flex-start;
   margin-top: 8px;
   gap: 8px;
 }
@@ -103,6 +103,7 @@
 .product-card__actions {
   display: flex;
   gap: 6px;
+  width: 100%;
 }
 .product-card__btn--contact {
   background: transparent;
