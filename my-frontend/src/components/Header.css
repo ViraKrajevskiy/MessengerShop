@@ -95,6 +95,42 @@
   transform: translateY(-1px);
 }
 
+/* Feed button */
+.header__feed-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.22s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.header__feed-btn:hover {
+  background: var(--accent-gradient);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 4px 14px rgba(229, 57, 53, 0.28);
+  transform: translateY(-1px);
+}
+
+.header__feed-label {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+@media (max-width: 640px) {
+  .header__feed-label { display: none; }
+  .header__feed-btn { padding: 7px; width: 40px; height: 40px; border-radius: 50%; justify-content: center; }
+}
+
 /* Messenger button */
 .header__messenger-btn {
   position: relative;

@@ -10,6 +10,7 @@ import RegisterPage from './pages/RegisterPage'
 import MyProfilePage from './pages/MyProfilePage'
 import VerificationPage from './pages/VerificationPage'
 import BusinessPage from './pages/BusinessPage'
+import FeedPage from './pages/FeedPage'
 
 // Защищённый роут — редиректит на /login если не авторизован
 function PrivateRoute({ children }) {
@@ -26,6 +27,7 @@ function App() {
           <ViewedProvider>
             <Routes>
               <Route path="/"              element={<HomePage />} />
+              <Route path="/feed"          element={<FeedPage />} />
               <Route path="/profile/:id"  element={<ProfilePage />} />
               <Route path="/business/:id" element={<BusinessPage />} />
               <Route path="/login"        element={<LoginPage />} />
