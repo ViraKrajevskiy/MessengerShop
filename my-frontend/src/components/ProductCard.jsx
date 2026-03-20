@@ -13,7 +13,7 @@ const FALLBACK_IMGS = [
 
 export default function ProductCard({ product }) {
   const navigate = useNavigate()
-  const { user, tokens } = useAuth()
+  const { user, getAccessToken } = useAuth()
   const [showModal, setShowModal] = useState(false)
   const [showDetail, setShowDetail] = useState(false)
   const [message, setMessage] = useState('')
@@ -70,7 +70,9 @@ export default function ProductCard({ product }) {
     setSending(true)
     setError('')
     try {
-      await apiSendProductInquiry(product.id, message, tokens?.access)
+      const token = await getAccessToken()
+      if (!token) { navigate('/login'); return }
+      await apiSendProductInquiry(product.id, message, token)
       setSent(true)
     } catch {
       setError('Ошибка отправки. Попробуйте ещё раз.')

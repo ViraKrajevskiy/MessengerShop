@@ -14,9 +14,9 @@ import FeedPage from './pages/FeedPage'
 
 // Защищённый роут — редиректит на /login если не авторизован
 function PrivateRoute({ children }) {
-  const { user, loading } = useAuth()
+  const { user, tokens, loading } = useAuth()
   if (loading) return null
-  return user ? children : <Navigate to="/login" replace />
+  return (user && tokens?.access) ? children : <Navigate to="/login" replace />
 }
 
 function App() {

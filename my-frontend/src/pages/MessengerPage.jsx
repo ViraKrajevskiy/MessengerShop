@@ -125,19 +125,20 @@ function ChatView({ inquiry, onBack, onProfileClick }) {
 // ── Главная страница мессенджера ─────────────────────────────────────────────
 export default function MessengerPage() {
   const navigate = useNavigate()
-  const { tokens } = useAuth()
+  const { user, getAccessToken } = useAuth()
   const [inquiries, setInquiries] = useState([])
   const [loading, setLoading]     = useState(true)
   const [activeIdx, setActiveIdx] = useState(null)
   const [search, setSearch]       = useState('')
 
   useEffect(() => {
-    if (!tokens?.access) { setLoading(false); return }
-    apiGetInquiries(tokens.access)
-      .then(data => setInquiries(data))
+    if (!user) { setLoading(false); return }
+    getAccessToken()
+      .then(token => token ? apiGetInquiries(token) : [])
+      .then(data => setInquiries(data || []))
       .catch(() => setInquiries([]))
       .finally(() => setLoading(false))
-  }, [tokens])
+  }, [user])
 
   const filtered = inquiries.filter(inq =>
     inq.biz_name.toLowerCase().includes(search.toLowerCase()) ||
