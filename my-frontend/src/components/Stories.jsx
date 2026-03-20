@@ -17,7 +17,7 @@ function groupStoriesByAuthor(apiStories) {
         userName: s.author.username || 'Бизнес',
         city:     s.author.city || '',
         avatar:   s.author.avatar
-          ? (s.author.avatar.startsWith('http') ? s.author.avatar : `http://127.0.0.1:8000${s.author.avatar}`)
+          ? (s.author.avatar.startsWith('http') ? s.author.avatar : `https://api.101-school.uz${s.author.avatar}`)
           : `https://i.pravatar.cc/200?u=${aId}`,
         media:    [],
         comments: [],

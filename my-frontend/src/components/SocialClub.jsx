@@ -107,6 +107,8 @@ export default function SocialClub() {
   const [offset, setOffset] = useState(0)
   const navigate = useNavigate()
   const touchStartX = useRef(0)
+  const mouseStartX = useRef(0)
+  const isDragging = useRef(false)
   const visible = 3
 
   useEffect(() => {
@@ -125,6 +127,15 @@ export default function SocialClub() {
     const dx = e.changedTouches[0].clientX - touchStartX.current
     if (Math.abs(dx) > 50) { if (dx < 0) next(); else prev() }
   }
+
+  const handleMouseDown = (e) => { mouseStartX.current = e.clientX; isDragging.current = true }
+  const handleMouseUp = (e) => {
+    if (!isDragging.current) return
+    isDragging.current = false
+    const dx = e.clientX - mouseStartX.current
+    if (Math.abs(dx) > 50) { if (dx < 0) next(); else prev() }
+  }
+  const handleMouseLeave = () => { isDragging.current = false }
 
   const goToBusiness = (post) => navigate(`/business/${post.business_id}`)
 
@@ -158,6 +169,10 @@ export default function SocialClub() {
         className="social-club__carousel"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseLeave}
+        style={{ cursor: 'grab', userSelect: 'none' }}
       >
         <button className="social-club__arrow social-club__arrow--left" onClick={prev} disabled={offset === 0}>
           &#8249;

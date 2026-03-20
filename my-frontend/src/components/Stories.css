@@ -6,6 +6,8 @@
   display: flex;
   align-items: center;
   gap: 6px;
+  overflow: hidden;
+  padding: 6px 0;
 }
 
 .stories__arrow {
@@ -46,16 +48,15 @@
 .stories__list {
   display: flex;
   gap: 18px;
-  overflow: hidden;
+  overflow: visible;
   touch-action: pan-y;
   flex: 1;
-  justify-content: flex-start;
+  justify-content: space-evenly;
 }
 
 .stories__item {
   flex: 1;
   min-width: 0;
-  max-width: 108px;
   display: flex;
   flex-direction: column;
   align-items: center;

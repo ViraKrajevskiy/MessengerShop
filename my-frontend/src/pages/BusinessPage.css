@@ -444,7 +444,14 @@
 
 @media (max-width: 600px) {
   .bp__brand-name { font-size: 20px; }
-  .bp__products-grid { grid-template-columns: 1fr; }
+  .bp__products-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
   .bp__posts-grid { grid-template-columns: 1fr; }
-  .bp__section { padding: 18px 16px; }
+  .bp__section { padding: 16px 14px; }
+  .bp__main { padding: 0 12px 40px; }
+  .bp__cover { height: 160px; }
+  .bp__hero { margin-top: -50px; padding: 16px; }
+  .bp__logo-wrap { width: 72px; height: 72px; }
+  .bp__brand-name { font-size: 18px; }
+  .bp__hero-actions { flex-direction: row; flex-wrap: wrap; gap: 8px; }
+  .bp__msg-btn, .bp__phone-btn { padding: 10px 14px; font-size: 13px; }
 }

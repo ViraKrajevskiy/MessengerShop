@@ -51,19 +51,17 @@
   align-items: center;
   gap: 5px;
   cursor: pointer;
-  padding: 14px 8px;
+  padding: 8px 4px;
   border-radius: var(--radius-lg);
-  border: 1.5px solid transparent;
   transition: all 0.22s;
-  background: var(--bg-secondary);
-  box-shadow: var(--card-shadow);
 }
 
 .new-users__item:hover {
-  background: var(--bg-secondary);
-  border-color: var(--border-color);
   transform: translateY(-4px);
-  box-shadow: var(--card-shadow-hover);
+}
+
+.new-users__item:hover .new-users__avatar {
+  box-shadow: 0 6px 24px rgba(229, 57, 53, 0.35);
 }
 
 .new-users__avatar {
@@ -130,13 +128,25 @@
 @media (max-width: 768px) {
   .new-users__grid,
   .new-users__grid--expanded {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+  .new-users__avatar {
+    width: 58px;
+    height: 58px;
   }
 }
 
 @media (max-width: 480px) {
   .new-users__grid,
   .new-users__grid--expanded {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
   }
+  .new-users__avatar {
+    width: 52px;
+    height: 52px;
+  }
+  .new-users__name { font-size: 10px; max-width: 60px; }
+  .new-users__city { font-size: 10px; }
 }
