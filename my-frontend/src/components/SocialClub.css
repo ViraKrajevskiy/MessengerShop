@@ -250,6 +250,34 @@
 
 .sc-card__media:hover .sc-card__play { transform: scale(1.14); }
 
+/* Like / actions row */
+.sc-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-light);
+}
+
+.sc-card__like {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: all 0.18s;
+  font-family: inherit;
+}
+.sc-card__like:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+.sc-card__like--active { color: #e53935; }
+
 /* Text body */
 .sc-card__body {
   padding: 12px 14px 16px;

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { apiGetPosts } from '../api/businessApi'
+import { useAuth } from '../context/AuthContext'
 import './SocialClub.css'
 
 const FALLBACK_IMG = 'https://picsum.photos/id/342/800/600'
@@ -20,6 +21,10 @@ function timeAgo(dateStr) {
 function PostCard({ post, onAvatarClick, onMediaClick }) {
   const [expanded, setExpanded] = useState(false)
   const [followed, setFollowed] = useState(false)
+  const [liked, setLiked] = useState(false)
+  const [likes, setLikes] = useState(Math.floor(Math.random() * 40) + 1)
+  const { user } = useAuth()
+  const navigate = useNavigate()
 
   const SHORT_LEN = 90
   const isLong = post.text && post.text.length > SHORT_LEN
@@ -27,6 +32,17 @@ function PostCard({ post, onAvatarClick, onMediaClick }) {
 
   const logo = post.business_logo || FALLBACK_LOGO
   const media = post.media_display || FALLBACK_IMG
+
+  const handleFollow = () => {
+    if (!user) { navigate('/login'); return }
+    setFollowed(!followed)
+  }
+
+  const handleLike = () => {
+    if (!user) { navigate('/login'); return }
+    setLikes(l => liked ? l - 1 : l + 1)
+    setLiked(!liked)
+  }
 
   return (
     <div className="sc-card">
@@ -53,7 +69,7 @@ function PostCard({ post, onAvatarClick, onMediaClick }) {
         </div>
         <button
           className={`sc-card__subscribe ${followed ? 'sc-card__subscribe--active' : ''}`}
-          onClick={() => setFollowed(!followed)}
+          onClick={handleFollow}
         >
           {followed ? 'Подписан' : 'Подписаться'}
         </button>
@@ -77,6 +93,14 @@ function PostCard({ post, onAvatarClick, onMediaClick }) {
             )}
           </>
         )}
+        <div className="sc-card__actions">
+          <button className={`sc-card__like ${liked ? 'sc-card__like--active' : ''}`} onClick={handleLike}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill={liked ? '#e53935' : 'none'} stroke={liked ? '#e53935' : 'currentColor'} strokeWidth="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+            {likes}
+          </button>
+        </div>
       </div>
     </div>
   )

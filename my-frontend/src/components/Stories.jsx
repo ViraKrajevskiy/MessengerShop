@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { apiGetStories } from '../api/businessApi'
+import { useAuth } from '../context/AuthContext'
 import './Stories.css'
 
 // ---------- Преобразование ответа API в формат, понятный StoryViewer ----------
@@ -47,6 +48,7 @@ function StoryViewer({ stories, startIndex, onClose }) {
   const commentInputRef = useRef(null)
   const commentsEndRef = useRef(null)
   const navigate = useNavigate()
+  const { user } = useAuth()
 
   const story = stories[storyIdx]
   const slide = story.media[mediaIdx]
@@ -164,6 +166,7 @@ function StoryViewer({ stories, startIndex, onClose }) {
   const sendComment = (e) => {
     e.preventDefault()
     if (!commentText.trim()) return
+    if (!user) { onClose(); navigate('/login'); return }
     const newComment = {
       id: Date.now(),
       author: 'Вы',
@@ -278,25 +281,27 @@ function StoryViewer({ stories, startIndex, onClose }) {
             <div ref={commentsEndRef} />
           </div>
 
-          <form className="story-viewer__comment-form" onSubmit={sendComment}>
-            <input
-              ref={commentInputRef}
-              type="text"
-              className="story-viewer__comment-input"
-              placeholder="Ваш комментарий..."
-              value={commentText}
-              onChange={(e) => setCommentText(e.target.value)}
-            />
-            <button
-              type="submit"
-              className="story-viewer__comment-send"
-              disabled={!commentText.trim()}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-              </svg>
-            </button>
-          </form>
+          {user ? (
+            <form className="story-viewer__comment-form" onSubmit={sendComment}>
+              <input
+                ref={commentInputRef}
+                type="text"
+                className="story-viewer__comment-input"
+                placeholder="Ваш комментарий..."
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+              />
+              <button type="submit" className="story-viewer__comment-send" disabled={!commentText.trim()}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                </svg>
+              </button>
+            </form>
+          ) : (
+            <div className="story-viewer__comment-login" onClick={() => { onClose(); navigate('/login') }}>
+              Войдите, чтобы комментировать →
+            </div>
+          )}
         </div>
 
         {/* Navigation arrows (desktop) — hide when comments open */}

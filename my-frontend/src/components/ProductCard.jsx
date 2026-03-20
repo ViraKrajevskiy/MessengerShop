@@ -20,6 +20,22 @@ export default function ProductCard({ product }) {
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
   const [error, setError] = useState('')
+  const [liked, setLiked] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const [likes, setLikes] = useState(Math.floor(Math.random() * 30) + 1)
+
+  const handleLike = (e) => {
+    e.stopPropagation()
+    if (!user) { navigate('/login'); return }
+    setLikes(l => liked ? l - 1 : l + 1)
+    setLiked(!liked)
+  }
+
+  const handleSave = (e) => {
+    e.stopPropagation()
+    if (!user) { navigate('/login'); return }
+    setSaved(!saved)
+  }
 
   const img = product.image_display || FALLBACK_IMGS[product.id % FALLBACK_IMGS.length]
   const priceStr = product.price != null
@@ -78,20 +94,23 @@ export default function ProductCard({ product }) {
           )}
           <div className="product-card__footer">
             <span className="product-card__price">{priceStr}</span>
-            <div className="product-card__actions">
-              <button
-                className="product-card__btn product-card__btn--contact"
-                onClick={handleContact}
-              >
-                Написать
+            <div className="product-card__icon-actions">
+              <button className={`product-card__icon-btn ${liked ? 'product-card__icon-btn--liked' : ''}`} onClick={handleLike} title="Нравится">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill={liked ? '#e53935' : 'none'} stroke={liked ? '#e53935' : 'currentColor'} strokeWidth="2">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+                {likes}
               </button>
-              <button
-                className="product-card__btn"
-                onClick={handleDetail}
-              >
-                Подробнее
+              <button className={`product-card__icon-btn ${saved ? 'product-card__icon-btn--saved' : ''}`} onClick={handleSave} title="В избранное">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill={saved ? '#f59e0b' : 'none'} stroke={saved ? '#f59e0b' : 'currentColor'} strokeWidth="2">
+                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                </svg>
               </button>
             </div>
+          </div>
+          <div className="product-card__actions">
+            <button className="product-card__btn product-card__btn--contact" onClick={handleContact}>Написать</button>
+            <button className="product-card__btn" onClick={handleDetail}>Подробнее</button>
           </div>
         </div>
       </div>

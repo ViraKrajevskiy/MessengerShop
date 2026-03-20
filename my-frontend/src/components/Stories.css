@@ -505,6 +505,18 @@
   word-break: break-word;
 }
 
+/* Login prompt */
+.story-viewer__comment-login {
+  padding: 14px 18px 18px;
+  text-align: center;
+  color: var(--accent-1, #e53935);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.18s;
+}
+.story-viewer__comment-login:hover { opacity: 0.75; }
+
 /* Comment form */
 .story-viewer__comment-form {
   display: flex;
