@@ -1,4 +1,6 @@
-const BASE_URL = 'http://127.0.0.1:8000/api'
+const BASE_URL = import.meta.env.PROD
+  ? 'https://api.101-school.uz/api'
+  : 'http://127.0.0.1:8000/api'
 
 // ── Хелпер ──────────────────────────────────────────────────────────────────
 async function request(endpoint, options = {}) {
