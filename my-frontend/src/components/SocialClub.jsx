@@ -22,7 +22,7 @@ function PostCard({ post, onAvatarClick, onMediaClick }) {
   const [expanded, setExpanded] = useState(false)
   const [followed, setFollowed] = useState(false)
   const [liked, setLiked] = useState(false)
-  const [likes, setLikes] = useState(Math.floor(Math.random() * 40) + 1)
+  const [likes, setLikes] = useState(post.likes_count || 0)
   const { user } = useAuth()
   const navigate = useNavigate()
 

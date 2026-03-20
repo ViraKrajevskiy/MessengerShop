@@ -25,10 +25,11 @@ function groupStoriesByAuthor(apiStories) {
       }
     }
     map[aId].media.push({
-      type:    s.media_type === 'VIDEO' ? 'video' : 'image',
-      img:     s.media_display || `https://picsum.photos/seed/${s.id}/600/900`,
-      caption: s.caption || '',
-      storyId: s.id,
+      type:      s.media_type === 'VIDEO' ? 'video' : 'image',
+      img:       s.media_display || `https://picsum.photos/seed/${s.id}/600/900`,
+      caption:   s.caption || '',
+      storyId:   s.id,
+      createdAt: s.created_at || null,
     })
   }
   return Object.values(map)
@@ -53,6 +54,17 @@ function StoryViewer({ stories, startIndex, onClose }) {
   const story = stories[storyIdx]
   const slide = story.media[mediaIdx]
   const DURATION = slide.type === 'video' ? 8000 : 5000
+
+  function slideTimeAgo(dateStr) {
+    if (!dateStr) return ''
+    const diff = Date.now() - new Date(dateStr).getTime()
+    const mins = Math.floor(diff / 60000)
+    if (mins < 1) return 'только что'
+    if (mins < 60) return `${mins} мин. назад`
+    const hours = Math.floor(mins / 60)
+    if (hours < 24) return `${hours} ч. назад`
+    return `${Math.floor(hours / 24)} дн. назад`
+  }
 
   // Merge mock + user comments
   const allComments = [
@@ -208,7 +220,7 @@ function StoryViewer({ stories, startIndex, onClose }) {
             <img className="story-viewer__user-avatar" src={story.avatar} alt={story.userName} />
             <div className="story-viewer__user-info">
               <span className="story-viewer__user-name">{story.userName}</span>
-              <span className="story-viewer__user-time">2 часа назад</span>
+              {slide.createdAt && <span className="story-viewer__user-time">{slideTimeAgo(slide.createdAt)}</span>}
             </div>
           </div>
           <div className="story-viewer__header-right">

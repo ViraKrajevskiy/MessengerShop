@@ -22,7 +22,7 @@ export default function ProductCard({ product }) {
   const [error, setError] = useState('')
   const [liked, setLiked] = useState(false)
   const [saved, setSaved] = useState(false)
-  const [likes, setLikes] = useState(Math.floor(Math.random() * 30) + 1)
+  const [likes, setLikes] = useState(product.likes_count || 0)
 
   const handleLike = (e) => {
     e.stopPropagation()

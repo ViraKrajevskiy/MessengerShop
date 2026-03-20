@@ -22,11 +22,11 @@ export default function UserCard({ id, name = 'Имя', city = 'Город', bad
   const navigate = useNavigate()
   const { guard, AuthModal } = useAuthGate()
   const [liked, setLiked] = useState(false)
-  const [likes, setLikes] = useState(Math.floor(Math.random() * 40) + 1)
+  const [likes, setLikes] = useState(0)
 
   // Используем логотип бизнеса, или fallback из picsum
   const photo = logo
-    ? (logo.startsWith('http') ? logo : `http://127.0.0.1:8000${logo}`)
+    ? (logo.startsWith('http') ? logo : `https://api.101-school.uz${logo}`)
     : CARD_PHOTOS[id % CARD_PHOTOS.length]
 
   const handleClick = () => {

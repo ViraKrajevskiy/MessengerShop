@@ -32,7 +32,7 @@ function FeedPost({ post }) {
   const navigate = useNavigate()
   const { user } = useAuth()
   const [liked, setLiked] = useState(false)
-  const [likes, setLikes] = useState(Math.floor(Math.random() * 80) + 5)
+  const [likes, setLikes] = useState(post.likes_count || 0)
   const [followed, setFollowed] = useState(false)
   const [expanded, setExpanded] = useState(false)
 
@@ -121,7 +121,7 @@ function FeedProduct({ product }) {
   const { user } = useAuth()
   const [liked,  setLiked]  = useState(false)
   const [saved,  setSaved]  = useState(false)
-  const [likes,  setLikes]  = useState(Math.floor(Math.random() * 30) + 1)
+  const [likes,  setLikes]  = useState(product.likes_count || 0)
 
   const img      = product.image_display || PROD_IMGS[product.id % PROD_IMGS.length]
   const priceStr = product.price != null
