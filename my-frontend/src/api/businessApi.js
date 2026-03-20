@@ -43,6 +43,14 @@ export async function apiGetBusinessPosts(id) {
   return res.json()
 }
 
+export async function apiGetInquiries(token) {
+  const res = await fetch(`${BASE}/inquiries/`, {
+    headers: { 'Authorization': `Bearer ${token}` },
+  })
+  if (!res.ok) throw new Error('Ошибка загрузки сообщений')
+  return res.json()
+}
+
 export async function apiSendProductInquiry(productId, message, token) {
   const res = await fetch(`${BASE}/products/${productId}/inquiry/`, {
     method: 'POST',

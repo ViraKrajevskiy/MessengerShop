@@ -59,3 +59,60 @@ class ProductInquiryView(APIView):
             serializer.save(product=product, sender=request.user)
             return Response({'detail': 'Сообщение отправлено'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class InquiryListView(APIView):
+    """
+    GET /api/inquiries/
+    Для обычного пользователя — его отправленные заявки.
+    Для бизнесмена — полученные заявки на его товары.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+
+        if hasattr(user, 'business_profile'):
+            # Бизнес видит входящие заявки на свои товары
+            inquiries = (
+                ProductInquiry.objects
+                .filter(product__business__owner=user)
+                .select_related('product__business', 'sender')
+                .order_by('-created_at')
+            )
+        else:
+            # Обычный пользователь видит свои отправленные заявки
+            inquiries = (
+                ProductInquiry.objects
+                .filter(sender=user)
+                .select_related('product__business', 'sender')
+                .order_by('-created_at')
+            )
+
+        data = []
+        for inq in inquiries:
+            biz = inq.product.business
+            other = inq.sender if hasattr(user, 'business_profile') else biz.owner
+            logo = None
+            if hasattr(user, 'business_profile'):
+                # Показываем аватар отправителя
+                logo = inq.sender.avatar.url if inq.sender.avatar else None
+            else:
+                # Показываем логотип бизнеса
+                logo = biz.logo.url if biz.logo else None
+
+            data.append({
+                'id':           inq.id,
+                'product_id':   inq.product.id,
+                'product_name': inq.product.name,
+                'biz_id':       biz.id,
+                'biz_name':     biz.brand_name,
+                'sender_id':    inq.sender.id,
+                'sender_name':  inq.sender.username,
+                'message':      inq.message,
+                'is_read':      inq.is_read,
+                'created_at':   inq.created_at.isoformat(),
+                'logo':         request.build_absolute_uri(logo) if logo else None,
+            })
+
+        return Response(data)

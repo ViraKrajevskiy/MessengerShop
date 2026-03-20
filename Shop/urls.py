@@ -16,7 +16,7 @@ from Shop.servicefunc.views.business.business import (
     BusinessListView, BusinessCreateView, BusinessDetailView, MyBusinessView,
 )
 from Shop.servicefunc.views.product.product import BusinessProductListView, ProductDetailView
-from Shop.servicefunc.views.post.post import PostListView, BusinessPostListView, ProductInquiryView
+from Shop.servicefunc.views.post.post import PostListView, BusinessPostListView, ProductInquiryView, InquiryListView
 
 urlpatterns = [
     # ── Auth ──────────────────────────────────────────────────────────────────
@@ -44,6 +44,7 @@ urlpatterns = [
     path('businesses/<int:pk>/products/', BusinessProductListView.as_view(), name='business_products'),
     path('products/<int:pk>/',            ProductDetailView.as_view(),        name='product_detail'),
     path('products/<int:pk>/inquiry/',    ProductInquiryView.as_view(),       name='product_inquiry'),
+    path('inquiries/',                    InquiryListView.as_view(),          name='inquiry_list'),
 
     # ── Posts ─────────────────────────────────────────────────────────────────
     # GET  /api/posts/                    — лента всех постов
