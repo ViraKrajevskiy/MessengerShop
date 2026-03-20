@@ -6,7 +6,7 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 from datetime import timedelta
 
-from Shop.models import User, Business, Story, Product
+from Shop.models import User, Business, Story, Product, Post
 
 
 # ── Тестовые бизнесы ──────────────────────────────────────────────────────────
@@ -36,9 +36,13 @@ BUSINESSES = [
             {'name': 'Восковая депиляция', 'price': '600', 'currency': 'TRY', 'desc': 'Депиляция воском всех зон', 'img': 'https://picsum.photos/id/155/400/300'},
         ],
         'stories': [
-            {'caption': '✨ Новая коллекция цветов этого сезона!', 'url': 'https://picsum.photos/id/64/600/900'},
-            {'caption': '💇‍♀️ Скидки до 30% на все процедуры в апреле', 'url': 'https://picsum.photos/id/96/600/900'},
-            {'caption': '🌸 До и после — результат говорит сам за себя', 'url': 'https://picsum.photos/id/217/600/900'},
+            {'caption': 'Novaya kollekciya cvetov etogo sezona!', 'url': 'https://picsum.photos/id/64/600/900'},
+            {'caption': 'Skidki do 30% na vse procedury v aprele', 'url': 'https://picsum.photos/id/96/600/900'},
+            {'caption': 'Do i posle — rezultat govorit sam za sebya', 'url': 'https://picsum.photos/id/217/600/900'},
+        ],
+        'posts': [
+            {'text': 'Sertificirovannye mastera, vysokoklassnoe oborudovanie i teplaya atmosfera. Prihodite k nam za novymi vpechatleniyami!', 'img': 'https://picsum.photos/id/64/800/600', 'type': 'IMAGE'},
+            {'text': 'Novaya kollekciya cvetov dlya volos 2026 — yarkiye tendencii, kotorye uzhe u nas. Zapis cherez profil ili WhatsApp.', 'img': 'https://picsum.photos/id/96/800/600', 'type': 'IMAGE'},
         ],
     },
     {
@@ -65,8 +69,12 @@ BUSINESSES = [
             {'name': 'Помощь с ВНЖ + покупкой', 'price': '1500', 'currency': 'USD', 'desc': 'Полное юридическое сопровождение сделки и оформление ВНЖ', 'img': 'https://picsum.photos/id/180/400/300'},
         ],
         'stories': [
-            {'caption': '🏠 Новые объекты этой недели — Кадыкёй и Бейоглу', 'url': 'https://picsum.photos/id/274/600/900'},
-            {'caption': '🌊 Вилла у моря в Анталье — осталось 2 объекта', 'url': 'https://picsum.photos/id/312/600/900'},
+            {'caption': 'Novye obekty etoy nedeli — Kadikoy i Beyoglu', 'url': 'https://picsum.photos/id/274/600/900'},
+            {'caption': 'Villa u morya v Antalye — ostalos 2 obekta', 'url': 'https://picsum.photos/id/312/600/900'},
+        ],
+        'posts': [
+            {'text': 'Obzor kvartiry 2+1 v Kadikoe. 78 kv.m., 3 etazh, ryadom s metro. Cena 145 000$. Dokumenty gotovy.', 'img': 'https://picsum.photos/id/164/800/600', 'type': 'IMAGE'},
+            {'text': 'Villa v Antalye s basseynom — 250 kv.m., 5 minut ot morya. Tsena 280 000$. Pomozhem s grazhdanstvom!', 'img': 'https://picsum.photos/id/365/800/600', 'type': 'IMAGE'},
         ],
     },
     {
@@ -92,8 +100,12 @@ BUSINESSES = [
             {'name': 'Комплексный анализ крови', 'price': '800', 'currency': 'TRY', 'desc': '50+ показателей, результат за 24 часа', 'img': 'https://picsum.photos/id/205/400/300'},
         ],
         'stories': [
-            {'caption': '🩺 Акция: бесплатная консультация стоматолога весь апрель', 'url': 'https://picsum.photos/id/342/600/900'},
-            {'caption': '💊 Новое оборудование — УЗИ нового поколения', 'url': 'https://picsum.photos/id/326/600/900'},
+            {'caption': 'Akciya: besplatnaya konsultaciya stomatologa ves aprel', 'url': 'https://picsum.photos/id/342/600/900'},
+            {'caption': 'Novoe oborudovanie — UZI novogo pokoleniya', 'url': 'https://picsum.photos/id/326/600/900'},
+        ],
+        'posts': [
+            {'text': 'Besplatnaya konsultaciya stomatologa — ves aprel. Zapis cherez profil. Rabotaem s perevodchikom!', 'img': 'https://picsum.photos/id/342/800/600', 'type': 'IMAGE'},
+            {'text': 'Novoe UZI-oborudovanie klassa ekspert. Teper diagnostika eshyo tochnee i bystree.', 'img': 'https://picsum.photos/id/237/800/600', 'type': 'IMAGE'},
         ],
     },
     {
@@ -119,8 +131,12 @@ BUSINESSES = [
             {'name': 'Подготовка к TÖMER', 'price': '5500', 'currency': 'TRY', 'desc': 'Интенсивная подготовка к экзамену на ВНЖ, 95% сдают с 1 раза', 'img': 'https://picsum.photos/id/36/400/300'},
         ],
         'stories': [
-            {'caption': '📚 Набор в группы турецкого языка — старт 1 мая', 'url': 'https://picsum.photos/id/20/600/900'},
-            {'caption': '🎓 Наши студенты сдали TÖMER — поздравляем!', 'url': 'https://picsum.photos/id/42/600/900'},
+            {'caption': 'Nabor v gruppy tureckogo yazyka — start 1 maya', 'url': 'https://picsum.photos/id/20/600/900'},
+            {'caption': 'Nashi studenty sdali TOMER — pozdravlyaem!', 'url': 'https://picsum.photos/id/42/600/900'},
+        ],
+        'posts': [
+            {'text': 'Nabor v gruppy tureckogo yazyka A1 — start 1 maya. Gruppy utrennie i vechernie. Pervyi urok besplatno!', 'img': 'https://picsum.photos/id/20/800/600', 'type': 'IMAGE'},
+            {'text': '5 studentov uspeshno sdali ekzamen TOMER. Intensivny kurs s nami — 95% sdayut s pervogo raza.', 'img': 'https://picsum.photos/id/42/800/600', 'type': 'IMAGE'},
         ],
     },
     {
@@ -146,7 +162,10 @@ BUSINESSES = [
             {'name': 'Аудит за год', 'price': '8000', 'currency': 'TRY', 'desc': 'Полный аудит финансовой отчётности за год', 'img': 'https://picsum.photos/id/358/400/300'},
         ],
         'stories': [
-            {'caption': '💼 Открытие компании в Турции — всего за 5 дней', 'url': 'https://picsum.photos/id/349/600/900'},
+            {'caption': 'Otkrytie kompanii v Turcii — vsego za 5 dney', 'url': 'https://picsum.photos/id/349/600/900'},
+        ],
+        'posts': [
+            {'text': 'Otkrytie OOO (Ltd.) v Turcii pod klyuch za 5 rabochikh dney. Polnoe yuridicheskoe soprovozhdenie vklyucheno.', 'img': 'https://picsum.photos/id/380/800/600', 'type': 'IMAGE'},
         ],
     },
     {
@@ -172,9 +191,13 @@ BUSINESSES = [
             {'name': 'Морская прогулка Босфор', 'price': '800', 'currency': 'TRY', 'desc': 'Закатная прогулка на яхте с ужином, 2 часа', 'img': 'https://picsum.photos/id/396/400/300'},
         ],
         'stories': [
-            {'caption': '🎈 Полёт на воздушном шаре — незабываемые впечатления!', 'url': 'https://picsum.photos/id/318/600/900'},
-            {'caption': '🕌 Айя-София на закате — магия Стамбула', 'url': 'https://picsum.photos/id/429/600/900'},
-            {'caption': '🌊 Босфор с воды — лучший вид на два континента', 'url': 'https://picsum.photos/id/399/600/900'},
+            {'caption': 'Polyot na vozdushnom share — nezabyvaemye vpechatleniya!', 'url': 'https://picsum.photos/id/318/600/900'},
+            {'caption': 'Ayya-Sofiya na zakate — magiya Stambula', 'url': 'https://picsum.photos/id/429/600/900'},
+            {'caption': 'Bosfor s vody — luchshiy vid na dva kontinenta', 'url': 'https://picsum.photos/id/399/600/900'},
+        ],
+        'posts': [
+            {'text': 'Tur v Kappadokiyu (3 dnya): polyot na shar, otdykh v peshernom otele, ekskursii. Vse vklyucheno. Zapis otkryta!', 'img': 'https://picsum.photos/id/429/800/600', 'type': 'IMAGE'},
+            {'text': 'Morskaya progulka po Bosforu na zakat — 2 chasa s uzhinom. Vidy na oba kontinenta. Broniruyte seychas!', 'img': 'https://picsum.photos/id/396/800/600', 'type': 'IMAGE'},
         ],
     },
     {
@@ -200,7 +223,10 @@ BUSINESSES = [
             {'name': 'Перевод документов', 'price': '500', 'currency': 'TRY', 'desc': 'Нотариально заверенный перевод, 1 страница', 'img': 'https://picsum.photos/id/143/400/300'},
         ],
         'stories': [
-            {'caption': '⚖️ Успешно оформили ВНЖ для 12 клиентов за март', 'url': 'https://picsum.photos/id/160/600/900'},
+            {'caption': 'Uspeshno oformili VNZh dlya 12 klientov za mart', 'url': 'https://picsum.photos/id/160/600/900'},
+        ],
+        'posts': [
+            {'text': 'Oformlenie VNZh v Turcii pod klyuch. Bolee 500 uspeshnykh keysov s 2018 goda. Besplatnaya pervichnaya konsultaciya.', 'img': 'https://picsum.photos/id/160/800/600', 'type': 'IMAGE'},
         ],
     },
     {
@@ -227,8 +253,12 @@ BUSINESSES = [
             {'name': 'Борщ домашний (1 л)', 'price': '200', 'currency': 'TRY', 'desc': 'Настоящий борщ по-домашнему, на говяжьем бульоне', 'img': 'https://picsum.photos/id/201/400/300'},
         ],
         'stories': [
-            {'caption': '🍽️ Сегодня готовим плов — принимаем заказы до 18:00', 'url': 'https://picsum.photos/id/225/600/900'},
-            {'caption': '🫕 Новое меню: турецкий завтрак с доставкой', 'url': 'https://picsum.photos/id/219/600/900'},
+            {'caption': 'Segodnya gotovim plov — prinimaem zakazy do 18:00', 'url': 'https://picsum.photos/id/225/600/900'},
+            {'caption': 'Novoe menyu: tureckiy zavtrak s dostavkoy', 'url': 'https://picsum.photos/id/219/600/900'},
+        ],
+        'posts': [
+            {'text': 'Segodnya v menyu: plov po-uzbekski s baraninou — prinimaem zakazy do 18:00. Dostavka po Stambulu!', 'img': 'https://picsum.photos/id/225/800/600', 'type': 'IMAGE'},
+            {'text': 'Novoe: tureckiy zavtrak na 2 persony s dostavkoy. Syry, olivki, yaica, med, vareye, khleb, chay. 650 TRY.', 'img': 'https://picsum.photos/id/213/800/600', 'type': 'IMAGE'},
         ],
     },
 ]
@@ -257,7 +287,7 @@ class Command(BaseCommand):
             User.objects.filter(email__in=emails).delete()
             out('[SEED] Gotovo.')
 
-        created_count = {'users': 0, 'biz': 0, 'products': 0, 'stories': 0}
+        created_count = {'users': 0, 'biz': 0, 'products': 0, 'stories': 0, 'posts': 0}
 
         for data in BUSINESSES:
             # Пользователь
@@ -329,11 +359,24 @@ class Command(BaseCommand):
                     created_count['stories'] += 1
                 out(f'     Storisy: {len(data["stories"])} sht.')
 
+            # Посты
+            if biz_created:
+                for p in data.get('posts', []):
+                    Post.objects.create(
+                        business=biz,
+                        text=p['text'],
+                        media_url=p['img'],
+                        media_type=p['type'],
+                    )
+                    created_count['posts'] += 1
+                out(f'     Posty: {len(data.get("posts", []))} sht.')
+
         self._out(self.style.SUCCESS(
             f'\nDone! Sozdano: '
             f'{created_count["users"]} polzovateley, '
             f'{created_count["biz"]} biznesov, '
             f'{created_count["products"]} tovarov, '
-            f'{created_count["stories"]} storisov.'
+            f'{created_count["stories"]} storisov, '
+            f'{created_count["posts"]} postov.'
         ))
         self._out('Password dlya vsekh: test1234!')

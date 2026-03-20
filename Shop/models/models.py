@@ -212,6 +212,54 @@ class VerificationMessage(models.Model):
         return f'Message from {self.sender.email} in {self.request}'
 
 
+# ── Posts ──────────────────────────────────────────────────────────────────────
+
+class Post(BaseController):
+    class MediaType(models.TextChoices):
+        IMAGE = 'IMAGE', 'Image'
+        VIDEO = 'VIDEO', 'Video'
+
+    business   = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='posts')
+    text       = models.TextField(blank=True)
+    media      = models.FileField(upload_to='posts/', blank=True, null=True)
+    media_url  = models.URLField(blank=True)
+    media_type = models.CharField(max_length=10, choices=MediaType.choices, default=MediaType.IMAGE)
+    views_count = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Post'
+        verbose_name_plural = 'Posts'
+
+    def __str__(self):
+        return f'Post by {self.business.brand_name} at {self.created_at:%Y-%m-%d %H:%M}'
+
+    @property
+    def media_display(self):
+        if self.media_url:
+            return self.media_url
+        if self.media:
+            return self.media.url
+        return None
+
+
+# ── Product Inquiry ─────────────────────────────────────────────────────────────
+
+class ProductInquiry(BaseController):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='inquiries')
+    sender  = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_inquiries')
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Product Inquiry'
+        verbose_name_plural = 'Product Inquiries'
+
+    def __str__(self):
+        return f'Inquiry from {self.sender.email} for {self.product.name}'
+
+
 # ── Comments ───────────────────────────────────────────────────────────────────
 
 class Comment(BaseController):

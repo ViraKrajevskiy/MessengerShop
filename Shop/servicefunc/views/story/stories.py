@@ -1,6 +1,6 @@
 from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiParameter
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -23,7 +23,7 @@ class StoryListCreateView(APIView):
     def get_permissions(self):
         if self.request.method == 'POST':
             return [IsBusinessman()]
-        return [IsAuthenticated()]
+        return [AllowAny()]
 
     @extend_schema(
         summary='Список активных сторисов',

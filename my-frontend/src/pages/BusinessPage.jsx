@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Header from '../components/Header'
 import ProductCard from '../components/ProductCard'
-import { apiGetBusiness } from '../api/businessApi'
+import { apiGetBusiness, apiGetBusinessPosts } from '../api/businessApi'
 import './BusinessPage.css'
 
 const CATEGORY_ICONS = {
@@ -27,6 +27,7 @@ export default function BusinessPage() {
   const { user, tokens } = useAuth()
 
   const [biz, setBiz]       = useState(null)
+  const [posts, setPosts]   = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError]   = useState('')
 
@@ -34,7 +35,8 @@ export default function BusinessPage() {
     setLoading(true)
     setError('')
     apiGetBusiness(id)
-      .then(setBiz)
+      .then(data => { setBiz(data); return apiGetBusinessPosts(id) })
+      .then(setPosts)
       .catch(e => setError(e.message))
       .finally(() => setLoading(false))
   }, [id])
@@ -180,7 +182,58 @@ export default function BusinessPage() {
               </section>
             )}
 
-            {availableProducts.length === 0 && !biz.description && (
+            {/* Posts / News */}
+            {posts.length > 0 && (
+              <section className="bp__section">
+                <h2 className="bp__section-title">
+                  Новости
+                  <span className="bp__count">{posts.length}</span>
+                </h2>
+                <div className="bp__posts-grid">
+                  {posts.map(post => (
+                    <div key={post.id} className="bp__post-card">
+                      {post.media_display && (
+                        <div className="bp__post-media">
+                          <img src={post.media_display} alt="" loading="lazy" />
+                          {post.media_type === 'VIDEO' && <div className="bp__post-play">▶</div>}
+                        </div>
+                      )}
+                      <div className="bp__post-body">
+                        <p className="bp__post-text">{post.text}</p>
+                        <span className="bp__post-time">
+                          {new Date(post.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Location */}
+            {biz.address && (
+              <section className="bp__section">
+                <h2 className="bp__section-title">Где мы находимся</h2>
+                <div className="bp__location">
+                  <div className="bp__location-info">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-1)" strokeWidth="2">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+                    </svg>
+                    <span>{biz.address}{biz.city ? `, ${biz.city}` : ''}</span>
+                  </div>
+                  <a
+                    className="bp__map-link"
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(biz.address + (biz.city ? ' ' + biz.city : ''))}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Открыть в Google Maps
+                  </a>
+                </div>
+              </section>
+            )}
+
+            {availableProducts.length === 0 && !biz.description && posts.length === 0 && (
               <div className="bp__empty">
                 <div style={{ fontSize: 40, marginBottom: 12 }}>📭</div>
                 <p>Бизнес ещё не добавил товары и услуги</p>
