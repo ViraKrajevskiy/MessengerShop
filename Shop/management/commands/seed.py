@@ -269,6 +269,8 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('--clear', action='store_true', help='Удалить старые seed-данные перед созданием')
+        parser.add_argument('--admin-email',    default='admin@admin.com', help='Email суперадмина')
+        parser.add_argument('--admin-password', default='admin1234!',      help='Пароль суперадмина')
 
     def _out(self, msg):
         """Безопасный вывод — заменяет символы не из cp1251 на '?'"""
@@ -371,6 +373,31 @@ class Command(BaseCommand):
                     created_count['posts'] += 1
                 out(f'     Posty: {len(data.get("posts", []))} sht.')
 
+        # ── Суперадмин ────────────────────────────────────────────────────────
+        admin_email    = options['admin_email']
+        admin_password = options['admin_password']
+        admin, admin_created = User.objects.get_or_create(
+            email=admin_email,
+            defaults={
+                'username': 'admin',
+                'role': User.Role.ADMIN if hasattr(User.Role, 'ADMIN') else User.Role.BUSINESS,
+                'is_active': True,
+                'is_staff': True,
+                'is_superuser': True,
+            },
+        )
+        if admin_created:
+            admin.set_password(admin_password)
+            admin.save()
+            out(f'\n  [+] Admin sozdan: {admin_email}')
+        else:
+            admin.is_active    = True
+            admin.is_staff     = True
+            admin.is_superuser = True
+            admin.set_password(admin_password)
+            admin.save()
+            out(f'\n  [~] Admin obnovlen: {admin_email}')
+
         self._out(self.style.SUCCESS(
             f'\nDone! Sozdano: '
             f'{created_count["users"]} polzovateley, '
@@ -380,3 +407,4 @@ class Command(BaseCommand):
             f'{created_count["posts"]} postov.'
         ))
         self._out('Password dlya vsekh: test1234!')
+        self._out(f'Admin: {admin_email} / {admin_password}')
