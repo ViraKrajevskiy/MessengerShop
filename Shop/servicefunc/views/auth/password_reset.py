@@ -15,7 +15,6 @@ FRONTEND_URL = getattr(settings, 'FRONTEND_URL', 'https://101-school.uz')
 
 
 class PasswordResetRequestView(APIView):
-    """POST /api/auth/password-reset/  — отправить письмо со ссылкой сброса"""
     permission_classes = [AllowAny]
 
     def post(self, request):
@@ -26,7 +25,6 @@ class PasswordResetRequestView(APIView):
         try:
             user = User.objects.get(email=email, is_active=True)
         except User.DoesNotExist:
-            # Не раскрываем существование аккаунта
             return Response({'detail': 'Если аккаунт существует — письмо отправлено'})
 
         uid   = urlsafe_base64_encode(force_bytes(user.pk))
@@ -42,7 +40,6 @@ class PasswordResetRequestView(APIView):
         )
 
         response_data = {'detail': 'Если аккаунт существует — письмо отправлено'}
-        # В режиме разработки возвращаем ссылку прямо в ответе
         if settings.DEBUG:
             response_data['debug_link'] = link
 
@@ -50,13 +47,12 @@ class PasswordResetRequestView(APIView):
 
 
 class PasswordResetConfirmView(APIView):
-    """POST /api/auth/password-reset/confirm/  — установить новый пароль"""
     permission_classes = [AllowAny]
 
     def post(self, request):
-        uid       = request.data.get('uid', '')
-        token     = request.data.get('token', '')
-        password  = request.data.get('password', '')
+        uid      = request.data.get('uid', '')
+        token    = request.data.get('token', '')
+        password = request.data.get('password', '')
 
         if not all([uid, token, password]):
             return Response({'error': 'Все поля обязательны'}, status=status.HTTP_400_BAD_REQUEST)

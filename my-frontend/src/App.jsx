@@ -15,7 +15,6 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
 import QRLoginPage from './pages/QRLoginPage'
 
-// Защищённый роут — редиректит на /login если не авторизован
 function PrivateRoute({ children }) {
   const { user, tokens, loading } = useAuth()
   if (loading) return null
@@ -29,18 +28,16 @@ function App() {
         <AuthProvider>
           <ViewedProvider>
             <Routes>
-              <Route path="/"              element={<HomePage />} />
-              <Route path="/feed"          element={<FeedPage />} />
-              <Route path="/profile/:id"  element={<ProfilePage />} />
-              <Route path="/business/:id" element={<BusinessPage />} />
-              <Route path="/login"        element={<LoginPage />} />
-              <Route path="/register"        element={<RegisterPage />} />
+              <Route path="/"               element={<HomePage />} />
+              <Route path="/feed"           element={<FeedPage />} />
+              <Route path="/profile/:id"    element={<ProfilePage />} />
+              <Route path="/business/:id"   element={<BusinessPage />} />
+              <Route path="/login"          element={<LoginPage />} />
+              <Route path="/register"       element={<RegisterPage />} />
               <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-              <Route path="/reset-password"  element={<ResetPasswordPage />} />
-              <Route path="/qr-login"        element={<QRLoginPage />} />
-              <Route path="/verification" element={<VerificationPage />} />
-
-              {/* Только для залогиненных */}
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
+              <Route path="/qr-login"       element={<QRLoginPage />} />
+              <Route path="/verification"   element={<VerificationPage />} />
               <Route path="/messenger" element={<PrivateRoute><MessengerPage /></PrivateRoute>} />
               <Route path="/me"        element={<PrivateRoute><MyProfilePage /></PrivateRoute>} />
             </Routes>

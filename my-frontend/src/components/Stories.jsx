@@ -4,7 +4,6 @@ import { apiGetStories } from '../api/businessApi'
 import { useAuth } from '../context/AuthContext'
 import './Stories.css'
 
-// ---------- Преобразование ответа API в формат, понятный StoryViewer ----------
 function groupStoriesByAuthor(apiStories) {
   const map = {}
   for (const s of apiStories) {
@@ -14,7 +13,7 @@ function groupStoriesByAuthor(apiStories) {
     if (!map[aId]) {
       map[aId] = {
         id:       aId,
-        bizId:    aId,              // для навигации на /business/:id
+        bizId:    aId,
         userName: s.author.username || 'Бизнес',
         city:     s.author.city || '',
         avatar:   s.author.avatar
@@ -35,7 +34,6 @@ function groupStoriesByAuthor(apiStories) {
   return Object.values(map)
 }
 
-// ---------- Story Viewer (fullscreen modal) ----------
 function StoryViewer({ stories, startIndex, onClose }) {
   const [storyIdx, setStoryIdx] = useState(startIndex)
   const [mediaIdx, setMediaIdx] = useState(0)
@@ -66,13 +64,11 @@ function StoryViewer({ stories, startIndex, onClose }) {
     return `${Math.floor(hours / 24)} дн. назад`
   }
 
-  // Merge mock + user comments
   const allComments = [
     ...(story.comments || []),
     ...(userComments[story.id] || []),
   ]
 
-  // Auto-advance timer — pauses when comments are open
   useEffect(() => {
     if (showComments) {
       clearInterval(timerRef.current)
@@ -92,7 +88,6 @@ function StoryViewer({ stories, startIndex, onClose }) {
     return () => clearInterval(timerRef.current)
   }, [storyIdx, mediaIdx, showComments])
 
-  // Scroll to bottom when new comment added
   useEffect(() => {
     if (showComments) commentsEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [allComments.length, showComments])
@@ -119,7 +114,6 @@ function StoryViewer({ stories, startIndex, onClose }) {
     }
   }, [mediaIdx, storyIdx, stories])
 
-  // Keyboard
   useEffect(() => {
     const handleKey = (e) => {
       if (showComments) {
@@ -134,7 +128,6 @@ function StoryViewer({ stories, startIndex, onClose }) {
     return () => window.removeEventListener('keydown', handleKey)
   }, [goNext, goPrev, onClose, showComments])
 
-  // Touch / swipe
   const handleTouchStart = (e) => {
     touchStartX.current = e.touches[0].clientX
     touchStartY.current = e.touches[0].clientY
@@ -150,7 +143,6 @@ function StoryViewer({ stories, startIndex, onClose }) {
     if (absDx > 50 && absDx > absDy) { dx < 0 ? goNext() : goPrev() }
   }
 
-  // Click left/right halves
   const handleMediaClick = (e) => {
     if (showComments) return
     const rect = e.currentTarget.getBoundingClientRect()
@@ -159,14 +151,12 @@ function StoryViewer({ stories, startIndex, onClose }) {
     else goNext()
   }
 
-  // Profile navigation — переходим на страницу бизнеса
   const handleProfileClick = (e) => {
     e.stopPropagation()
     onClose()
     navigate(`/business/${story.bizId || story.id}`)
   }
 
-  // Toggle comments panel
   const toggleComments = (e) => {
     e.stopPropagation()
     const opening = !showComments
@@ -174,7 +164,6 @@ function StoryViewer({ stories, startIndex, onClose }) {
     if (opening) setTimeout(() => commentInputRef.current?.focus(), 150)
   }
 
-  // Send comment
   const sendComment = (e) => {
     e.preventDefault()
     if (!commentText.trim()) return
@@ -200,7 +189,6 @@ function StoryViewer({ stories, startIndex, onClose }) {
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        {/* Progress bars */}
         <div className="story-viewer__progress">
           {story.media.map((_, i) => (
             <div key={i} className="story-viewer__progress-bar">
@@ -214,7 +202,6 @@ function StoryViewer({ stories, startIndex, onClose }) {
           ))}
         </div>
 
-        {/* Header */}
         <div className="story-viewer__header">
           <div className="story-viewer__user" onClick={handleProfileClick} style={{ cursor: 'pointer' }}>
             <img className="story-viewer__user-avatar" src={story.avatar} alt={story.userName} />
@@ -233,7 +220,6 @@ function StoryViewer({ stories, startIndex, onClose }) {
           </div>
         </div>
 
-        {/* Media content */}
         <div
           className="story-viewer__media"
           onClick={handleMediaClick}
@@ -244,13 +230,11 @@ function StoryViewer({ stories, startIndex, onClose }) {
           )}
         </div>
 
-        {/* Caption */}
         <div className="story-viewer__caption">
           {slide.type === 'video' && <span className="story-viewer__media-type">&#128249; Видео</span>}
           <p>{slide.caption}</p>
         </div>
 
-        {/* Bottom bar — comment toggle */}
         <div className="story-viewer__bottom" onClick={(e) => e.stopPropagation()}>
           <button className="story-viewer__comment-toggle" onClick={toggleComments}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -265,7 +249,6 @@ function StoryViewer({ stories, startIndex, onClose }) {
           </div>
         </div>
 
-        {/* ========== Comments panel ========== */}
         <div className={`story-viewer__comments ${showComments ? 'story-viewer__comments--open' : ''}`} onClick={(e) => e.stopPropagation()}>
           <div className="story-viewer__comments-header">
             <h4>Комментарии <span className="story-viewer__comments-count">{allComments.length}</span></h4>
@@ -316,7 +299,6 @@ function StoryViewer({ stories, startIndex, onClose }) {
           )}
         </div>
 
-        {/* Navigation arrows (desktop) — hide when comments open */}
         {!showComments && storyIdx > 0 && (
           <button
             className="story-viewer__nav story-viewer__nav--prev"
@@ -338,7 +320,6 @@ function StoryViewer({ stories, startIndex, onClose }) {
   )
 }
 
-// ---------- Stories carousel ----------
 export default function Stories() {
   const [storiesData, setStoriesData] = useState([])
   const [loadingStories, setLoadingStories] = useState(true)

@@ -39,8 +39,6 @@ class User(AbstractUser, BaseController):
         return self.role == self.Role.BUSINESS
 
 
-# ── Business Profile ───────────────────────────────────────────────────────────
-
 class Business(BaseController):
     class Category(models.TextChoices):
         BEAUTY    = 'BEAUTY',    'Красота и уход'
@@ -83,8 +81,6 @@ class Business(BaseController):
         return f'{self.brand_name} ({self.owner.email})'
 
 
-# ── Stories ────────────────────────────────────────────────────────────────────
-
 def story_expires_at():
     return timezone.now() + timedelta(hours=24)
 
@@ -99,7 +95,7 @@ class Story(BaseController):
         limit_choices_to={'role': User.Role.BUSINESS},
     )
     media      = models.FileField(upload_to='stories/', blank=True, null=True)
-    media_url  = models.URLField(blank=True)   # внешняя ссылка на фото (для seed-данных)
+    media_url  = models.URLField(blank=True)
     media_type = models.CharField(max_length=10, choices=MediaType.choices, default=MediaType.IMAGE)
     caption    = models.CharField(max_length=500, blank=True)
     expires_at = models.DateTimeField(default=story_expires_at)
@@ -135,8 +131,6 @@ class StoryView(models.Model):
         return f'{self.viewer.email} viewed story #{self.story_id}'
 
 
-# ── Products ───────────────────────────────────────────────────────────────────
-
 class Product(BaseController):
     class Currency(models.TextChoices):
         TRY = 'TRY', '₺ Лира'
@@ -150,7 +144,7 @@ class Product(BaseController):
     price       = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     currency    = models.CharField(max_length=3, choices=Currency.choices, default=Currency.TRY)
     image       = models.ImageField(upload_to='products/', blank=True, null=True)
-    image_url   = models.URLField(blank=True)   # внешняя ссылка (для seed-данных)
+    image_url   = models.URLField(blank=True)
     is_available = models.BooleanField(default=True)
 
     class Meta:
@@ -162,8 +156,6 @@ class Product(BaseController):
         return f'{self.name} — {self.business.brand_name}'
 
 
-# ── Verification ──────────────────────────────────────────────────────────────
-
 class VerificationRequest(BaseController):
     class Status(models.TextChoices):
         PENDING  = 'PENDING',  'На рассмотрении'
@@ -174,7 +166,7 @@ class VerificationRequest(BaseController):
         'Business', on_delete=models.CASCADE, related_name='verification',
     )
     status      = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
-    comment     = models.TextField(blank=True)       # комментарий модератора
+    comment     = models.TextField(blank=True)
     reviewed_by = models.ForeignKey(
         User, null=True, blank=True, on_delete=models.SET_NULL, related_name='reviewed_verifications',
     )
@@ -214,8 +206,6 @@ class VerificationMessage(models.Model):
         return f'Message from {self.sender.email} in {self.request}'
 
 
-# ── Posts ──────────────────────────────────────────────────────────────────────
-
 class Post(BaseController):
     class MediaType(models.TextChoices):
         IMAGE = 'IMAGE', 'Image'
@@ -245,8 +235,6 @@ class Post(BaseController):
         return None
 
 
-# ── Product Inquiry ─────────────────────────────────────────────────────────────
-
 class ProductInquiry(BaseController):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='inquiries')
     sender  = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_inquiries')
@@ -261,8 +249,6 @@ class ProductInquiry(BaseController):
     def __str__(self):
         return f'Inquiry from {self.sender.email} for {self.product.name}'
 
-
-# ── Comments ───────────────────────────────────────────────────────────────────
 
 class Comment(BaseController):
     story  = models.ForeignKey(Story, on_delete=models.CASCADE, related_name='comments')

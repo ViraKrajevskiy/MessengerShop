@@ -35,7 +35,6 @@ export default function MyProfilePage() {
   const navigate = useNavigate()
   const fileRef = useRef(null)
 
-  // ВСЕ хуки должны быть ДО любых return
   const [editing, setEditing]             = useState(false)
   const [form, setForm]                   = useState({ username: '', city: '' })
   const [avatarFile, setAvatarFile]       = useState(null)
@@ -47,18 +46,15 @@ export default function MyProfilePage() {
   const [qrToken, setQrToken]             = useState(null)
   const [qrRegen, setQrRegen]             = useState(false)
 
-  // Когда user загрузился — инициализируем форму
   useEffect(() => {
     if (user) setForm({ username: user.username || '', city: user.city || '' })
   }, [user])
 
-  // Загружаем статус верификации для бизнесменов
   useEffect(() => {
     if (!tokens?.access || user?.role !== 'BUSINESS') return
     fetchVerStatus(tokens.access).then(setVerStatus)
   }, [tokens?.access, user?.role])
 
-  // Загружаем QR-токен
   useEffect(() => {
     if (!tokens?.access) return
     fetch(`${BASE}/auth/qr-token/`, { headers: { Authorization: `Bearer ${tokens.access}` } })
@@ -81,14 +77,12 @@ export default function MyProfilePage() {
     setQrRegen(false)
   }
 
-  // Если не залогинен — редирект (ПОСЛЕ всех хуков)
   useEffect(() => {
     if (!user) navigate('/login')
   }, [user, navigate])
 
   if (!user) return null
 
-  // ── Производные значения ────────────────────────────────────────────────────
   const avatarSrc = avatarPreview
     || (user.avatar
         ? (user.avatar.startsWith('http') ? user.avatar : `https://api.101-school.uz${user.avatar}`)
@@ -100,7 +94,6 @@ export default function MyProfilePage() {
     ? new Date(user.created_at).toLocaleDateString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' })
     : '—'
 
-  // ── Handlers ────────────────────────────────────────────────────────────────
   const handleAvatarClick = () => { if (editing) fileRef.current?.click() }
 
   const handleFileChange = (e) => {
@@ -144,7 +137,6 @@ export default function MyProfilePage() {
     navigate('/')
   }
 
-  // ── Render ──────────────────────────────────────────────────────────────────
   return (
     <div className="my-profile-page">
       <Header />
@@ -161,7 +153,6 @@ export default function MyProfilePage() {
 
         <div className="my-profile__layout">
 
-          {/* ── Sidebar ── */}
           <aside className="my-profile__sidebar">
             <div className="my-profile__avatar-wrap" onClick={handleAvatarClick}>
               <img src={avatarSrc} alt={user.username} className={`my-profile__avatar ${editing ? 'my-profile__avatar--editable' : ''}`} />
@@ -213,7 +204,6 @@ export default function MyProfilePage() {
             </button>
           </aside>
 
-          {/* ── Content ── */}
           <section className="my-profile__content">
             <div className="my-profile__content-header">
               <div>
@@ -280,7 +270,6 @@ export default function MyProfilePage() {
               </div>
             </div>
 
-            {/* ── Верификация (только для BUSINESS) ── */}
             {user.role === 'BUSINESS' && (
               <div className="my-profile__card my-profile__card--ver">
                 <h3 className="my-profile__card-title">Верификация аккаунта</h3>
@@ -324,7 +313,6 @@ export default function MyProfilePage() {
               </div>
             )}
 
-            {/* ── QR-код ── */}
             <div className="my-profile__card my-profile__card--qr">
               <h3 className="my-profile__card-title">QR-код для входа</h3>
               <div className="my-profile__qr-wrap">

@@ -12,23 +12,18 @@ User = get_user_model()
 
 
 class QRTokenView(APIView):
-    """GET /api/auth/qr-token/  — вернуть QR-токен текущего пользователя"""
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        user = request.user
-        return Response({'qr_token': str(user.qr_token)})
+        return Response({'qr_token': str(request.user.qr_token)})
 
     def post(self, request):
-        """Regenerate QR token"""
-        user = request.user
-        user.qr_token = uuid.uuid4()
-        user.save(update_fields=['qr_token'])
-        return Response({'qr_token': str(user.qr_token)})
+        request.user.qr_token = uuid.uuid4()
+        request.user.save(update_fields=['qr_token'])
+        return Response({'qr_token': str(request.user.qr_token)})
 
 
 class QRLoginView(APIView):
-    """POST /api/auth/qr-login/  — войти по QR-токену"""
     permission_classes = [AllowAny]
 
     def post(self, request):
