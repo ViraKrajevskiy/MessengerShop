@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import React, { useState, useRef } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
@@ -154,8 +154,8 @@ export default function RegisterPage() {
           {/* Steps indicator */}
           <div className="auth-steps">
             {stepsConfig.map((s, i) => (
-              <>
-                <div key={s.label} className={[
+              <React.Fragment key={s.label}>
+                <div className={[
                   'auth-steps__item',
                   step >= i + 1 ? 'auth-steps__item--active' : '',
                   step > i + 1 ? 'auth-steps__item--done' : '',
@@ -167,8 +167,8 @@ export default function RegisterPage() {
                   </div>
                   <span>{s.label}</span>
                 </div>
-                {i < stepsConfig.length - 1 && <div key={`line-${i}`} className="auth-steps__line" />}
-              </>
+                {i < stepsConfig.length - 1 && <div className="auth-steps__line" />}
+              </React.Fragment>
             ))}
           </div>
 
