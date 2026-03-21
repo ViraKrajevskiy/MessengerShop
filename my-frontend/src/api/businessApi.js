@@ -54,7 +54,14 @@ export async function apiGetStories() {
   })
 }
 
-export async function apiGetPosts() {
+export async function apiGetPosts(token) {
+  // Не кэшируем если авторизован — нужен актуальный is_subscribed
+  const headers = token ? { 'Authorization': `Bearer ${token}` } : {}
+  if (token) {
+    const res = await fetch(`${BASE}/posts/`, { headers })
+    if (!res.ok) throw new Error('Ошибка загрузки постов')
+    return res.json()
+  }
   return cached('posts', async () => {
     const res = await fetch(`${BASE}/posts/`)
     if (!res.ok) throw new Error('Ошибка загрузки постов')
@@ -163,6 +170,8 @@ export async function apiToggleSubscription(bizId, token) {
     headers: { 'Authorization': `Bearer ${token}` },
   })
   if (!res.ok) throw new Error('Ошибка подписки')
+  // Сбрасываем кэш бизнеса и постов чтобы is_subscribed обновился
+  invalidateCache(`business:${bizId}`)
   return res.json()
 }
 

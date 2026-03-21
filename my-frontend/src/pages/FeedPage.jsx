@@ -228,12 +228,15 @@ export default function FeedPage() {
   const [loading, setLoading]   = useState(true)
   const [tab, setTab]           = useState('all') // all | posts | products | businesses
   const navigate = useNavigate()
+  const { getAccessToken } = useAuth()
 
   useEffect(() => {
-    Promise.all([apiGetPosts(), apiGetBusinesses()])
-      .then(([p, b]) => { setPosts(p); setBiz(b) })
-      .catch(() => {})
-      .finally(() => setLoading(false))
+    getAccessToken().then(token =>
+      Promise.all([apiGetPosts(token), apiGetBusinesses()])
+        .then(([p, b]) => { setPosts(p); setBiz(b) })
+        .catch(() => {})
+        .finally(() => setLoading(false))
+    )
   }, [])
 
   // Все продукты из бизнесов через бизнес-апи (у нас нет /api/products/, берём из businesses)

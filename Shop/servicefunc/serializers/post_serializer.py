@@ -8,12 +8,14 @@ class PostSerializer(serializers.ModelSerializer):
     business_id   = serializers.IntegerField(source='business.id', read_only=True)
     is_verified   = serializers.BooleanField(source='business.is_verified', read_only=True)
     media_display = serializers.SerializerMethodField()
+    is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
         fields = [
             'id', 'business_id', 'business_name', 'business_logo', 'is_verified',
             'text', 'media_display', 'media_type', 'views_count',
+            'is_subscribed',
             'created_at', 'updated_at',
         ]
 
@@ -24,6 +26,12 @@ class PostSerializer(serializers.ModelSerializer):
                 return request.build_absolute_uri(obj.business.logo.url)
             return obj.business.logo.url
         return None
+
+    def get_is_subscribed(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.business.subscribers.filter(user=request.user).exists()
+        return False
 
     def get_media_display(self, obj):
         if obj.media_url:
