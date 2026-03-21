@@ -656,3 +656,12 @@
   padding: 8px 0 16px;
   margin: 0;
 }
+
+/* Mobile avatar sizes */
+@media (max-width: 640px) {
+  .stories { padding: 12px 0 16px; }
+  .stories__avatar { width: 68px; height: 68px; }
+  .stories__name { font-size: 11px; max-width: 68px; }
+  .stories__arrow { width: 28px; height: 28px; font-size: 14px; }
+  .stories__list { gap: 10px; }
+}

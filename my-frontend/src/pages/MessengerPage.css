@@ -1,5 +1,5 @@
 .messenger-page {
-  min-height: 100vh;
+  min-height: 100dvh;
   background: var(--bg-primary);
   display: flex;
   flex-direction: column;
@@ -8,7 +8,7 @@
 .messenger {
   flex: 1;
   display: flex;
-  max-height: calc(100vh - 62px);
+  max-height: calc(100dvh - 62px);
   overflow: hidden;
 }
 
