@@ -276,6 +276,35 @@ class InquiryMessage(models.Model):
         return f'Message from {self.sender.email} in inquiry #{self.inquiry_id}'
 
 
+class Review(models.Model):
+    author   = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews')
+    business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='reviews', null=True, blank=True)
+    product  = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews', null=True, blank=True)
+    rating   = models.PositiveSmallIntegerField()
+    text     = models.TextField(blank=True)
+    pros     = models.CharField(max_length=500, blank=True)
+    cons     = models.CharField(max_length=500, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['author', 'business'],
+                condition=models.Q(business__isnull=False),
+                name='unique_user_business_review',
+            ),
+            models.UniqueConstraint(
+                fields=['author', 'product'],
+                condition=models.Q(product__isnull=False),
+                name='unique_user_product_review',
+            ),
+        ]
+
+    def __str__(self):
+        return f'Review {self.rating}★ by {self.author.email}'
+
+
 class Comment(BaseController):
     story  = models.ForeignKey(Story, on_delete=models.CASCADE, related_name='comments')
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Header from '../components/Header'
 import ProductCard from '../components/ProductCard'
+import ReviewsSection from '../components/ReviewsSection'
 import { apiGetBusiness, apiGetBusinessPosts } from '../api/businessApi'
 import './BusinessPage.css'
 
@@ -235,6 +236,10 @@ export default function BusinessPage() {
                 </div>
               </section>
             )}
+
+            <section className="bp__section">
+              <ReviewsSection type="business" targetId={id} />
+            </section>
 
             {availableProducts.length === 0 && !biz.description && posts.length === 0 && (
               <div className="bp__empty">

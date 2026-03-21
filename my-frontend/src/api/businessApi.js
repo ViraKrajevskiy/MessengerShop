@@ -78,6 +78,44 @@ export async function apiGetInquiries(token) {
   return res.json()
 }
 
+export async function apiGetBusinessReviews(id) {
+  const res = await fetch(`${BASE}/businesses/${id}/reviews/`)
+  if (!res.ok) throw new Error('Ошибка загрузки отзывов')
+  return res.json()
+}
+
+export async function apiCreateBusinessReview(id, data, token) {
+  const res = await fetch(`${BASE}/businesses/${id}/reviews/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify(data),
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(err.detail || 'Ошибка создания отзыва')
+  }
+  return res.json()
+}
+
+export async function apiGetProductReviews(id) {
+  const res = await fetch(`${BASE}/products/${id}/reviews/`)
+  if (!res.ok) throw new Error('Ошибка загрузки отзывов')
+  return res.json()
+}
+
+export async function apiCreateProductReview(id, data, token) {
+  const res = await fetch(`${BASE}/products/${id}/reviews/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify(data),
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(err.detail || 'Ошибка создания отзыва')
+  }
+  return res.json()
+}
+
 export async function apiGetInquiryMessages(inquiryId, token) {
   const res = await fetch(`${BASE}/inquiries/${inquiryId}/messages/`, {
     headers: { 'Authorization': `Bearer ${token}` },

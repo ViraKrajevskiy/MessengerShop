@@ -199,6 +199,12 @@
   line-height: 1.65;
   margin: 0;
 }
+.product-detail-modal__reviews {
+  padding: 0 20px;
+  border-top: 1px solid var(--border-color);
+  margin-top: 4px;
+}
+
 .product-detail-modal__footer {
   display: flex;
   gap: 10px;

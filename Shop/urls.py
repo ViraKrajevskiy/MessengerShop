@@ -19,6 +19,7 @@ from Shop.servicefunc.views.business.business import (
 )
 from Shop.servicefunc.views.product.product import BusinessProductListView, ProductDetailView, ProductLikeView, BusinessStatsView
 from Shop.servicefunc.views.post.post import PostListView, BusinessPostListView, ProductInquiryView, InquiryListView, InquiryMessagesView
+from Shop.servicefunc.views.review.reviews import BusinessReviewListCreateView, ProductReviewListCreateView
 
 urlpatterns = [
     path('auth/register/',               RegisterView.as_view(),              name='auth_register'),
@@ -38,6 +39,8 @@ urlpatterns = [
     path('businesses/<int:pk>/',         BusinessDetailView.as_view(),        name='business_detail'),
 
     path('businesses/<int:pk>/products/', BusinessProductListView.as_view(),  name='business_products'),
+    path('businesses/<int:pk>/reviews/',  BusinessReviewListCreateView.as_view(), name='business_reviews'),
+    path('products/<int:pk>/reviews/',    ProductReviewListCreateView.as_view(),  name='product_reviews'),
     path('products/<int:pk>/',            ProductDetailView.as_view(),        name='product_detail'),
     path('products/<int:pk>/like/',       ProductLikeView.as_view(),          name='product_like'),
     path('products/<int:pk>/inquiry/',    ProductInquiryView.as_view(),       name='product_inquiry'),

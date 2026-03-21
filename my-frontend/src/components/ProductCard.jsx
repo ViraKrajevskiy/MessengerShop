@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { apiSendProductInquiry } from '../api/businessApi'
+import ReviewsSection from './ReviewsSection'
 import './ProductCard.css'
 
 const FALLBACK_IMGS = [
@@ -141,6 +142,10 @@ export default function ProductCard({ product }) {
               {product.description && (
                 <p className="product-detail-modal__desc">{product.description}</p>
               )}
+            </div>
+
+            <div className="product-detail-modal__reviews">
+              <ReviewsSection type="product" targetId={product.id} />
             </div>
 
             <div className="product-detail-modal__footer">
