@@ -117,8 +117,7 @@
 .rv-star--interactive {
   cursor: pointer;
 }
-.rv-star--interactive:hover,
-.rv-star--interactive:hover ~ .rv-star {
+.rv-star--interactive:hover {
   color: #f59e0b;
 }
 
