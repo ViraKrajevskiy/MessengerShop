@@ -18,6 +18,11 @@ class QRTokenView(APIView):
         return Response({'qr_token': str(request.user.qr_token)})
 
     def post(self, request):
+        password = request.data.get('password', '').strip()
+        if not password:
+            return Response({'error': 'Введите пароль'}, status=status.HTTP_400_BAD_REQUEST)
+        if not request.user.check_password(password):
+            return Response({'error': 'Неверный пароль'}, status=status.HTTP_400_BAD_REQUEST)
         request.user.qr_token = uuid.uuid4()
         request.user.save(update_fields=['qr_token'])
         return Response({'qr_token': str(request.user.qr_token)})

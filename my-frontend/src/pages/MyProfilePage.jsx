@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { QRCodeSVG } from 'qrcode.react'
+import { QRCodeCanvas } from 'qrcode.react'
 import { useAuth } from '../context/AuthContext'
 import { apiPatchMe } from '../api/profileApi'
 import Header from '../components/Header'
@@ -44,7 +44,12 @@ export default function MyProfilePage() {
   const [saveOk, setSaveOk]               = useState(false)
   const [verStatus, setVerStatus]         = useState(undefined) // undefined=loading, null=нет заявки
   const [qrToken, setQrToken]             = useState(null)
-  const [qrRegen, setQrRegen]             = useState(false)
+  const [qrDownloaded, setQrDownloaded]   = useState(false)
+  const [showQrPwModal, setShowQrPwModal] = useState(false)
+  const [qrPassword, setQrPassword]       = useState('')
+  const [qrPwError, setQrPwError]         = useState('')
+  const [qrRegenerating, setQrRegenerating] = useState(false)
+  const qrCanvasRef = useRef(null)
 
   useEffect(() => {
     if (user) setForm({ username: user.username || '', city: user.city || '' })
@@ -63,18 +68,39 @@ export default function MyProfilePage() {
       .catch(() => {})
   }, [tokens?.access])
 
-  const handleRegenQR = async () => {
-    if (!tokens?.access) return
-    setQrRegen(true)
-    const res = await fetch(`${BASE}/auth/qr-token/`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${tokens.access}` },
-    })
-    if (res.ok) {
+  const handleDownloadQR = () => {
+    const canvas = qrCanvasRef.current?.querySelector('canvas')
+    if (!canvas) return
+    const url = canvas.toDataURL('image/png')
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'qr-login.png'
+    a.click()
+    setQrDownloaded(true)
+  }
+
+  const handleRegenWithPassword = async () => {
+    if (!qrPassword.trim()) { setQrPwError('Введите пароль'); return }
+    setQrRegenerating(true)
+    setQrPwError('')
+    try {
+      const res = await fetch(`${BASE}/auth/qr-token/`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${tokens.access}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: qrPassword }),
+      })
       const d = await res.json()
+      if (!res.ok) { setQrPwError(d.error || 'Ошибка'); return }
       setQrToken(d.qr_token)
+      setQrDownloaded(false)
+      setShowQrPwModal(false)
+      setQrPassword('')
+      setTimeout(() => handleDownloadQR(), 100)
+    } catch {
+      setQrPwError('Нет соединения')
+    } finally {
+      setQrRegenerating(false)
     }
-    setQrRegen(false)
   }
 
   useEffect(() => {
@@ -316,27 +342,66 @@ export default function MyProfilePage() {
             <div className="my-profile__card my-profile__card--qr">
               <h3 className="my-profile__card-title">QR-код для входа</h3>
               <div className="my-profile__qr-wrap">
-                {qrToken ? (
-                  <>
-                    <div className="my-profile__qr-canvas">
-                      <QRCodeSVG
-                        value={`${FRONTEND}/qr-login?token=${qrToken}`}
-                        size={160}
-                        bgColor="transparent"
-                        fgColor="var(--text-primary)"
-                        level="M"
-                      />
-                    </div>
-                    <div className="my-profile__qr-info">
-                      <p>Сканируйте QR-код камерой телефона, чтобы войти в аккаунт без пароля.</p>
-                      <button className="my-profile__qr-regen" onClick={handleRegenQR} disabled={qrRegen}>
-                        {qrRegen ? '...' : '🔄 Обновить QR-код'}
+                <div ref={qrCanvasRef} style={{ display: 'none' }}>
+                  {qrToken && (
+                    <QRCodeCanvas
+                      value={`${FRONTEND}/qr-login?token=${qrToken}`}
+                      size={400}
+                      level="M"
+                    />
+                  )}
+                </div>
+
+                <div className="my-profile__qr-icon">🔐</div>
+                <div className="my-profile__qr-info">
+                  {!qrDownloaded ? (
+                    <>
+                      <p>Скачайте QR-код и используйте его для входа без пароля с другого устройства.</p>
+                      <button
+                        className="my-profile__qr-regen"
+                        onClick={handleDownloadQR}
+                        disabled={!qrToken}
+                      >
+                        📥 Скачать QR-код
                       </button>
-                      <span className="my-profile__qr-hint">Не показывайте этот код другим людям</span>
+                    </>
+                  ) : (
+                    <>
+                      <p>QR-код скачан. Для безопасности он не отображается повторно.</p>
+                      <button
+                        className="my-profile__qr-regen"
+                        onClick={() => { setShowQrPwModal(true); setQrPwError(''); setQrPassword('') }}
+                      >
+                        🔄 Получить новый QR-код
+                      </button>
+                    </>
+                  )}
+                  <span className="my-profile__qr-hint">Не передавайте QR-код другим людям</span>
+                </div>
+
+                {showQrPwModal && (
+                  <div className="my-profile__qr-modal-overlay" onClick={() => setShowQrPwModal(false)}>
+                    <div className="my-profile__qr-modal" onClick={e => e.stopPropagation()}>
+                      <h4>Подтвердите пароль</h4>
+                      <p>Старый QR-код станет недействительным</p>
+                      <input
+                        type="password"
+                        className="my-profile__qr-pw-input"
+                        placeholder="Ваш текущий пароль"
+                        value={qrPassword}
+                        onChange={e => setQrPassword(e.target.value)}
+                        onKeyDown={e => e.key === 'Enter' && handleRegenWithPassword()}
+                        autoFocus
+                      />
+                      {qrPwError && <p className="my-profile__qr-pw-error">{qrPwError}</p>}
+                      <div className="my-profile__qr-modal-actions">
+                        <button className="my-profile__qr-modal-cancel" onClick={() => setShowQrPwModal(false)}>Отмена</button>
+                        <button className="my-profile__qr-modal-confirm" onClick={handleRegenWithPassword} disabled={qrRegenerating}>
+                          {qrRegenerating ? 'Генерируем...' : 'Сгенерировать и скачать'}
+                        </button>
+                      </div>
                     </div>
-                  </>
-                ) : (
-                  <div className="my-profile__qr-loading">Загрузка QR...</div>
+                  </div>
                 )}
               </div>
             </div>
