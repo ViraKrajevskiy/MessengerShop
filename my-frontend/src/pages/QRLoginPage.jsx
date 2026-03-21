@@ -9,7 +9,7 @@ export default function QRLoginPage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const token = searchParams.get('token') || ''
-  const { login: _login, setAuthData } = useAuth()
+  const { loginWithData } = useAuth()
   const [status, setStatus] = useState('loading') // loading | ok | error
   const [error, setError] = useState('')
 
@@ -24,9 +24,7 @@ export default function QRLoginPage() {
       .then(res => res.json().then(data => ({ ok: res.ok, data })))
       .then(({ ok, data }) => {
         if (ok) {
-          // Сохраняем токены так же как при обычном логине
-          localStorage.setItem('tokens', JSON.stringify({ access: data.access, refresh: data.refresh }))
-          localStorage.setItem('user', JSON.stringify(data.user))
+          loginWithData(data)
           setStatus('ok')
           setTimeout(() => navigate('/'), 1200)
         } else {

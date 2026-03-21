@@ -39,6 +39,11 @@ export function AuthProvider({ children }) {
       })
   }, []) // eslint-disable-line
 
+  const loginWithData = useCallback((data) => {
+    setTokens({ access: data.access, refresh: data.refresh })
+    setUser(data.user)
+  }, [])
+
   // ── login ──────────────────────────────────────────────────────────────────
   const login = useCallback(async (email, password) => {
     setLoading(true)
@@ -116,6 +121,7 @@ export function AuthProvider({ children }) {
       loading,
       isAuthenticated: !!user,
       login,
+      loginWithData,
       register,
       verifyEmail,
       logout,
