@@ -16,7 +16,9 @@ class PostListView(APIView):
     def get(self, request):
         posts = Post.objects.select_related('business').all()[:50]
         serializer = PostSerializer(posts, many=True, context={'request': request})
-        return Response(serializer.data)
+        response = Response(serializer.data)
+        response['Cache-Control'] = 'public, max-age=30'
+        return response
 
 
 class BusinessPostListView(APIView):

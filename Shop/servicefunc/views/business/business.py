@@ -45,7 +45,9 @@ class BusinessListView(APIView):
         if search:   qs = qs.filter(brand_name__icontains=search)
 
         serializer = BusinessListSerializer(qs, many=True, context={'request': request})
-        return Response(serializer.data)
+        response = Response(serializer.data)
+        response['Cache-Control'] = 'public, max-age=30'
+        return response
 
 
 @extend_schema(tags=['Business'])

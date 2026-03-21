@@ -36,7 +36,9 @@ class StoryListCreateView(APIView):
             expires_at__gt=timezone.now()
         ).select_related('author').prefetch_related('story_views', 'comments')
         serializer = StorySerializer(stories, many=True, context={'request': request})
-        return Response(serializer.data)
+        response = Response(serializer.data)
+        response['Cache-Control'] = 'public, max-age=30'
+        return response
 
     @extend_schema(
         summary='Создать сторис',
