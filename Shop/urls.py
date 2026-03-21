@@ -6,6 +6,7 @@ from Shop.servicefunc.views.auth.login import LoginView
 from Shop.servicefunc.views.auth.logout import LogoutView
 from Shop.servicefunc.views.auth.verify_email import VerifyEmailView
 from Shop.servicefunc.views.auth.me import MeView
+from Shop.servicefunc.views.auth.password_reset import PasswordResetRequestView, PasswordResetConfirmView
 from Shop.servicefunc.views.story.stories import StoryListCreateView, StoryDetailView, StoryViewersView
 from Shop.servicefunc.views.story.comments import CommentListCreateView, CommentDetailView
 from Shop.servicefunc.views.verification.verification import (
@@ -25,7 +26,9 @@ urlpatterns = [
     path('auth/login/',          LoginView.as_view(),       name='auth_login'),
     path('auth/logout/',         LogoutView.as_view(),      name='auth_logout'),
     path('auth/me/',             MeView.as_view(),          name='auth_me'),
-    path('auth/token/refresh/',  TokenRefreshView.as_view(),name='token_refresh'),
+    path('auth/token/refresh/',        TokenRefreshView.as_view(),         name='token_refresh'),
+    path('auth/password-reset/',       PasswordResetRequestView.as_view(),  name='password_reset'),
+    path('auth/password-reset/confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
 
     # ── Business ──────────────────────────────────────────────────────────────
     # GET  /api/businesses/         — список (публично, с фильтрами)

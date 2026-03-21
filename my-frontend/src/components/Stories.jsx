@@ -406,7 +406,7 @@ export default function Stories() {
       <h2 className="section-title">Истории</h2>
       <div className="stories__carousel">
         <button className="stories__arrow stories__arrow--left" onClick={prev} disabled={offset === 0}>
-          &#8249;
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
         </button>
         <div className="stories__list" ref={listRef} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
           {storiesData.slice(offset, offset + visible).map((s, i) => {
@@ -423,7 +423,7 @@ export default function Stories() {
           })}
         </div>
         <button className="stories__arrow stories__arrow--right" onClick={next} disabled={offset >= storiesData.length - visible}>
-          &#8250;
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
         </button>
       </div>
 

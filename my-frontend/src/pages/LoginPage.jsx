@@ -111,7 +111,7 @@ export default function LoginPage() {
 
             {/* Forgot */}
             <div className="auth-card__forgot">
-              <span className="auth-card__forgot-link">Забыли пароль?</span>
+              <Link to="/forgot-password" className="auth-card__forgot-link">Забыли пароль?</Link>
             </div>
 
             {/* Error */}

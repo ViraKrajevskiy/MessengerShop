@@ -11,6 +11,8 @@ import MyProfilePage from './pages/MyProfilePage'
 import VerificationPage from './pages/VerificationPage'
 import BusinessPage from './pages/BusinessPage'
 import FeedPage from './pages/FeedPage'
+import ForgotPasswordPage from './pages/ForgotPasswordPage'
+import ResetPasswordPage from './pages/ResetPasswordPage'
 
 // Защищённый роут — редиректит на /login если не авторизован
 function PrivateRoute({ children }) {
@@ -31,7 +33,9 @@ function App() {
               <Route path="/profile/:id"  element={<ProfilePage />} />
               <Route path="/business/:id" element={<BusinessPage />} />
               <Route path="/login"        element={<LoginPage />} />
-              <Route path="/register"     element={<RegisterPage />} />
+              <Route path="/register"        element={<RegisterPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/reset-password"  element={<ResetPasswordPage />} />
               <Route path="/verification" element={<VerificationPage />} />
 
               {/* Только для залогиненных */}
