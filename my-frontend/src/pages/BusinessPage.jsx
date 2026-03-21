@@ -15,10 +15,14 @@ const CATEGORY_ICONS = {
 const FALLBACK_LOGO  = 'https://picsum.photos/id/1027/200/200'
 const FALLBACK_COVER = 'https://picsum.photos/id/1074/1200/400'
 
+const API_BASE = import.meta.env.PROD
+  ? 'https://api.101-school.uz'
+  : 'http://127.0.0.1:8000'
+
 function resolveUrl(url) {
   if (!url) return null
   if (url.startsWith('http')) return url
-  return `http://127.0.0.1:8000${url}`
+  return `${API_BASE}${url}`
 }
 
 export default function BusinessPage() {
@@ -34,9 +38,8 @@ export default function BusinessPage() {
   useEffect(() => {
     setLoading(true)
     setError('')
-    apiGetBusiness(id)
-      .then(data => { setBiz(data); return apiGetBusinessPosts(id) })
-      .then(setPosts)
+    Promise.all([apiGetBusiness(id), apiGetBusinessPosts(id)])
+      .then(([bizData, postsData]) => { setBiz(bizData); setPosts(postsData) })
       .catch(e => setError(e.message))
       .finally(() => setLoading(false))
   }, [id])
