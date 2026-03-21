@@ -442,6 +442,190 @@
 }
 .bp__map-link:hover { opacity: 0.88; transform: translateY(-1px); }
 
+/* ── Gallery ── */
+.bp__gallery-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.bp__gallery-tabs {
+  display: flex;
+  gap: 6px;
+}
+.bp__gallery-tab {
+  padding: 5px 14px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border-color);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+  font-family: inherit;
+}
+.bp__gallery-tab:hover { border-color: var(--accent-1); color: var(--accent-1); }
+.bp__gallery-tab--active {
+  background: var(--accent-gradient);
+  border-color: transparent;
+  color: #fff;
+}
+.bp__gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
+}
+.bp__gallery-item {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+}
+.bp__gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+.bp__gallery-item:hover img { transform: scale(1.06); }
+.bp__gallery-play {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  color: rgba(255,255,255,0.9);
+  background: rgba(0,0,0,0.3);
+}
+
+/* ── Chars ── */
+.bp__chars {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.bp__char-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 13.5px;
+}
+.bp__char-row:last-child { border-bottom: none; }
+.bp__char-key { color: var(--text-muted); font-weight: 500; }
+.bp__char-val { color: var(--text-primary); font-weight: 600; text-align: right; }
+
+/* ── Hashtags ── */
+.bp__hashtags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.bp__hashtag {
+  padding: 5px 12px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  font-size: 13px;
+  color: var(--accent-1);
+  font-weight: 600;
+  cursor: default;
+}
+
+/* ── Similar businesses ── */
+.bp__similar {
+  margin-top: 32px;
+  padding-top: 28px;
+  border-top: 1.5px solid var(--border-color);
+}
+.bp__similar-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 18px;
+}
+.bp__similar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+}
+.bp__similar-card {
+  background: var(--bg-secondary);
+  border: 1.5px solid var(--border-color);
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.22s, box-shadow 0.22s, border-color 0.22s;
+  position: relative;
+}
+.bp__similar-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  border-color: var(--accent-1);
+}
+.bp__similar-cover {
+  height: 90px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+.bp__similar-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 3px solid var(--bg-secondary);
+  position: absolute;
+  top: 64px;
+  left: 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.bp__similar-info {
+  padding: 30px 14px 14px;
+}
+.bp__similar-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bp__similar-city {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+}
+.bp__similar-vip {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(245,158,11,0.9);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+.bp__similar-new {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(16,185,129,0.9);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
 @media (max-width: 600px) {
   .bp__brand-name { font-size: 20px; }
   .bp__products-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -454,4 +638,6 @@
   .bp__brand-name { font-size: 18px; }
   .bp__hero-actions { flex-direction: row; flex-wrap: wrap; gap: 8px; }
   .bp__msg-btn, .bp__phone-btn { padding: 10px 14px; font-size: 13px; }
+  .bp__gallery-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .bp__similar-grid { grid-template-columns: repeat(2, 1fr); }
 }

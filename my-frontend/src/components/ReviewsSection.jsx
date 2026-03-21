@@ -115,7 +115,7 @@ function ReviewForm({ onSubmit, onCancel, loading, error }) {
   )
 }
 
-export default function ReviewsSection({ type, targetId }) {
+export default function ReviewsSection({ type, targetId, horizontal }) {
   const { user, getAccessToken } = useAuth()
   const navigate = useNavigate()
   const [data, setData] = useState(null)
@@ -218,7 +218,7 @@ export default function ReviewsSection({ type, targetId }) {
       )}
 
       {visible.length > 0 && (
-        <div className="rv-list">
+        <div className={horizontal ? 'rv-list rv-list--horizontal' : 'rv-list'}>
           {visible.map(r => <ReviewCard key={r.id} review={r} />)}
         </div>
       )}
