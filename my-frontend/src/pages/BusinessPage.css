@@ -138,6 +138,41 @@
   gap: 10px;
   min-width: 160px;
 }
+.bp__subscribe-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 22px;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 1.5px solid var(--border-color);
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.22s;
+  font-family: inherit;
+}
+.bp__subscribe-btn:hover:not(:disabled) {
+  border-color: var(--accent-1);
+  color: var(--accent-1);
+  background: rgba(229,57,53,0.06);
+}
+.bp__subscribe-btn--active {
+  background: var(--accent-gradient);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 4px 14px rgba(229,57,53,0.3);
+}
+.bp__subscribe-btn--active:hover:not(:disabled) {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+.bp__subscribe-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
 .bp__msg-btn {
   display: flex;
   align-items: center;

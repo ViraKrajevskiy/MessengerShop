@@ -305,6 +305,21 @@ class Review(models.Model):
         return f'Review {self.rating}★ by {self.author.email}'
 
 
+class BusinessSubscription(models.Model):
+    user     = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subscriptions')
+    business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='subscribers')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'business')
+        ordering = ['-created_at']
+        verbose_name = 'Business Subscription'
+        verbose_name_plural = 'Business Subscriptions'
+
+    def __str__(self):
+        return f'{self.user.email} → {self.business.brand_name}'
+
+
 class Comment(BaseController):
     story  = models.ForeignKey(Story, on_delete=models.CASCADE, related_name='comments')
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')

@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import Header from '../components/Header'
 import ProductCard from '../components/ProductCard'
 import ReviewsSection from '../components/ReviewsSection'
-import { apiGetBusiness, apiGetBusinessPosts, apiGetBusinesses } from '../api/businessApi'
+import { apiGetBusiness, apiGetBusinessPosts, apiGetBusinesses, apiToggleSubscription } from '../api/businessApi'
 import './BusinessPage.css'
 
 const CATEGORY_ICONS = {
@@ -79,13 +79,16 @@ function SimilarCard({ biz, onClick }) {
 export default function BusinessPage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { user, getAccessToken } = useAuth()
 
-  const [biz, setBiz]         = useState(null)
-  const [posts, setPosts]     = useState([])
-  const [similar, setSimilar] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError]     = useState('')
+  const [biz, setBiz]               = useState(null)
+  const [posts, setPosts]           = useState([])
+  const [similar, setSimilar]       = useState([])
+  const [loading, setLoading]       = useState(true)
+  const [error, setError]           = useState('')
+  const [subscribed, setSubscribed] = useState(false)
+  const [subCount, setSubCount]     = useState(0)
+  const [subLoading, setSubLoading] = useState(false)
 
   useEffect(() => {
     setLoading(true)
@@ -96,6 +99,8 @@ export default function BusinessPage() {
       .then(([bizData, postsData]) => {
         setBiz(bizData)
         setPosts(postsData)
+        setSubscribed(bizData.is_subscribed || false)
+        setSubCount(bizData.subscribers_count || 0)
         if (bizData.category) {
           apiGetBusinesses({ category: bizData.category })
             .then(list => setSimilar(list.filter(b => b.id !== bizData.id).slice(0, 5)))
@@ -132,6 +137,20 @@ export default function BusinessPage() {
   const cover = resolveUrl(biz.cover) || FALLBACK_COVER
   const categoryIcon = CATEGORY_ICONS[biz.category] || '🏢'
   const availableProducts = (biz.products || []).filter(p => p.is_available)
+
+  const handleSubscribe = async () => {
+    if (!user) { navigate('/login'); return }
+    if (subLoading) return
+    setSubLoading(true)
+    try {
+      const token = await getAccessToken()
+      const data = await apiToggleSubscription(id, token)
+      setSubscribed(data.subscribed)
+      setSubCount(data.subscribers_count)
+    } catch { /* ignore */ } finally {
+      setSubLoading(false)
+    }
+  }
 
   return (
     <div className="bp">
@@ -178,9 +197,23 @@ export default function BusinessPage() {
                   {biz.views_count} просмотров
                 </span>
               )}
+              <span className="bp__meta-item">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+                {subCount} подписчиков
+              </span>
             </div>
           </div>
           <div className="bp__hero-actions">
+            <button
+              className={`bp__subscribe-btn ${subscribed ? 'bp__subscribe-btn--active' : ''}`}
+              onClick={handleSubscribe}
+              disabled={subLoading}
+            >
+              {subscribed ? '✓ Подписан' : '+ Подписаться'}
+            </button>
             <button className="bp__msg-btn" onClick={() => { if (!user) { navigate('/login'); return } navigate('/messenger') }}>
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>

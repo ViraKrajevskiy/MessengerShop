@@ -5,27 +5,33 @@ from .product_serializer import ProductSerializer
 
 class BusinessListSerializer(serializers.ModelSerializer):
     """Краткая карточка для списка (главная страница)"""
-    owner_username = serializers.CharField(source='owner.username', read_only=True)
-    owner_avatar   = serializers.ImageField(source='owner.avatar', read_only=True)
-    category_label = serializers.CharField(source='get_category_display', read_only=True)
+    owner_username    = serializers.CharField(source='owner.username', read_only=True)
+    owner_avatar      = serializers.ImageField(source='owner.avatar', read_only=True)
+    category_label    = serializers.CharField(source='get_category_display', read_only=True)
+    subscribers_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Business
         fields = [
             'id', 'brand_name', 'category', 'category_label',
             'city', 'logo', 'is_verified', 'is_vip',
-            'rating', 'views_count',
+            'rating', 'views_count', 'subscribers_count',
             'owner_username', 'owner_avatar',
         ]
+
+    def get_subscribers_count(self, obj):
+        return obj.subscribers.count()
 
 
 class BusinessDetailSerializer(serializers.ModelSerializer):
     """Полный профиль бизнеса"""
-    owner_username = serializers.CharField(source='owner.username', read_only=True)
-    owner_email    = serializers.EmailField(source='owner.email', read_only=True)
-    owner_avatar   = serializers.ImageField(source='owner.avatar', read_only=True)
-    category_label = serializers.CharField(source='get_category_display', read_only=True)
-    products       = serializers.SerializerMethodField()
+    owner_username    = serializers.CharField(source='owner.username', read_only=True)
+    owner_email       = serializers.EmailField(source='owner.email', read_only=True)
+    owner_avatar      = serializers.ImageField(source='owner.avatar', read_only=True)
+    category_label    = serializers.CharField(source='get_category_display', read_only=True)
+    products          = serializers.SerializerMethodField()
+    subscribers_count = serializers.SerializerMethodField()
+    is_subscribed     = serializers.SerializerMethodField()
 
     class Meta:
         model = Business
@@ -35,6 +41,7 @@ class BusinessDetailSerializer(serializers.ModelSerializer):
             'logo', 'cover', 'is_verified', 'is_vip',
             'rating', 'views_count', 'created_at',
             'owner_username', 'owner_email', 'owner_avatar',
+            'subscribers_count', 'is_subscribed',
             'products',
         ]
         read_only_fields = ['is_verified', 'is_vip', 'rating', 'views_count', 'created_at']
@@ -42,6 +49,15 @@ class BusinessDetailSerializer(serializers.ModelSerializer):
     def get_products(self, obj):
         qs = obj.products.filter(is_available=True)
         return ProductSerializer(qs, many=True, context=self.context).data
+
+    def get_subscribers_count(self, obj):
+        return obj.subscribers.count()
+
+    def get_is_subscribed(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.subscribers.filter(user=request.user).exists()
+        return False
 
 
 class BusinessCreateUpdateSerializer(serializers.ModelSerializer):

@@ -150,6 +150,22 @@ export async function apiSendProductInquiry(productId, message, token) {
   return res.json()
 }
 
+export async function apiGetSubscription(bizId, token) {
+  const headers = token ? { 'Authorization': `Bearer ${token}` } : {}
+  const res = await fetch(`${BASE}/businesses/${bizId}/subscribe/`, { headers })
+  if (!res.ok) throw new Error('Ошибка')
+  return res.json()
+}
+
+export async function apiToggleSubscription(bizId, token) {
+  const res = await fetch(`${BASE}/businesses/${bizId}/subscribe/`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}` },
+  })
+  if (!res.ok) throw new Error('Ошибка подписки')
+  return res.json()
+}
+
 export const CATEGORY_LABELS = {
   BEAUTY:    'Красота и уход',
   HEALTH:    'Здоровье',

@@ -4,7 +4,7 @@ import Header from '../components/Header'
 import Footer from '../components/Footer'
 import Stories from '../components/Stories'
 import { useAuth } from '../context/AuthContext'
-import { apiGetPosts, apiGetBusinesses, CATEGORY_LABELS } from '../api/businessApi'
+import { apiGetPosts, apiGetBusinesses, apiToggleSubscription, CATEGORY_LABELS } from '../api/businessApi'
 import './FeedPage.css'
 
 const FALLBACK_IMG  = 'https://picsum.photos/id/342/800/600'
@@ -30,10 +30,11 @@ function timeAgo(dateStr) {
 // ── Post card (full feed style) ───────────────────────────────────────────────
 function FeedPost({ post }) {
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { user, getAccessToken } = useAuth()
   const [liked, setLiked] = useState(false)
   const [likes, setLikes] = useState(post.likes_count || 0)
-  const [followed, setFollowed] = useState(false)
+  const [followed, setFollowed] = useState(post.is_subscribed || false)
+  const [subLoading, setSubLoading] = useState(false)
   const [expanded, setExpanded] = useState(false)
 
   const logo  = post.business_logo
@@ -46,6 +47,19 @@ function FeedPost({ post }) {
   const requireAuth = (cb) => {
     if (!user) { navigate('/login'); return }
     cb()
+  }
+
+  const handleFollow = async () => {
+    if (!user) { navigate('/login'); return }
+    if (subLoading) return
+    setSubLoading(true)
+    try {
+      const token = await getAccessToken()
+      const data = await apiToggleSubscription(post.business_id, token)
+      setFollowed(data.subscribed)
+    } catch { /* ignore */ } finally {
+      setSubLoading(false)
+    }
   }
 
   return (
@@ -66,9 +80,10 @@ function FeedPost({ post }) {
         </div>
         <button
           className={`feed-post__follow ${followed ? 'feed-post__follow--active' : ''}`}
-          onClick={() => requireAuth(() => setFollowed(!followed))}
+          onClick={handleFollow}
+          disabled={subLoading}
         >
-          {followed ? 'Подписан' : '+ Подписаться'}
+          {followed ? '✓ Подписан' : '+ Подписаться'}
         </button>
       </div>
 
