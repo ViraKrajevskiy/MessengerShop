@@ -146,6 +146,7 @@ class Product(BaseController):
     image       = models.ImageField(upload_to='products/', blank=True, null=True)
     image_url   = models.URLField(blank=True)
     is_available = models.BooleanField(default=True)
+    views_count  = models.PositiveIntegerField(default=0)
 
     class Meta:
         ordering = ['-created_at']
@@ -233,6 +234,18 @@ class Post(BaseController):
         if self.media:
             return self.media.url
         return None
+
+
+class ProductLike(models.Model):
+    product    = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='likes')
+    user       = models.ForeignKey(User, on_delete=models.CASCADE, related_name='liked_products')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('product', 'user')
+
+    def __str__(self):
+        return f'{self.user.email} liked {self.product.name}'
 
 
 class ProductInquiry(BaseController):
