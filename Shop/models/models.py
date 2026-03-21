@@ -250,6 +250,19 @@ class ProductInquiry(BaseController):
         return f'Inquiry from {self.sender.email} for {self.product.name}'
 
 
+class InquiryMessage(models.Model):
+    inquiry    = models.ForeignKey(ProductInquiry, on_delete=models.CASCADE, related_name='messages')
+    sender     = models.ForeignKey(User, on_delete=models.CASCADE, related_name='inquiry_messages')
+    text       = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f'Message from {self.sender.email} in inquiry #{self.inquiry_id}'
+
+
 class Comment(BaseController):
     story  = models.ForeignKey(Story, on_delete=models.CASCADE, related_name='comments')
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')

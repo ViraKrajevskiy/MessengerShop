@@ -78,6 +78,27 @@ export async function apiGetInquiries(token) {
   return res.json()
 }
 
+export async function apiGetInquiryMessages(inquiryId, token) {
+  const res = await fetch(`${BASE}/inquiries/${inquiryId}/messages/`, {
+    headers: { 'Authorization': `Bearer ${token}` },
+  })
+  if (!res.ok) throw new Error('Ошибка загрузки сообщений')
+  return res.json()
+}
+
+export async function apiSendInquiryMessage(inquiryId, text, token) {
+  const res = await fetch(`${BASE}/inquiries/${inquiryId}/messages/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({ text }),
+  })
+  if (!res.ok) throw new Error('Ошибка отправки сообщения')
+  return res.json()
+}
+
 export async function apiSendProductInquiry(productId, message, token) {
   const res = await fetch(`${BASE}/products/${productId}/inquiry/`, {
     method: 'POST',

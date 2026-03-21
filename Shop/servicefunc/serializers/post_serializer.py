@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from Shop.models import Post, ProductInquiry
+from Shop.models import Post, ProductInquiry, InquiryMessage
 
 
 class PostSerializer(serializers.ModelSerializer):
@@ -56,3 +56,12 @@ class ProductInquiryCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductInquiry
         fields = ['message']
+
+
+class InquiryMessageSerializer(serializers.ModelSerializer):
+    sender_id   = serializers.IntegerField(source='sender.id', read_only=True)
+    sender_name = serializers.CharField(source='sender.username', read_only=True)
+
+    class Meta:
+        model = InquiryMessage
+        fields = ['id', 'sender_id', 'sender_name', 'text', 'created_at']

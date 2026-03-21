@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
 import { useAuth } from '../context/AuthContext'
-import { apiGetInquiries } from '../api/businessApi'
+import { apiGetInquiries, apiGetInquiryMessages, apiSendInquiryMessage } from '../api/businessApi'
 import './MessengerPage.css'
 
 const FALLBACK_AVATAR = 'https://i.pravatar.cc/100?u='
@@ -19,11 +19,9 @@ function timeAgo(dateStr) {
   return `${days} дн.`
 }
 
-// ── Элемент контакта ─────────────────────────────────────────────────────────
-function ContactItem({ inquiry, isActive, onClick }) {
-  const avatar = inquiry.logo || `${FALLBACK_AVATAR}${inquiry.biz_id}`
-  const name   = inquiry.biz_name
-  const preview = inquiry.message
+function ContactItem({ inquiry, isActive, onClick, isBusiness }) {
+  const avatar = inquiry.logo || `${FALLBACK_AVATAR}${isBusiness ? inquiry.sender_id : inquiry.biz_id}`
+  const name   = isBusiness ? inquiry.sender_name : inquiry.biz_name
 
   return (
     <div className={`msg-contact ${isActive ? 'msg-contact--active' : ''}`} onClick={onClick}>
@@ -36,7 +34,7 @@ function ContactItem({ inquiry, isActive, onClick }) {
           <span className="msg-contact__time">{timeAgo(inquiry.created_at)}</span>
         </div>
         <div className="msg-contact__bottom">
-          <span className="msg-contact__preview" title={preview}>{preview}</span>
+          <span className="msg-contact__preview" title={inquiry.message}>{inquiry.message}</span>
           {!inquiry.is_read && <span className="msg-contact__unread">1</span>}
         </div>
       </div>
@@ -44,18 +42,49 @@ function ContactItem({ inquiry, isActive, onClick }) {
   )
 }
 
-// ── Просмотр переписки ───────────────────────────────────────────────────────
-function ChatView({ inquiry, onBack, onProfileClick }) {
-  const messagesEndRef = useRef(null)
-  const avatar = inquiry.logo || `${FALLBACK_AVATAR}${inquiry.biz_id}`
+function ChatView({ inquiry, isBusiness, onBack, onProfileClick, getAccessToken, currentUserId }) {
+  const messagesEndRef  = useRef(null)
+  const inputRef        = useRef(null)
+  const [messages, setMessages] = useState([])
+  const [loading, setLoading]   = useState(true)
+  const [text, setText]         = useState('')
+  const [sending, setSending]   = useState(false)
+
+  const avatar = inquiry.logo || `${FALLBACK_AVATAR}${isBusiness ? inquiry.sender_id : inquiry.biz_id}`
+  const name   = isBusiness ? inquiry.sender_name : inquiry.biz_name
+
+  useEffect(() => {
+    setLoading(true)
+    getAccessToken().then(token => {
+      if (!token) return
+      return apiGetInquiryMessages(inquiry.id, token)
+        .then(data => setMessages(data))
+        .catch(() => {})
+        .finally(() => setLoading(false))
+    })
+  }, [inquiry.id])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [])
+  }, [messages])
+
+  const send = async (e) => {
+    e.preventDefault()
+    if (!text.trim() || sending) return
+    setSending(true)
+    try {
+      const token = await getAccessToken()
+      const msg = await apiSendInquiryMessage(inquiry.id, text.trim(), token)
+      setMessages(prev => [...prev, msg])
+      setText('')
+    } catch {
+    } finally {
+      setSending(false)
+    }
+  }
 
   return (
     <div className="chat-view">
-      {/* Шапка чата */}
       <div className="chat-view__header">
         <button className="chat-view__back" onClick={onBack}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -64,19 +93,15 @@ function ChatView({ inquiry, onBack, onProfileClick }) {
         </button>
         <div className="chat-view__user" onClick={onProfileClick} style={{cursor:'pointer'}}>
           <div className="chat-view__avatar-wrap">
-            <img className="chat-view__avatar" src={avatar} alt={inquiry.biz_name} />
+            <img className="chat-view__avatar" src={avatar} alt={name} />
           </div>
           <div className="chat-view__user-info">
-            <span className="chat-view__name">{inquiry.biz_name}</span>
+            <span className="chat-view__name">{name}</span>
             <span className="chat-view__status">{inquiry.product_name}</span>
           </div>
         </div>
         <div className="chat-view__actions">
-          <button
-            className="chat-view__action-btn"
-            title="Открыть профиль"
-            onClick={onProfileClick}
-          >
+          <button className="chat-view__action-btn" title="Открыть профиль" onClick={onProfileClick}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
               <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
@@ -85,44 +110,53 @@ function ChatView({ inquiry, onBack, onProfileClick }) {
         </div>
       </div>
 
-      {/* Сообщения */}
       <div className="chat-view__messages">
-        <div className="chat-view__date-divider">
-          <span>{new Date(inquiry.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}</span>
-        </div>
-
-        {/* Сообщение пользователя */}
-        <div className="msg-bubble msg-bubble--me">
-          <p className="msg-bubble__text">{inquiry.message}</p>
-          <span className="msg-bubble__time">
-            {new Date(inquiry.created_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
-            <svg className="msg-bubble__check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path d="M20 6L9 17l-5-5"/>
-            </svg>
-          </span>
-        </div>
-
-        {/* Системное сообщение */}
-        <div className="chat-view__system-msg">
-          Ответ от бизнеса появится здесь. Вы можете связаться напрямую по телефону или через сайт компании.
-        </div>
-
+        {loading ? (
+          <div style={{textAlign:'center',padding:'40px',color:'var(--text-muted)'}}>Загрузка...</div>
+        ) : messages.length === 0 ? (
+          <div style={{textAlign:'center',padding:'40px',color:'var(--text-muted)'}}>Нет сообщений</div>
+        ) : (
+          messages.map(msg => {
+            const isMe = msg.sender_id === currentUserId
+            return (
+              <div key={msg.id} className={`msg-bubble ${isMe ? 'msg-bubble--me' : 'msg-bubble--them'}`}>
+                {!isMe && <span className="msg-bubble__author">{msg.sender_name}</span>}
+                <p className="msg-bubble__text">{msg.text}</p>
+                <span className="msg-bubble__time">
+                  {new Date(msg.created_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
+                  {isMe && (
+                    <svg className="msg-bubble__check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <path d="M20 6L9 17l-5-5"/>
+                    </svg>
+                  )}
+                </span>
+              </div>
+            )
+          })
+        )}
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Поле ввода — только информационное, т.к. повторная отправка через ProductCard */}
-      <div className="chat-view__input-bar chat-view__input-bar--info">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <circle cx="12" cy="12" r="10"/>
-          <line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-        </svg>
-        <span>Чтобы написать ещё — найдите товар и нажмите «Написать»</span>
-      </div>
+      <form className="chat-view__input-bar" onSubmit={send}>
+        <input
+          ref={inputRef}
+          type="text"
+          className="chat-view__input"
+          placeholder="Написать сообщение..."
+          value={text}
+          onChange={e => setText(e.target.value)}
+          disabled={sending}
+        />
+        <button type="submit" className="chat-view__send-btn" disabled={!text.trim() || sending}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+          </svg>
+        </button>
+      </form>
     </div>
   )
 }
 
-// ── Главная страница мессенджера ─────────────────────────────────────────────
 export default function MessengerPage() {
   const navigate = useNavigate()
   const { user, getAccessToken } = useAuth()
@@ -130,6 +164,8 @@ export default function MessengerPage() {
   const [loading, setLoading]     = useState(true)
   const [activeIdx, setActiveIdx] = useState(null)
   const [search, setSearch]       = useState('')
+
+  const isBusiness = user?.role === 'BUSINESS'
 
   useEffect(() => {
     if (!user) { setLoading(false); return }
@@ -140,11 +176,15 @@ export default function MessengerPage() {
       .finally(() => setLoading(false))
   }, [user])
 
-  const filtered = inquiries.filter(inq =>
-    inq.biz_name.toLowerCase().includes(search.toLowerCase()) ||
-    inq.product_name.toLowerCase().includes(search.toLowerCase()) ||
-    inq.message.toLowerCase().includes(search.toLowerCase())
-  )
+  const filtered = inquiries.filter(inq => {
+    const q = search.toLowerCase()
+    return (
+      inq.biz_name.toLowerCase().includes(q) ||
+      inq.product_name.toLowerCase().includes(q) ||
+      inq.message.toLowerCase().includes(q) ||
+      (inq.sender_name || '').toLowerCase().includes(q)
+    )
+  })
 
   const activeInquiry = activeIdx !== null ? filtered[activeIdx] : null
   const unreadCount   = inquiries.filter(i => !i.is_read).length
@@ -153,8 +193,6 @@ export default function MessengerPage() {
     <div className="messenger-page">
       <Header />
       <div className="messenger">
-
-        {/* ── Боковая панель: список ── */}
         <aside className={`messenger__sidebar ${activeInquiry ? 'messenger__sidebar--hidden-mobile' : ''}`}>
           <div className="messenger__sidebar-header">
             <h2 className="messenger__title">
@@ -189,6 +227,7 @@ export default function MessengerPage() {
                 <ContactItem
                   key={inq.id}
                   inquiry={inq}
+                  isBusiness={isBusiness}
                   isActive={activeIdx === i}
                   onClick={() => setActiveIdx(i)}
                 />
@@ -205,13 +244,15 @@ export default function MessengerPage() {
           </div>
         </aside>
 
-        {/* ── Область чата ── */}
         <main className={`messenger__chat ${activeInquiry ? 'messenger__chat--visible-mobile' : ''}`}>
           {activeInquiry ? (
             <ChatView
               inquiry={activeInquiry}
+              isBusiness={isBusiness}
               onBack={() => setActiveIdx(null)}
               onProfileClick={() => navigate(`/business/${activeInquiry.biz_id}`)}
+              getAccessToken={getAccessToken}
+              currentUserId={user?.id}
             />
           ) : (
             <div className="messenger__empty">

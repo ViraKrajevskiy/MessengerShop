@@ -2,15 +2,15 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from Shop.models import Post, Product, ProductInquiry, Business
+from Shop.models import Post, Product, ProductInquiry, Business, InquiryMessage
 from Shop.servicefunc.serializers.post_serializer import (
     PostSerializer, PostCreateSerializer,
     ProductInquiryCreateSerializer,
+    InquiryMessageSerializer,
 )
 
 
 class PostListView(APIView):
-    """GET /api/posts/ — все посты (лента)"""
     permission_classes = [AllowAny]
 
     def get(self, request):
@@ -22,8 +22,6 @@ class PostListView(APIView):
 
 
 class BusinessPostListView(APIView):
-    """GET /api/businesses/<pk>/posts/ — посты конкретного бизнеса
-       POST — создать пост (только владелец)"""
     permission_classes = [AllowAny]
 
     def get(self, request, pk):
@@ -47,7 +45,6 @@ class BusinessPostListView(APIView):
 
 
 class ProductInquiryView(APIView):
-    """POST /api/products/<pk>/inquiry/ — написать бизнесу по товару"""
     permission_classes = [IsAuthenticated]
 
     def post(self, request, pk):
@@ -58,50 +55,50 @@ class ProductInquiryView(APIView):
 
         serializer = ProductInquiryCreateSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(product=product, sender=request.user)
+            inquiry = serializer.save(product=product, sender=request.user)
+            InquiryMessage.objects.create(
+                inquiry=inquiry,
+                sender=request.user,
+                text=serializer.validated_data['message'],
+            )
             return Response({'detail': 'Сообщение отправлено'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class InquiryListView(APIView):
-    """
-    GET /api/inquiries/
-    Для обычного пользователя — его отправленные заявки.
-    Для бизнесмена — полученные заявки на его товары.
-    """
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         user = request.user
 
         if hasattr(user, 'business_profile'):
-            # Бизнес видит входящие заявки на свои товары
             inquiries = (
                 ProductInquiry.objects
                 .filter(product__business__owner=user)
                 .select_related('product__business', 'sender')
+                .prefetch_related('messages')
                 .order_by('-created_at')
             )
         else:
-            # Обычный пользователь видит свои отправленные заявки
             inquiries = (
                 ProductInquiry.objects
                 .filter(sender=user)
                 .select_related('product__business', 'sender')
+                .prefetch_related('messages')
                 .order_by('-created_at')
             )
 
+        is_business = hasattr(user, 'business_profile')
         data = []
         for inq in inquiries:
             biz = inq.product.business
-            other = inq.sender if hasattr(user, 'business_profile') else biz.owner
             logo = None
-            if hasattr(user, 'business_profile'):
-                # Показываем аватар отправителя
+            if is_business:
                 logo = inq.sender.avatar.url if inq.sender.avatar else None
             else:
-                # Показываем логотип бизнеса
                 logo = biz.logo.url if biz.logo else None
+
+            last_msg = inq.messages.last()
 
             data.append({
                 'id':           inq.id,
@@ -111,10 +108,52 @@ class InquiryListView(APIView):
                 'biz_name':     biz.brand_name,
                 'sender_id':    inq.sender.id,
                 'sender_name':  inq.sender.username,
-                'message':      inq.message,
+                'message':      last_msg.text if last_msg else inq.message,
+                'last_sender_id': last_msg.sender_id if last_msg else inq.sender_id,
                 'is_read':      inq.is_read,
                 'created_at':   inq.created_at.isoformat(),
                 'logo':         request.build_absolute_uri(logo) if logo else None,
             })
 
         return Response(data)
+
+
+class InquiryMessagesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def _get_inquiry(self, pk, user):
+        try:
+            inq = ProductInquiry.objects.select_related(
+                'product__business__owner', 'sender'
+            ).get(pk=pk)
+        except ProductInquiry.DoesNotExist:
+            return None, None
+        is_business = hasattr(user, 'business_profile')
+        if is_business and inq.product.business.owner != user:
+            return None, None
+        if not is_business and inq.sender != user:
+            return None, None
+        return inq, is_business
+
+    def get(self, request, pk):
+        inq, is_business = self._get_inquiry(pk, request.user)
+        if inq is None:
+            return Response({'detail': 'Не найдено или нет доступа'}, status=status.HTTP_404_NOT_FOUND)
+
+        if is_business and not inq.is_read:
+            ProductInquiry.objects.filter(pk=pk).update(is_read=True)
+
+        messages = inq.messages.select_related('sender').all()
+        return Response(InquiryMessageSerializer(messages, many=True).data)
+
+    def post(self, request, pk):
+        inq, _ = self._get_inquiry(pk, request.user)
+        if inq is None:
+            return Response({'detail': 'Не найдено или нет доступа'}, status=status.HTTP_404_NOT_FOUND)
+
+        text = request.data.get('text', '').strip()
+        if not text:
+            return Response({'detail': 'Текст не может быть пустым'}, status=status.HTTP_400_BAD_REQUEST)
+
+        msg = InquiryMessage.objects.create(inquiry=inq, sender=request.user, text=text)
+        return Response(InquiryMessageSerializer(msg).data, status=status.HTTP_201_CREATED)

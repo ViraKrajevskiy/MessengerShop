@@ -9,7 +9,7 @@ import random
 
 from Shop.models import (
     User, Business, Story, Product, Post,
-    Comment, ProductInquiry,
+    Comment, ProductInquiry, InquiryMessage,
 )
 
 
@@ -494,11 +494,12 @@ class Command(BaseCommand):
                 for i, text in enumerate(inquiry_texts):
                     sender = regular_users[i % len(regular_users)]
                     product = products_created[i % len(products_created)]
-                    ProductInquiry.objects.create(
+                    inq = ProductInquiry.objects.create(
                         product=product,
                         sender=sender,
                         message=text,
                     )
+                    InquiryMessage.objects.create(inquiry=inq, sender=sender, text=text)
                     cnt['inquiries'] += 1
                 out(f'     Inquiries: {len(inquiry_texts)}')
 
