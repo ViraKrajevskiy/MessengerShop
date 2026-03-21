@@ -1,11 +1,13 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { QRCodeSVG } from 'qrcode.react'
 import { useAuth } from '../context/AuthContext'
 import { apiPatchMe } from '../api/profileApi'
 import Header from '../components/Header'
 import './MyProfilePage.css'
 
-const BASE = 'http://127.0.0.1:8000/api'
+const BASE = 'https://api.101-school.uz/api'
+const FRONTEND = 'https://101-school.uz'
 
 async function fetchVerStatus(token) {
   const res = await fetch(`${BASE}/verification/my/`, {
@@ -42,6 +44,8 @@ export default function MyProfilePage() {
   const [saveError, setSaveError]         = useState('')
   const [saveOk, setSaveOk]               = useState(false)
   const [verStatus, setVerStatus]         = useState(undefined) // undefined=loading, null=нет заявки
+  const [qrToken, setQrToken]             = useState(null)
+  const [qrRegen, setQrRegen]             = useState(false)
 
   // Когда user загрузился — инициализируем форму
   useEffect(() => {
@@ -54,6 +58,29 @@ export default function MyProfilePage() {
     fetchVerStatus(tokens.access).then(setVerStatus)
   }, [tokens?.access, user?.role])
 
+  // Загружаем QR-токен
+  useEffect(() => {
+    if (!tokens?.access) return
+    fetch(`${BASE}/auth/qr-token/`, { headers: { Authorization: `Bearer ${tokens.access}` } })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => d && setQrToken(d.qr_token))
+      .catch(() => {})
+  }, [tokens?.access])
+
+  const handleRegenQR = async () => {
+    if (!tokens?.access) return
+    setQrRegen(true)
+    const res = await fetch(`${BASE}/auth/qr-token/`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${tokens.access}` },
+    })
+    if (res.ok) {
+      const d = await res.json()
+      setQrToken(d.qr_token)
+    }
+    setQrRegen(false)
+  }
+
   // Если не залогинен — редирект (ПОСЛЕ всех хуков)
   useEffect(() => {
     if (!user) navigate('/login')
@@ -64,7 +91,7 @@ export default function MyProfilePage() {
   // ── Производные значения ────────────────────────────────────────────────────
   const avatarSrc = avatarPreview
     || (user.avatar
-        ? (user.avatar.startsWith('http') ? user.avatar : `http://127.0.0.1:8000${user.avatar}`)
+        ? (user.avatar.startsWith('http') ? user.avatar : `https://api.101-school.uz${user.avatar}`)
         : `https://i.pravatar.cc/200?u=${user.email}`)
 
   const role = ROLE_LABELS[user.role] || { label: user.role, color: '#64748b' }
@@ -296,6 +323,35 @@ export default function MyProfilePage() {
                 )}
               </div>
             )}
+
+            {/* ── QR-код ── */}
+            <div className="my-profile__card my-profile__card--qr">
+              <h3 className="my-profile__card-title">QR-код для входа</h3>
+              <div className="my-profile__qr-wrap">
+                {qrToken ? (
+                  <>
+                    <div className="my-profile__qr-canvas">
+                      <QRCodeSVG
+                        value={`${FRONTEND}/qr-login?token=${qrToken}`}
+                        size={160}
+                        bgColor="transparent"
+                        fgColor="var(--text-primary)"
+                        level="M"
+                      />
+                    </div>
+                    <div className="my-profile__qr-info">
+                      <p>Сканируйте QR-код камерой телефона, чтобы войти в аккаунт без пароля.</p>
+                      <button className="my-profile__qr-regen" onClick={handleRegenQR} disabled={qrRegen}>
+                        {qrRegen ? '...' : '🔄 Обновить QR-код'}
+                      </button>
+                      <span className="my-profile__qr-hint">Не показывайте этот код другим людям</span>
+                    </div>
+                  </>
+                ) : (
+                  <div className="my-profile__qr-loading">Загрузка QR...</div>
+                )}
+              </div>
+            </div>
 
             <div className="my-profile__card my-profile__card--posts">
               <h3 className="my-profile__card-title">Публикации</h3>

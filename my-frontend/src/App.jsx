@@ -13,6 +13,7 @@ import BusinessPage from './pages/BusinessPage'
 import FeedPage from './pages/FeedPage'
 import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
+import QRLoginPage from './pages/QRLoginPage'
 
 // Защищённый роут — редиректит на /login если не авторизован
 function PrivateRoute({ children }) {
@@ -36,6 +37,7 @@ function App() {
               <Route path="/register"        element={<RegisterPage />} />
               <Route path="/forgot-password" element={<ForgotPasswordPage />} />
               <Route path="/reset-password"  element={<ResetPasswordPage />} />
+              <Route path="/qr-login"        element={<QRLoginPage />} />
               <Route path="/verification" element={<VerificationPage />} />
 
               {/* Только для залогиненных */}

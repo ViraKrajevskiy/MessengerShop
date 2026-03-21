@@ -1,3 +1,4 @@
+import uuid as uuid_lib
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils import timezone
@@ -25,6 +26,7 @@ class User(AbstractUser, BaseController):
     is_active = models.BooleanField(default=False)
     verification_code = models.CharField(max_length=6, blank=True, null=True)
     google_id = models.CharField(max_length=255, blank=True, null=True)
+    qr_token  = models.UUIDField(default=uuid_lib.uuid4, unique=True, editable=False)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']

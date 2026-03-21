@@ -547,3 +547,55 @@
   transition: opacity 0.15s;
 }
 .my-profile__ver-link:hover { opacity: 0.75; }
+
+
+/* ── QR Card ── */
+.my-profile__qr-wrap {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+.my-profile__qr-canvas {
+  flex-shrink: 0;
+  background: var(--bg-primary);
+  border: 1.5px solid var(--border-color);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.my-profile__qr-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.my-profile__qr-info p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+.my-profile__qr-regen {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border: 1.5px solid var(--border-color);
+  border-radius: 10px;
+  background: none;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.18s;
+  width: fit-content;
+}
+.my-profile__qr-regen:hover:not(:disabled) { border-color: var(--accent-1); color: var(--accent-1); }
+.my-profile__qr-regen:disabled { opacity: 0.5; cursor: default; }
+.my-profile__qr-hint { font-size: 12px; color: var(--text-muted); }
+.my-profile__qr-loading { font-size: 13px; color: var(--text-muted); padding: 20px 0; }
+@media (max-width: 600px) {
+  .my-profile__qr-wrap { flex-direction: column; align-items: flex-start; }
+}
