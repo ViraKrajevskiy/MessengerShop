@@ -18,9 +18,15 @@ from Shop.servicefunc.views.business.business import (
     BusinessListView, BusinessCreateView, BusinessDetailView, MyBusinessView,
 )
 from Shop.servicefunc.views.business.subscribe import BusinessSubscribeView
-from Shop.servicefunc.views.product.product import BusinessProductListView, ProductDetailView, ProductLikeView, BusinessStatsView
-from Shop.servicefunc.views.post.post import PostListView, BusinessPostListView, ProductInquiryView, InquiryListView, InquiryMessagesView
+from Shop.servicefunc.views.product.product import BusinessProductListView, ProductDetailView, ProductLikeView, ProductSearchView, BusinessStatsView
+from Shop.servicefunc.views.post.post import PostListView, BusinessPostListView, ProductInquiryView, InquiryListView, InquiryMessagesView, InquiryMessageActionView
 from Shop.servicefunc.views.review.reviews import BusinessReviewListCreateView, ProductReviewListCreateView
+from Shop.servicefunc.views.groups import (
+    GroupListCreateView, GroupDetailView,
+    GroupMembersView, GroupMemberDetailView,
+    GroupMessagesView, GroupMessageActionView,
+    GroupJoinView,
+)
 
 urlpatterns = [
     path('auth/register/',               RegisterView.as_view(),              name='auth_register'),
@@ -43,12 +49,14 @@ urlpatterns = [
     path('businesses/<int:pk>/products/', BusinessProductListView.as_view(),  name='business_products'),
     path('businesses/<int:pk>/reviews/',  BusinessReviewListCreateView.as_view(), name='business_reviews'),
     path('products/<int:pk>/reviews/',    ProductReviewListCreateView.as_view(),  name='product_reviews'),
+    path('products/search/',               ProductSearchView.as_view(),        name='product_search'),
     path('products/<int:pk>/',            ProductDetailView.as_view(),        name='product_detail'),
     path('products/<int:pk>/like/',       ProductLikeView.as_view(),          name='product_like'),
     path('products/<int:pk>/inquiry/',    ProductInquiryView.as_view(),       name='product_inquiry'),
     path('businesses/me/stats/',          BusinessStatsView.as_view(),        name='business_stats'),
     path('inquiries/',                    InquiryListView.as_view(),          name='inquiry_list'),
-    path('inquiries/<int:pk>/messages/', InquiryMessagesView.as_view(),      name='inquiry_messages'),
+    path('inquiries/<int:pk>/messages/',              InquiryMessagesView.as_view(),      name='inquiry_messages'),
+    path('inquiries/<int:pk>/messages/<int:msg_pk>/', InquiryMessageActionView.as_view(), name='inquiry_message_action'),
 
     path('posts/',                        PostListView.as_view(),             name='post_list'),
     path('businesses/<int:pk>/posts/',    BusinessPostListView.as_view(),     name='business_posts'),
@@ -66,4 +74,12 @@ urlpatterns = [
     path('verification/',                ModeratorVerificationListView.as_view(),   name='verification_list'),
     path('verification/<int:pk>/',       ModeratorVerificationDetailView.as_view(), name='verification_detail'),
     path('verification/<int:req_id>/chat/', VerificationChatView.as_view(),   name='verification_mod_chat'),
+
+    path('groups/',                                    GroupListCreateView.as_view(),    name='group_list_create'),
+    path('groups/<int:pk>/',                           GroupDetailView.as_view(),        name='group_detail'),
+    path('groups/<int:pk>/members/',                   GroupMembersView.as_view(),       name='group_members'),
+    path('groups/<int:pk>/members/<int:member_pk>/',   GroupMemberDetailView.as_view(),  name='group_member_detail'),
+    path('groups/<int:pk>/messages/',                  GroupMessagesView.as_view(),      name='group_messages'),
+    path('groups/<int:pk>/messages/<int:msg_pk>/',     GroupMessageActionView.as_view(), name='group_message_action'),
+    path('groups/<int:pk>/join/',                      GroupJoinView.as_view(),          name='group_join'),
 ]

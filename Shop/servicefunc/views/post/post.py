@@ -100,6 +100,10 @@ class InquiryListView(APIView):
 
             last_msg = inq.messages.last()
 
+            # Определяем онлайн-статус собеседника
+            other_user = inq.sender if is_business else biz.owner
+            other_online = other_user.is_online if other_user else False
+
             data.append({
                 'id':           inq.id,
                 'product_id':   inq.product.id,
@@ -111,6 +115,7 @@ class InquiryListView(APIView):
                 'message':      last_msg.text if last_msg else inq.message,
                 'last_sender_id': last_msg.sender_id if last_msg else inq.sender_id,
                 'is_read':      inq.is_read,
+                'is_online':    other_online,
                 'created_at':   inq.created_at.isoformat(),
                 'logo':         request.build_absolute_uri(logo) if logo else None,
             })
@@ -143,8 +148,8 @@ class InquiryMessagesView(APIView):
         if is_business and not inq.is_read:
             ProductInquiry.objects.filter(pk=pk).update(is_read=True)
 
-        messages = inq.messages.select_related('sender').all()
-        return Response(InquiryMessageSerializer(messages, many=True).data)
+        messages = inq.messages.select_related('sender').filter(is_deleted=False)
+        return Response(InquiryMessageSerializer(messages, many=True, context={'request': request}).data)
 
     def post(self, request, pk):
         inq, _ = self._get_inquiry(pk, request.user)
@@ -156,4 +161,51 @@ class InquiryMessagesView(APIView):
             return Response({'detail': 'Текст не может быть пустым'}, status=status.HTTP_400_BAD_REQUEST)
 
         msg = InquiryMessage.objects.create(inquiry=inq, sender=request.user, text=text)
-        return Response(InquiryMessageSerializer(msg).data, status=status.HTTP_201_CREATED)
+        return Response(InquiryMessageSerializer(msg, context={'request': request}).data, status=status.HTTP_201_CREATED)
+
+
+class InquiryMessageActionView(APIView):
+    """PATCH — редактировать, DELETE — удалить сообщение в чате."""
+    permission_classes = [IsAuthenticated]
+
+    def _get_message(self, pk, msg_pk, user):
+        try:
+            inq = ProductInquiry.objects.select_related('product__business__owner', 'sender').get(pk=pk)
+        except ProductInquiry.DoesNotExist:
+            return None, None
+        is_business = hasattr(user, 'business_profile')
+        if is_business and inq.product.business.owner != user:
+            return None, None
+        if not is_business and inq.sender != user:
+            return None, None
+        try:
+            msg = inq.messages.select_related('sender').get(pk=msg_pk)
+        except InquiryMessage.DoesNotExist:
+            return None, None
+        return inq, msg
+
+    def patch(self, request, pk, msg_pk):
+        """Редактировать своё сообщение."""
+        _, msg = self._get_message(pk, msg_pk, request.user)
+        if msg is None:
+            return Response({'detail': 'Не найдено'}, status=status.HTTP_404_NOT_FOUND)
+        if msg.sender != request.user:
+            return Response({'detail': 'Можно редактировать только свои сообщения'}, status=status.HTTP_403_FORBIDDEN)
+        text = request.data.get('text', '').strip()
+        if not text:
+            return Response({'detail': 'Текст обязателен'}, status=status.HTTP_400_BAD_REQUEST)
+        msg.text = text
+        msg.is_edited = True
+        msg.save(update_fields=['text', 'is_edited'])
+        return Response(InquiryMessageSerializer(msg, context={'request': request}).data)
+
+    def delete(self, request, pk, msg_pk):
+        """Удалить своё сообщение."""
+        _, msg = self._get_message(pk, msg_pk, request.user)
+        if msg is None:
+            return Response({'detail': 'Не найдено'}, status=status.HTTP_404_NOT_FOUND)
+        if msg.sender != request.user:
+            return Response({'detail': 'Можно удалять только свои сообщения'}, status=status.HTTP_403_FORBIDDEN)
+        msg.is_deleted = True
+        msg.save(update_fields=['is_deleted'])
+        return Response(status=status.HTTP_204_NO_CONTENT)

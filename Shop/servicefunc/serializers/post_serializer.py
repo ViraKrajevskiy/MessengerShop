@@ -1,5 +1,6 @@
+import re
 from rest_framework import serializers
-from Shop.models import Post, ProductInquiry, InquiryMessage
+from Shop.models import Post, Product, ProductInquiry, InquiryMessage
 
 
 class PostSerializer(serializers.ModelSerializer):
@@ -67,9 +68,53 @@ class ProductInquiryCreateSerializer(serializers.ModelSerializer):
 
 
 class InquiryMessageSerializer(serializers.ModelSerializer):
-    sender_id   = serializers.IntegerField(source='sender.id', read_only=True)
-    sender_name = serializers.CharField(source='sender.username', read_only=True)
+    sender_id     = serializers.IntegerField(source='sender.id', read_only=True)
+    sender_name   = serializers.CharField(source='sender.username', read_only=True)
+    sender_avatar = serializers.SerializerMethodField()
+    sender_online = serializers.SerializerMethodField()
+    mentioned_products = serializers.SerializerMethodField()
 
     class Meta:
         model = InquiryMessage
-        fields = ['id', 'sender_id', 'sender_name', 'text', 'created_at']
+        fields = [
+            'id', 'sender_id', 'sender_name', 'sender_avatar', 'sender_online',
+            'text', 'is_edited', 'is_deleted', 'mentioned_products', 'created_at',
+        ]
+
+    def get_sender_avatar(self, obj):
+        if obj.sender and obj.sender.avatar:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.sender.avatar.url)
+            return obj.sender.avatar.url
+        return None
+
+    def get_sender_online(self, obj):
+        if obj.sender:
+            return obj.sender.is_online
+        return False
+
+    def get_mentioned_products(self, obj):
+        """Парсит текст на #product_id и возвращает данные товаров."""
+        ids = re.findall(r'#(\d+)', obj.text or '')
+        if not ids:
+            return []
+        products = Product.objects.filter(id__in=[int(i) for i in ids], is_available=True)
+        request = self.context.get('request')
+        result = []
+        for p in products:
+            image = None
+            if p.image_url:
+                image = p.image_url
+            elif p.image and request:
+                image = request.build_absolute_uri(p.image.url)
+            elif p.image:
+                image = p.image.url
+            result.append({
+                'id': p.id,
+                'name': p.name,
+                'price': str(p.price) if p.price else None,
+                'currency': p.currency,
+                'image': image,
+            })
+        return result

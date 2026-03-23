@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from Shop.models import Business
+from Shop.models import Business, GroupChat, GroupMember
 from .product_serializer import ProductSerializer
 
 
@@ -42,7 +42,7 @@ class BusinessDetailSerializer(serializers.ModelSerializer):
             'rating', 'views_count', 'created_at',
             'owner_username', 'owner_email', 'owner_avatar',
             'subscribers_count', 'is_subscribed',
-            'products',
+            'products', 'group_id',
         ]
         read_only_fields = ['is_verified', 'is_vip', 'rating', 'views_count', 'created_at']
 
@@ -69,7 +69,16 @@ class BusinessCreateUpdateSerializer(serializers.ModelSerializer):
         ]
 
     def create(self, validated_data):
+        user = self.context['request'].user
+        # Автоматически создаём группу для бизнеса
+        group = GroupChat.objects.create(
+            name=validated_data.get('brand_name', 'Группа'),
+            description=f'Группа магазина {validated_data.get("brand_name", "")}',
+            creator=user,
+        )
+        GroupMember.objects.create(group=group, user=user, role=GroupMember.Role.OWNER)
         return Business.objects.create(
-            owner=self.context['request'].user,
+            owner=user,
+            group=group,
             **validated_data
         )

@@ -27,6 +27,7 @@ class User(AbstractUser, BaseController):
     verification_code = models.CharField(max_length=6, blank=True, null=True)
     google_id = models.CharField(max_length=255, blank=True, null=True)
     qr_token  = models.UUIDField(default=uuid_lib.uuid4, unique=True, editable=False)
+    last_seen = models.DateTimeField(null=True, blank=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
@@ -37,6 +38,12 @@ class User(AbstractUser, BaseController):
     @property
     def is_business(self):
         return self.role == self.Role.BUSINESS
+
+    @property
+    def is_online(self):
+        if not self.last_seen:
+            return False
+        return (timezone.now() - self.last_seen).total_seconds() < 300  # 5 минут
 
 
 class Business(BaseController):
@@ -71,6 +78,10 @@ class Business(BaseController):
     is_vip       = models.BooleanField(default=False)
     rating       = models.DecimalField(max_digits=3, decimal_places=2, default=0.00)
     views_count  = models.PositiveIntegerField(default=0)
+    group        = models.OneToOneField(
+        'GroupChat', on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='business',
+    )
 
     class Meta:
         ordering = ['-is_vip', '-rating', '-created_at']
@@ -267,6 +278,8 @@ class InquiryMessage(models.Model):
     inquiry    = models.ForeignKey(ProductInquiry, on_delete=models.CASCADE, related_name='messages')
     sender     = models.ForeignKey(User, on_delete=models.CASCADE, related_name='inquiry_messages')
     text       = models.TextField()
+    is_edited  = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -318,6 +331,70 @@ class BusinessSubscription(models.Model):
 
     def __str__(self):
         return f'{self.user.email} → {self.business.brand_name}'
+
+
+class GroupChat(BaseController):
+    name        = models.CharField(max_length=200)
+    description = models.CharField(max_length=500, blank=True)
+    photo       = models.ImageField(upload_to='group_photos/', blank=True, null=True)
+    photo_url   = models.URLField(blank=True)
+    creator     = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='created_groups')
+
+    class Meta:
+        ordering = ['-updated_at']
+        verbose_name = 'Group Chat'
+        verbose_name_plural = 'Group Chats'
+
+    def __str__(self):
+        return self.name
+
+
+class GroupMember(models.Model):
+    class Role(models.TextChoices):
+        OWNER     = 'OWNER',     'Владелец'
+        ADMIN     = 'ADMIN',     'Администратор'
+        MODERATOR = 'MODERATOR', 'Модератор'
+        MEMBER    = 'MEMBER',    'Участник'
+
+    group     = models.ForeignKey(GroupChat, on_delete=models.CASCADE, related_name='members')
+    user      = models.ForeignKey(User, on_delete=models.CASCADE, related_name='group_memberships')
+    role      = models.CharField(max_length=10, choices=Role.choices, default=Role.MEMBER)
+    can_delete_messages = models.BooleanField(default=False)
+    can_pin_messages    = models.BooleanField(default=False)
+    can_send_messages   = models.BooleanField(default=True)
+    joined_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('group', 'user')
+        verbose_name = 'Group Member'
+        verbose_name_plural = 'Group Members'
+
+    def __str__(self):
+        return f'{self.user.email} in {self.group.name} ({self.role})'
+
+    def save(self, *args, **kwargs):
+        if self.role in (self.Role.OWNER, self.Role.ADMIN, self.Role.MODERATOR):
+            self.can_delete_messages = True
+            self.can_pin_messages = True
+        super().save(*args, **kwargs)
+
+
+class GroupMessage(models.Model):
+    group      = models.ForeignKey(GroupChat, on_delete=models.CASCADE, related_name='group_messages')
+    sender     = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='group_messages_sent')
+    text       = models.TextField()
+    is_pinned  = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
+    is_edited  = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at']
+        verbose_name = 'Group Message'
+        verbose_name_plural = 'Group Messages'
+
+    def __str__(self):
+        return f'GroupMessage #{self.id} in {self.group.name}'
 
 
 class Comment(BaseController):

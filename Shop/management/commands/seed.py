@@ -522,9 +522,8 @@ class Command(BaseCommand):
                         created_at=timezone.now() - timedelta(hours=hours_ago)
                     )
                     cnt['comments'] += 1
-                out(f'     Comments: {len(comment_texts)}')
+                    out(f'     Comments: {len(comment_texts)}')
 
-            # Отзывы о бизнесе
             if biz_created and regular_users:
                 for i, rv in enumerate(data.get('reviews', [])):
                     author = regular_users[i % len(regular_users)]

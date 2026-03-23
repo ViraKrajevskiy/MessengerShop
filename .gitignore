@@ -2,3 +2,8 @@
 .venv
 .env
 .idea
+__pycache__/
+*.pyc
+db.sqlite3
+dist.zip
+node_modules/

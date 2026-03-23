@@ -131,6 +131,34 @@ export async function apiGetInquiryMessages(inquiryId, token) {
   return res.json()
 }
 
+export async function apiDeleteInquiryMessage(inquiryId, msgId, token) {
+  const res = await fetch(`${BASE}/inquiries/${inquiryId}/messages/${msgId}/`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${token}` },
+  })
+  if (!res.ok) throw new Error('Ошибка удаления')
+}
+
+export async function apiEditInquiryMessage(inquiryId, msgId, text, token) {
+  const res = await fetch(`${BASE}/inquiries/${inquiryId}/messages/${msgId}/`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify({ text }),
+  })
+  if (!res.ok) throw new Error('Ошибка редактирования')
+  return res.json()
+}
+
+export async function apiEditGroupMessage(groupId, msgId, text, token) {
+  const res = await fetch(`${BASE}/groups/${groupId}/messages/${msgId}/`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify({ text }),
+  })
+  if (!res.ok) throw new Error('Ошибка редактирования')
+  return res.json()
+}
+
 export async function apiSendInquiryMessage(inquiryId, text, token) {
   const res = await fetch(`${BASE}/inquiries/${inquiryId}/messages/`, {
     method: 'POST',
@@ -172,6 +200,149 @@ export async function apiToggleSubscription(bizId, token) {
   if (!res.ok) throw new Error('Ошибка подписки')
   // Сбрасываем кэш бизнеса и постов чтобы is_subscribed обновился
   invalidateCache(`business:${bizId}`)
+  return res.json()
+}
+
+// ─── Group chats ───
+
+export async function apiGetGroups(token) {
+  const res = await fetch(`${BASE}/groups/`, {
+    headers: { 'Authorization': `Bearer ${token}` },
+  })
+  if (!res.ok) throw new Error('Ошибка загрузки групп')
+  return res.json()
+}
+
+export async function apiCreateGroup(data, token) {
+  const res = await fetch(`${BASE}/groups/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify(data),
+  })
+  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.detail || 'Ошибка') }
+  return res.json()
+}
+
+export async function apiGetGroupDetail(groupId, token) {
+  const res = await fetch(`${BASE}/groups/${groupId}/`, {
+    headers: { 'Authorization': `Bearer ${token}` },
+  })
+  if (!res.ok) throw new Error('Группа не найдена')
+  return res.json()
+}
+
+export async function apiUpdateGroup(groupId, data, token) {
+  const res = await fetch(`${BASE}/groups/${groupId}/`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify(data),
+  })
+  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.detail || 'Ошибка') }
+  return res.json()
+}
+
+export async function apiDeleteGroup(groupId, token) {
+  const res = await fetch(`${BASE}/groups/${groupId}/`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${token}` },
+  })
+  if (!res.ok) throw new Error('Ошибка удаления группы')
+}
+
+export async function apiGetGroupMembers(groupId, token) {
+  const res = await fetch(`${BASE}/groups/${groupId}/members/`, {
+    headers: { 'Authorization': `Bearer ${token}` },
+  })
+  if (!res.ok) throw new Error('Ошибка загрузки участников')
+  return res.json()
+}
+
+export async function apiAddGroupMember(groupId, data, token) {
+  const res = await fetch(`${BASE}/groups/${groupId}/members/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify(data),
+  })
+  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.detail || 'Ошибка') }
+  return res.json()
+}
+
+export async function apiUpdateGroupMember(groupId, memberId, data, token) {
+  const res = await fetch(`${BASE}/groups/${groupId}/members/${memberId}/`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify(data),
+  })
+  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.detail || 'Ошибка') }
+  return res.json()
+}
+
+export async function apiRemoveGroupMember(groupId, memberId, token) {
+  const res = await fetch(`${BASE}/groups/${groupId}/members/${memberId}/`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${token}` },
+  })
+  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.detail || 'Ошибка') }
+}
+
+export async function apiGetGroupMessages(groupId, token) {
+  const res = await fetch(`${BASE}/groups/${groupId}/messages/`, {
+    headers: { 'Authorization': `Bearer ${token}` },
+  })
+  if (!res.ok) throw new Error('Ошибка загрузки сообщений')
+  return res.json()
+}
+
+export async function apiSendGroupMessage(groupId, text, token) {
+  const res = await fetch(`${BASE}/groups/${groupId}/messages/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify({ text }),
+  })
+  if (!res.ok) throw new Error('Ошибка отправки')
+  return res.json()
+}
+
+export async function apiDeleteGroupMessage(groupId, msgId, token) {
+  const res = await fetch(`${BASE}/groups/${groupId}/messages/${msgId}/`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${token}` },
+  })
+  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.detail || 'Ошибка') }
+}
+
+export async function apiPinGroupMessage(groupId, msgId, pinned, token) {
+  const res = await fetch(`${BASE}/groups/${groupId}/messages/${msgId}/`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify({ is_pinned: pinned }),
+  })
+  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.detail || 'Ошибка') }
+  return res.json()
+}
+
+export async function apiJoinGroup(groupId, token) {
+  const res = await fetch(`${BASE}/groups/${groupId}/join/`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}` },
+  })
+  if (!res.ok) throw new Error('Ошибка')
+  return res.json()
+}
+
+export async function apiCheckGroupMembership(groupId, token) {
+  const res = await fetch(`${BASE}/groups/${groupId}/join/`, {
+    headers: { 'Authorization': `Bearer ${token}` },
+  })
+  if (!res.ok) throw new Error('Ошибка')
+  return res.json()
+}
+
+export async function apiSearchProducts(query, token) {
+  const res = await fetch(`${BASE}/products/search/?q=${encodeURIComponent(query)}`, {
+    headers: { 'Authorization': `Bearer ${token}` },
+  })
+  if (!res.ok) throw new Error('Ошибка поиска товаров')
   return res.json()
 }
 

@@ -102,6 +102,23 @@ class ProductLikeView(APIView):
         return Response({'liked': True, 'likes': product.likes.count()}, status=status.HTTP_201_CREATED)
 
 
+class ProductSearchView(APIView):
+    """GET /api/products/search/?q=... — поиск товаров для упоминания в чате."""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        q = request.query_params.get('q', '').strip()
+        if not q:
+            return Response([])
+        # Поиск по ID или по имени
+        qs = Product.objects.filter(is_available=True).select_related('business')
+        if q.isdigit():
+            qs = qs.filter(id=int(q))
+        else:
+            qs = qs.filter(name__icontains=q)[:15]
+        return Response(ProductSerializer(qs, many=True, context={'request': request}).data)
+
+
 class BusinessStatsView(APIView):
     permission_classes = [IsBusinessman]
 
