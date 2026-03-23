@@ -870,3 +870,84 @@
   .bp__auth-gate { padding: 24px 16px; }
   .bp__auth-gate-btns { flex-direction: column; }
 }
+
+/* ── Печать верификации в hero ── */
+.bp__hero-stamp {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  filter: drop-shadow(0 4px 12px rgba(26,58,107,0.25));
+  transition: transform 0.2s;
+}
+.bp__hero-stamp:hover { transform: rotate(-5deg) scale(1.05); }
+.bp__vstamp-wrap { display: flex; align-items: center; justify-content: center; }
+
+/* ── Объединённый блок "О нас + Контакты" ── */
+.bp__about-divider {
+  height: 1px;
+  background: var(--border-color);
+  margin: 16px 0;
+}
+.bp__about-contacts-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin: 0 0 12px;
+}
+
+/* ── Аудио-плеер ── */
+.bp__audio-player {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 10px 16px;
+  background: var(--bg-secondary);
+  border: 1.5px solid var(--border-color);
+  border-radius: 14px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+.bp__audio-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: var(--accent-gradient);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.15s, opacity 0.15s;
+}
+.bp__audio-btn:hover { transform: scale(1.08); opacity: 0.9; }
+.bp__audio-track {
+  flex: 1;
+  height: 6px;
+  background: var(--bg-tertiary);
+  border-radius: 3px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.bp__audio-fill {
+  height: 100%;
+  background: var(--accent-gradient);
+  border-radius: 3px;
+  transition: width 0.1s linear;
+}
+.bp__audio-time {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  font-weight: 500;
+  min-width: 70px;
+  text-align: right;
+}
+
+@media (max-width: 600px) {
+  .bp__hero-stamp { display: none; }
+  .bp__audio-time { display: none; }
+}

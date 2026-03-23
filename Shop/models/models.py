@@ -82,6 +82,7 @@ class Business(BaseController):
         'GroupChat', on_delete=models.SET_NULL, null=True, blank=True,
         related_name='business',
     )
+    audio = models.FileField(upload_to='business_audio/', blank=True, null=True)
 
     class Meta:
         ordering = ['-is_vip', '-rating', '-created_at']
@@ -395,6 +396,51 @@ class GroupMessage(models.Model):
 
     def __str__(self):
         return f'GroupMessage #{self.id} in {self.group.name}'
+
+
+class Tag(models.Model):
+    """Хэштеги для бизнесов, постов и продуктов."""
+    name = models.CharField(max_length=100, unique=True)
+
+    class Meta:
+        ordering = ['name']
+        verbose_name = 'Tag'
+        verbose_name_plural = 'Tags'
+
+    def __str__(self):
+        return f'#{self.name}'
+
+
+class Article(BaseController):
+    """Статьи бизнесов (long-form content)."""
+    class MediaType(models.TextChoices):
+        IMAGE = 'IMAGE', 'Image'
+        VIDEO = 'VIDEO', 'Video'
+
+    business    = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='articles')
+    title       = models.CharField(max_length=300)
+    text        = models.TextField()
+    media       = models.FileField(upload_to='articles/', blank=True, null=True)
+    media_url   = models.URLField(blank=True)
+    media_type  = models.CharField(max_length=10, choices=MediaType.choices, default=MediaType.IMAGE)
+    tags        = models.ManyToManyField(Tag, blank=True, related_name='articles')
+    views_count = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Article'
+        verbose_name_plural = 'Articles'
+
+    def __str__(self):
+        return f'{self.title} — {self.business.brand_name}'
+
+    @property
+    def media_display(self):
+        if self.media_url:
+            return self.media_url
+        if self.media:
+            return self.media.url
+        return None
 
 
 class Comment(BaseController):
