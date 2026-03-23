@@ -15,10 +15,6 @@ from Shop.servicefunc.serializers.story_serializer import (
 
 @extend_schema(tags=['Stories'])
 class StoryListCreateView(APIView):
-    """
-    GET  — список активных сторисов (все авторизованные)
-    POST — создать сторис (только BUSINESS)
-    """
 
     def get_permissions(self):
         if self.request.method == 'POST':
@@ -113,7 +109,6 @@ class StoryDetailView(APIView):
 
 @extend_schema(tags=['Stories'])
 class StoryViewersView(APIView):
-    """Кто посмотрел сторис — только для автора."""
 
     permission_classes = [IsAuthenticated]
 
