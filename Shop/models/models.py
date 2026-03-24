@@ -217,12 +217,57 @@ class VerificationMessage(models.Model):
     def __str__(self):
         return f'Message from {self.sender.email} in {self.request}'
 
+class News(BaseController):
+    class MediaType(models.TextChoices):
+        IMAGE = 'IMAGE', 'Image'
+        VIDEO = 'VIDEO', 'Video'
+
+    class NewsType(models.TextChoices):
+        BUSINESS = 'BUSINESS', 'Новости бизнеса'
+        PLATFORM = 'PLATFORM', 'Новости платформы'
+
+    # Если business=None — это глобальная новость платформы (от админа)
+    business    = models.ForeignKey(
+        Business, on_delete=models.CASCADE,
+        related_name='news', null=True, blank=True,
+    )
+    author      = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, related_name='news_authored',
+    )
+    news_type   = models.CharField(max_length=20, choices=NewsType.choices, default=NewsType.BUSINESS)
+    title       = models.CharField(max_length=300)
+    text        = models.TextField(blank=True)
+    media       = models.FileField(upload_to='news/', blank=True, null=True)
+    media_url   = models.URLField(blank=True)
+    media_type  = models.CharField(max_length=10, choices=MediaType.choices, default=MediaType.IMAGE)
+    tags        = models.ManyToManyField('Tag', blank=True, related_name='news')
+    views_count = models.PositiveIntegerField(default=0)
+    is_published = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'News'
+        verbose_name_plural = 'News'
+
+    def __str__(self):
+        src = self.business.brand_name if self.business else 'Платформа'
+        return f'[{src}] {self.title}'
+
+    @property
+    def media_display(self):
+        if self.media_url:
+            return self.media_url
+        if self.media:
+            return self.media.url
+        return None
 
 class Post(BaseController):
     class MediaType(models.TextChoices):
         IMAGE = 'IMAGE', 'Image'
         VIDEO = 'VIDEO', 'Video'
 
+    views_count = models.PositiveIntegerField(default=0)
+    tags = models.ManyToManyField('Tag', blank=True, related_name='posts')  # НОВОЕ
     business   = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='posts')
     text       = models.TextField(blank=True)
     media      = models.FileField(upload_to='posts/', blank=True, null=True)

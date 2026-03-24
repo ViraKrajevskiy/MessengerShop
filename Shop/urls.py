@@ -18,15 +18,24 @@ from Shop.servicefunc.views.business.business import (
     BusinessListView, BusinessCreateView, BusinessDetailView, MyBusinessView,
 )
 from Shop.servicefunc.views.business.subscribe import BusinessSubscribeView
-from Shop.servicefunc.views.product.product import BusinessProductListView, ProductDetailView, ProductLikeView, ProductSearchView, BusinessStatsView
-from Shop.servicefunc.views.post.post import PostListView, BusinessPostListView, ProductInquiryView, InquiryListView, InquiryMessagesView, InquiryMessageActionView
-from Shop.servicefunc.views.review.reviews import BusinessReviewListCreateView, ProductReviewListCreateView
+from Shop.servicefunc.views.product.product import (
+    BusinessProductListView, ProductDetailView, ProductLikeView,
+    ProductSearchView, BusinessStatsView,
+)
+from Shop.servicefunc.views.post.post import (
+    PostListView, BusinessPostListView, ProductInquiryView,
+    InquiryListView, InquiryMessagesView, InquiryMessageActionView,
+)
+from Shop.servicefunc.views.review.reviews import (
+    BusinessReviewListCreateView, ProductReviewListCreateView,
+)
 from Shop.servicefunc.views.groups import (
     GroupListCreateView, GroupDetailView,
     GroupMembersView, GroupMemberDetailView,
     GroupMessagesView, GroupMessageActionView,
     GroupJoinView,
 )
+from views.news.newses import NewsListView, NewsCreateView, NewsDetailView
 
 urlpatterns = [
     path('auth/register/',               RegisterView.as_view(),              name='auth_register'),
@@ -45,35 +54,39 @@ urlpatterns = [
     path('businesses/me/',               MyBusinessView.as_view(),            name='business_me'),
     path('businesses/<int:pk>/',         BusinessDetailView.as_view(),        name='business_detail'),
 
-    path('businesses/<int:pk>/subscribe/', BusinessSubscribeView.as_view(),   name='business_subscribe'),
-    path('businesses/<int:pk>/products/', BusinessProductListView.as_view(),  name='business_products'),
+    path('businesses/<int:pk>/subscribe/', BusinessSubscribeView.as_view(),       name='business_subscribe'),
+    path('businesses/<int:pk>/products/', BusinessProductListView.as_view(),      name='business_products'),
     path('businesses/<int:pk>/reviews/',  BusinessReviewListCreateView.as_view(), name='business_reviews'),
-    path('products/<int:pk>/reviews/',    ProductReviewListCreateView.as_view(),  name='product_reviews'),
-    path('products/search/',               ProductSearchView.as_view(),        name='product_search'),
-    path('products/<int:pk>/',            ProductDetailView.as_view(),        name='product_detail'),
-    path('products/<int:pk>/like/',       ProductLikeView.as_view(),          name='product_like'),
-    path('products/<int:pk>/inquiry/',    ProductInquiryView.as_view(),       name='product_inquiry'),
-    path('businesses/me/stats/',          BusinessStatsView.as_view(),        name='business_stats'),
-    path('inquiries/',                    InquiryListView.as_view(),          name='inquiry_list'),
+    path('businesses/<int:pk>/posts/',    BusinessPostListView.as_view(),         name='business_posts'),
+    path('businesses/<int:pk>/news/',     BusinessNewsListView.as_view(),         name='business_news'),
+
+    path('products/<int:pk>/reviews/',   ProductReviewListCreateView.as_view(),  name='product_reviews'),
+    path('products/search/',             ProductSearchView.as_view(),            name='product_search'),
+    path('products/<int:pk>/',           ProductDetailView.as_view(),            name='product_detail'),
+    path('products/<int:pk>/like/',      ProductLikeView.as_view(),              name='product_like'),
+    path('products/<int:pk>/inquiry/',   ProductInquiryView.as_view(),           name='product_inquiry'),
+
+    path('businesses/me/stats/',         BusinessStatsView.as_view(),            name='business_stats'),
+
+    path('inquiries/',                                InquiryListView.as_view(),          name='inquiry_list'),
     path('inquiries/<int:pk>/messages/',              InquiryMessagesView.as_view(),      name='inquiry_messages'),
     path('inquiries/<int:pk>/messages/<int:msg_pk>/', InquiryMessageActionView.as_view(), name='inquiry_message_action'),
 
-    path('posts/',                        PostListView.as_view(),             name='post_list'),
-    path('businesses/<int:pk>/posts/',    BusinessPostListView.as_view(),     name='business_posts'),
+    path('posts/',                       PostListView.as_view(),              name='post_list'),
 
-    path('stories/',                        StoryListCreateView.as_view(),    name='story_list_create'),
-    path('stories/<int:pk>/',               StoryDetailView.as_view(),        name='story_detail'),
-    path('stories/<int:pk>/viewers/',       StoryViewersView.as_view(),       name='story_viewers'),
-    path('stories/<int:story_pk>/comments/', CommentListCreateView.as_view(), name='comment_list_create'),
+    path('stories/',                          StoryListCreateView.as_view(),   name='story_list_create'),
+    path('stories/<int:pk>/',                 StoryDetailView.as_view(),       name='story_detail'),
+    path('stories/<int:pk>/viewers/',         StoryViewersView.as_view(),      name='story_viewers'),
+    path('stories/<int:story_pk>/comments/',  CommentListCreateView.as_view(), name='comment_list_create'),
 
-    path('comments/<int:pk>/',              CommentDetailView.as_view(),      name='comment_detail'),
+    path('comments/<int:pk>/',           CommentDetailView.as_view(),         name='comment_detail'),
 
-    path('verification/my/',             MyVerificationView.as_view(),        name='verification_my'),
-    path('verification/upload/',         UploadDocumentView.as_view(),        name='verification_upload'),
-    path('verification/chat/',           VerificationChatView.as_view(),      name='verification_chat'),
-    path('verification/',                ModeratorVerificationListView.as_view(),   name='verification_list'),
-    path('verification/<int:pk>/',       ModeratorVerificationDetailView.as_view(), name='verification_detail'),
-    path('verification/<int:req_id>/chat/', VerificationChatView.as_view(),   name='verification_mod_chat'),
+    path('verification/my/',                MyVerificationView.as_view(),              name='verification_my'),
+    path('verification/upload/',            UploadDocumentView.as_view(),              name='verification_upload'),
+    path('verification/chat/',              VerificationChatView.as_view(),            name='verification_chat'),
+    path('verification/',                   ModeratorVerificationListView.as_view(),   name='verification_list'),
+    path('verification/<int:pk>/',          ModeratorVerificationDetailView.as_view(), name='verification_detail'),
+    path('verification/<int:req_id>/chat/', VerificationChatView.as_view(),            name='verification_mod_chat'),
 
     path('groups/',                                    GroupListCreateView.as_view(),    name='group_list_create'),
     path('groups/<int:pk>/',                           GroupDetailView.as_view(),        name='group_detail'),
@@ -82,4 +95,17 @@ urlpatterns = [
     path('groups/<int:pk>/messages/',                  GroupMessagesView.as_view(),      name='group_messages'),
     path('groups/<int:pk>/messages/<int:msg_pk>/',     GroupMessageActionView.as_view(), name='group_message_action'),
     path('groups/<int:pk>/join/',                      GroupJoinView.as_view(),          name='group_join'),
+
+    # ── News ──────────────────────────────────────────────────────────────────
+    path('news/',             NewsListView.as_view(),   name='news_list'),
+    path('news/create/',      NewsCreateView.as_view(), name='news_create'),
+    path('news/<int:pk>/',    NewsDetailView.as_view(), name='news_detail'),
+
+    # ── Navigation ────────────────────────────────────────────────────────────
+    path('nav/videos/',   NavVideosView.as_view(),   name='nav_videos'),
+    path('nav/reviews/',  NavReviewsView.as_view(),  name='nav_reviews'),
+    path('nav/updates/',  NavUpdatesView.as_view(),  name='nav_updates'),
+    path('nav/help/',     NavHelpView.as_view(),     name='nav_help'),
+    path('nav/stories/',  NavStoriesView.as_view(),  name='nav_stories'),
+    path('nav/articles/', NavArticlesView.as_view(), name='nav_articles'),
 ]

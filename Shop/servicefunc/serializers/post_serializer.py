@@ -2,7 +2,6 @@ import re
 from rest_framework import serializers
 from Shop.models import Post, Product, ProductInquiry, InquiryMessage
 
-
 class PostSerializer(serializers.ModelSerializer):
     business_name = serializers.CharField(source='business.brand_name', read_only=True)
     business_logo = serializers.SerializerMethodField()
@@ -10,13 +9,14 @@ class PostSerializer(serializers.ModelSerializer):
     is_verified   = serializers.BooleanField(source='business.is_verified', read_only=True)
     media_display = serializers.SerializerMethodField()
     is_subscribed = serializers.SerializerMethodField()
+    tags          = serializers.SerializerMethodField()  # НОВОЕ
 
     class Meta:
         model = Post
         fields = [
             'id', 'business_id', 'business_name', 'business_logo', 'is_verified',
             'text', 'media_display', 'media_type', 'views_count',
-            'is_subscribed',
+            'is_subscribed', 'tags',  # НОВОЕ: tags
             'created_at', 'updated_at',
         ]
 
@@ -44,12 +44,37 @@ class PostSerializer(serializers.ModelSerializer):
             return obj.media.url
         return None
 
+    def get_tags(self, obj):
+        return list(obj.tags.values_list('name', flat=True))
+
 
 class PostCreateSerializer(serializers.ModelSerializer):
+    tags = serializers.ListField(
+        child=serializers.CharField(max_length=100),
+        required=False, write_only=True,
+    )
+
     class Meta:
         model = Post
-        fields = ['text', 'media', 'media_url', 'media_type']
+        fields = ['text', 'media', 'media_url', 'media_type', 'tags']
 
+    def _set_tags(self, instance, tag_names):
+        from Shop.models.models import Tag
+        tags = []
+        for name in tag_names:
+            name = name.strip().lower().lstrip('#')
+            if name:
+                tag, _ = Tag.objects.get_or_create(name=name)
+                tags.append(tag)
+        instance.tags.set(tags)
+
+    def create(self, validated_data):
+        tag_names = validated_data.pop('tags', [])
+        if not tag_names:
+            tag_names = re.findall(r'#(\w+)', validated_data.get('text', ''))
+        instance = Post.objects.create(**validated_data)
+        self._set_tags(instance, tag_names)
+        return instance
 
 class ProductInquirySerializer(serializers.ModelSerializer):
     sender_name  = serializers.CharField(source='sender.username', read_only=True)
