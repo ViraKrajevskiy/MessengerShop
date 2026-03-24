@@ -12,7 +12,6 @@ class BaseController(models.Model):
     class Meta:
         abstract = True
 
-
 class User(AbstractUser, BaseController):
     class Role(models.TextChoices):
         USER = 'USER', 'Base User'

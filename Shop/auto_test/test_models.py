@@ -18,12 +18,8 @@ def make_user(role=User.Role.USER, suffix='1', active=True):
         is_active=active,
     )
 
-
 def make_business_user(suffix='biz'):
     return make_user(role=User.Role.BUSINESS, suffix=suffix)
-
-
-# ── User ──────────────────────────────────────────────────────────────────────
 
 class UserModelTest(TestCase):
 

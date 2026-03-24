@@ -7,8 +7,6 @@ from Shop.models import (
     VerificationRequest, VerificationMessage,
 )
 
-
-# ── User ──────────────────────────────────────────────────────────────────────
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
     list_display  = ('email', 'username', 'role', 'is_active', 'is_staff', 'created_at')

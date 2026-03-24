@@ -26,9 +26,6 @@ def auth_client(user):
     client.credentials(HTTP_AUTHORIZATION=f'Bearer {str(token.access_token)}')
     return client
 
-
-# ── Auth API ──────────────────────────────────────────────────────────────────
-
 class RegisterAPITest(APITestCase):
 
     def test_register_success(self):

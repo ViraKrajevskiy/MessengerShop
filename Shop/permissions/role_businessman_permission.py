@@ -4,7 +4,6 @@ from Shop.models import User
 
 
 class IsBusinessman(BasePermission):
-    """Только пользователи с ролью BUSINESS."""
     message = 'Сторисы могут создавать только бизнесмены.'
 
     def has_permission(self, request, view):

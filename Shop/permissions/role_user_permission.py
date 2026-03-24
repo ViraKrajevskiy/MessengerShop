@@ -1,9 +1,7 @@
 from rest_framework.permissions import BasePermission
 
-
 class IsActiveUser(BasePermission):
     message = 'Требуется авторизация.'
-
     def has_permission(self, request, view):
         return (
             request.user

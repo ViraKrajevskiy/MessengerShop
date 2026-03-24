@@ -1,5 +1,4 @@
 """
-python manage.py seed           -- создать тестовые данные
 python manage.py seed --clear   -- сначала удалить всё, потом создать
 """
 from django.core.management.base import BaseCommand
@@ -12,8 +11,6 @@ from Shop.models import (
     Comment, ProductInquiry, InquiryMessage, Review,
 )
 
-
-# ── Обычные пользователи (не бизнесы) ─────────────────────────────────────────
 
 REGULAR_USERS = [
     {'username': 'maria_k',    'email': 'maria@test.ru',   'city': 'Стамбул'},
