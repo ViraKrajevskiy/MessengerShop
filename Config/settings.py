@@ -156,11 +156,9 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-# Папка, куда collectstatic будет копировать файлы
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Папки, где Django ищет статику в процессе разработки (если есть)
-STATICFILES_DIRS = []  # добавь сюда папку, если создашь static/
+STATICFILES_DIRS = []
 
 MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

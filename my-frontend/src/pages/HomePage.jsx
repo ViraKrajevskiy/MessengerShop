@@ -38,7 +38,6 @@ function getDescription(filters) {
   return DESCRIPTIONS.default
 }
 
-// Перевод бизнеса из API в формат, понятный UserCard / VipSection
 function bizToCard(b) {
   return {
     id: b.id,

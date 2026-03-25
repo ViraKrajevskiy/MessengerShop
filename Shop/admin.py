@@ -7,6 +7,34 @@ from Shop.models import (
     VerificationRequest, VerificationMessage, News,
 )
 
+# ── News ──────────────────────────────────────────────────────────────────────
+@admin.register(News)
+class NewsAdmin(admin.ModelAdmin):
+    # Поля, которые будут отображаться в списке всех новостей
+    list_display = ('title', 'news_type', 'business_brand', 'author_email', 'is_published', 'views_count', 'created_at')
+
+    # Фильтры в правой колонке
+    list_filter = ('news_type', 'is_published', 'created_at')
+
+    # Поля для поиска
+    search_fields = ('title', 'text', 'business__brand_name', 'author__email')
+
+    # Сортировка (сначала новые)
+    ordering = ('-created_at',)
+
+    # Позволяет менять статус публикации прямо из списка
+    list_editable = ('is_published',)
+
+    def business_brand(self, obj):
+        return obj.business.brand_name if obj.business else format_html('<b style="color: #d32f2f;">Платформа</b>')
+
+    business_brand.short_description = 'Источник (Бизнес)'
+
+    def author_email(self, obj):
+        return obj.author.email if obj.author else '—'
+
+    author_email.short_description = 'Автор'
+
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
     list_display  = ('email', 'username', 'role', 'is_active', 'is_staff', 'created_at')

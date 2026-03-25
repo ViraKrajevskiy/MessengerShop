@@ -14,6 +14,7 @@ import FeedPage from './pages/FeedPage'
 import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
 import BusinessDashboardPage from './pages/BusinessDashboardPage'
+import NewsDetailPage from './pages/NewsDetailPage';
 
 function PrivateRoute({ children }) {
   const { user, tokens, loading } = useAuth()
@@ -40,6 +41,7 @@ function App() {
               <Route path="/messenger" element={<PrivateRoute><MessengerPage /></PrivateRoute>} />
               <Route path="/me"        element={<PrivateRoute><MyProfilePage /></PrivateRoute>} />
               <Route path="/dashboard" element={<PrivateRoute><BusinessDashboardPage /></PrivateRoute>} />
+              <Route path="/news/:id" element={<NewsDetailPage />} />
             </Routes>
           </ViewedProvider>
         </AuthProvider>
