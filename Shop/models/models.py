@@ -5,6 +5,7 @@ from django.utils import timezone
 from datetime import timedelta
 
 
+
 class BaseController(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -149,23 +150,24 @@ class Product(BaseController):
         EUR = 'EUR', '€ Евро'
         RUB = 'RUB', '₽ Рубль'
 
-    business    = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='products')
-    name        = models.CharField(max_length=200)
-    description = models.TextField(blank=True)
-    price       = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
-    currency    = models.CharField(max_length=3, choices=Currency.choices, default=Currency.TRY)
-    image       = models.ImageField(upload_to='products/', blank=True, null=True)
-    image_url   = models.URLField(blank=True)
+    class ProductType(models.TextChoices):       # НОВОЕ
+        PRODUCT = 'PRODUCT', 'Продукт'
+        SERVICE = 'SERVICE', 'Услуга'
+
+    business     = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='products')
+    name         = models.CharField(max_length=200)
+    description  = models.TextField(blank=True)
+    product_type = models.CharField(                # НОВОЕ
+        max_length=10,
+        choices=ProductType.choices,
+        default=ProductType.PRODUCT,
+    )
+    price        = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    currency     = models.CharField(max_length=3, choices=Currency.choices, default=Currency.TRY)
+    image        = models.ImageField(upload_to='products/', blank=True, null=True)
+    image_url    = models.URLField(blank=True)
     is_available = models.BooleanField(default=True)
     views_count  = models.PositiveIntegerField(default=0)
-
-    class Meta:
-        ordering = ['-created_at']
-        verbose_name = 'Product'
-        verbose_name_plural = 'Products'
-
-    def __str__(self):
-        return f'{self.name} — {self.business.brand_name}'
 
 
 class VerificationRequest(BaseController):
@@ -260,6 +262,9 @@ class News(BaseController):
         if self.media:
             return self.media.url
         return None
+
+
+
 
 class Post(BaseController):
     class MediaType(models.TextChoices):
@@ -503,3 +508,18 @@ class Comment(BaseController):
 
     def __str__(self):
         return f'Comment by {self.author.email} on story #{self.story_id}'
+
+
+class PostFavorite(models.Model):
+    user       = models.ForeignKey(User, on_delete=models.CASCADE, related_name='favorite_posts')
+    post       = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='favorites')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'post')
+        ordering = ['-created_at']
+        verbose_name = 'Post Favorite'
+        verbose_name_plural = 'Post Favorites'
+
+    def __str__(self):
+        return f'{self.user.email} → {self.post.id}'

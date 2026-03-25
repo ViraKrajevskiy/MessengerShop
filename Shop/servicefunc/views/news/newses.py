@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from Shop.models.models import News
-from serializers.news_seriallizer import NewsSerializer, NewsCreateUpdateSerializer
+from Shop.servicefunc.serializers.news_serializer import NewsCreateUpdateSerializer, NewsSerializer
 
 
 class NewsListView(APIView):
@@ -28,11 +28,6 @@ class NewsListView(APIView):
 
 
 class NewsCreateView(APIView):
-    """
-    POST /api/news/ — создать новость
-    Бизнесмен создаёт новость своего бизнеса.
-    Администратор (is_staff) создаёт глобальную новость платформы.
-    """
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -40,16 +35,13 @@ class NewsCreateView(APIView):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        # Определяем к какому бизнесу привязать
         if request.user.is_staff:
-            # Администратор — глобальная новость платформы
             news = serializer.save(
                 author=request.user,
                 business=None,
                 news_type=News.NewsType.PLATFORM,
             )
         elif hasattr(request.user, 'business_profile'):
-            # Бизнесмен — новость своего бизнеса
             news = serializer.save(
                 author=request.user,
                 business=request.user.business_profile,

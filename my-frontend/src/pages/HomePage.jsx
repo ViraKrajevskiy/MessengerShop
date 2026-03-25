@@ -5,11 +5,14 @@ import FilterBar from '../components/FilterBar'
 import Stories from '../components/Stories'
 import ViewedBar from '../components/ViewedBar'
 import VipSection from '../components/VipSection'
+// Импортируем NewsCard (создай этот компонент на основе примера выше)
+import NewsCard from '../components/NewsCard'
 import NewUsers from '../components/NewUsers'
 import SocialClub from '../components/SocialClub'
 import UserCard from '../components/UserCard'
 import Footer from '../components/Footer'
-import { apiGetBusinesses, CATEGORY_LABELS } from '../api/businessApi'
+// Добавляем импорт apiGetNews
+import { apiGetBusinesses, apiGetNews, CATEGORY_LABELS } from '../api/businessApi'
 import './HomePage.css'
 
 // ---------- adaptive descriptions ----------
@@ -49,7 +52,7 @@ function bizToCard(b) {
   }
 }
 
-// ---------- component ----------
+
 export default function HomePage() {
   const navigate = useNavigate()
 
@@ -60,6 +63,10 @@ export default function HomePage() {
   const [allBiz, setAllBiz]     = useState([])
   const [vipBiz, setVipBiz]     = useState([])
   const [loadingBiz, setLoadingBiz] = useState(true)
+
+  // Состояние для новостей
+  const [news, setNews] = useState([]);
+  const [loadingNews, setLoadingNews] = useState(true);
 
   // Загружаем все бизнесы один раз
   useEffect(() => {
@@ -72,6 +79,18 @@ export default function HomePage() {
       .catch(() => {})
       .finally(() => setLoadingBiz(false))
   }, [])
+
+  // Загружаем новости (3 свежих)
+  useEffect(() => {
+    setLoadingNews(true);
+    apiGetNews()
+      .then(data => {
+        // Предполагаем, что бэк отдает массив, берем первые 3
+        setNews(Array.isArray(data) ? data.slice(0, 3) : []);
+      })
+      .catch(() => setNews([]))
+      .finally(() => setLoadingNews(false));
+  }, []);
 
   // Фильтрация по параметрам
   const filteredAll = useMemo(() => {
@@ -132,6 +151,24 @@ export default function HomePage() {
         ) : (
           <VipSection users={filteredVip} />
         )}
+
+        {/* ---------- НОВОЕ: Секция новостей ---------- */}
+        {!loadingNews && news.length > 0 && (
+          <section className="home-news-section">
+            <div className="section-header">
+              <h2 className="section-title">Последние новости</h2>
+              <button className="see-all-btn" onClick={() => navigate('/feed?tab=news')}>
+                Смотреть все
+              </button>
+            </div>
+            <div className="news-grid-home">
+              {news.map(item => (
+                <NewsCard key={item.id} item={item} />
+              ))}
+            </div>
+          </section>
+        )}
+        {/* ------------------------------------------- */}
 
         <NewUsers />
         <SocialClub />

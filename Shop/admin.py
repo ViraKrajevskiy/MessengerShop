@@ -4,7 +4,7 @@ from django.utils.html import format_html
 from Shop.models import (
     User, Business, Product, Story, StoryView,
     Comment, Post, ProductInquiry,
-    VerificationRequest, VerificationMessage,
+    VerificationRequest, VerificationMessage, News,
 )
 
 @admin.register(User)

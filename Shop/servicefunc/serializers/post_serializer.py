@@ -3,22 +3,34 @@ from rest_framework import serializers
 from Shop.models import Post, Product, ProductInquiry, InquiryMessage
 
 class PostSerializer(serializers.ModelSerializer):
-    business_name = serializers.CharField(source='business.brand_name', read_only=True)
-    business_logo = serializers.SerializerMethodField()
-    business_id   = serializers.IntegerField(source='business.id', read_only=True)
-    is_verified   = serializers.BooleanField(source='business.is_verified', read_only=True)
-    media_display = serializers.SerializerMethodField()
-    is_subscribed = serializers.SerializerMethodField()
-    tags          = serializers.SerializerMethodField()  # НОВОЕ
+    business_name  = serializers.CharField(source='business.brand_name', read_only=True)
+    business_logo  = serializers.SerializerMethodField()
+    business_id    = serializers.IntegerField(source='business.id', read_only=True)
+    is_verified    = serializers.BooleanField(source='business.is_verified', read_only=True)
+    media_display  = serializers.SerializerMethodField()
+    is_subscribed  = serializers.SerializerMethodField()
+    tags           = serializers.SerializerMethodField()
+    is_favorited   = serializers.SerializerMethodField()   # НОВОЕ
+    favorites_count = serializers.SerializerMethodField()  # НОВОЕ
 
     class Meta:
         model = Post
         fields = [
             'id', 'business_id', 'business_name', 'business_logo', 'is_verified',
             'text', 'media_display', 'media_type', 'views_count',
-            'is_subscribed', 'tags',  # НОВОЕ: tags
+            'is_subscribed', 'tags',
+            'is_favorited', 'favorites_count',   # НОВОЕ
             'created_at', 'updated_at',
         ]
+
+    def get_is_favorited(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.favorites.filter(user=request.user).exists()
+        return False
+
+    def get_favorites_count(self, obj):
+        return obj.favorites.count()
 
     def get_business_logo(self, obj):
         if obj.business.logo:

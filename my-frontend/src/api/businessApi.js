@@ -11,6 +11,7 @@ function cached(key, fetcher) {
   return fetcher().then(data => { cache.set(key, { data, ts: Date.now() }); return data })
 }
 
+
 export function invalidateCache(key) {
   if (key) cache.delete(key)
   else cache.clear()
@@ -358,3 +359,16 @@ export const CATEGORY_LABELS = {
   TRANSPORT: 'Транспорт',
   OTHER:     'Другое',
 }
+
+export const apiGetNews = async () => {
+  try {
+    const response = await fetch(`${BASE}/news/`);
+    if (!response.ok) throw new Error('Ошибка при загрузке новостей');
+    // Исправлено: используем .json() вместо .data
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Ошибка в apiGetNews:", error);
+    return [];
+  }
+};

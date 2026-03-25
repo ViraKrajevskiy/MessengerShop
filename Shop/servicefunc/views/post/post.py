@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from Shop.models import Post, Product, ProductInquiry, Business, InquiryMessage
+from Shop.models.models import PostFavorite
 from Shop.servicefunc.serializers.post_serializer import (
     PostSerializer, PostCreateSerializer,
     ProductInquiryCreateSerializer,
@@ -209,3 +210,34 @@ class InquiryMessageActionView(APIView):
         msg.is_deleted = True
         msg.save(update_fields=['is_deleted'])
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class PostFavoriteView(APIView):
+    """
+    POST /api/posts/<pk>/favorite/ — добавить/убрать из избранного
+    GET  /api/posts/favorites/     — мои избранные посты
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        try:
+            post = Post.objects.get(pk=pk)
+        except Post.DoesNotExist:
+            return Response({'detail': 'Пост не найден'}, status=status.HTTP_404_NOT_FOUND)
+
+        fav, created = PostFavorite.objects.get_or_create(user=request.user, post=post)
+        if not created:
+            fav.delete()
+            return Response({'favorited': False, 'favorites_count': post.favorites.count()})
+        return Response({'favorited': True, 'favorites_count': post.favorites.count()}, status=status.HTTP_201_CREATED)
+
+
+class PostFavoritesListView(APIView):
+    """GET /api/posts/favorites/ — список избранных постов текущего пользователя"""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        posts = Post.objects.filter(
+            favorites__user=request.user
+        ).select_related('business').order_by('-favorites__created_at')
+        return Response(PostSerializer(posts, many=True, context={'request': request}).data)

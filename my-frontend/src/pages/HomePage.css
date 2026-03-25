@@ -175,3 +175,189 @@
   display: inline-block;
 }
 @keyframes hpSpin { to { transform: rotate(360deg); } }
+
+/* ==========================================================================
+   HomePage.css additions for News Section
+   ========================================================================== */
+
+/* Основная секция новостей на главной */
+.home-news-section {
+    margin: 40px 0;
+    padding: 0 20px;
+}
+
+/* Заголовок секции с кнопкой "Смотреть все" */
+.home-news-section .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+/* Сетка для 3-х новостей (адаптивная: 3 в ряд, потом 1) */
+.news-grid-home {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+/* Кнопка "Смотреть все" */
+.home-news-section .see-all-btn {
+    background: none;
+    border: none;
+    color: var(--tg-theme-link-color, #2481cc); /* Используем цвета ТГ или дефолт */
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.home-news-section .see-all-btn:hover {
+    background-color: rgba(var(--tg-theme-link-color-rgb, 36, 129, 204), 0.1);
+}
+
+/* ==========================================================================
+   Базовые стили для компонента NewsCard (если он внутри .home-page)
+   ========================================================================== */
+
+.news-card {
+    background-color: var(--tg-theme-bg-color, #fff);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-decoration: none; /* Если карточка будет ссылкой */
+    color: inherit;
+    height: 100%; /* Чтобы все карточки в ряду были одной высоты */
+}
+
+.news-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.12);
+}
+
+/* Блок с изображением */
+.news-card__image {
+    width: 100%;
+    height: 160px; /* Фиксированная высота для превью */
+    overflow: hidden;
+}
+
+.news-card__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Картинка заполняет блок без искажений */
+    transition: transform 0.3s;
+}
+
+.news-card:hover .news-card__image img {
+    transform: scale(1.05);
+}
+
+/* Контентная часть карточки */
+.news-card__content {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Заполняет оставшееся пространство */
+}
+
+/* Бадж типа новости (Платформа/Бизнес) */
+.news-card__badge {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 20px;
+    align-self: flex-start; /* Ширина по контенту */
+    margin-bottom: 10px;
+}
+
+/* Стили для разных типов новостей */
+.news-card--platform .news-card__badge {
+    background-color: #e3f2fd;
+    color: #1565c0;
+}
+
+.news-card--business .news-card__badge {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+/* Заголовок */
+.news-card__title {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    line-height: 1.4;
+    color: var(--tg-theme-text-color, #000);
+    /* Ограничение заголовка 2 строками */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Текст превью */
+.news-card__text {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--tg-theme-hint-color, #707579);
+    margin: 0 0 16px 0;
+    flex-grow: 1; /* Толкает футер вниз */
+    /* Ограничение текста 3 строками */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Футер карточки (автор и дата) */
+.news-card__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: var(--tg-theme-hint-color, #999);
+    border-top: 1px solid rgba(0,0,0,0.05);
+    padding-top: 10px;
+    margin-top: auto; /* Всегда внизу */
+}
+
+.news-card__author {
+    font-weight: 500;
+    max-width: 60%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ==========================================================================
+   Media Queries (Адаптация)
+   ========================================================================= */
+
+@media (max-width: 992px) {
+    .news-grid-home {
+        grid-template-columns: repeat(2, 1fr); /* 2 в ряд на планшетах */
+    }
+}
+
+@media (max-width: 600px) {
+    .home-news-section {
+        padding: 0 15px;
+    }
+
+    .news-grid-home {
+        grid-template-columns: 1fr; /* 1 в ряд на телефонах */
+        gap: 15px;
+    }
+
+    .news-card__image {
+        height: 180px; /* Чуть выше картинка на мобильных */
+    }
+}

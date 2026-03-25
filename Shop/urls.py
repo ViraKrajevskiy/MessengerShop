@@ -24,7 +24,7 @@ from Shop.servicefunc.views.product.product import (
 )
 from Shop.servicefunc.views.post.post import (
     PostListView, BusinessPostListView, ProductInquiryView,
-    InquiryListView, InquiryMessagesView, InquiryMessageActionView,
+    InquiryListView, InquiryMessagesView, InquiryMessageActionView, PostFavoriteView, PostFavoritesListView,
 )
 from Shop.servicefunc.views.review.reviews import (
     BusinessReviewListCreateView, ProductReviewListCreateView,
@@ -35,7 +35,7 @@ from Shop.servicefunc.views.groups import (
     GroupMessagesView, GroupMessageActionView,
     GroupJoinView,
 )
-from views.news.newses import NewsListView, NewsCreateView, NewsDetailView
+from Shop.servicefunc.views.news.newses import BusinessNewsListView, NewsListView, NewsCreateView, NewsDetailView
 
 urlpatterns = [
     path('auth/register/',               RegisterView.as_view(),              name='auth_register'),
@@ -58,7 +58,7 @@ urlpatterns = [
     path('businesses/<int:pk>/products/', BusinessProductListView.as_view(),      name='business_products'),
     path('businesses/<int:pk>/reviews/',  BusinessReviewListCreateView.as_view(), name='business_reviews'),
     path('businesses/<int:pk>/posts/',    BusinessPostListView.as_view(),         name='business_posts'),
-    path('businesses/<int:pk>/news/',     BusinessNewsListView.as_view(),         name='business_news'),
+    path('businesses/<int:pk>/news/',     BusinessNewsListView.as_view(),        name='business_news'),
 
     path('products/<int:pk>/reviews/',   ProductReviewListCreateView.as_view(),  name='product_reviews'),
     path('products/search/',             ProductSearchView.as_view(),            name='product_search'),
@@ -96,16 +96,10 @@ urlpatterns = [
     path('groups/<int:pk>/messages/<int:msg_pk>/',     GroupMessageActionView.as_view(), name='group_message_action'),
     path('groups/<int:pk>/join/',                      GroupJoinView.as_view(),          name='group_join'),
 
-    # ── News ──────────────────────────────────────────────────────────────────
     path('news/',             NewsListView.as_view(),   name='news_list'),
     path('news/create/',      NewsCreateView.as_view(), name='news_create'),
     path('news/<int:pk>/',    NewsDetailView.as_view(), name='news_detail'),
 
-    # ── Navigation ────────────────────────────────────────────────────────────
-    path('nav/videos/',   NavVideosView.as_view(),   name='nav_videos'),
-    path('nav/reviews/',  NavReviewsView.as_view(),  name='nav_reviews'),
-    path('nav/updates/',  NavUpdatesView.as_view(),  name='nav_updates'),
-    path('nav/help/',     NavHelpView.as_view(),     name='nav_help'),
-    path('nav/stories/',  NavStoriesView.as_view(),  name='nav_stories'),
-    path('nav/articles/', NavArticlesView.as_view(), name='nav_articles'),
+    path('posts/favorites/',           PostFavoritesListView.as_view(), name='post_favorites'),
+    path('posts/<int:pk>/favorite/',   PostFavoriteView.as_view(),      name='post_favorite'),
 ]
