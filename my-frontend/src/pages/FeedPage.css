@@ -620,3 +620,73 @@
     font-size: 12px;
   }
 }
+
+/* ── Auth gate ── */
+.feed-auth-gate {
+  position: relative;
+  margin: 16px 0 32px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.feed-auth-gate__blur {
+  height: 120px;
+  background: linear-gradient(to bottom, transparent, var(--bg-primary) 80%);
+  margin-top: -60px;
+  pointer-events: none;
+}
+
+.feed-auth-gate__box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 24px;
+  background: var(--bg-secondary);
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--card-shadow);
+  text-align: center;
+}
+
+.feed-auth-gate__icon {
+  font-size: 36px;
+}
+
+.feed-auth-gate__text {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.feed-auth-gate__btn {
+  padding: 10px 32px;
+  background: var(--accent-gradient);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-lg);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.feed-auth-gate__btn:hover { opacity: 0.88; }
+
+.feed-auth-gate__reg {
+  background: none;
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 8px 24px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.feed-auth-gate__reg:hover {
+  border-color: var(--accent-1);
+  color: var(--accent-1);
+}
