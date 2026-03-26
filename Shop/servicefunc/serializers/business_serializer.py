@@ -4,7 +4,6 @@ from .product_serializer import ProductSerializer
 
 
 class BusinessListSerializer(serializers.ModelSerializer):
-    """Краткая карточка для списка (главная страница)"""
     owner_username    = serializers.CharField(source='owner.username', read_only=True)
     owner_avatar      = serializers.ImageField(source='owner.avatar', read_only=True)
     category_label    = serializers.CharField(source='get_category_display', read_only=True)
@@ -24,7 +23,6 @@ class BusinessListSerializer(serializers.ModelSerializer):
 
 
 class BusinessDetailSerializer(serializers.ModelSerializer):
-    """Полный профиль бизнеса"""
     owner_username    = serializers.CharField(source='owner.username', read_only=True)
     owner_email       = serializers.EmailField(source='owner.email', read_only=True)
     owner_avatar      = serializers.ImageField(source='owner.avatar', read_only=True)
@@ -70,7 +68,6 @@ class BusinessCreateUpdateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = self.context['request'].user
-        # Автоматически создаём группу для бизнеса
         group = GroupChat.objects.create(
             name=validated_data.get('brand_name', 'Группа'),
             description=f'Группа магазина {validated_data.get("brand_name", "")}',

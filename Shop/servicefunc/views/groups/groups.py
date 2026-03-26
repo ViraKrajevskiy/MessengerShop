@@ -13,7 +13,6 @@ User = get_user_model()
 
 
 class GroupListCreateView(APIView):
-    """GET — мои группы, POST — создать группу."""
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -35,7 +34,6 @@ class GroupListCreateView(APIView):
 
 
 class GroupDetailView(APIView):
-    """GET — детали группы, PATCH — редактировать, DELETE — удалить."""
     permission_classes = [IsAuthenticated]
 
     def _get_group(self, pk, user):
@@ -75,7 +73,6 @@ class GroupDetailView(APIView):
 
 
 class GroupMembersView(APIView):
-    """GET — участники, POST — добавить по username."""
     permission_classes = [IsAuthenticated]
 
     def get(self, request, pk):
@@ -89,7 +86,6 @@ class GroupMembersView(APIView):
         return Response(GroupMemberSerializer(members, many=True, context={'request': request}).data)
 
     def post(self, request, pk):
-        """Добавить пользователя: { username, role? }"""
         try:
             group = GroupChat.objects.get(pk=pk)
         except GroupChat.DoesNotExist:
@@ -121,7 +117,6 @@ class GroupMembersView(APIView):
 
 
 class GroupMemberDetailView(APIView):
-    """PATCH — изменить роль/доступы, DELETE — удалить участника."""
     permission_classes = [IsAuthenticated]
 
     def patch(self, request, pk, member_pk):
@@ -138,7 +133,6 @@ class GroupMemberDetailView(APIView):
         except GroupMember.DoesNotExist:
             return Response({'detail': 'Участник не найден'}, status=status.HTTP_404_NOT_FOUND)
 
-        # Нельзя менять владельца
         if member.role == GroupMember.Role.OWNER and me.role != GroupMember.Role.OWNER:
             return Response({'detail': 'Нельзя изменить владельца'}, status=status.HTTP_403_FORBIDDEN)
 
@@ -175,7 +169,6 @@ class GroupMemberDetailView(APIView):
 
 
 class GroupMessagesView(APIView):
-    """GET — сообщения группы, POST — отправить сообщение."""
     permission_classes = [IsAuthenticated]
 
     def get(self, request, pk):

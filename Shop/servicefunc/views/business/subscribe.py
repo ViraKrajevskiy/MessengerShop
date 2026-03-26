@@ -7,11 +7,6 @@ from Shop.models import Business, BusinessSubscription
 
 
 class BusinessSubscribeView(APIView):
-    """
-    GET  /businesses/<pk>/subscribe/  — проверить статус подписки (auth required)
-    POST /businesses/<pk>/subscribe/  — переключить подписку (auth required)
-    """
-
     def get_permissions(self):
         if self.request.method == 'GET':
             return [AllowAny()]

@@ -15,9 +15,6 @@ from Shop.servicefunc.serializers.business_serializer import (
 
 @extend_schema(tags=['Business'])
 class BusinessListView(APIView):
-    """
-    GET — список бизнесов (доступно всем, включая гостей)
-    """
     permission_classes = [AllowAny]
 
     @extend_schema(
@@ -52,9 +49,6 @@ class BusinessListView(APIView):
 
 @extend_schema(tags=['Business'])
 class BusinessCreateView(APIView):
-    """
-    POST — создать бизнес-профиль (только BUSINESS, только один профиль)
-    """
     permission_classes = [IsBusinessman]
 
     @extend_schema(
@@ -85,12 +79,6 @@ class BusinessCreateView(APIView):
 
 @extend_schema(tags=['Business'])
 class BusinessDetailView(APIView):
-    """
-    GET    — детали бизнеса (публично)
-    PATCH  — обновить (только владелец)
-    DELETE — удалить (только владелец)
-    """
-
     def get_permissions(self):
         if self.request.method == 'GET':
             return [AllowAny()]
@@ -148,7 +136,6 @@ class BusinessDetailView(APIView):
 
 @extend_schema(tags=['Business'])
 class MyBusinessView(APIView):
-    """GET/PATCH — мой бизнес-профиль"""
     permission_classes = [IsBusinessman]
 
     @extend_schema(
