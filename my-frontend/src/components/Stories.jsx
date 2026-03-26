@@ -1,7 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { apiGetStories } from '../api/businessApi'
-import { useAuth } from '../context/AuthContext'
 import './Stories.css'
 
 function groupStoriesByAuthor(apiStories) {
@@ -20,7 +19,6 @@ function groupStoriesByAuthor(apiStories) {
           ? (s.author.avatar.startsWith('http') ? s.author.avatar : `https://api.101-school.uz${s.author.avatar}`)
           : `https://i.pravatar.cc/200?u=${aId}`,
         media:    [],
-        comments: [],
       }
     }
     map[aId].media.push({
@@ -38,16 +36,10 @@ function StoryViewer({ stories, startIndex, onClose }) {
   const [storyIdx, setStoryIdx] = useState(startIndex)
   const [mediaIdx, setMediaIdx] = useState(0)
   const [progress, setProgress] = useState(0)
-  const [showComments, setShowComments] = useState(false)
-  const [userComments, setUserComments] = useState({})
-  const [commentText, setCommentText] = useState('')
   const timerRef = useRef(null)
   const touchStartX = useRef(0)
   const touchStartY = useRef(0)
-  const commentInputRef = useRef(null)
-  const commentsEndRef = useRef(null)
   const navigate = useNavigate()
-  const { user } = useAuth()
 
   const story = stories[storyIdx]
   const slide = story.media[mediaIdx]
@@ -64,17 +56,7 @@ function StoryViewer({ stories, startIndex, onClose }) {
     return `${Math.floor(hours / 24)} дн. назад`
   }
 
-  const allComments = [
-    ...(story.comments || []),
-    ...(userComments[story.id] || []),
-  ]
-
   useEffect(() => {
-    if (showComments) {
-      clearInterval(timerRef.current)
-      return
-    }
-
     setProgress(0)
     const startTime = Date.now()
 
@@ -86,11 +68,7 @@ function StoryViewer({ stories, startIndex, onClose }) {
     }, 50)
 
     return () => clearInterval(timerRef.current)
-  }, [storyIdx, mediaIdx, showComments])
-
-  useEffect(() => {
-    if (showComments) commentsEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [allComments.length, showComments])
+  }, [storyIdx, mediaIdx])
 
   const goNext = useCallback(() => {
     clearInterval(timerRef.current)
@@ -116,17 +94,13 @@ function StoryViewer({ stories, startIndex, onClose }) {
 
   useEffect(() => {
     const handleKey = (e) => {
-      if (showComments) {
-        if (e.key === 'Escape') setShowComments(false)
-        return
-      }
       if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); goNext() }
       else if (e.key === 'ArrowLeft') goPrev()
       else if (e.key === 'Escape') onClose()
     }
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
-  }, [goNext, goPrev, onClose, showComments])
+  }, [goNext, goPrev, onClose])
 
   const handleTouchStart = (e) => {
     touchStartX.current = e.touches[0].clientX
@@ -134,7 +108,6 @@ function StoryViewer({ stories, startIndex, onClose }) {
   }
 
   const handleTouchEnd = (e) => {
-    if (showComments) return
     const dx = e.changedTouches[0].clientX - touchStartX.current
     const dy = e.changedTouches[0].clientY - touchStartY.current
     const absDx = Math.abs(dx)
@@ -144,7 +117,6 @@ function StoryViewer({ stories, startIndex, onClose }) {
   }
 
   const handleMediaClick = (e) => {
-    if (showComments) return
     const rect = e.currentTarget.getBoundingClientRect()
     const x = e.clientX - rect.left
     if (x < rect.width / 3) goPrev()
@@ -155,31 +127,6 @@ function StoryViewer({ stories, startIndex, onClose }) {
     e.stopPropagation()
     onClose()
     navigate(`/business/${story.bizId || story.id}`)
-  }
-
-  const toggleComments = (e) => {
-    e.stopPropagation()
-    const opening = !showComments
-    setShowComments(opening)
-    if (opening) setTimeout(() => commentInputRef.current?.focus(), 150)
-  }
-
-  const sendComment = (e) => {
-    e.preventDefault()
-    if (!commentText.trim()) return
-    if (!user) { onClose(); navigate('/login'); return }
-    const newComment = {
-      id: Date.now(),
-      author: 'Вы',
-      text: commentText.trim(),
-      time: 'только что',
-      isOwn: true,
-    }
-    setUserComments((prev) => ({
-      ...prev,
-      [story.id]: [...(prev[story.id] || []), newComment],
-    }))
-    setCommentText('')
   }
 
   return (
@@ -235,71 +182,7 @@ function StoryViewer({ stories, startIndex, onClose }) {
           <p>{slide.caption}</p>
         </div>
 
-        <div className="story-viewer__bottom" onClick={(e) => e.stopPropagation()}>
-          <button className="story-viewer__comment-toggle" onClick={toggleComments}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-            </svg>
-            {allComments.length > 0 && (
-              <span className="story-viewer__comment-badge">{allComments.length}</span>
-            )}
-          </button>
-          <div className="story-viewer__reply-placeholder" onClick={toggleComments}>
-            Написать комментарий...
-          </div>
-        </div>
-
-        <div className={`story-viewer__comments ${showComments ? 'story-viewer__comments--open' : ''}`} onClick={(e) => e.stopPropagation()}>
-          <div className="story-viewer__comments-header">
-            <h4>Комментарии <span className="story-viewer__comments-count">{allComments.length}</span></h4>
-            <button className="story-viewer__comments-close" onClick={toggleComments}>&#10005;</button>
-          </div>
-
-          <div className="story-viewer__comments-list">
-            {allComments.length === 0 && (
-              <div className="story-viewer__comments-empty">
-                Пока нет комментариев.<br />Будьте первым!
-              </div>
-            )}
-            {allComments.map((c) => (
-              <div key={c.id} className={`sv-comment ${c.isOwn ? 'sv-comment--own' : ''}`}>
-                <div className="sv-comment__avatar" />
-                <div className="sv-comment__body">
-                  <div className="sv-comment__top">
-                    <span className="sv-comment__author">{c.author}</span>
-                    <span className="sv-comment__time">{c.time}</span>
-                  </div>
-                  <p className="sv-comment__text">{c.text}</p>
-                </div>
-              </div>
-            ))}
-            <div ref={commentsEndRef} />
-          </div>
-
-          {user ? (
-            <form className="story-viewer__comment-form" onSubmit={sendComment}>
-              <input
-                ref={commentInputRef}
-                type="text"
-                className="story-viewer__comment-input"
-                placeholder="Ваш комментарий..."
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-              />
-              <button type="submit" className="story-viewer__comment-send" disabled={!commentText.trim()}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-                </svg>
-              </button>
-            </form>
-          ) : (
-            <div className="story-viewer__comment-login" onClick={() => { onClose(); navigate('/login') }}>
-              Войдите, чтобы комментировать →
-            </div>
-          )}
-        </div>
-
-        {!showComments && storyIdx > 0 && (
+        {storyIdx > 0 && (
           <button
             className="story-viewer__nav story-viewer__nav--prev"
             onClick={(e) => { e.stopPropagation(); setStoryIdx(s => s - 1); setMediaIdx(0) }}
@@ -307,7 +190,7 @@ function StoryViewer({ stories, startIndex, onClose }) {
             &#8249;
           </button>
         )}
-        {!showComments && storyIdx < stories.length - 1 && (
+        {storyIdx < stories.length - 1 && (
           <button
             className="story-viewer__nav story-viewer__nav--next"
             onClick={(e) => { e.stopPropagation(); setStoryIdx(s => s + 1); setMediaIdx(0) }}

@@ -204,308 +204,184 @@
 @keyframes hpSpin { to { transform: rotate(360deg); } }
 
 /* ==========================================================================
-   HomePage.css additions for News Section
+   News Section
    ========================================================================== */
 
-/* Основная секция новостей на главной */
 .home-news-section {
-    margin: 40px 0;
-    padding: 0 20px;
+  margin: 32px 0;
 }
 
-/* Заголовок секции с кнопкой "Смотреть все" */
 .home-news-section .section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-}
-
-/* Сетка для 3-х новостей (адаптивная: 3 в ряд, потом 1) */
-.news-grid-home {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-}
-
-/* Кнопка "Смотреть все" */
-.home-news-section .see-all-btn {
-    background: none;
-    border: none;
-    color: var(--tg-theme-link-color, #2481cc); /* Используем цвета ТГ или дефолт */
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    padding: 5px 10px;
-    border-radius: 8px;
-    transition: background-color 0.2s;
-}
-
-.home-news-section .see-all-btn:hover {
-    background-color: rgba(var(--tg-theme-link-color-rgb, 36, 129, 204), 0.1);
-}
-
-/* ==========================================================================
-   Базовые стили для компонента NewsCard (если он внутри .home-page)
-   ========================================================================== */
-
-.news-card {
-    background-color: var(--tg-theme-bg-color, #fff);
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    transition: transform 0.2s, box-shadow 0.2s;
-    text-decoration: none; /* Если карточка будет ссылкой */
-    color: inherit;
-    height: 100%; /* Чтобы все карточки в ряду были одной высоты */
-}
-
-.news-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.12);
-}
-
-/* Блок с изображением */
-.news-card__image {
-    width: 100%;
-    height: 160px; /* Фиксированная высота для превью */
-    overflow: hidden;
-}
-
-.news-card__image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* Картинка заполняет блок без искажений */
-    transition: transform 0.3s;
-}
-
-.news-card:hover .news-card__image img {
-    transform: scale(1.05);
-}
-
-/* Контентная часть карточки */
-.news-card__content {
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1; /* Заполняет оставшееся пространство */
-}
-
-/* Бадж типа новости (Платформа/Бизнес) */
-.news-card__badge {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-weight: 600;
-    padding: 4px 8px;
-    border-radius: 20px;
-    align-self: flex-start; /* Ширина по контенту */
-    margin-bottom: 10px;
-}
-
-/* Стили для разных типов новостей */
-.news-card--platform .news-card__badge {
-    background-color: #e3f2fd;
-    color: #1565c0;
-}
-
-.news-card--business .news-card__badge {
-    background-color: #e8f5e9;
-    color: #2e7d32;
-}
-
-/* Заголовок */
-.news-card__title {
-    font-size: 16px;
-    font-weight: 600;
-    margin: 0 0 8px 0;
-    line-height: 1.4;
-    color: var(--tg-theme-text-color, #000);
-    /* Ограничение заголовка 2 строками */
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-/* Текст превью */
-.news-card__text {
-    font-size: 13px;
-    line-height: 1.5;
-    color: var(--tg-theme-hint-color, #707579);
-    margin: 0 0 16px 0;
-    flex-grow: 1; /* Толкает футер вниз */
-    /* Ограничение текста 3 строками */
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-/* Футер карточки (автор и дата) */
-.news-card__footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 11px;
-    color: var(--tg-theme-hint-color, #999);
-    border-top: 1px solid rgba(0,0,0,0.05);
-    padding-top: 10px;
-    margin-top: auto; /* Всегда внизу */
-}
-
-.news-card__author {
-    font-weight: 500;
-    max-width: 60%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-/* ==========================================================================
-   Media Queries (Адаптация)
-   ========================================================================= */
-
-@media (max-width: 992px) {
-    .news-grid-home {
-        grid-template-columns: repeat(2, 1fr); /* 2 в ряд на планшетах */
-    }
-}
-
-@media (max-width: 600px) {
-    .home-news-section {
-        padding: 0 15px;
-    }
-
-    .news-grid-home {
-        grid-template-columns: 1fr; /* 1 в ряд на телефонах */
-        gap: 15px;
-    }
-
-    .news-card__image {
-        height: 180px; /* Чуть выше картинка на мобильных */
-    }
-}
-/* Контейнер для сетки новостей */
-.news-grid-home {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 24px;
-  padding: 20px 0;
-}
-
-.news-card {
-  background: var(--bg-secondary);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border-color);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  cursor: pointer;
-  position: relative;
-}
-
-.news-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
-  border-color: var(--accent-1);
-}
-
-.news-card__image-wrapper {
-  position: relative;
-  height: 190px;
-  overflow: hidden;
-}
-
-.news-card__img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.5s ease;
-}
-
-.news-card:hover .news-card__img {
-  transform: scale(1.08);
-}
-
-.news-card__category-tag {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  padding: 4px 12px;
-  background: var(--bg-glass);
-  backdrop-filter: blur(8px);
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--accent-1);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-
-.news-card__body {
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-}
-
-.news-card__title {
-  font-size: 18px;
-  font-weight: 800;
-  margin-bottom: 10px;
-  color: var(--text-primary);
-  line-height: 1.3;
-}
-
-/* Красивые теги */
-.news-card__hashtags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 12px;
-}
-
-.hashtag {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-muted);
-  background: var(--bg-tertiary);
-  padding: 2px 8px;
-  border-radius: 6px;
-  transition: all 0.2s;
-}
-
-.news-card:hover .hashtag {
-  color: var(--accent-1);
-  background: rgba(229, 57, 53, 0.08);
-}
-
-.news-card__description {
-  font-size: 14px;
-  color: var(--text-secondary);
-  line-height: 1.5;
-  margin-bottom: 16px;
-  flex-grow: 1;
-}
-
-.news-card__footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 14px;
+  margin-bottom: 18px;
+}
+
+.see-all-btn {
+  background: none;
+  border: 1.5px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 6px 16px;
+  border-radius: var(--radius-lg);
+  transition: all 0.22s;
+}
+
+.see-all-btn:hover {
+  background: var(--accent-gradient);
+  color: #fff;
+  border-color: transparent;
+}
+
+.news-grid-home {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+/* ── NewsCard ── */
+.news-card {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  transition: transform 0.25s, box-shadow 0.25s;
+}
+
+.news-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.13);
+}
+
+.news-card__cover {
+  position: relative;
+  height: 170px;
+  overflow: hidden;
+  background: var(--bg-tertiary);
+  flex-shrink: 0;
+}
+
+.news-card__cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s;
+}
+
+.news-card:hover .news-card__cover-img {
+  transform: scale(1.06);
+}
+
+.news-card__cover-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.42) 0%, transparent 55%);
+}
+
+.news-card__no-img {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+}
+
+.news-card__type-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: var(--accent-gradient);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+}
+
+.news-card__video-badge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 36px;
+  color: rgba(255,255,255,0.9);
+  text-shadow: 0 2px 12px rgba(0,0,0,0.4);
+}
+
+.news-card__content {
+  padding: 14px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.news-card__title {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.35;
+  margin: 0 0 7px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.news-card__excerpt {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0 0 12px;
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.news-card__meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 10px;
   border-top: 1px solid var(--border-light);
+  margin-top: auto;
 }
 
 .news-card__source {
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 700;
-  color: var(--text-primary);
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  max-width: 65%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .news-card__date {
   font-size: 11px;
   color: var(--text-muted);
+}
+
+@media (max-width: 900px) {
+  .news-grid-home { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 600px) {
+  .news-grid-home { grid-template-columns: 1fr; gap: 14px; }
+  .news-card__cover { height: 180px; }
 }
