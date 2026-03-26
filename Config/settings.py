@@ -80,6 +80,8 @@ else:
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',       # Статика с кешированием + gzip
+    'django.middleware.gzip.GZipMiddleware',             # Сжатие ответов API
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -163,6 +165,23 @@ STATICFILES_DIRS = []
 MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+# WhiteNoise — статика с Brotli/gzip сжатием + immutable cache headers
+STORAGES = {
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+    },
+}
+
+# ---------- Оптимизация API ----------
+# Кеширование (in-memory для dev, на проде лучше Redis)
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'messhop-cache',
+        'TIMEOUT': 120,           # 2 минуты по умолчанию
+    }
+}
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
@@ -170,6 +189,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5173",
     "http://localhost:5174",
     "http://127.0.0.1:5174",
+    "https://101-school.uz",
+    "https://www.101-school.uz",
 ]
 
 CORS_ALLOW_CREDENTIALS = True

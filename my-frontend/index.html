@@ -1,10 +1,29 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>my-frontend</title>
+    <meta name="description" content="БизнесТурция — ваш личный бизнес-партнёр. Каталог компаний, услуги, отзывы и мессенджер." />
+    <meta name="theme-color" content="#1a1a2e" />
+
+    <title>БизнесТурция — Каталог бизнес-партнёров</title>
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Preconnect к API серверу — ускоряет первый запрос -->
+    <link rel="preconnect" href="https://api.101-school.uz" crossorigin />
+    <link rel="dns-prefetch" href="https://api.101-school.uz" />
+
+    <!-- Preconnect к picsum (placeholder картинки) -->
+    <link rel="preconnect" href="https://picsum.photos" crossorigin />
+    <link rel="dns-prefetch" href="https://picsum.photos" />
+
+    <!-- Критический CSS для первого рендера (избегаем белый экран) -->
+    <style>
+      *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+      body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0f0f23;color:#e0e0e0}
+      #root{min-height:100vh}
+    </style>
   </head>
   <body>
     <div id="root"></div>

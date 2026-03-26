@@ -2,6 +2,9 @@
   background: var(--bg-secondary);
   border-top: 1px solid var(--border-color);
   margin-top: 40px;
+  /* CLS fix: фиксируем минимальную высоту чтобы не было сдвига при загрузке */
+  min-height: 280px;
+  contain: layout style;
 }
 
 .footer__inner {
@@ -130,6 +133,10 @@
 }
 
 @media (max-width: 560px) {
+  .footer {
+    min-height: 420px;
+  }
+
   .footer__inner {
     grid-template-columns: 1fr 1fr;
     padding: 36px 16px 28px;

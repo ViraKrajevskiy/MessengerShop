@@ -26,7 +26,10 @@ class NewsListView(APIView):
         if tag:
             qs = qs.filter(tags__name=tag)
 
-        return Response(NewsSerializer(qs, many=True, context={'request': request}).data)
+        serializer = NewsSerializer(qs, many=True, context={'request': request})
+        response = Response(serializer.data)
+        response['Cache-Control'] = 'public, max-age=60'
+        return response
 
 
 class NewsCreateView(APIView):
