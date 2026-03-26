@@ -257,7 +257,6 @@ export default function BusinessPage() {
   const [subLoading, setSubLoading] = useState(false)
   const [inGroup, setInGroup]       = useState(false)
   const [groupLoading, setGroupLoading] = useState(false)
-  const [activeTab, setActiveTab]   = useState('about')
 
   useEffect(() => {
     setLoading(true)
@@ -290,7 +289,6 @@ export default function BusinessPage() {
   }, [id])
 
   const scrollToSection = (sectionId) => {
-    setActiveTab(sectionId)
     const el = document.getElementById(`section-${sectionId}`)
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
@@ -452,18 +450,6 @@ export default function BusinessPage() {
         {/* Аудио-плеер под hero (автовоспроизведение при открытии профиля) */}
         {audioUrl && <BusinessAudioPlayer audioUrl={audioUrl} />}
 
-        {/* Section navigation */}
-        <div className="bp__section-nav">
-          {SECTION_TABS.map(t => (
-            <button
-              key={t.id}
-              className={`bp__section-tab ${activeTab === t.id ? 'bp__section-tab--on' : ''}`}
-              onClick={() => scrollToSection(t.id)}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
 
         <div className="bp__grid">
           <div className="bp__main">
