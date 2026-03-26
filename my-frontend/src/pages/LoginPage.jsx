@@ -54,6 +54,7 @@ export default function LoginPage() {
 
       <div className="auth-page__center">
         <div className="auth-card">
+          <button className="auth-card__close" onClick={() => navigate(-1)} title="Закрыть">✕</button>
           {/* Header */}
           <div className="auth-card__header">
             <div className="auth-card__icon">
