@@ -214,7 +214,8 @@ export default function FeedPage() {
   const [loading, setLoading]   = useState(true)
   const [tab, setTab]           = useState('all') // all | posts | products | businesses
   const navigate = useNavigate()
-  const { getAccessToken } = useAuth()
+  const { getAccessToken, user } = useAuth()
+  const GUEST_LIMIT = 6
 
   useEffect(() => {
     getAccessToken().then(token =>
@@ -265,9 +266,28 @@ export default function FeedPage() {
               [0,1,2].map(i => <FeedSkeleton key={i} />)
             ) : (
               <>
-                {(tab === 'all' || tab === 'posts') && posts.map(post => (
-                  <FeedPost key={`post-${post.id}`} post={post} />
-                ))}
+                {(tab === 'all' || tab === 'posts') && (() => {
+                  const visiblePosts = user ? posts : posts.slice(0, GUEST_LIMIT)
+                  const hasMore = !user && posts.length > GUEST_LIMIT
+                  return (
+                    <>
+                      {visiblePosts.map(post => (
+                        <FeedPost key={`post-${post.id}`} post={post} />
+                      ))}
+                      {hasMore && tab === 'posts' && (
+                        <div className="feed-auth-gate">
+                          <div className="feed-auth-gate__blur" />
+                          <div className="feed-auth-gate__box">
+                            <div className="feed-auth-gate__icon">🔒</div>
+                            <p className="feed-auth-gate__text">Войдите, чтобы видеть все публикации</p>
+                            <button className="feed-auth-gate__btn" onClick={() => navigate('/login')}>Войти</button>
+                            <button className="feed-auth-gate__reg" onClick={() => navigate('/register')}>Регистрация</button>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )
+                })()}
 
                 {(tab === 'all' || tab === 'products') && allProducts.length > 0 && (
                   <>
@@ -277,7 +297,7 @@ export default function FeedPage() {
                       </div>
                     )}
                     <div className="feed-products-grid">
-                      {allProducts.slice(0, tab === 'all' ? 6 : allProducts.length).map(p => (
+                      {(user ? allProducts : allProducts.slice(0, GUEST_LIMIT)).slice(0, tab === 'all' ? 6 : undefined).map(p => (
                         <FeedProduct key={`prod-${p.id}`} product={p} />
                       ))}
                     </div>
@@ -293,11 +313,24 @@ export default function FeedPage() {
                       </div>
                     )}
                     <div className="feed-biz-list">
-                      {businesses.slice(0, tab === 'all' ? 5 : businesses.length).map(b => (
+                      {(user ? businesses : businesses.slice(0, GUEST_LIMIT)).slice(0, tab === 'all' ? 5 : undefined).map(b => (
                         <FeedBizCard key={b.id} biz={b} />
                       ))}
                     </div>
                   </>
+                )}
+
+                {/* Auth gate for tab=all */}
+                {tab === 'all' && !user && (posts.length > GUEST_LIMIT || allProducts.length > GUEST_LIMIT || businesses.length > GUEST_LIMIT) && (
+                  <div className="feed-auth-gate">
+                    <div className="feed-auth-gate__blur" />
+                    <div className="feed-auth-gate__box">
+                      <div className="feed-auth-gate__icon">🔒</div>
+                      <p className="feed-auth-gate__text">Войдите, чтобы видеть все публикации</p>
+                      <button className="feed-auth-gate__btn" onClick={() => navigate('/login')}>Войти</button>
+                      <button className="feed-auth-gate__reg" onClick={() => navigate('/register')}>Регистрация</button>
+                    </div>
+                  </div>
                 )}
 
                 {!loading && posts.length === 0 && allProducts.length === 0 && (
