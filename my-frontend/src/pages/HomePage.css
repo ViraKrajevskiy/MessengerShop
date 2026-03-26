@@ -92,9 +92,14 @@
   grid-template-columns: repeat(5, 1fr);
 }
 
+/* All cards title above filter */
+.all-cards-title {
+  margin: 28px 0 12px;
+}
+
 /* All cards */
 .all-cards-section {
-  padding: 24px 0;
+  padding: 8px 0 24px;
 }
 
 /* Results count */
