@@ -58,17 +58,19 @@
   flex-wrap: wrap;
 }
 .bp__avatar {
-  width: 110px;
-  height: 110px;
+  width: 140px;
+  height: 140px;
   border-radius: 20px;
   object-fit: cover;
   border: 3px solid var(--bg-primary);
-  box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.14);
   flex-shrink: 0;
 }
 .bp__hero-body {
   flex: 1;
   min-width: 180px;
+  display: flex;
+  flex-direction: column;
 }
 .bp__name-row {
   display: flex;
@@ -77,11 +79,11 @@
   margin-bottom: 6px;
 }
 .bp__name {
-  font-size: 24px;
+  font-size: 30px;
   font-weight: 800;
   color: var(--text-primary);
   margin: 0;
-  line-height: 1.25;
+  line-height: 1.2;
 }
 .bp__verified-icon { flex-shrink: 0; }
 .bp__vip-tag {
@@ -149,7 +151,7 @@
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
-  align-self: center;
+  margin-top: 16px;
 }
 .bp__act-btn {
   display: inline-flex;
@@ -845,7 +847,7 @@
     padding: 18px;
     gap: 14px;
   }
-  .bp__avatar { width: 80px; height: 80px; }
+  .bp__avatar { width: 100px; height: 100px; }
   .bp__actions { justify-content: flex-start; }
   .bp__cover { height: 180px; }
 }
@@ -854,8 +856,8 @@
   .bp__wrap { padding: 0 12px 40px; }
   .bp__cover { height: 160px; }
   .bp__hero { margin-top: -44px; padding: 14px; border-radius: 16px; gap: 12px; }
-  .bp__avatar { width: 64px; height: 64px; border-radius: 14px; }
-  .bp__name { font-size: 18px; }
+  .bp__avatar { width: 80px; height: 80px; border-radius: 14px; }
+  .bp__name { font-size: 20px; }
   .bp__stats { gap: 14px; }
   .bp__stat-num { font-size: 14px; }
   .bp__actions { gap: 6px; }
@@ -874,13 +876,11 @@
 /* ── Печать верификации в hero ── */
 .bp__hero-stamp {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   flex-shrink: 0;
   filter: drop-shadow(0 4px 12px rgba(26,58,107,0.25));
-  transition: transform 0.2s;
 }
-.bp__hero-stamp:hover { transform: rotate(-5deg) scale(1.05); }
 .bp__vstamp-wrap { display: flex; align-items: center; justify-content: center; }
 
 /* ── Объединённый блок "О нас + Контакты" ── */
