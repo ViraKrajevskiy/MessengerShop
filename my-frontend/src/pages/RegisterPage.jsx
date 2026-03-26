@@ -141,7 +141,7 @@ export default function RegisterPage() {
 
       <div className="auth-page__center">
         <div className="auth-card auth-card--wide">
-
+          <button className="auth-card__close" onClick={() => navigate(-1)} title="Закрыть">✕</button>
           {/* Header */}
           <div className="auth-card__header">
             <div className="auth-card__icon auth-card__icon--purple">
