@@ -380,7 +380,7 @@ export default function BusinessPage() {
             <div className="bp__tags">
               <span className="bp__tag">{categoryIcon} {biz.category_label}</span>
               {biz.city && <span className="bp__tag">📍 {biz.city}</span>}
-              <span className="bp__tag bp__tag--rating">🌟 {rating10} / 10</span>
+              <span className="bp__tag bp__tag--rating">⭐ {Number(biz.rating).toFixed(1)} / 5</span>
             </div>
             <div className="bp__stats">
               <div className="bp__stat">
@@ -394,57 +394,56 @@ export default function BusinessPage() {
                 </div>
               )}
             </div>
-            {/* Хештеги в hero (объединены с sidebar-блоком) */}
             <div className="bp__hero-hashtags">
               {bizHashtags.map((h, i) => <span key={i} className="bp__hashtag">{h}</span>)}
             </div>
+
+            <div className="bp__actions">
+              <button
+                className={`bp__act-btn bp__act-btn--sub ${subscribed ? 'bp__act-btn--active' : ''}`}
+                onClick={handleSubscribe}
+                disabled={subLoading}
+              >
+                {subscribed ? '✓ Подписан' : 'Подписаться'}
+              </button>
+              <button className="bp__act-btn bp__act-btn--chat"
+                onClick={() => { if (!user) { navigate('/login'); return } navigate('/messenger') }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+                Чат
+              </button>
+              {biz.group_id && (
+                <button
+                  className={`bp__act-btn bp__act-btn--group ${inGroup ? 'bp__act-btn--joined' : ''}`}
+                  onClick={inGroup ? () => navigate('/messenger') : handleJoinGroup}
+                  disabled={groupLoading}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                  </svg>
+                  {inGroup ? 'В группе' : 'Вступить'}
+                </button>
+              )}
+              {biz.phone && (
+                <a href={`tel:${biz.phone}`} className="bp__act-btn bp__act-btn--phone">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.77 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.78a16 16 0 0 0 7.86 7.86l1.06-1.06a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+                  </svg>
+                </a>
+              )}
+            </div>
           </div>
 
-          {/* Печать верификации */}
+          {/* Печать верификации — правый верхний угол */}
           {biz.is_verified && (
             <div className="bp__hero-stamp">
               <VerifiedStamp brandName={biz.brand_name} />
             </div>
           )}
-
-          <div className="bp__actions">
-            <button
-              className={`bp__act-btn bp__act-btn--sub ${subscribed ? 'bp__act-btn--active' : ''}`}
-              onClick={handleSubscribe}
-              disabled={subLoading}
-            >
-              {subscribed ? '✓ Подписан' : 'Подписаться'}
-            </button>
-            <button className="bp__act-btn bp__act-btn--chat"
-              onClick={() => { if (!user) { navigate('/login'); return } navigate('/messenger') }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-              </svg>
-              Чат
-            </button>
-            {biz.group_id && (
-              <button
-                className={`bp__act-btn bp__act-btn--group ${inGroup ? 'bp__act-btn--joined' : ''}`}
-                onClick={inGroup ? () => navigate('/messenger') : handleJoinGroup}
-                disabled={groupLoading}
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                  <circle cx="9" cy="7" r="4"/>
-                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                  <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                </svg>
-                {inGroup ? 'В группе' : 'Вступить'}
-              </button>
-            )}
-            {biz.phone && (
-              <a href={`tel:${biz.phone}`} className="bp__act-btn bp__act-btn--phone">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.77 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.78a16 16 0 0 0 7.86 7.86l1.06-1.06a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
-                </svg>
-              </a>
-            )}
-          </div>
         </div>
 
         {/* Аудио-плеер под hero (автовоспроизведение при открытии профиля) */}
@@ -508,7 +507,7 @@ export default function BusinessPage() {
               <div className="bp__props">
                 <div className="bp__prop"><span>Категория</span><span>{categoryIcon} {biz.category_label}</span></div>
                 {biz.city && <div className="bp__prop"><span>Город</span><span>{biz.city}</span></div>}
-                <div className="bp__prop"><span>Рейтинг</span><span>🌟 {rating10} / 10</span></div>
+                <div className="bp__prop"><span>Рейтинг</span><span>⭐ {Number(biz.rating).toFixed(1)} / 5</span></div>
                 <div className="bp__prop">
                   <span>Статус</span>
                   <span style={{ color: biz.is_verified ? '#10b981' : 'var(--text-muted)' }}>
