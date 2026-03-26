@@ -1,8 +1,4 @@
 .social-club {
-  padding: 20px 20px 16px;
-  background: var(--bg-secondary);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
   margin-bottom: 8px;
 }
 
@@ -10,20 +6,19 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .social-club__link {
   color: var(--text-secondary);
   font-size: 13px;
-  text-decoration: none;
   font-weight: 700;
   padding: 7px 20px;
   border-radius: var(--radius-lg);
   border: 1.5px solid var(--border-color);
-  transition: all 0.22s;
   background: none;
   cursor: pointer;
+  transition: all 0.22s;
 }
 
 .social-club__link:hover {
@@ -34,85 +29,15 @@
   transform: translateY(-1px);
 }
 
-/* Carousel */
-.social-club__carousel {
-  position: relative;
+/* Grid — 4 columns like business cards */
+.social-club__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
 }
 
-.social-club__arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 3;
-  background: var(--bg-secondary);
-  border: 1.5px solid var(--border-color);
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  color: var(--text-muted);
-  cursor: pointer;
-  padding: 0;
-  line-height: 1;
-  transition: all 0.2s;
-  box-shadow: var(--card-shadow);
-}
-
-.social-club__arrow--left  { left: -18px; }
-.social-club__arrow--right { right: -18px; }
-
-.social-club__arrow:hover:not(:disabled) {
-  background: var(--accent-gradient);
-  color: #fff;
-  border-color: transparent;
-  box-shadow: 0 4px 14px rgba(229,57,53,0.25);
-  transform: translateY(-50%) scale(1.08);
-}
-.social-club__arrow:disabled {
-  opacity: 0.35;
-  cursor: default;
-  box-shadow: none;
-}
-
-.social-club__list {
-  display: flex;
-  gap: 16px;
-  overflow: hidden;
-}
-
-/* Pagination dots */
-.social-club__dots {
-  display: flex;
-  justify-content: center;
-  gap: 6px;
-  margin-top: 16px;
-}
-
-.social-club__dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  border: none;
-  background: var(--border-color);
-  cursor: pointer;
-  padding: 0;
-  transition: all 0.25s;
-}
-
-.social-club__dot--active {
-  background: var(--accent-gradient);
-  transform: scale(1.35);
-  width: 22px;
-  border-radius: 4px;
-}
-
-/* ========== Post Card — matches UserCard style ========== */
+/* ========== Post Card — identical to UserCard ========== */
 .sc-card {
-  flex: 1;
-  min-width: 0;
   border-radius: var(--radius-lg);
   overflow: hidden;
   background: var(--bg-secondary);
@@ -130,7 +55,7 @@
 
 .sc-card--skeleton { pointer-events: none; }
 
-/* Image block */
+/* Image */
 .sc-card__image {
   position: relative;
   width: 100%;
@@ -150,7 +75,7 @@
   transform: scale(1.07);
 }
 
-/* Time badge — bottom-left like VIP/NEW */
+/* Time badge — same style as VIP/NEW badge */
 .sc-card__time-badge {
   position: absolute;
   bottom: 10px;
@@ -165,18 +90,18 @@
   letter-spacing: 0.2px;
 }
 
-/* Play icon for video */
+/* Video play icon */
 .sc-card__play {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 38px;
+  font-size: 36px;
   color: rgba(255,255,255,0.92);
   text-shadow: 0 2px 12px rgba(0,0,0,0.4);
   background: rgba(0,0,0,0.3);
-  width: 54px;
-  height: 54px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -185,7 +110,7 @@
   backdrop-filter: blur(6px);
 }
 
-/* Save action — top-right, shown on hover */
+/* Save button — appears on hover */
 .sc-card__actions {
   position: absolute;
   top: 10px;
@@ -244,14 +169,7 @@
   line-height: 1.4;
 }
 
-/* Skeleton */
-.sk-circle {
-  border-radius: 50%;
-  background: linear-gradient(90deg, var(--border-light) 25%, var(--border-color) 50%, var(--border-light) 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.4s infinite;
-  flex-shrink: 0;
-}
+/* Skeleton shimmer */
 .sk-line {
   border-radius: 4px;
   background: linear-gradient(90deg, var(--border-light) 25%, var(--border-color) 50%, var(--border-light) 75%);
@@ -266,26 +184,15 @@
   animation: shimmer 1.4s infinite;
 }
 @keyframes shimmer {
-  0% { background-position: 200% 0; }
+  0%   { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
 
 /* Responsive */
-@media (max-width: 768px) {
-  .social-club__list { gap: 10px; }
-  .social-club__arrow { display: none; }
+@media (max-width: 900px) {
+  .social-club__grid { grid-template-columns: repeat(2, 1fr); }
 }
 
-@media (max-width: 600px) {
-  .social-club__list {
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: 4px;
-  }
-  .sc-card {
-    min-width: 75%;
-    scroll-snap-align: start;
-    flex: 0 0 75%;
-  }
+@media (max-width: 480px) {
+  .social-club__grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
 }
