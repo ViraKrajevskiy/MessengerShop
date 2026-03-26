@@ -1,5 +1,10 @@
 .social-club {
   padding: 28px 0;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: 20px 20px 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  margin-bottom: 8px;
 }
 
 .social-club__header {

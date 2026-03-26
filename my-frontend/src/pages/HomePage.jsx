@@ -171,11 +171,11 @@ export default function HomePage() {
         <NewUsers />
         <SocialClub />
 
+        <h2 className="section-title all-cards-title">Все карточки</h2>
         <FilterBar filters={filters} onFilterChange={setFilters} />
 
         {/* Все карточки */}
         <section className="all-cards-section">
-          <h2 className="section-title">Все карточки</h2>
           {loadingBiz ? (
             <div className="home-page__loading">
               <span className="home-page__spinner" />
