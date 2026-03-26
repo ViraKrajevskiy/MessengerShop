@@ -27,21 +27,15 @@ function timeAgo(dateStr) {
 }
 
 function PostCard({ post, onAvatarClick, onMediaClick }) {
-  const [expanded, setExpanded] = useState(false)
   const [saved, setSaved] = useState(post.is_favorited || false)
-  const navigate = useNavigate()
-
-  const SHORT_LEN = 80
-  const isLong = post.text && post.text.length > SHORT_LEN
-  const displayText = expanded || !isLong ? post.text : post.text.slice(0, SHORT_LEN) + '...'
 
   const fixUrl = (url) => {
     if (!url) return null
     if (url.startsWith('http')) return url
     return 'https://api.101-school.uz' + url
   }
-  const logo = fixUrl(post.business_logo) || FALLBACK_LOGO
   const media = fixUrl(post.media_display) || FALLBACK_IMGS[post.id % FALLBACK_IMGS.length]
+  const caption = post.text?.length > 55 ? post.text.slice(0, 55) + '...' : post.text
 
   const handleSave = (e) => {
     e.stopPropagation()
@@ -49,42 +43,22 @@ function PostCard({ post, onAvatarClick, onMediaClick }) {
   }
 
   return (
-    <div className="sc-card">
-      <div className="sc-card__media" onClick={() => onMediaClick(post)}>
-        <img className="sc-card__media-img" src={media} alt="" loading="lazy" />
+    <div className="sc-card" onClick={() => onMediaClick(post)}>
+      <div className="sc-card__image">
+        <img className="sc-card__photo" src={media} alt="" loading="lazy" />
+        <span className="sc-card__time-badge">{timeAgo(post.created_at)}</span>
         {post.media_type === 'VIDEO' && <div className="sc-card__play">▶</div>}
-        <button className={`sc-card__save ${saved ? 'sc-card__save--active' : ''}`} onClick={handleSave} title="В избранное">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill={saved ? '#f59e0b' : 'none'} stroke={saved ? '#f59e0b' : '#fff'} strokeWidth="2.2">
-            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
-          </svg>
-        </button>
-      </div>
-
-      <div className="sc-card__body">
-        <div className="sc-card__info" onClick={(e) => { e.stopPropagation(); onAvatarClick(post) }}>
-          <img className="sc-card__avatar" src={logo} alt={post.business_name} />
-          <div className="sc-card__meta">
-            <span className="sc-card__author">
-              {post.business_name}
-              {post.is_verified && (
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="#2196f3" style={{marginLeft:3,verticalAlign:'middle',flexShrink:0}}>
-                  <path d="M12 2L9.19 4.09 5.5 3.82 4.41 7.41 1.42 9.72 2.83 13.21 1.42 16.71 4.41 19 5.5 22.59 9.19 22.32 12 24.41 14.81 22.32 18.5 22.59 19.59 19 22.58 16.71 21.17 13.21 22.58 9.72 19.59 7.41 18.5 3.82 14.81 4.09 12 2ZM10.09 16.72L7.29 13.91 8.71 12.5 10.09 13.88 15.34 8.63 16.76 10.05 10.09 16.72Z"/>
-                </svg>
-              )}
-            </span>
-            <span className="sc-card__time">{timeAgo(post.created_at)}</span>
-          </div>
+        <div className="sc-card__actions">
+          <button className={`sc-card__save-btn ${saved ? 'sc-card__save-btn--active' : ''}`} onClick={handleSave} title="Сохранить">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill={saved ? '#f59e0b' : 'none'} stroke="currentColor" strokeWidth="2">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+            </svg>
+          </button>
         </div>
-        {post.text && (
-          <p className="sc-card__text">
-            {displayText}
-            {isLong && (
-              <button className="sc-card__read-more" onClick={() => setExpanded(!expanded)}>
-                {expanded ? ' Свернуть' : ' ещё'}
-              </button>
-            )}
-          </p>
-        )}
+      </div>
+      <div className="sc-card__info" onClick={(e) => { e.stopPropagation(); onAvatarClick(post) }}>
+        <span className="sc-card__name">{post.business_name}</span>
+        {caption && <span className="sc-card__caption">{caption}</span>}
       </div>
     </div>
   )
@@ -93,17 +67,10 @@ function PostCard({ post, onAvatarClick, onMediaClick }) {
 function SkeletonCard() {
   return (
     <div className="sc-card sc-card--skeleton">
-      <div className="sc-card__header">
-        <div className="sk-circle" style={{ width: 40, height: 40 }} />
-        <div className="sc-card__meta">
-          <div className="sk-line" style={{ width: '60%', height: 13 }} />
-          <div className="sk-line" style={{ width: '35%', height: 10, marginTop: 5 }} />
-        </div>
-      </div>
       <div className="sk-media" />
-      <div className="sc-card__body">
-        <div className="sk-line" style={{ width: '95%', height: 12 }} />
-        <div className="sk-line" style={{ width: '75%', height: 12, marginTop: 6 }} />
+      <div className="sc-card__info">
+        <div className="sk-line" style={{ width: '70%', height: 13 }} />
+        <div className="sk-line" style={{ width: '50%', height: 10, marginTop: 5 }} />
       </div>
     </div>
   )
