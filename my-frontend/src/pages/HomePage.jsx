@@ -170,7 +170,12 @@ export default function HomePage() {
         <NewUsers />
         <SocialClub />
 
-        <h2 className="section-title all-cards-title">Все карточки</h2>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <h2 className="section-title all-cards-title" style={{ margin: 0 }}>Все карточки</h2>
+          <button className="social-club__link" onClick={() => navigate('/feed')}>
+            Все публикации &rarr;
+          </button>
+        </div>
 
         {/* Все карточки */}
         <section className="all-cards-section">
