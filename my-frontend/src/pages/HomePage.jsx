@@ -11,6 +11,7 @@ import NewUsers from '../components/NewUsers'
 import SocialClub from '../components/SocialClub'
 import UserCard from '../components/UserCard'
 import Footer from '../components/Footer'
+import TweetsSidebar from '../components/TweetsSidebar'
 // Добавляем импорт apiGetNews
 import { apiGetBusinesses, apiGetNews, CATEGORY_LABELS } from '../api/businessApi'
 import './HomePage.css'
@@ -120,6 +121,7 @@ export default function HomePage() {
         <ViewedBar />
       </div>
 
+      <div className="home-page__layout">
       <main className="home-page__content">
         {/* Hero */}
         <div className="home-page__hero">
@@ -136,8 +138,6 @@ export default function HomePage() {
           )}
         </div>
 
-        <FilterBar filters={filters} onFilterChange={setFilters} />
-
         {/* Stories */}
         <Stories />
 
@@ -151,7 +151,7 @@ export default function HomePage() {
           <VipSection users={filteredVip} />
         )}
 
-        {/* ---------- НОВОЕ: Секция новостей ---------- */}
+        {/* ---------- Секция новостей ---------- */}
         {!loadingNews && news.length > 0 && (
           <section className="home-news-section">
             <div className="section-header">
@@ -167,10 +167,11 @@ export default function HomePage() {
             </div>
           </section>
         )}
-        {/* ------------------------------------------- */}
 
         <NewUsers />
         <SocialClub />
+
+        <FilterBar filters={filters} onFilterChange={setFilters} />
 
         {/* Все карточки */}
         <section className="all-cards-section">
@@ -194,6 +195,8 @@ export default function HomePage() {
           )}
         </section>
       </main>
+      <TweetsSidebar />
+      </div>
       <Footer />
     </div>
   )

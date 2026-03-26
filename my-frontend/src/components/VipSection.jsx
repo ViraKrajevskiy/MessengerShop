@@ -65,7 +65,7 @@ export default function VipSection({ users = [] }) {
                 <img
                 className="vip-card__photo"
                 src={user.logo
-                  ? (user.logo.startsWith('http') ? user.logo : `http://127.0.0.1:8000${user.logo}`)
+                  ? (user.logo.startsWith('http') ? user.logo : `https://api.101-school.uz${user.logo}`)
                   : VIP_PHOTOS[user.id % VIP_PHOTOS.length]}
                 alt={user.name}
                 loading="lazy"

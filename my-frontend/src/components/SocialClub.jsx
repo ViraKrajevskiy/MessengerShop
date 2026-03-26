@@ -4,7 +4,16 @@ import { apiGetPosts } from '../api/businessApi'
 import { useAuth } from '../context/AuthContext'
 import './SocialClub.css'
 
-const FALLBACK_IMG = 'https://picsum.photos/id/342/800/600'
+const FALLBACK_IMGS = [
+  'https://picsum.photos/id/342/800/600',
+  'https://picsum.photos/id/1025/800/600',
+  'https://picsum.photos/id/177/800/600',
+  'https://picsum.photos/id/1062/800/600',
+  'https://picsum.photos/id/239/800/600',
+  'https://picsum.photos/id/1074/800/600',
+  'https://picsum.photos/id/306/800/600',
+  'https://picsum.photos/id/338/800/600',
+]
 const FALLBACK_LOGO = 'https://i.pravatar.cc/80?u=default'
 
 function timeAgo(dateStr) {
@@ -21,8 +30,8 @@ function timeAgo(dateStr) {
 function PostCard({ post, onAvatarClick, onMediaClick }) {
   const [expanded, setExpanded] = useState(false)
   const [followed, setFollowed] = useState(false)
-  const [liked, setLiked] = useState(false)
-  const [likes, setLikes] = useState(post.likes_count || 0)
+  const [liked, setLiked] = useState(post.is_favorited || false)
+  const [likes, setLikes] = useState(post.favorites_count ?? post.likes_count ?? 0)
   const { user } = useAuth()
   const navigate = useNavigate()
 
@@ -30,8 +39,13 @@ function PostCard({ post, onAvatarClick, onMediaClick }) {
   const isLong = post.text && post.text.length > SHORT_LEN
   const displayText = expanded || !isLong ? post.text : post.text.slice(0, SHORT_LEN) + '...'
 
-  const logo = post.business_logo || FALLBACK_LOGO
-  const media = post.media_display || FALLBACK_IMG
+  const fixUrl = (url) => {
+    if (!url) return null
+    if (url.startsWith('http')) return url
+    return 'https://api.101-school.uz' + url
+  }
+  const logo = fixUrl(post.business_logo) || FALLBACK_LOGO
+  const media = fixUrl(post.media_display) || FALLBACK_IMGS[post.id % FALLBACK_IMGS.length]
 
   const handleFollow = () => {
     if (!user) { navigate('/login'); return }

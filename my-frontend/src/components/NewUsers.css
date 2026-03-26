@@ -66,8 +66,8 @@
 
 .new-users__avatar {
   position: relative;
-  width: 72px;
-  height: 72px;
+  width: 90px;
+  height: 90px;
   border-radius: 50%;
   background: var(--story-ring);
   padding: 2.5px;
@@ -132,8 +132,8 @@
     gap: 8px;
   }
   .new-users__avatar {
-    width: 58px;
-    height: 58px;
+    width: 72px;
+    height: 72px;
   }
 }
 
@@ -144,8 +144,8 @@
     gap: 6px;
   }
   .new-users__avatar {
-    width: 52px;
-    height: 52px;
+    width: 64px;
+    height: 64px;
   }
   .new-users__name { font-size: 10px; max-width: 60px; }
   .new-users__city { font-size: 10px; }
