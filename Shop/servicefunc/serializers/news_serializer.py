@@ -29,7 +29,7 @@ class NewsSerializer(serializers.ModelSerializer):
         return None
 
     def get_tags(self, obj):
-        return list(obj.tags.values_list('name', flat=True))
+        return [t.name for t in obj.tags.all()]
 
 
 class NewsCreateUpdateSerializer(serializers.ModelSerializer):

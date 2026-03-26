@@ -2,8 +2,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from django.db.models import Count, Exists, OuterRef
+
 from Shop.models import Post, Product, ProductInquiry, Business, InquiryMessage
-from Shop.models.models import PostFavorite
+from Shop.models.models import PostFavorite, BusinessSubscription
 from Shop.servicefunc.serializers.post_serializer import (
     PostSerializer, PostCreateSerializer,
     ProductInquiryCreateSerializer,
@@ -15,7 +17,23 @@ class PostListView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
-        posts = Post.objects.select_related('business').all()[:50]
+        qs = Post.objects.select_related('business__owner').prefetch_related('tags').annotate(
+            _favorites_count=Count('favorites', distinct=True),
+        )
+
+        if request.user.is_authenticated:
+            qs = qs.annotate(
+                _is_favorited=Exists(
+                    PostFavorite.objects.filter(post=OuterRef('pk'), user=request.user)
+                ),
+                _is_subscribed=Exists(
+                    BusinessSubscription.objects.filter(
+                        business=OuterRef('business'), user=request.user
+                    )
+                ),
+            )
+
+        posts = qs.order_by('-created_at')[:50]
         serializer = PostSerializer(posts, many=True, context={'request': request})
         response = Response(serializer.data)
         response['Cache-Control'] = 'public, max-age=30'
@@ -26,8 +44,23 @@ class BusinessPostListView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, pk):
-        posts = Post.objects.filter(business_id=pk).select_related('business')
-        serializer = PostSerializer(posts, many=True, context={'request': request})
+        qs = Post.objects.filter(business_id=pk).select_related(
+            'business__owner'
+        ).prefetch_related('tags').annotate(
+            _favorites_count=Count('favorites', distinct=True),
+        )
+        if request.user.is_authenticated:
+            qs = qs.annotate(
+                _is_favorited=Exists(
+                    PostFavorite.objects.filter(post=OuterRef('pk'), user=request.user)
+                ),
+                _is_subscribed=Exists(
+                    BusinessSubscription.objects.filter(
+                        business=OuterRef('business'), user=request.user
+                    )
+                ),
+            )
+        serializer = PostSerializer(qs, many=True, context={'request': request})
         return Response(serializer.data)
 
     def post(self, request, pk):
@@ -76,7 +109,7 @@ class InquiryListView(APIView):
             inquiries = (
                 ProductInquiry.objects
                 .filter(product__business__owner=user)
-                .select_related('product__business', 'sender')
+                .select_related('product__business__owner', 'sender')
                 .prefetch_related('messages')
                 .order_by('-created_at')
             )
@@ -84,7 +117,7 @@ class InquiryListView(APIView):
             inquiries = (
                 ProductInquiry.objects
                 .filter(sender=user)
-                .select_related('product__business', 'sender')
+                .select_related('product__business__owner', 'sender')
                 .prefetch_related('messages')
                 .order_by('-created_at')
             )
@@ -99,7 +132,9 @@ class InquiryListView(APIView):
             else:
                 logo = biz.logo.url if biz.logo else None
 
-            last_msg = inq.messages.last()
+            # Use prefetched messages cache instead of .last() query
+            msgs = list(inq.messages.all())
+            last_msg = msgs[-1] if msgs else None
 
             # Определяем онлайн-статус собеседника
             other_user = inq.sender if is_business else biz.owner
@@ -239,5 +274,15 @@ class PostFavoritesListView(APIView):
     def get(self, request):
         posts = Post.objects.filter(
             favorites__user=request.user
-        ).select_related('business').order_by('-favorites__created_at')
+        ).select_related('business__owner').prefetch_related('tags').annotate(
+            _favorites_count=Count('favorites', distinct=True),
+            _is_favorited=Exists(
+                PostFavorite.objects.filter(post=OuterRef('pk'), user=request.user)
+            ),
+            _is_subscribed=Exists(
+                BusinessSubscription.objects.filter(
+                    business=OuterRef('business'), user=request.user
+                )
+            ),
+        ).order_by('-favorites__created_at')
         return Response(PostSerializer(posts, many=True, context={'request': request}).data)

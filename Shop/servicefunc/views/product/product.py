@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.db.models import Count
+from django.db.models import Count, F
 from django.utils import timezone
 
 from Shop.models import Business, Product, ProductLike, ProductInquiry, Story
@@ -60,7 +60,7 @@ class ProductDetailView(APIView):
         product = self.get_object(pk)
         if not product:
             return Response({'detail': 'Не найден.'}, status=status.HTTP_404_NOT_FOUND)
-        Product.objects.filter(pk=pk).update(views_count=product.views_count + 1)
+        Product.objects.filter(pk=pk).update(views_count=F('views_count') + 1)
         return Response(ProductSerializer(product, context={'request': request}).data)
 
     @extend_schema(summary='Обновить товар', request=ProductCreateUpdateSerializer, responses={200: ProductSerializer})

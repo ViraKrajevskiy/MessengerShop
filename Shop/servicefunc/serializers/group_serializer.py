@@ -45,6 +45,8 @@ class GroupChatListSerializer(serializers.ModelSerializer):
         ]
 
     def get_member_count(self, obj):
+        if hasattr(obj, '_member_count'):
+            return obj._member_count
         return obj.members.count()
 
     def get_last_message(self, obj):
@@ -60,6 +62,12 @@ class GroupChatListSerializer(serializers.ModelSerializer):
     def get_my_role(self, obj):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
+            # Use prefetched members if available
+            if hasattr(obj, '_prefetched_objects_cache') and 'members' in obj._prefetched_objects_cache:
+                for m in obj.members.all():
+                    if m.user_id == request.user.id:
+                        return m.role
+                return None
             m = obj.members.filter(user=request.user).first()
             return m.role if m else None
         return None

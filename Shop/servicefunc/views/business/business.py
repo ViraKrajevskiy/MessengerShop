@@ -4,6 +4,8 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from django.db.models import Count
+
 from Shop.models import Business
 from Shop.permissions import IsBusinessman
 from Shop.servicefunc.serializers.business_serializer import (
@@ -29,7 +31,9 @@ class BusinessListView(APIView):
         responses={200: BusinessListSerializer(many=True)},
     )
     def get(self, request):
-        qs = Business.objects.select_related('owner').all()
+        qs = Business.objects.select_related('owner').annotate(
+            _subscribers_count=Count('subscribers', distinct=True),
+        )
 
         city     = request.query_params.get('city')
         category = request.query_params.get('category')
@@ -84,9 +88,25 @@ class BusinessDetailView(APIView):
             return [AllowAny()]
         return [IsAuthenticated()]
 
-    def get_object(self, pk):
+    def get_object(self, pk, user=None):
         try:
-            return Business.objects.select_related('owner').get(pk=pk)
+            qs = Business.objects.select_related('owner').prefetch_related(
+                'products'
+            ).annotate(
+                _subscribers_count=Count('subscribers', distinct=True),
+            )
+            biz = qs.get(pk=pk)
+            # Cache available products for serializer
+            biz._prefetched_products = [p for p in biz.products.all() if p.is_available]
+            # Pre-check subscription
+            if user and user.is_authenticated:
+                from Shop.models.models import BusinessSubscription
+                biz._is_subscribed = BusinessSubscription.objects.filter(
+                    business=biz, user=user
+                ).exists()
+            else:
+                biz._is_subscribed = False
+            return biz
         except Business.DoesNotExist:
             return None
 
@@ -96,11 +116,12 @@ class BusinessDetailView(APIView):
         responses={200: BusinessDetailSerializer, 404: OpenApiResponse(description='Не найден')},
     )
     def get(self, request, pk):
-        biz = self.get_object(pk)
+        biz = self.get_object(pk, request.user)
         if not biz:
             return Response({'detail': 'Не найден.'}, status=status.HTTP_404_NOT_FOUND)
-        # Счётчик просмотров
-        Business.objects.filter(pk=pk).update(views_count=biz.views_count + 1)
+        # Счётчик просмотров — используем F() для атомарности
+        from django.db.models import F
+        Business.objects.filter(pk=pk).update(views_count=F('views_count') + 1)
         return Response(BusinessDetailSerializer(biz, context={'request': request}).data)
 
     @extend_schema(
@@ -109,7 +130,7 @@ class BusinessDetailView(APIView):
         responses={200: BusinessDetailSerializer, 403: OpenApiResponse(description='Нет прав')},
     )
     def patch(self, request, pk):
-        biz = self.get_object(pk)
+        biz = self.get_object(pk, request.user)
         if not biz:
             return Response({'detail': 'Не найден.'}, status=status.HTTP_404_NOT_FOUND)
         if biz.owner != request.user:
@@ -125,7 +146,7 @@ class BusinessDetailView(APIView):
         responses={204: OpenApiResponse(description='Удалено'), 403: OpenApiResponse(description='Нет прав')},
     )
     def delete(self, request, pk):
-        biz = self.get_object(pk)
+        biz = self.get_object(pk, request.user)
         if not biz:
             return Response({'detail': 'Не найден.'}, status=status.HTTP_404_NOT_FOUND)
         if biz.owner != request.user:

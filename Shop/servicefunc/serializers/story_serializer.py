@@ -28,6 +28,8 @@ class StorySerializer(serializers.ModelSerializer):
         read_only_fields = ['expires_at', 'created_at']
 
     def get_comments_count(self, obj):
+        if hasattr(obj, '_comments_count'):
+            return obj._comments_count
         return obj.comments.filter(is_deleted=False, parent=None).count()
 
     def get_media_display(self, obj):

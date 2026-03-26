@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from django.contrib.auth import get_user_model
+from django.db.models import Count, Prefetch, Subquery, OuterRef
 from Shop.models import GroupChat, GroupMember, GroupMessage
 from Shop.servicefunc.serializers.group_serializer import (
     GroupChatListSerializer, GroupChatDetailSerializer,
@@ -16,7 +17,13 @@ class GroupListCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        groups = GroupChat.objects.filter(members__user=request.user)
+        groups = GroupChat.objects.filter(
+            members__user=request.user
+        ).select_related('creator').annotate(
+            _member_count=Count('members', distinct=True),
+        ).prefetch_related(
+            Prefetch('members', queryset=GroupMember.objects.select_related('user')),
+        )
         return Response(GroupChatListSerializer(groups, many=True, context={'request': request}).data)
 
     def post(self, request):

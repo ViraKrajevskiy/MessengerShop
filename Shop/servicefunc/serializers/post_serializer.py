@@ -24,12 +24,16 @@ class PostSerializer(serializers.ModelSerializer):
         ]
 
     def get_is_favorited(self, obj):
+        if hasattr(obj, '_is_favorited'):
+            return obj._is_favorited
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return obj.favorites.filter(user=request.user).exists()
         return False
 
     def get_favorites_count(self, obj):
+        if hasattr(obj, '_favorites_count'):
+            return obj._favorites_count
         return obj.favorites.count()
 
     def get_business_logo(self, obj):
@@ -41,6 +45,8 @@ class PostSerializer(serializers.ModelSerializer):
         return None
 
     def get_is_subscribed(self, obj):
+        if hasattr(obj, '_is_subscribed'):
+            return obj._is_subscribed
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return obj.business.subscribers.filter(user=request.user).exists()
@@ -57,7 +63,7 @@ class PostSerializer(serializers.ModelSerializer):
         return None
 
     def get_tags(self, obj):
-        return list(obj.tags.values_list('name', flat=True))
+        return [t.name for t in obj.tags.all()]
 
 
 class PostCreateSerializer(serializers.ModelSerializer):

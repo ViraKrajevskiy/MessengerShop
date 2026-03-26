@@ -19,6 +19,8 @@ class BusinessListSerializer(serializers.ModelSerializer):
         ]
 
     def get_subscribers_count(self, obj):
+        if hasattr(obj, '_subscribers_count'):
+            return obj._subscribers_count
         return obj.subscribers.count()
 
 
@@ -45,13 +47,19 @@ class BusinessDetailSerializer(serializers.ModelSerializer):
         read_only_fields = ['is_verified', 'is_vip', 'rating', 'views_count', 'created_at']
 
     def get_products(self, obj):
+        if hasattr(obj, '_prefetched_products'):
+            return ProductSerializer(obj._prefetched_products, many=True, context=self.context).data
         qs = obj.products.filter(is_available=True)
         return ProductSerializer(qs, many=True, context=self.context).data
 
     def get_subscribers_count(self, obj):
+        if hasattr(obj, '_subscribers_count'):
+            return obj._subscribers_count
         return obj.subscribers.count()
 
     def get_is_subscribed(self, obj):
+        if hasattr(obj, '_is_subscribed'):
+            return obj._is_subscribed
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return obj.subscribers.filter(user=request.user).exists()

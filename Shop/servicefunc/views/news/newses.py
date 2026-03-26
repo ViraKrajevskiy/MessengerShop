@@ -11,7 +11,9 @@ class NewsListView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
-        qs = News.objects.filter(is_published=True).select_related('business', 'author')
+        qs = News.objects.filter(is_published=True).select_related(
+            'business', 'author'
+        ).prefetch_related('tags')
 
         news_type = request.query_params.get('type')
         business_id = request.query_params.get('business')
@@ -73,7 +75,8 @@ class NewsDetailView(APIView):
         news = self.get_object(pk)
         if not news or not news.is_published:
             return Response({'detail': 'Не найдено.'}, status=status.HTTP_404_NOT_FOUND)
-        News.objects.filter(pk=pk).update(views_count=news.views_count + 1)
+        from django.db.models import F
+        News.objects.filter(pk=pk).update(views_count=F('views_count') + 1)
         return Response(NewsSerializer(news, context={'request': request}).data)
 
     def patch(self, request, pk):
@@ -104,5 +107,5 @@ class BusinessNewsListView(APIView):
     def get(self, request, pk):
         qs = News.objects.filter(
             business_id=pk, is_published=True
-        ).select_related('business', 'author')
+        ).select_related('business', 'author').prefetch_related('tags')
         return Response(NewsSerializer(qs, many=True, context={'request': request}).data)

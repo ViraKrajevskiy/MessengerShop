@@ -1,4 +1,4 @@
-from django.db.models import Avg
+from django.db.models import Avg, Count, Q
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
@@ -9,12 +9,20 @@ from Shop.servicefunc.serializers.review_serializer import ReviewSerializer, Rev
 
 
 def review_summary(reviews_qs):
-    total = reviews_qs.count()
+    """Optimized: single aggregate query instead of 7 separate queries."""
+    agg = reviews_qs.aggregate(
+        total=Count('id'),
+        average=Avg('rating'),
+        **{f'd{i}': Count('id', filter=Q(rating=i)) for i in range(1, 6)},
+    )
+    total = agg['total']
     if total == 0:
         return {'average': 0, 'total': 0, 'distribution': {str(i): 0 for i in range(1, 6)}}
-    avg = reviews_qs.aggregate(a=Avg('rating'))['a'] or 0
-    dist = {str(i): reviews_qs.filter(rating=i).count() for i in range(1, 6)}
-    return {'average': round(avg, 1), 'total': total, 'distribution': dist}
+    return {
+        'average': round(agg['average'] or 0, 1),
+        'total': total,
+        'distribution': {str(i): agg[f'd{i}'] for i in range(1, 6)},
+    }
 
 
 class BusinessReviewListCreateView(APIView):
