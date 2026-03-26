@@ -30,7 +30,6 @@ const SECTION_TABS = [
   { id: 'gallery', label: 'Фото/Видео' },
   { id: 'reviews', label: 'Отзывы' },
   { id: 'posts',   label: 'Публикации' },
-  { id: 'faq',     label: 'Помощь' },
 ]
 
 /* ── Кастомная печать верификации ── */
@@ -168,33 +167,6 @@ function Gallery({ posts }) {
   )
 }
 
-function FAQSection({ biz }) {
-  const [openIdx, setOpenIdx] = useState(null)
-  const faqs = [
-    { q: `Как связаться с ${biz.brand_name}?`, a: biz.phone ? `Позвоните по номеру ${biz.phone} или напишите в чат.` : 'Напишите в чат на платформе.' },
-    { q: 'Какова стоимость доставки?', a: 'Стоимость доставки зависит от расстояния и объёма заказа. Уточняйте у продавца.' },
-    { q: 'Можно ли вернуть товар?', a: 'Условия возврата уточняйте напрямую у продавца через чат.' },
-  ]
-  return (
-    <section className="bp__card" id="section-faq">
-      <h2 className="bp__card-title">Частые вопросы</h2>
-      <div className="bp__faq-list">
-        {faqs.map((f, i) => (
-          <div key={i} className={`bp__faq-item ${openIdx === i ? 'bp__faq-item--open' : ''}`}>
-            <button className="bp__faq-q" onClick={() => setOpenIdx(openIdx === i ? null : i)}>
-              <span>{f.q}</span>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
-                style={{ transform: openIdx === i ? 'rotate(180deg)' : '', transition: 'transform .2s' }}>
-                <path d="M6 9l6 6 6-6"/>
-              </svg>
-            </button>
-            {openIdx === i && <p className="bp__faq-a">{f.a}</p>}
-          </div>
-        ))}
-      </div>
-    </section>
-  )
-}
 
 function SimilarCard({ biz, onClick }) {
   const logo  = resolveUrl(biz.logo)  || `https://picsum.photos/id/${biz.id + 10}/200/200`
@@ -565,7 +537,6 @@ export default function BusinessPage() {
               <ReviewsSection type="business" targetId={id} horizontal ratingScale={10} />
             </section>
 
-            <FAQSection biz={biz} />
 
             {biz.address && (
               <section className="bp__card">
@@ -600,14 +571,6 @@ export default function BusinessPage() {
           {/* Sidebar — хештеги убраны отсюда, они теперь в hero */}
           <aside className="bp__side">
             <VipPromo user={user} navigate={navigate} />
-            <div className="bp__side-card">
-              <h3 className="bp__side-title">FAQ</h3>
-              <div className="bp__side-faq-links">
-                <button onClick={() => scrollToSection('faq')}>Как связаться?</button>
-                <button onClick={() => scrollToSection('faq')}>Доставка и возврат</button>
-                <button onClick={() => scrollToSection('reviews')}>Отзывы клиентов</button>
-              </div>
-            </div>
             <div className="bp__side-card">
               <h3 className="bp__side-title">Информация</h3>
               <div className="bp__info-list">
