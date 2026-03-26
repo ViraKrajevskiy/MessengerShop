@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
-import FilterBar from '../components/FilterBar'
 import Stories from '../components/Stories'
 import ViewedBar from '../components/ViewedBar'
 import VipSection from '../components/VipSection'
@@ -172,7 +171,6 @@ export default function HomePage() {
         <SocialClub />
 
         <h2 className="section-title all-cards-title">Все карточки</h2>
-        <FilterBar filters={filters} onFilterChange={setFilters} />
 
         {/* Все карточки */}
         <section className="all-cards-section">
