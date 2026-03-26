@@ -21,9 +21,6 @@ export default function UserCard({ id, name = 'Имя', city = 'Город', bad
   const { addViewed } = useViewed()
   const navigate = useNavigate()
   const { guard, AuthModal } = useAuthGate()
-  const [liked, setLiked] = useState(false)
-  const [likes, setLikes] = useState(0)
-
   // Используем логотип бизнеса, или fallback из picsum
   const photo = logo
     ? (logo.startsWith('http') ? logo : `https://api.101-school.uz${logo}`)
@@ -32,14 +29,6 @@ export default function UserCard({ id, name = 'Имя', city = 'Город', bad
   const handleClick = () => {
     addViewed({ id, name, city, badge, type })
     navigate(`/business/${id}`)
-  }
-
-  const handleLike = (e) => {
-    e.stopPropagation()
-    guard(() => {
-      setLiked(l => !l)
-      setLikes(n => liked ? n - 1 : n + 1)
-    })
   }
 
   const handleMessage = (e) => {
@@ -56,16 +45,6 @@ export default function UserCard({ id, name = 'Имя', city = 'Город', bad
 
           {/* Action buttons — появляются при hover */}
           <div className="user-card__actions">
-            <button
-              className={`user-card__action-btn user-card__action-btn--like ${liked ? 'user-card__action-btn--liked' : ''}`}
-              onClick={handleLike}
-              title="Лайк"
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill={liked ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-              </svg>
-              {likes}
-            </button>
             <button
               className="user-card__action-btn user-card__action-btn--msg"
               onClick={handleMessage}
