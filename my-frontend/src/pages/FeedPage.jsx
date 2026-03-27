@@ -4,7 +4,7 @@ import Header from '../components/Header'
 import Footer from '../components/Footer'
 import Stories from '../components/Stories'
 import { useAuth } from '../context/AuthContext'
-import { apiGetPosts, apiGetBusinesses, apiToggleSubscription, CATEGORY_LABELS } from '../api/businessApi'
+import { apiGetPosts, apiGetBusinesses, apiGetNews, apiToggleSubscription, CATEGORY_LABELS } from '../api/businessApi'
 import './FeedPage.css'
 
 const FALLBACK_IMG  = 'https://picsum.photos/id/342/800/600'
@@ -173,6 +173,58 @@ function FeedProduct({ product }) {
   )
 }
 
+// ── Tweet card (compact post) ────────────────────────────────────────────────
+function TweetCard({ post }) {
+  const navigate = useNavigate()
+  const logo = post.business_logo
+    ? (post.business_logo.startsWith('http') ? post.business_logo : `https://api.101-school.uz${post.business_logo}`)
+    : FALLBACK_LOGO
+  const media = post.media_display || null
+
+  return (
+    <div className="feed-tweet" onClick={() => navigate(`/business/${post.business_id}`)}>
+      <img className="feed-tweet__avatar" src={logo} alt={post.business_name} />
+      <div className="feed-tweet__body">
+        <div className="feed-tweet__top">
+          <span className="feed-tweet__name">
+            {post.business_name}
+            {post.is_verified && (
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="#2196f3" style={{marginLeft:3,verticalAlign:'middle'}}>
+                <path d="M12 2L9.19 4.09 5.5 3.82 4.41 7.41 1.42 9.72 2.83 13.21 1.42 16.71 4.41 19 5.5 22.59 9.19 22.32 12 24.41 14.81 22.32 18.5 22.59 19.59 19 22.58 16.71 21.17 13.21 22.58 9.72 19.59 7.41 18.5 3.82 14.81 4.09 12 2ZM10.09 16.72L7.29 13.91 8.71 12.5 10.09 13.88 15.34 8.63 16.76 10.05 10.09 16.72Z"/>
+              </svg>
+            )}
+          </span>
+          <span className="feed-tweet__time">{timeAgo(post.created_at)}</span>
+        </div>
+        <p className="feed-tweet__text">{post.text?.length > 140 ? post.text.slice(0, 140) + '...' : post.text}</p>
+        {media && <img className="feed-tweet__media" src={media} alt="" loading="lazy" />}
+      </div>
+    </div>
+  )
+}
+
+// ── News card (feed style) ──────────────────────────────────────────────────
+function FeedNewsCard({ item }) {
+  const navigate = useNavigate()
+  const img = item.media_display || item.media_url || null
+
+  return (
+    <div className="feed-news-card" onClick={() => navigate(`/news/${item.id}`)}>
+      {img && (
+        <div className="feed-news-card__img-wrap">
+          <img src={img} alt={item.title} loading="lazy" />
+          <span className="feed-news-card__badge">{item.news_type === 'PLATFORM' ? 'Платформа' : 'Бизнес'}</span>
+        </div>
+      )}
+      <div className="feed-news-card__body">
+        <h3 className="feed-news-card__title">{item.title}</h3>
+        <p className="feed-news-card__text">{item.text?.length > 100 ? item.text.slice(0, 100) + '...' : item.text}</p>
+        <span className="feed-news-card__source">{item.business_name || item.author_name || 'MessengerShop'}</span>
+      </div>
+    </div>
+  )
+}
+
 // ── Business mini-card ────────────────────────────────────────────────────────
 function FeedBizCard({ biz }) {
   const navigate = useNavigate()
@@ -211,25 +263,37 @@ function FeedSkeleton() {
 export default function FeedPage() {
   const [posts, setPosts]       = useState([])
   const [businesses, setBiz]    = useState([])
+  const [news, setNews]         = useState([])
   const [loading, setLoading]   = useState(true)
-  const [tab, setTab]           = useState('all') // all | posts | products | businesses
+  const [tab, setTab]           = useState('all') // all | posts | tweets | services | products | news
   const navigate = useNavigate()
   const { getAccessToken, user } = useAuth()
   const GUEST_LIMIT = 6
 
   useEffect(() => {
     getAccessToken().then(token =>
-      Promise.all([apiGetPosts(token), apiGetBusinesses()])
-        .then(([p, b]) => { setPosts(p); setBiz(b) })
+      Promise.all([apiGetPosts(token), apiGetBusinesses(), apiGetNews()])
+        .then(([p, b, n]) => { setPosts(p); setBiz(b); setNews(Array.isArray(n) ? n : []) })
         .catch(() => {})
         .finally(() => setLoading(false))
     )
   }, [])
 
-  // Все продукты из бизнесов через бизнес-апи (у нас нет /api/products/, берём из businesses)
-  const allProducts = businesses.flatMap(b =>
+  // Products/Services from businesses
+  const allItems = businesses.flatMap(b =>
     (b.products || []).map(p => ({ ...p, business_id: b.id, business_name: b.brand_name }))
   )
+  const allProducts = allItems.filter(p => p.product_type !== 'SERVICE')
+  const allServices = allItems.filter(p => p.product_type === 'SERVICE')
+
+  const TABS = [
+    { key: 'all',      label: 'Всё' },
+    { key: 'posts',    label: 'Посты' },
+    { key: 'tweets',   label: 'Твиты' },
+    { key: 'services', label: 'Услуги' },
+    { key: 'products', label: 'Продукты' },
+    { key: 'news',     label: 'Новости' },
+  ]
 
   return (
     <div className="feed-page">
@@ -243,12 +307,7 @@ export default function FeedPage() {
 
         {/* Tabs */}
         <div className="feed-page__tabs">
-          {[
-            { key: 'all',        label: 'Всё' },
-            { key: 'posts',      label: 'Посты' },
-            { key: 'products',   label: 'Товары' },
-            { key: 'businesses', label: 'Компании' },
-          ].map(t => (
+          {TABS.map(t => (
             <button
               key={t.key}
               className={`feed-page__tab ${tab === t.key ? 'feed-page__tab--active' : ''}`}
@@ -266,12 +325,16 @@ export default function FeedPage() {
               [0,1,2].map(i => <FeedSkeleton key={i} />)
             ) : (
               <>
+                {/* ── Посты ── */}
                 {(tab === 'all' || tab === 'posts') && (() => {
                   const visiblePosts = user ? posts : posts.slice(0, GUEST_LIMIT)
                   const hasMore = !user && posts.length > GUEST_LIMIT
                   return (
                     <>
-                      {visiblePosts.map(post => (
+                      {tab === 'all' && visiblePosts.length > 0 && (
+                        <div className="feed-section-label"><span>Посты</span></div>
+                      )}
+                      {(tab === 'all' ? visiblePosts.slice(0, 4) : visiblePosts).map(post => (
                         <FeedPost key={`post-${post.id}`} post={post} />
                       ))}
                       {hasMore && tab === 'posts' && (
@@ -289,11 +352,47 @@ export default function FeedPage() {
                   )
                 })()}
 
+                {/* ── Твиты ── */}
+                {(tab === 'all' || tab === 'tweets') && posts.length > 0 && (
+                  <>
+                    {tab === 'all' && (
+                      <div className="feed-section-label">
+                        <span>Твиты</span>
+                        <button onClick={() => setTab('tweets')}>Все →</button>
+                      </div>
+                    )}
+                    <div className="feed-tweets-list">
+                      {(user ? posts : posts.slice(0, GUEST_LIMIT)).slice(0, tab === 'all' ? 4 : undefined).map(post => (
+                        <TweetCard key={`tweet-${post.id}`} post={post} />
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                {/* ── Услуги ── */}
+                {(tab === 'all' || tab === 'services') && allServices.length > 0 && (
+                  <>
+                    {tab === 'all' && (
+                      <div className="feed-section-label">
+                        <span>Услуги</span>
+                        <button onClick={() => setTab('services')}>Все →</button>
+                      </div>
+                    )}
+                    <div className="feed-products-grid">
+                      {(user ? allServices : allServices.slice(0, GUEST_LIMIT)).slice(0, tab === 'all' ? 6 : undefined).map(p => (
+                        <FeedProduct key={`svc-${p.id}`} product={p} />
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                {/* ── Продукты ── */}
                 {(tab === 'all' || tab === 'products') && allProducts.length > 0 && (
                   <>
                     {tab === 'all' && (
                       <div className="feed-section-label">
-                        <span>Товары и услуги</span>
+                        <span>Продукты</span>
+                        <button onClick={() => setTab('products')}>Все →</button>
                       </div>
                     )}
                     <div className="feed-products-grid">
@@ -304,24 +403,25 @@ export default function FeedPage() {
                   </>
                 )}
 
-                {(tab === 'all' || tab === 'businesses') && (
+                {/* ── Новости ── */}
+                {(tab === 'all' || tab === 'news') && news.length > 0 && (
                   <>
                     {tab === 'all' && (
                       <div className="feed-section-label">
-                        <span>Компании</span>
-                        <button onClick={() => navigate('/')}>Все →</button>
+                        <span>Новости</span>
+                        <button onClick={() => setTab('news')}>Все →</button>
                       </div>
                     )}
-                    <div className="feed-biz-list">
-                      {(user ? businesses : businesses.slice(0, GUEST_LIMIT)).slice(0, tab === 'all' ? 5 : undefined).map(b => (
-                        <FeedBizCard key={b.id} biz={b} />
+                    <div className="feed-news-list">
+                      {news.slice(0, tab === 'all' ? 3 : undefined).map(item => (
+                        <FeedNewsCard key={`news-${item.id}`} item={item} />
                       ))}
                     </div>
                   </>
                 )}
 
                 {/* Auth gate for tab=all */}
-                {tab === 'all' && !user && (posts.length > GUEST_LIMIT || allProducts.length > GUEST_LIMIT || businesses.length > GUEST_LIMIT) && (
+                {tab === 'all' && !user && (posts.length > GUEST_LIMIT || allItems.length > GUEST_LIMIT) && (
                   <div className="feed-auth-gate">
                     <div className="feed-auth-gate__blur" />
                     <div className="feed-auth-gate__box">
@@ -333,7 +433,7 @@ export default function FeedPage() {
                   </div>
                 )}
 
-                {!loading && posts.length === 0 && allProducts.length === 0 && (
+                {!loading && posts.length === 0 && allItems.length === 0 && news.length === 0 && (
                   <div className="feed-page__empty">
                     Лента пуста. Запусти <code>python manage.py seed</code>
                   </div>
