@@ -18,13 +18,16 @@ export default defineConfig({
     // Оптимизация чанков — разбиваем бандл на части
     rollupOptions: {
       output: {
-        manualChunks: {
-          // React core — кешируется отдельно, редко меняется
-          'vendor-react': ['react', 'react-dom'],
-          // Router — тоже стабильный
-          'vendor-router': ['react-router-dom'],
-          // Axios — HTTP клиент
-          'vendor-axios': ['axios'],
+        manualChunks(id) {
+          if (id.includes('node_modules/react-dom') || id.includes('node_modules/react/')) {
+            return 'vendor-react'
+          }
+          if (id.includes('node_modules/react-router')) {
+            return 'vendor-router'
+          }
+          if (id.includes('node_modules/axios')) {
+            return 'vendor-axios'
+          }
         },
       },
     },
@@ -32,10 +35,7 @@ export default defineConfig({
     // Целевой размер чанка (предупреждение если больше)
     chunkSizeWarningLimit: 150,
 
-    // Минификация через esbuild (быстрее terser)
-    minify: 'esbuild',
-
-    // Удаляем console.log и debugger в проде
+    // Целевой ES версия
     target: 'es2020',
   },
 })
