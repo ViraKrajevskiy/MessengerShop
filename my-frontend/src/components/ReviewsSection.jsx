@@ -178,20 +178,7 @@ export default function ReviewsSection({ type, targetId, horizontal }) {
         </h2>
       </div>
 
-      {summary.total > 0 ? (
-        <div className="rv-summary">
-          <div className="rv-summary__avg">
-            <span className="rv-summary__num">{Number(summary.average).toFixed(1)}</span>
-            <Stars rating={Math.round(summary.average)} size={20} />
-            <span className="rv-summary__sub">{summary.total} {summary.total === 1 ? 'оценка' : summary.total < 5 ? 'оценки' : 'оценок'}</span>
-          </div>
-          <div className="rv-summary__bars">
-            {[5, 4, 3, 2, 1].map(n => (
-              <RatingBar key={n} star={n} count={summary.distribution[n] || 0} total={summary.total} />
-            ))}
-          </div>
-        </div>
-      ) : (
+      {summary.total === 0 && (
         <p className="rv-empty">Пока нет отзывов. Будьте первым!</p>
       )}
 
