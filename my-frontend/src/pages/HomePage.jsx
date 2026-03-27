@@ -141,14 +141,7 @@ export default function HomePage() {
         <Stories />
 
         {/* VIP — оплаченные карточки */}
-        {loadingBiz ? (
-          <div className="home-page__loading">
-            <span className="home-page__spinner" />
-            <span>Загружаем бизнесы...</span>
-          </div>
-        ) : (
-          <VipSection users={filteredVip} />
-        )}
+        <VipSection users={filteredVip} loading={loadingBiz} />
 
         {/* ---------- Секция новостей ---------- */}
         {!loadingNews && news.length > 0 && (
@@ -180,8 +173,16 @@ export default function HomePage() {
         {/* Все карточки */}
         <section className="all-cards-section">
           {loadingBiz ? (
-            <div className="home-page__loading">
-              <span className="home-page__spinner" />
+            <div className="card-grid card-grid--5">
+              {[1,2,3,4,5,6,7,8,9,10].map(i => (
+                <div key={i} className="vip-card vip-card--skeleton">
+                  <div className="vip-card__image"><div className="vip-card__skel-img" /></div>
+                  <div className="vip-card__info">
+                    <div className="vip-card__skel-line" style={{width:'70%'}} />
+                    <div className="vip-card__skel-line" style={{width:'40%'}} />
+                  </div>
+                </div>
+              ))}
             </div>
           ) : filteredAll.length > 0 ? (
             <div className="card-grid card-grid--5">

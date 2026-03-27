@@ -14,7 +14,7 @@ const VIP_PHOTOS = [
   'https://picsum.photos/id/1084/400/530',
 ]
 
-export default function VipSection({ users = [] }) {
+export default function VipSection({ users = [], loading = false }) {
   const [showAll, setShowAll] = useState(false)
   const { addViewed } = useViewed()
   const navigate = useNavigate()
@@ -53,7 +53,21 @@ export default function VipSection({ users = [] }) {
         Рекламный блок — продвигайте свой профиль
       </div>
 
-      {displayUsers.length > 0 ? (
+      {loading ? (
+        <div className="vip-section__grid">
+          {[1,2,3,4].map(i => (
+            <div key={i} className="vip-card vip-card--skeleton">
+              <div className="vip-card__image">
+                <div className="vip-card__skel-img" />
+              </div>
+              <div className="vip-card__info">
+                <div className="vip-card__skel-line" style={{width:'70%'}} />
+                <div className="vip-card__skel-line" style={{width:'40%'}} />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : displayUsers.length > 0 ? (
         <div className="vip-section__grid">
           {displayUsers.map((user) => (
             <div

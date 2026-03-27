@@ -1,5 +1,7 @@
 .new-users {
   padding: 28px 0;
+  min-height: 220px; /* CLS fix: reserve space for new users grid */
+  contain: layout style;
 }
 
 .new-users__header {

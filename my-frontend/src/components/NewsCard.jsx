@@ -14,7 +14,7 @@ export default function NewsCard({ item }) {
     <div className="news-card" onClick={() => navigate(`/news/${item.id}`)}>
       <div className="news-card__image">
         {item.media_display ? (
-          <img src={item.media_display} alt={item.title} className="news-card__photo" />
+          <img src={item.media_display} alt={item.title} className="news-card__photo" loading="lazy" />
         ) : (
           <div className="news-card__no-img">📢</div>
         )}

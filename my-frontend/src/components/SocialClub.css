@@ -1,5 +1,7 @@
 .social-club {
   margin-bottom: 8px;
+  min-height: 340px; /* CLS fix: reserve space for post cards */
+  contain: layout style;
 }
 
 .social-club__header {

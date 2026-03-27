@@ -552,31 +552,42 @@
   height: 44px;
   border-radius: 50%;
   flex-shrink: 0;
-  background: linear-gradient(90deg, var(--border-light) 25%, var(--border-color) 50%, var(--border-light) 75%);
-  background-size: 200% 100%;
-  animation: feedSkel 1.4s infinite;
+  background: var(--border-light);
+  position: relative;
+  overflow: hidden;
 }
 
 .fsk-line {
   height: 12px;
   border-radius: 6px;
-  background: linear-gradient(90deg, var(--border-light) 25%, var(--border-color) 50%, var(--border-light) 75%);
-  background-size: 200% 100%;
-  animation: feedSkel 1.4s infinite;
+  background: var(--border-light);
+  position: relative;
+  overflow: hidden;
 }
 
 .fsk-media {
   width: 100%;
   aspect-ratio: 16/9;
-  background: linear-gradient(90deg, var(--border-light) 25%, var(--border-color) 50%, var(--border-light) 75%);
-  background-size: 200% 100%;
-  animation: feedSkel 1.4s infinite;
+  background: var(--border-light);
+  position: relative;
+  overflow: hidden;
   margin-top: 12px;
 }
 
+.fsk-circle::after,
+.fsk-line::after,
+.fsk-media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 25%, var(--border-color) 50%, transparent 75%);
+  animation: feedSkel 1.4s infinite;
+  will-change: transform;
+}
+
 @keyframes feedSkel {
-  0%   { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 /* ── Responsive ─────────────────────────────────────────────────── */

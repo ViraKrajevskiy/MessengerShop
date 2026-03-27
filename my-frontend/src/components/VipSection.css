@@ -188,6 +188,34 @@
   border: 1px solid rgba(229, 57, 53, 0.12);
 }
 
+/* Skeleton */
+.vip-card--skeleton { pointer-events: none; }
+.vip-card__skel-img {
+  width: 100%;
+  aspect-ratio: 3/4;
+  background: var(--bg-tertiary);
+  position: relative;
+  overflow: hidden;
+}
+.vip-card__skel-img::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 25%, var(--border-color) 50%, transparent 75%);
+  animation: vipSkel 1.4s infinite;
+  will-change: transform;
+}
+.vip-card__skel-line {
+  height: 12px;
+  border-radius: 6px;
+  background: var(--bg-tertiary);
+  margin-top: 6px;
+}
+@keyframes vipSkel {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
 @media (max-width: 768px) {
   .vip-section__grid {
     grid-template-columns: repeat(2, 1fr);
