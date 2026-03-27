@@ -36,7 +36,7 @@ class PostListView(APIView):
         posts = qs.order_by('-created_at')[:50]
         serializer = PostSerializer(posts, many=True, context={'request': request})
         response = Response(serializer.data)
-        response['Cache-Control'] = 'public, max-age=30'
+        response['Cache-Control'] = 'public, max-age=60'
         return response
 
 

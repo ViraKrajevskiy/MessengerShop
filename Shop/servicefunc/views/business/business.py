@@ -47,7 +47,7 @@ class BusinessListView(APIView):
 
         serializer = BusinessListSerializer(qs, many=True, context={'request': request})
         response = Response(serializer.data)
-        response['Cache-Control'] = 'public, max-age=30'
+        response['Cache-Control'] = 'public, max-age=60'
         return response
 
 

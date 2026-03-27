@@ -23,7 +23,7 @@ else:
     # Если файла нет, используем дефолтный ключ, чтобы сервер не падал
     print(f"--- WARNING: .env not found at {ENV_PATH} ---")
 
-# 4. Присваиваем значения
+
 SECRET_KEY = env('SECRET_KEY', default='fallback-key-if-env-fails-12345')
 DEBUG = env('DEBUG', default=True)
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['127.0.0.1', 'localhost'])
@@ -31,7 +31,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt',
-    'rest_framework_simplejwt.token_blacklist',  # для logout через blacklist
+    'rest_framework_simplejwt.token_blacklist',
     'drf_spectacular',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -63,7 +63,7 @@ SPECTACULAR_SETTINGS = {
     },
 }
 
-# Email — если EMAIL_HOST_PASSWORD задан в .env, используем реальный SMTP
+
 _email_password = env('EMAIL_HOST_PASSWORD', default='')
 if _email_password and _email_password != 'вставь_сюда_app_password':
     EMAIL_BACKEND    = 'django.core.mail.backends.smtp.EmailBackend'
@@ -74,7 +74,6 @@ if _email_password and _email_password != 'вставь_сюда_app_password':
     EMAIL_HOST_PASSWORD = _email_password
     DEFAULT_FROM_EMAIL = f'БизнесТурция <{EMAIL_HOST_USER}>'
 else:
-    # Пока пароль не задан — пишем код в консоль
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 MIDDLEWARE = [
