@@ -1,17 +1,16 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import Header from '../components/Header'
 import Stories from '../components/Stories'
 import ViewedBar from '../components/ViewedBar'
 import VipSection from '../components/VipSection'
-// Импортируем NewsCard (создай этот компонент на основе примера выше)
 import NewsCard from '../components/NewsCard'
 import NewUsers from '../components/NewUsers'
 import SocialClub from '../components/SocialClub'
 import UserCard from '../components/UserCard'
 import Footer from '../components/Footer'
 import TweetsSidebar from '../components/TweetsSidebar'
-// Добавляем импорт apiGetNews
 import { apiGetBusinesses, apiGetNews, CATEGORY_LABELS } from '../api/businessApi'
 import './HomePage.css'
 
@@ -54,6 +53,7 @@ function bizToCard(b) {
 
 export default function HomePage() {
   const navigate = useNavigate()
+  const { tokens } = useAuth()
 
   const [filters, setFilters] = useState({
     country: '', city: '', category: '', service: '', activeTags: [],
@@ -168,54 +168,60 @@ export default function HomePage() {
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <h2 className="section-title all-cards-title" style={{ margin: 0 }}>Все карточки</h2>
-          <div className="all-cards__nav">
-            <button
-              className="all-cards__arrow"
-              onClick={() => setCardsPage(p => p - 1)}
-              disabled={cardsPage === 0}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-            </button>
-            <button
-              className="all-cards__arrow"
-              onClick={() => setCardsPage(p => p + 1)}
-              disabled={(cardsPage + 1) * CARDS_PER_PAGE >= filteredAll.length}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-            </button>
-            <button className="social-club__link" onClick={() => navigate('/feed')}>
-              Все публикации &rarr;
-            </button>
-          </div>
+          <button className="social-club__link" onClick={() => navigate('/feed')}>
+            Все публикации &rarr;
+          </button>
         </div>
 
         {/* Все карточки */}
         <section className="all-cards-section">
-          {loadingBiz ? (
-            <div className="card-grid card-grid--5">
-              {[1,2,3,4,5,6,7,8,9,10].map(i => (
-                <div key={i} className="vip-card vip-card--skeleton">
-                  <div className="vip-card__image"><div className="vip-card__skel-img" /></div>
-                  <div className="vip-card__info">
-                    <div className="vip-card__skel-line" style={{width:'70%'}} />
-                    <div className="vip-card__skel-line" style={{width:'40%'}} />
-                  </div>
+          <div className="all-cards__carousel">
+            {tokens?.access && (
+              <button
+                className="all-cards__arrow"
+                onClick={() => setCardsPage(p => p - 1)}
+                disabled={cardsPage === 0}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+            )}
+            <div className="all-cards__content">
+              {loadingBiz ? (
+                <div className="card-grid card-grid--5">
+                  {[1,2,3,4,5,6,7,8,9,10].map(i => (
+                    <div key={i} className="vip-card vip-card--skeleton">
+                      <div className="vip-card__image"><div className="vip-card__skel-img" /></div>
+                      <div className="vip-card__info">
+                        <div className="vip-card__skel-line" style={{width:'70%'}} />
+                        <div className="vip-card__skel-line" style={{width:'40%'}} />
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              ) : filteredAll.length > 0 ? (
+                <div className="card-grid card-grid--5">
+                  {filteredAll.slice(cardsPage * CARDS_PER_PAGE, (cardsPage + 1) * CARDS_PER_PAGE).map(u => (
+                    <UserCard key={u.id} id={u.id} name={u.name} city={u.city} logo={u.logo} badge={u.is_vip ? 'VIP' : 'NEW'} type="all" />
+                  ))}
+                </div>
+              ) : (
+                <div className="no-results">
+                  {allBiz.length === 0
+                    ? 'Пока нет зарегистрированных бизнесов'
+                    : 'Нет карточек по выбранным фильтрам'}
+                </div>
+              )}
             </div>
-          ) : filteredAll.length > 0 ? (
-            <div className="card-grid card-grid--5">
-              {filteredAll.slice(cardsPage * CARDS_PER_PAGE, (cardsPage + 1) * CARDS_PER_PAGE).map(u => (
-                <UserCard key={u.id} id={u.id} name={u.name} city={u.city} logo={u.logo} badge={u.is_vip ? 'VIP' : 'NEW'} type="all" />
-              ))}
-            </div>
-          ) : (
-            <div className="no-results">
-              {allBiz.length === 0
-                ? 'Пока нет зарегистрированных бизнесов'
-                : 'Нет карточек по выбранным фильтрам'}
-            </div>
-          )}
+            {tokens?.access && (
+              <button
+                className="all-cards__arrow"
+                onClick={() => setCardsPage(p => p + 1)}
+                disabled={(cardsPage + 1) * CARDS_PER_PAGE >= filteredAll.length}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            )}
+          </div>
         </section>
       </main>
       <TweetsSidebar />

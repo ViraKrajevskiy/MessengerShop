@@ -97,11 +97,16 @@
   margin: 28px 0 12px;
 }
 
-/* All cards nav */
-.all-cards__nav {
+/* All cards carousel — same layout as stories */
+.all-cards__carousel {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+}
+
+.all-cards__content {
+  flex: 1;
+  min-width: 0;
 }
 
 .all-cards__arrow {
@@ -116,6 +121,9 @@
   color: var(--text-secondary);
   cursor: pointer;
   padding: 0;
+  line-height: 1;
+  user-select: none;
+  flex-shrink: 0;
   transition: all 0.2s;
   box-shadow: var(--card-shadow);
 }
@@ -205,6 +213,10 @@
   .filter-bar__dropdowns {
     flex-wrap: wrap;
   }
+}
+
+@media (max-width: 640px) {
+  .all-cards__arrow { width: 28px; height: 28px; font-size: 14px; }
 }
 
 @media (max-width: 480px) {
