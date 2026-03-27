@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { apiGetStories } from '../api/businessApi'
+import { useAuth } from '../context/AuthContext'
+import { apiGetStories, apiViewStory } from '../api/businessApi'
 import './Stories.css'
 
 function groupStoriesByAuthor(apiStories) {
@@ -32,7 +33,7 @@ function groupStoriesByAuthor(apiStories) {
   return Object.values(map)
 }
 
-function StoryViewer({ stories, startIndex, onClose }) {
+function StoryViewer({ stories, startIndex, onClose, onTrackViews }) {
   const [storyIdx, setStoryIdx] = useState(startIndex)
   const [mediaIdx, setMediaIdx] = useState(0)
   const [progress, setProgress] = useState(0)
@@ -55,6 +56,11 @@ function StoryViewer({ stories, startIndex, onClose }) {
     if (hours < 24) return `${hours} ч. назад`
     return `${Math.floor(hours / 24)} дн. назад`
   }
+
+  // Записать просмотр при переключении на другого автора
+  useEffect(() => {
+    onTrackViews?.(stories[storyIdx])
+  }, [storyIdx])
 
   useEffect(() => {
     setProgress(0)
@@ -206,6 +212,8 @@ function StoryViewer({ stories, startIndex, onClose }) {
 export default function Stories() {
   const [storiesData, setStoriesData] = useState([])
   const [loadingStories, setLoadingStories] = useState(true)
+  const { tokens } = useAuth()
+  const viewedStoryIds = useRef(new Set())
 
   useEffect(() => {
     apiGetStories()
@@ -225,11 +233,22 @@ export default function Stories() {
   const prev = () => setOffset((o) => Math.max(0, o - 1))
   const next = () => setOffset((o) => Math.min(Math.max(0, storiesData.length - visible), o + 1))
 
+  // Записать просмотр всех медиа автора (только для залогиненных, 1 раз за сессию)
+  const trackViews = useCallback((storyGroup) => {
+    if (!tokens?.access) return
+    for (const m of storyGroup.media) {
+      if (viewedStoryIds.current.has(m.storyId)) continue
+      viewedStoryIds.current.add(m.storyId)
+      apiViewStory(m.storyId, tokens.access).catch(() => {})
+    }
+  }, [tokens])
+
   const openStory = (index) => {
     if (!storiesData[index]) return
     setViewerStart(index)
     setViewerOpen(true)
     setSeenIds((prev) => new Set(prev).add(storiesData[index].id))
+    trackViews(storiesData[index])
     document.body.style.overflow = 'hidden'
   }
 
@@ -292,7 +311,7 @@ export default function Stories() {
       </div>
 
       {viewerOpen && (
-        <StoryViewer stories={storiesData} startIndex={viewerStart} onClose={closeViewer} />
+        <StoryViewer stories={storiesData} startIndex={viewerStart} onClose={closeViewer} onTrackViews={trackViews} />
       )}
     </section>
   )

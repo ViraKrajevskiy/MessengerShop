@@ -66,7 +66,10 @@ class StoryListCreateView(APIView):
 class StoryDetailView(APIView):
     """GET — детали сторис + счётчик просмотров. DELETE — удалить свой сторис."""
 
-    permission_classes = [IsAuthenticated]
+    def get_permissions(self):
+        if self.request.method == 'DELETE':
+            return [IsAuthenticated()]
+        return [AllowAny()]
 
     def get_object(self, pk):
         try:
@@ -76,7 +79,7 @@ class StoryDetailView(APIView):
 
     @extend_schema(
         summary='Получить сторис',
-        description='Возвращает детали сторис и фиксирует просмотр текущего пользователя.',
+        description='Возвращает детали сторис и фиксирует просмотр текущего пользователя (только для авторизованных, 1 раз на пользователя).',
         responses={
             200: StorySerializer,
             404: OpenApiResponse(description='Сторис не найден'),
@@ -87,8 +90,9 @@ class StoryDetailView(APIView):
         if not story:
             return Response({'detail': 'Сторис не найден.'}, status=status.HTTP_404_NOT_FOUND)
 
-        # Фиксируем просмотр (unique_together — дубли не создаются)
-        StoryView.objects.get_or_create(story=story, viewer=request.user)
+        # Фиксируем просмотр только для авторизованных (unique_together — дубли не создаются)
+        if request.user.is_authenticated:
+            StoryView.objects.get_or_create(story=story, viewer=request.user)
 
         serializer = StorySerializer(story, context={'request': request})
         return Response(serializer.data)

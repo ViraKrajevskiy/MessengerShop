@@ -55,6 +55,15 @@ export async function apiGetStories() {
   })
 }
 
+export async function apiViewStory(storyId, token) {
+  if (!token) return
+  const res = await fetch(`${BASE}/stories/${storyId}/`, {
+    headers: { 'Authorization': `Bearer ${token}` },
+  })
+  if (!res.ok) return
+  return res.json()
+}
+
 export async function apiGetPosts(token) {
   // Не кэшируем если авторизован — нужен актуальный is_subscribed
   const headers = token ? { 'Authorization': `Bearer ${token}` } : {}
