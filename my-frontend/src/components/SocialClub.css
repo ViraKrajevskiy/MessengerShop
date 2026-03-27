@@ -169,23 +169,32 @@
   line-height: 1.4;
 }
 
-/* Skeleton shimmer */
+/* Skeleton shimmer — uses transform (GPU composited) instead of background-position */
 .sk-line {
   border-radius: 4px;
-  background: linear-gradient(90deg, var(--border-light) 25%, var(--border-color) 50%, var(--border-light) 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.4s infinite;
+  background: var(--border-light);
+  position: relative;
+  overflow: hidden;
 }
 .sk-media {
   width: 100%;
   aspect-ratio: 3/4;
-  background: linear-gradient(90deg, var(--border-light) 25%, var(--border-color) 50%, var(--border-light) 75%);
-  background-size: 200% 100%;
+  background: var(--border-light);
+  position: relative;
+  overflow: hidden;
+}
+.sk-line::after,
+.sk-media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 25%, var(--border-color) 50%, transparent 75%);
   animation: shimmer 1.4s infinite;
+  will-change: transform;
 }
 @keyframes shimmer {
-  0%   { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 /* Responsive */

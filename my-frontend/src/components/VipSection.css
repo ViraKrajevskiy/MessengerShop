@@ -1,5 +1,7 @@
 .vip-section {
   padding: 28px 0;
+  min-height: 340px; /* CLS fix: reserve space for VIP cards */
+  contain: layout style;
 }
 
 .vip-section__header {
