@@ -97,6 +97,44 @@
   margin: 28px 0 12px;
 }
 
+/* All cards nav */
+.all-cards__nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.all-cards__arrow {
+  background: var(--bg-secondary);
+  border: 1.5px solid var(--border-color);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.2s;
+  box-shadow: var(--card-shadow);
+}
+
+.all-cards__arrow:hover:not(:disabled) {
+  background: var(--accent-gradient);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 4px 14px rgba(229,57,53,0.25);
+  transform: scale(1.08);
+}
+
+.all-cards__arrow:disabled {
+  color: var(--text-muted);
+  opacity: 0.45;
+  cursor: default;
+  box-shadow: none;
+}
+
 /* All cards */
 .all-cards-section {
   padding: 8px 0 24px;

@@ -62,6 +62,8 @@ export default function HomePage() {
   const [allBiz, setAllBiz]     = useState([])
   const [vipBiz, setVipBiz]     = useState([])
   const [loadingBiz, setLoadingBiz] = useState(true)
+  const [cardsPage, setCardsPage] = useState(0)
+  const CARDS_PER_PAGE = 10
 
   // Состояние для новостей
   const [news, setNews] = useState([]);
@@ -93,6 +95,7 @@ export default function HomePage() {
 
   // Фильтрация по параметрам
   const filteredAll = useMemo(() => {
+    setCardsPage(0)
     return allBiz.filter(b => {
       if (filters.city && b.city && !b.city.toLowerCase().includes(filters.city.toLowerCase())) return false
       if (filters.category && b.category !== filters.category) return false
@@ -165,9 +168,25 @@ export default function HomePage() {
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <h2 className="section-title all-cards-title" style={{ margin: 0 }}>Все карточки</h2>
-          <button className="social-club__link" onClick={() => navigate('/feed')}>
-            Все публикации &rarr;
-          </button>
+          <div className="all-cards__nav">
+            <button
+              className="all-cards__arrow"
+              onClick={() => setCardsPage(p => p - 1)}
+              disabled={cardsPage === 0}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <button
+              className="all-cards__arrow"
+              onClick={() => setCardsPage(p => p + 1)}
+              disabled={(cardsPage + 1) * CARDS_PER_PAGE >= filteredAll.length}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+            <button className="social-club__link" onClick={() => navigate('/feed')}>
+              Все публикации &rarr;
+            </button>
+          </div>
         </div>
 
         {/* Все карточки */}
@@ -186,7 +205,7 @@ export default function HomePage() {
             </div>
           ) : filteredAll.length > 0 ? (
             <div className="card-grid card-grid--5">
-              {filteredAll.map(u => (
+              {filteredAll.slice(cardsPage * CARDS_PER_PAGE, (cardsPage + 1) * CARDS_PER_PAGE).map(u => (
                 <UserCard key={u.id} id={u.id} name={u.name} city={u.city} logo={u.logo} badge={u.is_vip ? 'VIP' : 'NEW'} type="all" />
               ))}
             </div>
