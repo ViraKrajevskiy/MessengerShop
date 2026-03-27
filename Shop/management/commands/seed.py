@@ -10,6 +10,125 @@ from Shop.models import (
     User, Business, Story, Product, Post,
     Comment, ProductInquiry, InquiryMessage, Review,
 )
+from Shop.models.models import (
+    Tag, News, Article, BusinessSubscription, ProductLike,
+    PostFavorite, StoryView, GroupChat, GroupMember, GroupMessage,
+    VerificationRequest, VerificationDocument,
+)
+
+
+# ── Теги ────────────────────────────────────────────────────────────────────
+TAGS = [
+    'красота', 'здоровье', 'недвижимость', 'образование', 'финансы',
+    'юрист', 'туризм', 'еда', 'стамбул', 'анкара', 'анталья',
+    'скидки', 'акция', 'новинка', 'топ', 'рекомендация',
+    'внж', 'гражданство', 'бизнес', 'доставка',
+]
+
+# ── Новости платформы ────────────────────────────────────────────────────────
+PLATFORM_NEWS = [
+    {
+        'title': 'Обновление платформы — новый мессенджер!',
+        'text': 'Мы запустили встроенный мессенджер для общения между покупателями и бизнесами. Теперь вы можете задавать вопросы о товарах прямо на платформе.',
+        'img': 'https://picsum.photos/id/0/800/400',
+        'tags': ['новинка', 'топ'],
+        'hours_ago': 6,
+    },
+    {
+        'title': 'Верификация бизнесов — как это работает',
+        'text': 'Теперь каждый бизнес может пройти верификацию и получить значок «Проверено». Верифицированные бизнесы вызывают больше доверия у клиентов и получают приоритет в выдаче.',
+        'img': 'https://picsum.photos/id/3/800/400',
+        'tags': ['бизнес', 'рекомендация'],
+        'hours_ago': 48,
+    },
+    {
+        'title': 'Скидки на VIP-размещение до конца апреля',
+        'text': 'До 30 апреля действует скидка 30% на VIP-размещение. Ваш бизнес будет отображаться в топе каталога и получит больше просмотров.',
+        'img': 'https://picsum.photos/id/6/800/400',
+        'tags': ['акция', 'скидки', 'бизнес'],
+        'hours_ago': 24,
+    },
+]
+
+# ── Новости бизнесов (привязаны к индексу бизнеса в BUSINESSES) ──────────
+BUSINESS_NEWS = [
+    {
+        'biz_idx': 0,  # Beauty Studio Istanbul
+        'title': 'Весенняя акция — маникюр со скидкой 20%',
+        'text': 'Весь апрель у нас скидка 20% на маникюр + педикюр. Запишитесь через профиль или WhatsApp!',
+        'img': 'https://picsum.photos/id/119/800/400',
+        'tags': ['красота', 'скидки', 'акция'],
+        'hours_ago': 12,
+    },
+    {
+        'biz_idx': 1,  # Istanbul Realty Group
+        'title': 'Новые объекты — квартиры с видом на Босфор',
+        'text': 'В продаже 5 новых квартир с панорамным видом на Босфор. Район Бешикташ, новостройка 2025 года. Цены от 120 000$.',
+        'img': 'https://picsum.photos/id/164/800/400',
+        'tags': ['недвижимость', 'стамбул', 'топ'],
+        'hours_ago': 36,
+    },
+    {
+        'biz_idx': 2,  # TürkMed Clinic
+        'title': 'Бесплатный день здоровья — 15 апреля',
+        'text': 'Приглашаем на бесплатный день здоровья: осмотр терапевта, измерение давления, экспресс-анализ крови. Без записи!',
+        'img': 'https://picsum.photos/id/237/800/400',
+        'tags': ['здоровье', 'акция'],
+        'hours_ago': 72,
+    },
+    {
+        'biz_idx': 5,  # Istanbul Tours
+        'title': 'Открыт сезон туров в Каппадокию',
+        'text': 'Начинаем сезон 2026! Каппадокия с полётом на шаре — даты на апрель и май уже доступны. Раннее бронирование -15%.',
+        'img': 'https://picsum.photos/id/429/800/400',
+        'tags': ['туризм', 'скидки', 'топ'],
+        'hours_ago': 18,
+    },
+]
+
+# ── Статьи бизнесов ─────────────────────────────────────────────────────────
+ARTICLES = [
+    {
+        'biz_idx': 0,
+        'title': 'Тренды окрашивания волос 2026 — что выбрать?',
+        'text': 'В 2026 году в моде натуральные оттенки, плавные переходы и техника "живого" цвета. Рассказываем про самые актуальные тренды: калифорнийский блонд, медные оттенки и «шоколадный латте». Наш мастер Анна подготовила подборку из 10 лучших вариантов для разных типов волос.\n\nОсобенно популярны техники балаяж и шатуш — они создают эффект выгоревших на солнце прядей. Записывайтесь на бесплатную консультацию!',
+        'img': 'https://picsum.photos/id/64/800/400',
+        'tags': ['красота', 'рекомендация', 'топ'],
+    },
+    {
+        'biz_idx': 1,
+        'title': 'Как купить квартиру в Турции иностранцу — пошаговое руководство',
+        'text': 'Покупка недвижимости в Турции — это реальный путь к ВНЖ и даже гражданству. В этой статье мы расскажем пошагово:\n\n1. Выбор объекта и района\n2. Проверка документов (ТАПУ, ИСКАН)\n3. Открытие налогового номера\n4. Подписание контракта\n5. Оформление ТАПУ (право собственности)\n6. Подача на ВНЖ\n\nВесь процесс занимает от 3 до 10 дней. Мы сопровождаем клиента на каждом этапе.',
+        'img': 'https://picsum.photos/id/188/800/400',
+        'tags': ['недвижимость', 'внж', 'гражданство'],
+    },
+    {
+        'biz_idx': 3,
+        'title': '5 советов для быстрого изучения турецкого языка',
+        'text': 'Турецкий язык проще, чем кажется! Вот 5 проверенных советов:\n\n1. Начните с фонетики — турецкий читается как пишется\n2. Учите суффиксы, а не слова целиком\n3. Смотрите турецкие сериалы с субтитрами\n4. Практикуйте с турками — они обожают когда иностранцы говорят по-турецки\n5. Запишитесь на TÖMER — официальный экзамен структурирует обучение\n\nНаши студенты достигают уровня A2 за 3 месяца!',
+        'img': 'https://picsum.photos/id/20/800/400',
+        'tags': ['образование', 'рекомендация'],
+    },
+    {
+        'biz_idx': 6,
+        'title': 'ВНЖ в Турции 2026 — все изменения в законодательстве',
+        'text': 'В 2026 году вступили в силу новые правила получения ВНЖ в Турции:\n\n- Минимальная стоимость недвижимости для ВНЖ повышена до 200 000$\n- Введена обязательная медицинская страховка\n- Сроки рассмотрения сокращены до 30 дней\n- Новый электронный формат подачи документов\n\nМы помогаем с оформлением от А до Я. Бесплатная консультация — звоните!',
+        'img': 'https://picsum.photos/id/160/800/400',
+        'tags': ['юрист', 'внж', 'гражданство'],
+    },
+]
+
+# ── Сообщения для групповых чатов ────────────────────────────────────────────
+GROUP_MESSAGES_DATA = [
+    'Здравствуйте! Рады приветствовать вас в нашей группе.',
+    'Подскажите, какие есть акции на этой неделе?',
+    'Спасибо за быстрый ответ!',
+    'Когда ближайшая запись свободна?',
+    'Отличный сервис, рекомендую всем!',
+    'Есть ли скидки для постоянных клиентов?',
+    'Можно записаться на завтра?',
+    'Какой у вас график работы в выходные?',
+]
 
 
 REGULAR_USERS = [
@@ -386,7 +505,14 @@ class Command(BaseCommand):
             User.objects.filter(email__in=biz_emails + user_emails).delete()
             out('[SEED] Gotovo.')
 
-        cnt = {'users': 0, 'biz': 0, 'products': 0, 'stories': 0, 'posts': 0, 'comments': 0, 'inquiries': 0, 'reviews': 0}
+        cnt = {
+            'users': 0, 'biz': 0, 'products': 0, 'stories': 0, 'posts': 0,
+            'comments': 0, 'inquiries': 0, 'reviews': 0,
+            'tags': 0, 'news': 0, 'articles': 0, 'subscriptions': 0,
+            'likes': 0, 'favorites': 0, 'story_views': 0,
+            'groups': 0, 'group_members': 0, 'group_messages': 0,
+            'verifications': 0,
+        }
 
         # ── Обычные пользователи ──────────────────────────────────────────────
         regular_users = []
@@ -553,6 +679,203 @@ class Command(BaseCommand):
                     cnt['inquiries'] += 1
                 out(f'     Inquiries: {len(inquiry_texts)}')
 
+        # ── Теги ─────────────────────────────────────────────────────────────
+        tag_objects = {}
+        for tag_name in TAGS:
+            tag, created = Tag.objects.get_or_create(name=tag_name)
+            tag_objects[tag_name] = tag
+            if created:
+                cnt['tags'] += 1
+        out(f'\n  [tags] {cnt["tags"]} new tags')
+
+        # Собираем все бизнесы и посты для связей
+        all_businesses = list(Business.objects.select_related('owner').all())
+        all_posts = list(Post.objects.all())
+        all_stories = list(Story.objects.all())
+        all_products = list(Product.objects.all())
+
+        # ── Новости платформы ────────────────────────────────────────────────
+        admin_user = User.objects.filter(is_staff=True).first()
+        for n in PLATFORM_NEWS:
+            if not News.objects.filter(title=n['title']).exists():
+                news = News.objects.create(
+                    business=None,
+                    author=admin_user or (regular_users[0] if regular_users else None),
+                    news_type=News.NewsType.PLATFORM,
+                    title=n['title'],
+                    text=n['text'],
+                    media_url=n['img'],
+                    media_type='IMAGE',
+                    is_published=True,
+                )
+                News.objects.filter(pk=news.pk).update(
+                    created_at=timezone.now() - timedelta(hours=n['hours_ago'])
+                )
+                for t in n.get('tags', []):
+                    if t in tag_objects:
+                        news.tags.add(tag_objects[t])
+                cnt['news'] += 1
+                out(f'  [+] News (platform): {n["title"][:40]}...')
+
+        # ── Новости бизнесов ─────────────────────────────────────────────────
+        for n in BUSINESS_NEWS:
+            if n['biz_idx'] < len(all_businesses):
+                biz = all_businesses[n['biz_idx']]
+                if not News.objects.filter(title=n['title'], business=biz).exists():
+                    news = News.objects.create(
+                        business=biz,
+                        author=biz.owner,
+                        news_type=News.NewsType.BUSINESS,
+                        title=n['title'],
+                        text=n['text'],
+                        media_url=n['img'],
+                        media_type='IMAGE',
+                        is_published=True,
+                    )
+                    News.objects.filter(pk=news.pk).update(
+                        created_at=timezone.now() - timedelta(hours=n['hours_ago'])
+                    )
+                    for t in n.get('tags', []):
+                        if t in tag_objects:
+                            news.tags.add(tag_objects[t])
+                    cnt['news'] += 1
+                    out(f'  [+] News (biz): {n["title"][:40]}...')
+        out(f'  [news] {cnt["news"]} total')
+
+        # ── Статьи бизнесов ──────────────────────────────────────────────────
+        for a in ARTICLES:
+            if a['biz_idx'] < len(all_businesses):
+                biz = all_businesses[a['biz_idx']]
+                if not Article.objects.filter(title=a['title'], business=biz).exists():
+                    article = Article.objects.create(
+                        business=biz,
+                        title=a['title'],
+                        text=a['text'],
+                        media_url=a['img'],
+                        media_type='IMAGE',
+                    )
+                    for t in a.get('tags', []):
+                        if t in tag_objects:
+                            article.tags.add(tag_objects[t])
+                    cnt['articles'] += 1
+                    out(f'  [+] Article: {a["title"][:40]}...')
+        out(f'  [articles] {cnt["articles"]} total')
+
+        # ── Подписки на бизнесы ──────────────────────────────────────────────
+        if regular_users and all_businesses:
+            for i, user in enumerate(regular_users):
+                # Каждый юзер подписан на 2-3 бизнеса
+                subs_count = min(3, len(all_businesses))
+                for j in range(subs_count):
+                    biz = all_businesses[(i + j) % len(all_businesses)]
+                    _, created = BusinessSubscription.objects.get_or_create(
+                        user=user, business=biz,
+                    )
+                    if created:
+                        cnt['subscriptions'] += 1
+        out(f'  [subscriptions] {cnt["subscriptions"]} total')
+
+        # ── Лайки на товары ──────────────────────────────────────────────────
+        if regular_users and all_products:
+            for i, user in enumerate(regular_users):
+                # Каждый юзер лайкнул 2-4 товара
+                likes_count = min(4, len(all_products))
+                for j in range(likes_count):
+                    product = all_products[(i * 2 + j) % len(all_products)]
+                    _, created = ProductLike.objects.get_or_create(
+                        user=user, product=product,
+                    )
+                    if created:
+                        cnt['likes'] += 1
+        out(f'  [product likes] {cnt["likes"]} total')
+
+        # ── Избранные посты ──────────────────────────────────────────────────
+        if regular_users and all_posts:
+            for i, user in enumerate(regular_users):
+                # Каждый юзер сохранил 1-3 поста
+                favs_count = min(3, len(all_posts))
+                for j in range(favs_count):
+                    post = all_posts[(i + j) % len(all_posts)]
+                    _, created = PostFavorite.objects.get_or_create(
+                        user=user, post=post,
+                    )
+                    if created:
+                        cnt['favorites'] += 1
+        out(f'  [post favorites] {cnt["favorites"]} total')
+
+        # ── Просмотры сторисов ───────────────────────────────────────────────
+        if regular_users and all_stories:
+            for i, user in enumerate(regular_users):
+                # Каждый юзер просмотрел 2-5 сторисов
+                views_count = min(5, len(all_stories))
+                for j in range(views_count):
+                    story = all_stories[(i + j) % len(all_stories)]
+                    _, created = StoryView.objects.get_or_create(
+                        story=story, viewer=user,
+                    )
+                    if created:
+                        cnt['story_views'] += 1
+        out(f'  [story views] {cnt["story_views"]} total')
+
+        # ── Групповые чаты (для бизнесов без группы) ─────────────────────────
+        for biz in all_businesses:
+            if biz.group is None:
+                group = GroupChat.objects.create(
+                    name=f'Группа {biz.brand_name}',
+                    description=f'Общение клиентов магазина {biz.brand_name}',
+                    creator=biz.owner,
+                )
+                GroupMember.objects.create(
+                    group=group, user=biz.owner, role=GroupMember.Role.OWNER,
+                )
+                biz.group = group
+                biz.save(update_fields=['group'])
+                cnt['groups'] += 1
+                cnt['group_members'] += 1
+                out(f'  [+] Group: {group.name}')
+
+                # Добавляем участников
+                for j, user in enumerate(regular_users[:3]):
+                    _, created = GroupMember.objects.get_or_create(
+                        group=group, user=user,
+                        defaults={'role': GroupMember.Role.MEMBER},
+                    )
+                    if created:
+                        cnt['group_members'] += 1
+
+                # Добавляем сообщения
+                participants = [biz.owner] + regular_users[:3]
+                for k, msg_text in enumerate(GROUP_MESSAGES_DATA[:5]):
+                    sender = participants[k % len(participants)]
+                    gm = GroupMessage.objects.create(
+                        group=group, sender=sender, text=msg_text,
+                    )
+                    GroupMessage.objects.filter(pk=gm.pk).update(
+                        created_at=timezone.now() - timedelta(hours=random.randint(1, 48))
+                    )
+                    cnt['group_messages'] += 1
+
+        out(f'  [groups] {cnt["groups"]} groups, {cnt["group_members"]} members, {cnt["group_messages"]} messages')
+
+        # ── Верификация (для неверифицированных бизнесов) ─────────────────────
+        for biz in all_businesses:
+            if not biz.is_verified and not VerificationRequest.objects.filter(business=biz).exists():
+                vr = VerificationRequest.objects.create(
+                    business=biz,
+                    status=VerificationRequest.Status.PENDING,
+                    comment='Хотим пройти верификацию для повышения доверия клиентов.',
+                )
+                cnt['verifications'] += 1
+                out(f'  [+] Verification request: {biz.brand_name}')
+        out(f'  [verifications] {cnt["verifications"]} total')
+
+        # ── Добавляем теги к постам ──────────────────────────────────────────
+        tag_list = list(tag_objects.values())
+        for post in all_posts:
+            if not post.tags.exists() and tag_list:
+                post_tags = random.sample(tag_list, min(3, len(tag_list)))
+                post.tags.set(post_tags)
+
         # ── Суперадмин ────────────────────────────────────────────────────────
         admin_email    = options['admin_email']
         admin_password = options['admin_password']
@@ -576,14 +899,25 @@ class Command(BaseCommand):
         # ── Итог ──────────────────────────────────────────────────────────────
         self._out(self.style.SUCCESS(
             f'\n=== DONE ===\n'
-            f'  Users:     {cnt["users"]}\n'
-            f'  Businesses:{cnt["biz"]}\n'
-            f'  Products:  {cnt["products"]}\n'
-            f'  Stories:   {cnt["stories"]}\n'
-            f'  Posts:     {cnt["posts"]}\n'
-            f'  Comments:  {cnt["comments"]}\n'
-            f'  Inquiries: {cnt["inquiries"]}\n'
-            f'  Reviews:   {cnt["reviews"]}\n'
+            f'  Users:          {cnt["users"]}\n'
+            f'  Businesses:     {cnt["biz"]}\n'
+            f'  Products:       {cnt["products"]}\n'
+            f'  Stories:        {cnt["stories"]}\n'
+            f'  Posts:          {cnt["posts"]}\n'
+            f'  Comments:       {cnt["comments"]}\n'
+            f'  Inquiries:      {cnt["inquiries"]}\n'
+            f'  Reviews:        {cnt["reviews"]}\n'
+            f'  Tags:           {cnt["tags"]}\n'
+            f'  News:           {cnt["news"]}\n'
+            f'  Articles:       {cnt["articles"]}\n'
+            f'  Subscriptions:  {cnt["subscriptions"]}\n'
+            f'  Product Likes:  {cnt["likes"]}\n'
+            f'  Post Favorites: {cnt["favorites"]}\n'
+            f'  Story Views:    {cnt["story_views"]}\n'
+            f'  Groups:         {cnt["groups"]}\n'
+            f'  Group Members:  {cnt["group_members"]}\n'
+            f'  Group Messages: {cnt["group_messages"]}\n'
+            f'  Verifications:  {cnt["verifications"]}\n'
             f'\nPassword for all: test1234!\n'
             f'Admin: {admin_email} / {admin_password}'
         ))
