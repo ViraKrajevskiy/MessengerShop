@@ -12,8 +12,6 @@ env = environ.Env(
     DEBUG=(bool, False)
 )
 
-# 2. Четко указываем путь к .env
-# Если файл лежит в одной папке с manage.py, путь должен быть таким:
 ENV_PATH = os.path.join(BASE_DIR, '.env')
 
 # 3. Загружаем
