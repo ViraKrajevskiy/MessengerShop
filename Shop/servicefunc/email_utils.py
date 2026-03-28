@@ -3,13 +3,8 @@ from django.conf import settings
 
 
 def send_verification_email(to_email: str, code: str, username: str = '') -> bool:
-    """
-    Отправляет письмо с 6-значным кодом подтверждения.
-    Возвращает True при успехе, False при ошибке.
-    """
     subject = f'{code} — ваш код подтверждения | БизнесТурция'
 
-    # Текстовая версия (fallback)
     text_body = (
         f'Привет{", " + username if username else ""}!\n\n'
         f'Ваш код подтверждения: {code}\n\n'
@@ -18,7 +13,6 @@ def send_verification_email(to_email: str, code: str, username: str = '') -> boo
         f'— Команда БизнесТурция'
     )
 
-    # HTML версия
     digits_html = ''.join(
         f'<span style="display:inline-block;width:44px;height:52px;line-height:52px;'
         f'text-align:center;font-size:26px;font-weight:800;border-radius:10px;'
