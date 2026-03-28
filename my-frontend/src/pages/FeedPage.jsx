@@ -293,7 +293,7 @@ export default function FeedPage() {
   const [showAllTags, setShowAllTags] = useState(false)
   const navigate = useNavigate()
   const { getAccessToken, user } = useAuth()
-  const GUEST_LIMIT = 6
+  const GUEST_LIMIT = 4
 
   useEffect(() => {
     getAccessToken().then(token =>
@@ -573,10 +573,21 @@ export default function FeedPage() {
                       </div>
                     )}
                     <div className="feed-products-grid">
-                      {(user ? fServices : fServices.slice(0, GUEST_LIMIT)).slice(0, tab === 'all' ? 6 : undefined).map(p => (
+                      {(user ? fServices : fServices.slice(0, GUEST_LIMIT)).slice(0, tab === 'all' ? 4 : undefined).map(p => (
                         <FeedProduct key={`svc-${p.id}`} product={p} onTagClick={handleTagClick} />
                       ))}
                     </div>
+                    {!user && fServices.length > GUEST_LIMIT && tab === 'services' && (
+                      <div className="feed-auth-gate">
+                        <div className="feed-auth-gate__blur" />
+                        <div className="feed-auth-gate__box">
+                          <div className="feed-auth-gate__icon">&#128274;</div>
+                          <p className="feed-auth-gate__text">Войдите, чтобы видеть все услуги</p>
+                          <button className="feed-auth-gate__btn" onClick={() => navigate('/login')}>Войти</button>
+                          <button className="feed-auth-gate__reg" onClick={() => navigate('/register')}>Регистрация</button>
+                        </div>
+                      </div>
+                    )}
                   </>
                 )}
 
@@ -590,10 +601,21 @@ export default function FeedPage() {
                       </div>
                     )}
                     <div className="feed-products-grid">
-                      {(user ? fProducts : fProducts.slice(0, GUEST_LIMIT)).slice(0, tab === 'all' ? 6 : undefined).map(p => (
+                      {(user ? fProducts : fProducts.slice(0, GUEST_LIMIT)).slice(0, tab === 'all' ? 4 : undefined).map(p => (
                         <FeedProduct key={`prod-${p.id}`} product={p} onTagClick={handleTagClick} />
                       ))}
                     </div>
+                    {!user && fProducts.length > GUEST_LIMIT && tab === 'products' && (
+                      <div className="feed-auth-gate">
+                        <div className="feed-auth-gate__blur" />
+                        <div className="feed-auth-gate__box">
+                          <div className="feed-auth-gate__icon">&#128274;</div>
+                          <p className="feed-auth-gate__text">Войдите, чтобы видеть все продукты</p>
+                          <button className="feed-auth-gate__btn" onClick={() => navigate('/login')}>Войти</button>
+                          <button className="feed-auth-gate__reg" onClick={() => navigate('/register')}>Регистрация</button>
+                        </div>
+                      </div>
+                    )}
                   </>
                 )}
 
@@ -607,10 +629,21 @@ export default function FeedPage() {
                       </div>
                     )}
                     <div className="feed-news-list">
-                      {fNews.slice(0, tab === 'all' ? 3 : undefined).map(item => (
+                      {(user ? fNews : fNews.slice(0, GUEST_LIMIT)).slice(0, tab === 'all' ? 3 : undefined).map(item => (
                         <FeedNewsCard key={`news-${item.id}`} item={item} onTagClick={handleTagClick} />
                       ))}
                     </div>
+                    {!user && fNews.length > GUEST_LIMIT && tab === 'news' && (
+                      <div className="feed-auth-gate">
+                        <div className="feed-auth-gate__blur" />
+                        <div className="feed-auth-gate__box">
+                          <div className="feed-auth-gate__icon">&#128274;</div>
+                          <p className="feed-auth-gate__text">Войдите, чтобы видеть все новости</p>
+                          <button className="feed-auth-gate__btn" onClick={() => navigate('/login')}>Войти</button>
+                          <button className="feed-auth-gate__reg" onClick={() => navigate('/register')}>Регистрация</button>
+                        </div>
+                      </div>
+                    )}
                   </>
                 )}
 
@@ -628,6 +661,17 @@ export default function FeedPage() {
                         <TweetCard key={`tweet-${post.id}`} post={post} onTagClick={handleTagClick} />
                       ))}
                     </div>
+                    {!user && fPosts.length > GUEST_LIMIT && tab === 'tweets' && (
+                      <div className="feed-auth-gate">
+                        <div className="feed-auth-gate__blur" />
+                        <div className="feed-auth-gate__box">
+                          <div className="feed-auth-gate__icon">&#128274;</div>
+                          <p className="feed-auth-gate__text">Войдите, чтобы видеть все твиты</p>
+                          <button className="feed-auth-gate__btn" onClick={() => navigate('/login')}>Войти</button>
+                          <button className="feed-auth-gate__reg" onClick={() => navigate('/register')}>Регистрация</button>
+                        </div>
+                      </div>
+                    )}
                   </>
                 )}
 
@@ -641,19 +685,30 @@ export default function FeedPage() {
                       </div>
                     )}
                     <div className="feed-biz-grid">
-                      {fBusinesses.slice(0, tab === 'all' ? 4 : undefined).map(b => (
+                      {(user ? fBusinesses : fBusinesses.slice(0, GUEST_LIMIT)).slice(0, tab === 'all' ? 4 : undefined).map(b => (
                         <FeedBizCard key={`biz-${b.id}`} biz={b} />
                       ))}
                     </div>
+                    {!user && fBusinesses.length > GUEST_LIMIT && tab === 'businesses' && (
+                      <div className="feed-auth-gate">
+                        <div className="feed-auth-gate__blur" />
+                        <div className="feed-auth-gate__box">
+                          <div className="feed-auth-gate__icon">&#128274;</div>
+                          <p className="feed-auth-gate__text">Войдите, чтобы видеть все компании</p>
+                          <button className="feed-auth-gate__btn" onClick={() => navigate('/login')}>Войти</button>
+                          <button className="feed-auth-gate__reg" onClick={() => navigate('/register')}>Регистрация</button>
+                        </div>
+                      </div>
+                    )}
                   </>
                 )}
 
                 {/* Auth gate for tab=all */}
-                {tab === 'all' && !user && (posts.length > GUEST_LIMIT || products.length > GUEST_LIMIT) && (
+                {tab === 'all' && !user && (posts.length > GUEST_LIMIT || products.length > GUEST_LIMIT || news.length > GUEST_LIMIT) && (
                   <div className="feed-auth-gate">
                     <div className="feed-auth-gate__blur" />
                     <div className="feed-auth-gate__box">
-                      <div className="feed-auth-gate__icon">🔒</div>
+                      <div className="feed-auth-gate__icon">&#128274;</div>
                       <p className="feed-auth-gate__text">Войдите, чтобы видеть все публикации</p>
                       <button className="feed-auth-gate__btn" onClick={() => navigate('/login')}>Войти</button>
                       <button className="feed-auth-gate__reg" onClick={() => navigate('/register')}>Регистрация</button>
@@ -670,7 +725,7 @@ export default function FeedPage() {
 
                 {!loading && !hasActiveFilters && posts.length === 0 && products.length === 0 && news.length === 0 && (
                   <div className="feed-page__empty">
-                    Лента пуста. Запусти <code>python manage.py seed</code>
+                    Пока нет публикаций
                   </div>
                 )}
               </>

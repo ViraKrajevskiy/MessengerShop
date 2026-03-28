@@ -51,9 +51,11 @@ function bizToCard(b) {
 }
 
 
+const GUEST_LIMIT = 4
+
 export default function HomePage() {
   const navigate = useNavigate()
-  const { tokens } = useAuth()
+  const { user, tokens } = useAuth()
 
   const [filters, setFilters] = useState({
     country: '', city: '', category: '', service: '', activeTags: [],
@@ -163,6 +165,20 @@ export default function HomePage() {
           </section>
         )}
 
+        {/* ---------- Auth gate for guests ---------- */}
+        {!user && !loadingBiz && filteredAll.length > GUEST_LIMIT && (
+          <div className="home-auth-gate">
+            <div className="home-auth-gate__blur" />
+            <div className="home-auth-gate__content">
+              <p>Зарегистрируйтесь, чтобы увидеть все карточки и публикации</p>
+              <div className="home-auth-gate__btns">
+                <button className="home-auth-gate__btn home-auth-gate__btn--login" onClick={() => navigate('/login')}>Войти</button>
+                <button className="home-auth-gate__btn home-auth-gate__btn--reg" onClick={() => navigate('/register')}>Регистрация</button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <NewUsers />
         <SocialClub />
 
@@ -200,15 +216,16 @@ export default function HomePage() {
                 </div>
               ) : filteredAll.length > 0 ? (
                 <div className="card-grid card-grid--5">
-                  {filteredAll.slice(cardsPage * CARDS_PER_PAGE, (cardsPage + 1) * CARDS_PER_PAGE).map(u => (
+                  {(user
+                    ? filteredAll.slice(cardsPage * CARDS_PER_PAGE, (cardsPage + 1) * CARDS_PER_PAGE)
+                    : filteredAll.slice(0, GUEST_LIMIT)
+                  ).map(u => (
                     <UserCard key={u.id} id={u.id} name={u.name} city={u.city} logo={u.logo} badge={u.is_vip ? 'VIP' : 'NEW'} type="all" />
                   ))}
                 </div>
               ) : (
                 <div className="no-results">
-                  {allBiz.length === 0
-                    ? 'Пока нет зарегистрированных бизнесов'
-                    : 'Нет карточек по выбранным фильтрам'}
+                  Нет карточек по выбранным фильтрам
                 </div>
               )}
             </div>

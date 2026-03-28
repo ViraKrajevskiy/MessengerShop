@@ -280,7 +280,7 @@ export default function Stories() {
   if (storiesData.length === 0) return (
     <section className="stories">
       <h2 className="section-title">Истории</h2>
-      <p className="stories__empty">Пока нет активных историй. Запустите <code>python manage.py seed</code></p>
+      <p className="stories__empty">Пока нет активных историй</p>
     </section>
   )
 

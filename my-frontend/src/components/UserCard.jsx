@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useViewed } from '../context/ViewedContext'
+import { useAuth } from '../context/AuthContext'
 import { useAuthGate } from './AuthGate'
 import './UserCard.css'
 
@@ -19,9 +20,34 @@ const CARD_PHOTOS = [
 
 export default function UserCard({ id, name = 'Имя', city = 'Город', badge = null, type = 'card', logo = null }) {
   const { addViewed } = useViewed()
+  const { user } = useAuth()
   const navigate = useNavigate()
   const { guard, AuthModal } = useAuthGate()
-  // Используем логотип бизнеса, или fallback из picsum
+
+  const FAVS_KEY = 'biz_favorites'
+  const [fav, setFav] = useState(false)
+
+  useEffect(() => {
+    if (!user) { setFav(false); return }
+    const stored = JSON.parse(localStorage.getItem(FAVS_KEY) || '[]')
+    setFav(stored.includes(id))
+  }, [user, id])
+
+  const toggleFav = (e) => {
+    e.stopPropagation()
+    guard(() => {
+      const stored = JSON.parse(localStorage.getItem(FAVS_KEY) || '[]')
+      let next
+      if (stored.includes(id)) {
+        next = stored.filter(x => x !== id)
+      } else {
+        next = [...stored, id]
+      }
+      localStorage.setItem(FAVS_KEY, JSON.stringify(next))
+      setFav(next.includes(id))
+    })
+  }
+
   const photo = logo
     ? (logo.startsWith('http') ? logo : `https://api.101-school.uz${logo}`)
     : CARD_PHOTOS[id % CARD_PHOTOS.length]
@@ -45,6 +71,15 @@ export default function UserCard({ id, name = 'Имя', city = 'Город', bad
 
           {/* Action buttons — появляются при hover */}
           <div className="user-card__actions">
+            <button
+              className={`user-card__action-btn${fav ? ' user-card__action-btn--liked' : ''}`}
+              onClick={toggleFav}
+              title={fav ? 'Убрать из избранного' : 'В избранное'}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill={fav ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+                <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
+              </svg>
+            </button>
             <button
               className="user-card__action-btn user-card__action-btn--msg"
               onClick={handleMessage}
