@@ -1056,6 +1056,18 @@
   opacity: 0.7;
 }
 
+/* ── Business grid (Компании tab) ─────────────────────────────────── */
+.feed-biz-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+@media (max-width: 600px) {
+  .feed-biz-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Empty state reset */
 .feed-page__empty-reset {
   display: block;

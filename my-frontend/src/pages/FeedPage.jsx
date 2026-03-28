@@ -288,6 +288,7 @@ export default function FeedPage() {
   const [filterVip, setFilterVip] = useState(false)
   const [filterVerified, setFilterVerified] = useState(false)
   const [filterNew, setFilterNew] = useState(false)
+  const [filterCity, setFilterCity] = useState('')
   const [sortOrder, setSortOrder] = useState('none') // none | date_desc | date_asc | price_desc | price_asc
   const [showAllTags, setShowAllTags] = useState(false)
   const navigate = useNavigate()
@@ -332,10 +333,25 @@ export default function FeedPage() {
     setFilterVip(false)
     setFilterVerified(false)
     setFilterNew(false)
+    setFilterCity('')
     setSortOrder('none')
   }
 
-  const hasActiveFilters = activeTags.length > 0 || filterVip || filterVerified || filterNew || sortOrder !== 'none'
+  const hasActiveFilters = activeTags.length > 0 || filterVip || filterVerified || filterNew || filterCity || sortOrder !== 'none'
+
+  // All unique cities from businesses
+  const allCities = useMemo(() => {
+    const set = new Set()
+    businesses.forEach(b => { if (b.city) set.add(b.city) })
+    return [...set].sort()
+  }, [businesses])
+
+  // Business city map for filtering posts/products by business city
+  const bizCityMap = useMemo(() => {
+    const m = new Map()
+    businesses.forEach(b => m.set(b.id, b.city))
+    return m
+  }, [businesses])
 
   // VIP/verified business IDs for filtering
   const vipBizIds = useMemo(() => new Set(businesses.filter(b => b.is_vip).map(b => b.id)), [businesses])
@@ -352,6 +368,7 @@ export default function FeedPage() {
     if (filterVip && !vipBizIds.has(item[bizIdKey])) return false
     if (filterVerified && !verifiedBizIds.has(item[bizIdKey])) return false
     if (filterNew && !isNewItem(item)) return false
+    if (filterCity && bizCityMap.get(item[bizIdKey]) !== filterCity) return false
     return true
   }
 
@@ -375,16 +392,26 @@ export default function FeedPage() {
     if (filterVip && n.business_id && !vipBizIds.has(n.business_id)) return false
     if (filterVerified && n.business_id && !verifiedBizIds.has(n.business_id)) return false
     if (filterNew && !isNewItem(n)) return false
+    if (filterCity && n.business_id && bizCityMap.get(n.business_id) !== filterCity) return false
     return true
   }))
 
+  // Filtered businesses for "Компании" tab
+  const fBusinesses = businesses.filter(b => {
+    if (filterVip && !b.is_vip) return false
+    if (filterVerified && !b.is_verified) return false
+    if (filterCity && b.city !== filterCity) return false
+    return true
+  })
+
   const TABS = [
-    { key: 'all',      label: 'Всё' },
-    { key: 'posts',    label: 'Посты' },
-    { key: 'tweets',   label: 'Твиты' },
-    { key: 'services', label: 'Услуги' },
-    { key: 'products', label: 'Продукты' },
-    { key: 'news',     label: 'Новости' },
+    { key: 'all',        label: 'Все' },
+    { key: 'posts',      label: 'Посты' },
+    { key: 'services',   label: 'Услуги' },
+    { key: 'products',   label: 'Продукты' },
+    { key: 'news',       label: 'Новости' },
+    { key: 'tweets',     label: 'Твиты' },
+    { key: 'businesses', label: 'Компании' },
   ]
 
   return (
@@ -446,6 +473,19 @@ export default function FeedPage() {
               <option value="price_asc">Цена: по возрастанию</option>
               <option value="price_desc">Цена: по убыванию</option>
             </select>
+
+            {allCities.length > 0 && (
+              <select
+                className="feed-filters__sort"
+                value={filterCity}
+                onChange={e => setFilterCity(e.target.value)}
+              >
+                <option value="">Все города</option>
+                {allCities.map(c => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            )}
 
             {hasActiveFilters && (
               <button className="feed-filter-chip feed-filter-chip--clear" onClick={clearFilters}>
@@ -523,23 +563,6 @@ export default function FeedPage() {
                   )
                 })()}
 
-                {/* ── Твиты ── */}
-                {(tab === 'all' || tab === 'tweets') && fPosts.length > 0 && (
-                  <>
-                    {tab === 'all' && (
-                      <div className="feed-section-label">
-                        <span>Твиты</span>
-                        <button onClick={() => setTab('tweets')}>Все →</button>
-                      </div>
-                    )}
-                    <div className="feed-tweets-list">
-                      {(user ? fPosts : fPosts.slice(0, GUEST_LIMIT)).slice(0, tab === 'all' ? 4 : undefined).map(post => (
-                        <TweetCard key={`tweet-${post.id}`} post={post} onTagClick={handleTagClick} />
-                      ))}
-                    </div>
-                  </>
-                )}
-
                 {/* ── Услуги ── */}
                 {(tab === 'all' || tab === 'services') && fServices.length > 0 && (
                   <>
@@ -586,6 +609,40 @@ export default function FeedPage() {
                     <div className="feed-news-list">
                       {fNews.slice(0, tab === 'all' ? 3 : undefined).map(item => (
                         <FeedNewsCard key={`news-${item.id}`} item={item} onTagClick={handleTagClick} />
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                {/* ── Твиты ── */}
+                {(tab === 'all' || tab === 'tweets') && fPosts.length > 0 && (
+                  <>
+                    {tab === 'all' && (
+                      <div className="feed-section-label">
+                        <span>Твиты</span>
+                        <button onClick={() => setTab('tweets')}>Все →</button>
+                      </div>
+                    )}
+                    <div className="feed-tweets-list">
+                      {(user ? fPosts : fPosts.slice(0, GUEST_LIMIT)).slice(0, tab === 'all' ? 4 : undefined).map(post => (
+                        <TweetCard key={`tweet-${post.id}`} post={post} onTagClick={handleTagClick} />
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                {/* ── Компании ── */}
+                {(tab === 'all' || tab === 'businesses') && fBusinesses.length > 0 && (
+                  <>
+                    {tab === 'all' && (
+                      <div className="feed-section-label">
+                        <span>Компании</span>
+                        <button onClick={() => setTab('businesses')}>Все →</button>
+                      </div>
+                    )}
+                    <div className="feed-biz-grid">
+                      {fBusinesses.slice(0, tab === 'all' ? 4 : undefined).map(b => (
+                        <FeedBizCard key={`biz-${b.id}`} biz={b} />
                       ))}
                     </div>
                   </>
