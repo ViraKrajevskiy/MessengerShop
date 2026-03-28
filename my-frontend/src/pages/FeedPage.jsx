@@ -286,6 +286,8 @@ export default function FeedPage() {
   const [activeTags, setActiveTags] = useState([])
   const [filterVip, setFilterVip] = useState(false)
   const [filterVerified, setFilterVerified] = useState(false)
+  const [filterNew, setFilterNew] = useState(false)
+  const [sortOrder, setSortOrder] = useState('none') // none | date_desc | date_asc | price_desc | price_asc
   const [showAllTags, setShowAllTags] = useState(false)
   const navigate = useNavigate()
   const { getAccessToken, user } = useAuth()
@@ -332,30 +334,52 @@ export default function FeedPage() {
     setActiveTags([])
     setFilterVip(false)
     setFilterVerified(false)
+    setFilterNew(false)
+    setSortOrder('none')
   }
 
-  const hasActiveFilters = activeTags.length > 0 || filterVip || filterVerified
+  const hasActiveFilters = activeTags.length > 0 || filterVip || filterVerified || filterNew || sortOrder !== 'none'
 
   // VIP/verified business IDs for filtering
   const vipBizIds = useMemo(() => new Set(businesses.filter(b => b.is_vip).map(b => b.id)), [businesses])
   const verifiedBizIds = useMemo(() => new Set(businesses.filter(b => b.is_verified).map(b => b.id)), [businesses])
 
-  // Filter by tags + vip/verified
+  // Filter by tags + vip/verified + new
+  const isNewItem = (item) => {
+    if (!item.created_at) return false
+    const hoursDiff = (Date.now() - new Date(item.created_at).getTime()) / 3600000
+    return hoursDiff < 24
+  }
   const passesFilter = (item, bizIdKey = 'business_id') => {
     if (activeTags.length > 0 && !activeTags.some(t => (item.tags || []).includes(t))) return false
     if (filterVip && !vipBizIds.has(item[bizIdKey])) return false
     if (filterVerified && !verifiedBizIds.has(item[bizIdKey])) return false
+    if (filterNew && !isNewItem(item)) return false
     return true
   }
-  const fPosts = posts.filter(p => passesFilter(p))
-  const fProducts = allProducts.filter(p => passesFilter(p))
-  const fServices = allServices.filter(p => passesFilter(p))
-  const fNews = news.filter(n => {
+
+  // Sort helper
+  const applySortDate = (arr) => {
+    if (sortOrder === 'date_desc') return [...arr].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    if (sortOrder === 'date_asc') return [...arr].sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+    return arr
+  }
+  const applySortPrice = (arr) => {
+    if (sortOrder === 'price_desc') return [...arr].sort((a, b) => (parseFloat(b.price) || 0) - (parseFloat(a.price) || 0))
+    if (sortOrder === 'price_asc') return [...arr].sort((a, b) => (parseFloat(a.price) || 0) - (parseFloat(b.price) || 0))
+    return applySortDate(arr)
+  }
+
+  const fPosts = applySortDate(posts.filter(p => passesFilter(p)))
+  const fProducts = applySortPrice(allProducts.filter(p => passesFilter(p)))
+  const fServices = applySortPrice(allServices.filter(p => passesFilter(p)))
+  const fNews = applySortDate(news.filter(n => {
     if (activeTags.length > 0 && !activeTags.some(t => (n.tags || []).includes(t))) return false
     if (filterVip && n.business_id && !vipBizIds.has(n.business_id)) return false
     if (filterVerified && n.business_id && !verifiedBizIds.has(n.business_id)) return false
+    if (filterNew && !isNewItem(n)) return false
     return true
-  })
+  }))
 
   const TABS = [
     { key: 'all',      label: 'Всё' },
@@ -391,7 +415,7 @@ export default function FeedPage() {
 
         {/* Filters */}
         <div className="feed-filters">
-          {/* Status filters */}
+          {/* Status filters + sort */}
           <div className="feed-filters__row">
             <button
               className={`feed-filter-chip feed-filter-chip--vip ${filterVip ? 'feed-filter-chip--on' : ''}`}
@@ -405,6 +429,27 @@ export default function FeedPage() {
             >
               <span className="feed-filter-chip__icon">&#10003;</span> Проверенные
             </button>
+            <button
+              className={`feed-filter-chip feed-filter-chip--new ${filterNew ? 'feed-filter-chip--on' : ''}`}
+              onClick={() => setFilterNew(v => !v)}
+            >
+              <span className="feed-filter-chip__icon">&#9679;</span> Новые
+            </button>
+
+            <div className="feed-filters__sep" />
+
+            <select
+              className="feed-filters__sort"
+              value={sortOrder}
+              onChange={e => setSortOrder(e.target.value)}
+            >
+              <option value="none">Сортировка</option>
+              <option value="date_desc">Сначала новые</option>
+              <option value="date_asc">Сначала старые</option>
+              <option value="price_asc">Цена: по возрастанию</option>
+              <option value="price_desc">Цена: по убыванию</option>
+            </select>
+
             {hasActiveFilters && (
               <button className="feed-filter-chip feed-filter-chip--clear" onClick={clearFilters}>
                 &#10005; Сбросить
