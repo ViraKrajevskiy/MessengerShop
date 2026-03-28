@@ -58,8 +58,9 @@
   flex-wrap: wrap;
 }
 .bp__avatar {
-  width: 140px;
-  height: 140px;
+  width: 180px;
+  min-height: 180px;
+  align-self: stretch;
   border-radius: 20px;
   object-fit: cover;
   border: 3px solid var(--bg-primary);
@@ -847,7 +848,7 @@
     padding: 18px;
     gap: 14px;
   }
-  .bp__avatar { width: 100px; height: 100px; }
+  .bp__avatar { width: 120px; min-height: 120px; }
   .bp__actions { justify-content: flex-start; }
   .bp__cover { height: 180px; }
 }
@@ -856,7 +857,7 @@
   .bp__wrap { padding: 0 12px 40px; }
   .bp__cover { height: 160px; }
   .bp__hero { margin-top: -44px; padding: 14px; border-radius: 16px; gap: 12px; }
-  .bp__avatar { width: 80px; height: 80px; border-radius: 14px; }
+  .bp__avatar { width: 90px; min-height: 90px; border-radius: 14px; }
   .bp__name { font-size: 20px; }
   .bp__stats { gap: 14px; }
   .bp__stat-num { font-size: 14px; }
