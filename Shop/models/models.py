@@ -168,6 +168,7 @@ class Product(BaseController):
     image_url    = models.URLField(blank=True)
     is_available = models.BooleanField(default=True)
     views_count  = models.PositiveIntegerField(default=0)
+    tags         = models.ManyToManyField('Tag', blank=True, related_name='products')
 
 
 class VerificationRequest(BaseController):

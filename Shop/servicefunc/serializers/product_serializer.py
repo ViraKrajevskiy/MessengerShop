@@ -7,16 +7,20 @@ class ProductSerializer(serializers.ModelSerializer):
     currency_symbol  = serializers.SerializerMethodField()
     business_name    = serializers.CharField(source='business.brand_name', read_only=True)
     business_id      = serializers.IntegerField(source='business.id', read_only=True)
+    tags             = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
         fields = [
             'id', 'business_id', 'business_name',
-            'name', 'description', 'product_type',   # ДОБАВЬ product_type
+            'name', 'description', 'product_type',
             'price', 'currency', 'currency_symbol',
-            'image_display', 'is_available', 'created_at',
+            'image_display', 'is_available', 'tags', 'created_at',
         ]
         read_only_fields = ['id', 'created_at']
+
+    def get_tags(self, obj):
+        return [t.name for t in obj.tags.all()]
 
     def get_image_display(self, obj):
         if obj.image_url:

@@ -158,11 +158,11 @@ BUSINESSES = [
         'is_verified': True,
         'rating': '4.90',
         'products': [
-            {'name': 'Стрижка + укладка',    'price': '800',  'currency': 'TRY', 'desc': 'Профессиональная стрижка любой сложности с укладкой',    'img': 'https://picsum.photos/id/119/400/300', 'type': 'SERVICE'},
-            {'name': 'Окрашивание волос',    'price': '2500', 'currency': 'TRY', 'desc': 'Стойкое окрашивание, балаяж, омбре, мелирование',        'img': 'https://picsum.photos/id/137/400/300', 'type': 'SERVICE'},
-            {'name': 'Маникюр + педикюр',   'price': '1200', 'currency': 'TRY', 'desc': 'Аппаратный маникюр, гель-лак, дизайн',                   'img': 'https://picsum.photos/id/145/400/300', 'type': 'SERVICE'},
-            {'name': 'Уход за лицом',        'price': '1800', 'currency': 'TRY', 'desc': 'Профессиональный уход, чистка, пилинг',                  'img': 'https://picsum.photos/id/177/400/300', 'type': 'SERVICE'},
-            {'name': 'Набор кистей для макияжа', 'price': '450', 'currency': 'TRY', 'desc': 'Профессиональный набор из 12 кистей',                 'img': 'https://picsum.photos/id/155/400/300', 'type': 'PRODUCT'},
+            {'name': 'Стрижка + укладка',    'price': '800',  'currency': 'TRY', 'desc': 'Профессиональная стрижка любой сложности с укладкой',    'img': 'https://picsum.photos/id/119/400/300', 'type': 'SERVICE', 'tags': ['красота', 'топ']},
+            {'name': 'Окрашивание волос',    'price': '2500', 'currency': 'TRY', 'desc': 'Стойкое окрашивание, балаяж, омбре, мелирование',        'img': 'https://picsum.photos/id/137/400/300', 'type': 'SERVICE', 'tags': ['красота', 'новинка']},
+            {'name': 'Маникюр + педикюр',   'price': '1200', 'currency': 'TRY', 'desc': 'Аппаратный маникюр, гель-лак, дизайн',                   'img': 'https://picsum.photos/id/145/400/300', 'type': 'SERVICE', 'tags': ['красота', 'скидки']},
+            {'name': 'Уход за лицом',        'price': '1800', 'currency': 'TRY', 'desc': 'Профессиональный уход, чистка, пилинг',                  'img': 'https://picsum.photos/id/177/400/300', 'type': 'SERVICE', 'tags': ['красота', 'здоровье']},
+            {'name': 'Набор кистей для макияжа', 'price': '450', 'currency': 'TRY', 'desc': 'Профессиональный набор из 12 кистей',                 'img': 'https://picsum.photos/id/155/400/300', 'type': 'PRODUCT', 'tags': ['красота', 'новинка']},
         ],
         'stories': [
             {'caption': 'Новая коллекция цветов этого сезона!',   'url': 'https://picsum.photos/id/64/600/900',  'hours_ago': 1},
@@ -170,8 +170,8 @@ BUSINESSES = [
             {'caption': 'До и после — результат говорит сам за себя','url': 'https://picsum.photos/id/217/600/900','hours_ago': 20},
         ],
         'posts': [
-            {'text': 'Сертифицированные мастера, высококлассное оборудование и тёплая атмосфера. Приходите к нам за новыми впечатлениями!', 'img': 'https://picsum.photos/id/64/800/600', 'type': 'IMAGE', 'hours_ago': 2},
-            {'text': 'Новая коллекция цветов для волос 2026 — яркие тенденции, которые уже у нас. Запись через профиль или WhatsApp.', 'img': 'https://picsum.photos/id/96/800/600', 'type': 'IMAGE', 'hours_ago': 26},
+            {'text': 'Сертифицированные мастера, высококлассное оборудование и тёплая атмосфера. Приходите к нам за новыми впечатлениями!', 'img': 'https://picsum.photos/id/64/800/600', 'type': 'IMAGE', 'hours_ago': 2, 'tags': ['красота', 'стамбул']},
+            {'text': 'Новая коллекция цветов для волос 2026 — яркие тенденции, которые уже у нас. Запись через профиль или WhatsApp.', 'img': 'https://picsum.photos/id/96/800/600', 'type': 'IMAGE', 'hours_ago': 26, 'tags': ['красота', 'новинка']},
         ],
         'comments': [
             'Была вчера — просто восторг! Мастера профессионалы.',
@@ -203,19 +203,19 @@ BUSINESSES = [
         'is_verified': True,
         'rating': '4.80',
         'products': [
-            {'name': 'Студия в центре Стамбула', 'price': '95000',  'currency': 'USD', 'desc': '45 кв.м., 15-й этаж, вид на Босфор, новостройка 2023 г.', 'img': 'https://picsum.photos/id/164/400/300', 'type': 'PRODUCT'},
-            {'name': '2+1 квартира, Кадыкёй',    'price': '145000', 'currency': 'USD', 'desc': '78 кв.м., 3-й этаж, рядом с метро, отличный район',       'img': 'https://picsum.photos/id/188/400/300', 'type': 'PRODUCT'},
-            {'name': 'Вилла в Анталье',           'price': '280000', 'currency': 'USD', 'desc': '250 кв.м., бассейн, 5 минут от моря, садовый участок',    'img': 'https://picsum.photos/id/365/400/300', 'type': 'PRODUCT'},
-            {'name': 'Оценка недвижимости',       'price': '500',    'currency': 'USD', 'desc': 'Профессиональная оценка объекта, отчёт за 3 дня',         'img': 'https://picsum.photos/id/260/400/300', 'type': 'SERVICE'},
-            {'name': 'Помощь с ВНЖ + покупкой',  'price': '1500',   'currency': 'USD', 'desc': 'Полное юридическое сопровождение сделки и оформление ВНЖ', 'img': 'https://picsum.photos/id/180/400/300', 'type': 'SERVICE'},
+            {'name': 'Студия в центре Стамбула', 'price': '95000',  'currency': 'USD', 'desc': '45 кв.м., 15-й этаж, вид на Босфор, новостройка 2023 г.', 'img': 'https://picsum.photos/id/164/400/300', 'type': 'PRODUCT', 'tags': ['недвижимость', 'стамбул', 'топ']},
+            {'name': '2+1 квартира, Кадыкёй',    'price': '145000', 'currency': 'USD', 'desc': '78 кв.м., 3-й этаж, рядом с метро, отличный район',       'img': 'https://picsum.photos/id/188/400/300', 'type': 'PRODUCT', 'tags': ['недвижимость', 'стамбул']},
+            {'name': 'Вилла в Анталье',           'price': '280000', 'currency': 'USD', 'desc': '250 кв.м., бассейн, 5 минут от моря, садовый участок',    'img': 'https://picsum.photos/id/365/400/300', 'type': 'PRODUCT', 'tags': ['недвижимость', 'анталья']},
+            {'name': 'Оценка недвижимости',       'price': '500',    'currency': 'USD', 'desc': 'Профессиональная оценка объекта, отчёт за 3 дня',         'img': 'https://picsum.photos/id/260/400/300', 'type': 'SERVICE', 'tags': ['недвижимость', 'бизнес']},
+            {'name': 'Помощь с ВНЖ + покупкой',  'price': '1500',   'currency': 'USD', 'desc': 'Полное юридическое сопровождение сделки и оформление ВНЖ', 'img': 'https://picsum.photos/id/180/400/300', 'type': 'SERVICE', 'tags': ['внж', 'недвижимость']},
         ],
         'stories': [
             {'caption': 'Новые объекты этой недели — Кадыкёй и Бейоглу', 'url': 'https://picsum.photos/id/274/600/900', 'hours_ago': 3},
             {'caption': 'Вилла у моря в Анталье — осталось 2 объекта',    'url': 'https://picsum.photos/id/312/600/900', 'hours_ago': 18},
         ],
         'posts': [
-            {'text': 'Обзор квартиры 2+1 в Кадыкёе. 78 кв.м., 3 этаж, рядом с метро. Цена 145 000$. Документы готовы.', 'img': 'https://picsum.photos/id/164/800/600', 'type': 'IMAGE', 'hours_ago': 4},
-            {'text': 'Вилла в Анталье с бассейном — 250 кв.м., 5 минут от моря. Цена 280 000$. Поможем с гражданством!', 'img': 'https://picsum.photos/id/365/800/600', 'type': 'IMAGE', 'hours_ago': 30},
+            {'text': 'Обзор квартиры 2+1 в Кадыкёе. 78 кв.м., 3 этаж, рядом с метро. Цена 145 000$. Документы готовы.', 'img': 'https://picsum.photos/id/164/800/600', 'type': 'IMAGE', 'hours_ago': 4, 'tags': ['недвижимость', 'стамбул']},
+            {'text': 'Вилла в Анталье с бассейном — 250 кв.м., 5 минут от моря. Цена 280 000$. Поможем с гражданством!', 'img': 'https://picsum.photos/id/365/800/600', 'type': 'IMAGE', 'hours_ago': 30, 'tags': ['недвижимость', 'анталья', 'гражданство']},
         ],
         'comments': [
             'Покупали через них квартиру — всё прошло отлично, документы сделали быстро!',
@@ -246,18 +246,18 @@ BUSINESSES = [
         'is_verified': True,
         'rating': '4.75',
         'products': [
-            {'name': 'Консультация терапевта',    'price': '500', 'currency': 'TRY', 'desc': 'Первичная консультация с переводчиком',         'img': 'https://picsum.photos/id/237/400/300', 'type': 'SERVICE'},
-            {'name': 'Стоматология — осмотр',     'price': '0',   'currency': 'TRY', 'desc': 'Бесплатный осмотр, рентген, план лечения',      'img': 'https://picsum.photos/id/223/400/300', 'type': 'SERVICE'},
-            {'name': 'Проверка зрения',           'price': '300', 'currency': 'TRY', 'desc': 'Осмотр офтальмолога, подбор очков или линз',    'img': 'https://picsum.photos/id/239/400/300', 'type': 'SERVICE'},
-            {'name': 'Комплексный анализ крови',  'price': '800', 'currency': 'TRY', 'desc': '50+ показателей, результат за 24 часа',         'img': 'https://picsum.photos/id/205/400/300', 'type': 'SERVICE'},
+            {'name': 'Консультация терапевта',    'price': '500', 'currency': 'TRY', 'desc': 'Первичная консультация с переводчиком',         'img': 'https://picsum.photos/id/237/400/300', 'type': 'SERVICE', 'tags': ['здоровье', 'анкара']},
+            {'name': 'Стоматология — осмотр',     'price': '0',   'currency': 'TRY', 'desc': 'Бесплатный осмотр, рентген, план лечения',      'img': 'https://picsum.photos/id/223/400/300', 'type': 'SERVICE', 'tags': ['здоровье', 'акция']},
+            {'name': 'Проверка зрения',           'price': '300', 'currency': 'TRY', 'desc': 'Осмотр офтальмолога, подбор очков или линз',    'img': 'https://picsum.photos/id/239/400/300', 'type': 'SERVICE', 'tags': ['здоровье']},
+            {'name': 'Комплексный анализ крови',  'price': '800', 'currency': 'TRY', 'desc': '50+ показателей, результат за 24 часа',         'img': 'https://picsum.photos/id/205/400/300', 'type': 'SERVICE', 'tags': ['здоровье', 'рекомендация']},
         ],
         'stories': [
             {'caption': 'Акция: бесплатная консультация стоматолога весь апрель', 'url': 'https://picsum.photos/id/342/600/900', 'hours_ago': 6},
             {'caption': 'Новое оборудование — УЗИ нового поколения',              'url': 'https://picsum.photos/id/326/600/900', 'hours_ago': 22},
         ],
         'posts': [
-            {'text': 'Бесплатная консультация стоматолога — весь апрель. Запись через профиль. Работаем с переводчиком!', 'img': 'https://picsum.photos/id/342/800/600', 'type': 'IMAGE', 'hours_ago': 7},
-            {'text': 'Новое УЗИ-оборудование класса эксперт. Теперь диагностика ещё точнее и быстрее.',                  'img': 'https://picsum.photos/id/237/800/600', 'type': 'IMAGE', 'hours_ago': 48},
+            {'text': 'Бесплатная консультация стоматолога — весь апрель. Запись через профиль. Работаем с переводчиком!', 'img': 'https://picsum.photos/id/342/800/600', 'type': 'IMAGE', 'hours_ago': 7, 'tags': ['здоровье', 'акция', 'анкара']},
+            {'text': 'Новое УЗИ-оборудование класса эксперт. Теперь диагностика ещё точнее и быстрее.',                  'img': 'https://picsum.photos/id/237/800/600', 'type': 'IMAGE', 'hours_ago': 48, 'tags': ['здоровье', 'новинка']},
         ],
         'comments': [
             'Замечательная клиника! Всё на русском, врачи внимательные.',
@@ -287,18 +287,18 @@ BUSINESSES = [
         'is_verified': True,
         'rating': '4.60',
         'products': [
-            {'name': 'Турецкий A1 (группа)',       'price': '3500', 'currency': 'TRY', 'desc': '20 занятий по 90 мин., группа до 8 человек, сертификат',        'img': 'https://picsum.photos/id/20/400/300',  'type': 'SERVICE'},
-            {'name': 'Турецкий индивидуально',     'price': '800',  'currency': 'TRY', 'desc': 'Занятие 60 минут с носителем языка, любой уровень',              'img': 'https://picsum.photos/id/42/400/300',  'type': 'SERVICE'},
-            {'name': 'Английский для бизнеса',     'price': '4200', 'currency': 'TRY', 'desc': 'Курс 16 занятий по деловому английскому',                       'img': 'https://picsum.photos/id/28/400/300',  'type': 'SERVICE'},
-            {'name': 'Учебник турецкого А1-А2',    'price': '350',  'currency': 'TRY', 'desc': 'Учебник + рабочая тетрадь + аудио, авторская методика',          'img': 'https://picsum.photos/id/36/400/300',  'type': 'PRODUCT'},
+            {'name': 'Турецкий A1 (группа)',       'price': '3500', 'currency': 'TRY', 'desc': '20 занятий по 90 мин., группа до 8 человек, сертификат',        'img': 'https://picsum.photos/id/20/400/300',  'type': 'SERVICE', 'tags': ['образование', 'стамбул']},
+            {'name': 'Турецкий индивидуально',     'price': '800',  'currency': 'TRY', 'desc': 'Занятие 60 минут с носителем языка, любой уровень',              'img': 'https://picsum.photos/id/42/400/300',  'type': 'SERVICE', 'tags': ['образование', 'топ']},
+            {'name': 'Английский для бизнеса',     'price': '4200', 'currency': 'TRY', 'desc': 'Курс 16 занятий по деловому английскому',                       'img': 'https://picsum.photos/id/28/400/300',  'type': 'SERVICE', 'tags': ['образование', 'бизнес']},
+            {'name': 'Учебник турецкого А1-А2',    'price': '350',  'currency': 'TRY', 'desc': 'Учебник + рабочая тетрадь + аудио, авторская методика',          'img': 'https://picsum.photos/id/36/400/300',  'type': 'PRODUCT', 'tags': ['образование', 'новинка']},
         ],
         'stories': [
             {'caption': 'Набор в группы турецкого языка — старт 1 мая', 'url': 'https://picsum.photos/id/20/600/900', 'hours_ago': 2},
             {'caption': 'Наши студенты сдали TÖMER — поздравляем!',     'url': 'https://picsum.photos/id/42/600/900', 'hours_ago': 14},
         ],
         'posts': [
-            {'text': 'Набор в группы турецкого языка A1 — старт 1 мая. Группы утренние и вечерние. Первый урок бесплатно!', 'img': 'https://picsum.photos/id/20/800/600', 'type': 'IMAGE', 'hours_ago': 3},
-            {'text': '5 студентов успешно сдали экзамен TÖMER. Интенсивный курс с нами — 95% сдают с первого раза.',       'img': 'https://picsum.photos/id/42/800/600', 'type': 'IMAGE', 'hours_ago': 72},
+            {'text': 'Набор в группы турецкого языка A1 — старт 1 мая. Группы утренние и вечерние. Первый урок бесплатно!', 'img': 'https://picsum.photos/id/20/800/600', 'type': 'IMAGE', 'hours_ago': 3, 'tags': ['образование', 'стамбул']},
+            {'text': '5 студентов успешно сдали экзамен TÖMER. Интенсивный курс с нами — 95% сдают с первого раза.',       'img': 'https://picsum.photos/id/42/800/600', 'type': 'IMAGE', 'hours_ago': 72, 'tags': ['образование', 'топ']},
         ],
         'comments': [
             'Учусь уже 3 месяца — прогресс заметен! Отличные преподаватели.',
@@ -328,16 +328,16 @@ BUSINESSES = [
         'is_verified': False,
         'rating': '4.50',
         'products': [
-            {'name': 'Открытие ООО (Ltd.) в Турции', 'price': '15000', 'currency': 'TRY', 'desc': 'Регистрация компании под ключ — 5 рабочих дней',          'img': 'https://picsum.photos/id/380/400/300', 'type': 'SERVICE'},
-            {'name': 'Ежемесячная бухгалтерия',       'price': '3000',  'currency': 'TRY', 'desc': 'Полное ведение учёта, налоговые декларации, в месяц',   'img': 'https://picsum.photos/id/374/400/300', 'type': 'SERVICE'},
-            {'name': 'Налоговая консультация',         'price': '1500',  'currency': 'TRY', 'desc': 'Оптимизация налогов, консультация 90 минут',            'img': 'https://picsum.photos/id/366/400/300', 'type': 'SERVICE'},
-            {'name': 'Аудит за год',                  'price': '8000',  'currency': 'TRY', 'desc': 'Полный аудит финансовой отчётности за год',             'img': 'https://picsum.photos/id/358/400/300', 'type': 'SERVICE'},
+            {'name': 'Открытие ООО (Ltd.) в Турции', 'price': '15000', 'currency': 'TRY', 'desc': 'Регистрация компании под ключ — 5 рабочих дней',          'img': 'https://picsum.photos/id/380/400/300', 'type': 'SERVICE', 'tags': ['финансы', 'бизнес']},
+            {'name': 'Ежемесячная бухгалтерия',       'price': '3000',  'currency': 'TRY', 'desc': 'Полное ведение учёта, налоговые декларации, в месяц',   'img': 'https://picsum.photos/id/374/400/300', 'type': 'SERVICE', 'tags': ['финансы', 'бизнес']},
+            {'name': 'Налоговая консультация',         'price': '1500',  'currency': 'TRY', 'desc': 'Оптимизация налогов, консультация 90 минут',            'img': 'https://picsum.photos/id/366/400/300', 'type': 'SERVICE', 'tags': ['финансы']},
+            {'name': 'Аудит за год',                  'price': '8000',  'currency': 'TRY', 'desc': 'Полный аудит финансовой отчётности за год',             'img': 'https://picsum.photos/id/358/400/300', 'type': 'SERVICE', 'tags': ['финансы', 'бизнес']},
         ],
         'stories': [
             {'caption': 'Открытие компании в Турции — всего за 5 дней', 'url': 'https://picsum.photos/id/349/600/900', 'hours_ago': 10},
         ],
         'posts': [
-            {'text': 'Открытие ООО (Ltd.) в Турции под ключ за 5 рабочих дней. Полное юридическое сопровождение включено.', 'img': 'https://picsum.photos/id/380/800/600', 'type': 'IMAGE', 'hours_ago': 12},
+            {'text': 'Открытие ООО (Ltd.) в Турции под ключ за 5 рабочих дней. Полное юридическое сопровождение включено.', 'img': 'https://picsum.photos/id/380/800/600', 'type': 'IMAGE', 'hours_ago': 12, 'tags': ['финансы', 'бизнес']},
         ],
         'comments': [
             'Открывали компанию через них — быстро и без лишней бюрократии.',
@@ -365,10 +365,10 @@ BUSINESSES = [
         'is_verified': True,
         'rating': '4.85',
         'products': [
-            {'name': 'Тур по Стамбулу (1 день)',  'price': '2500',  'currency': 'TRY', 'desc': 'Айя-София, Голубая мечеть, Гранд Базар, Босфор. Гид на русском.', 'img': 'https://picsum.photos/id/318/400/300', 'type': 'SERVICE'},
-            {'name': 'Каппадокия (3 дня)',         'price': '15000', 'currency': 'TRY', 'desc': 'Перелёт, отель, полёт на шаре, экскурсии. Всё включено.',         'img': 'https://picsum.photos/id/429/400/300', 'type': 'SERVICE'},
-            {'name': 'Памуккале + Эфес',           'price': '4500',  'currency': 'TRY', 'desc': 'Белые террасы, древний Эфес, термальный отдых. 1 день.',           'img': 'https://picsum.photos/id/399/400/300', 'type': 'SERVICE'},
-            {'name': 'Сувенирный набор Стамбул',   'price': '450',   'currency': 'TRY', 'desc': 'Магниты, открытки, турецкий чай, лукум — подарочный бокс',          'img': 'https://picsum.photos/id/396/400/300', 'type': 'PRODUCT'},
+            {'name': 'Тур по Стамбулу (1 день)',  'price': '2500',  'currency': 'TRY', 'desc': 'Айя-София, Голубая мечеть, Гранд Базар, Босфор. Гид на русском.', 'img': 'https://picsum.photos/id/318/400/300', 'type': 'SERVICE', 'tags': ['туризм', 'стамбул', 'топ']},
+            {'name': 'Каппадокия (3 дня)',         'price': '15000', 'currency': 'TRY', 'desc': 'Перелёт, отель, полёт на шаре, экскурсии. Всё включено.',         'img': 'https://picsum.photos/id/429/400/300', 'type': 'SERVICE', 'tags': ['туризм', 'рекомендация']},
+            {'name': 'Памуккале + Эфес',           'price': '4500',  'currency': 'TRY', 'desc': 'Белые террасы, древний Эфес, термальный отдых. 1 день.',           'img': 'https://picsum.photos/id/399/400/300', 'type': 'SERVICE', 'tags': ['туризм']},
+            {'name': 'Сувенирный набор Стамбул',   'price': '450',   'currency': 'TRY', 'desc': 'Магниты, открытки, турецкий чай, лукум — подарочный бокс',          'img': 'https://picsum.photos/id/396/400/300', 'type': 'PRODUCT', 'tags': ['туризм', 'стамбул', 'новинка']},
         ],
         'stories': [
             {'caption': 'Полёт на воздушном шаре — незабываемые впечатления!', 'url': 'https://picsum.photos/id/318/600/900', 'hours_ago': 4},
@@ -376,8 +376,8 @@ BUSINESSES = [
             {'caption': 'Босфор с воды — лучший вид на два континента',       'url': 'https://picsum.photos/id/399/600/900', 'hours_ago': 23},
         ],
         'posts': [
-            {'text': 'Тур в Каппадокию (3 дня): полёт на шаре, отдых в пещерном отеле, экскурсии. Всё включено. Запись открыта!', 'img': 'https://picsum.photos/id/429/800/600', 'type': 'IMAGE', 'hours_ago': 5},
-            {'text': 'Морская прогулка по Босфору на закат — 2 часа с ужином. Виды на оба континента. Бронируйте сейчас!',         'img': 'https://picsum.photos/id/396/800/600', 'type': 'IMAGE', 'hours_ago': 36},
+            {'text': 'Тур в Каппадокию (3 дня): полёт на шаре, отдых в пещерном отеле, экскурсии. Всё включено. Запись открыта!', 'img': 'https://picsum.photos/id/429/800/600', 'type': 'IMAGE', 'hours_ago': 5, 'tags': ['туризм', 'рекомендация']},
+            {'text': 'Морская прогулка по Босфору на закат — 2 часа с ужином. Виды на оба континента. Бронируйте сейчас!',         'img': 'https://picsum.photos/id/396/800/600', 'type': 'IMAGE', 'hours_ago': 36, 'tags': ['туризм', 'стамбул']},
         ],
         'comments': [
             'Летали на шаре в Каппадокии — это просто невероятно! Спасибо за организацию.',
@@ -409,16 +409,16 @@ BUSINESSES = [
         'is_verified': False,
         'rating': '4.70',
         'products': [
-            {'name': 'Оформление ВНЖ',            'price': '5000', 'currency': 'TRY', 'desc': 'Полное сопровождение получения вида на жительство, под ключ', 'img': 'https://picsum.photos/id/160/400/300', 'type': 'SERVICE'},
-            {'name': 'Юридическая консультация',   'price': '1000', 'currency': 'TRY', 'desc': 'Консультация 60 мин. по любому правовому вопросу',           'img': 'https://picsum.photos/id/152/400/300', 'type': 'SERVICE'},
-            {'name': 'Регистрация бизнеса',        'price': '8000', 'currency': 'TRY', 'desc': 'Открытие ИП или ООО, постановка на налоговый учёт',          'img': 'https://picsum.photos/id/147/400/300', 'type': 'SERVICE'},
-            {'name': 'Перевод документов',         'price': '500',  'currency': 'TRY', 'desc': 'Нотариально заверенный перевод, 1 страница',                 'img': 'https://picsum.photos/id/143/400/300', 'type': 'SERVICE'},
+            {'name': 'Оформление ВНЖ',            'price': '5000', 'currency': 'TRY', 'desc': 'Полное сопровождение получения вида на жительство, под ключ', 'img': 'https://picsum.photos/id/160/400/300', 'type': 'SERVICE', 'tags': ['юрист', 'внж']},
+            {'name': 'Юридическая консультация',   'price': '1000', 'currency': 'TRY', 'desc': 'Консультация 60 мин. по любому правовому вопросу',           'img': 'https://picsum.photos/id/152/400/300', 'type': 'SERVICE', 'tags': ['юрист']},
+            {'name': 'Регистрация бизнеса',        'price': '8000', 'currency': 'TRY', 'desc': 'Открытие ИП или ООО, постановка на налоговый учёт',          'img': 'https://picsum.photos/id/147/400/300', 'type': 'SERVICE', 'tags': ['юрист', 'бизнес']},
+            {'name': 'Перевод документов',         'price': '500',  'currency': 'TRY', 'desc': 'Нотариально заверенный перевод, 1 страница',                 'img': 'https://picsum.photos/id/143/400/300', 'type': 'SERVICE', 'tags': ['юрист']},
         ],
         'stories': [
             {'caption': 'Успешно оформили ВНЖ для 12 клиентов за март', 'url': 'https://picsum.photos/id/160/600/900', 'hours_ago': 8},
         ],
         'posts': [
-            {'text': 'Оформление ВНЖ в Турции под ключ. Более 500 успешных кейсов с 2018 года. Бесплатная первичная консультация.', 'img': 'https://picsum.photos/id/160/800/600', 'type': 'IMAGE', 'hours_ago': 9},
+            {'text': 'Оформление ВНЖ в Турции под ключ. Более 500 успешных кейсов с 2018 года. Бесплатная первичная консультация.', 'img': 'https://picsum.photos/id/160/800/600', 'type': 'IMAGE', 'hours_ago': 9, 'tags': ['юрист', 'внж']},
         ],
         'comments': [
             'Помогли с ВНЖ быстро и без нервов. Очень рекомендую!',
@@ -447,19 +447,19 @@ BUSINESSES = [
         'is_verified': False,
         'rating': '4.95',
         'products': [
-            {'name': 'Плов по-узбекски (порция)',   'price': '350', 'currency': 'TRY', 'desc': 'Настоящий плов с бараниной, морковью, нутом. Порция 500 г',     'img': 'https://picsum.photos/id/225/400/300', 'type': 'PRODUCT'},
-            {'name': 'Манты (20 шт.)',               'price': '280', 'currency': 'TRY', 'desc': 'Домашние манты с говядиной, сметана в подарок',                'img': 'https://picsum.photos/id/219/400/300', 'type': 'PRODUCT'},
-            {'name': 'Турецкий завтрак (на 2)',      'price': '650', 'currency': 'TRY', 'desc': 'Сыры, оливки, яйца, мёд, варенье, хлеб, чай',                 'img': 'https://picsum.photos/id/213/400/300', 'type': 'PRODUCT'},
-            {'name': 'Кейтеринг — мероприятие',     'price': '500', 'currency': 'TRY', 'desc': 'Выездное обслуживание мероприятий, цена за персону',            'img': 'https://picsum.photos/id/207/400/300', 'type': 'SERVICE'},
-            {'name': 'Борщ домашний (1 л)',          'price': '200', 'currency': 'TRY', 'desc': 'Настоящий борщ по-домашнему, на говяжьем бульоне',             'img': 'https://picsum.photos/id/201/400/300', 'type': 'PRODUCT'},
+            {'name': 'Плов по-узбекски (порция)',   'price': '350', 'currency': 'TRY', 'desc': 'Настоящий плов с бараниной, морковью, нутом. Порция 500 г',     'img': 'https://picsum.photos/id/225/400/300', 'type': 'PRODUCT', 'tags': ['еда', 'доставка', 'топ']},
+            {'name': 'Манты (20 шт.)',               'price': '280', 'currency': 'TRY', 'desc': 'Домашние манты с говядиной, сметана в подарок',                'img': 'https://picsum.photos/id/219/400/300', 'type': 'PRODUCT', 'tags': ['еда', 'доставка']},
+            {'name': 'Турецкий завтрак (на 2)',      'price': '650', 'currency': 'TRY', 'desc': 'Сыры, оливки, яйца, мёд, варенье, хлеб, чай',                 'img': 'https://picsum.photos/id/213/400/300', 'type': 'PRODUCT', 'tags': ['еда', 'рекомендация']},
+            {'name': 'Кейтеринг — мероприятие',     'price': '500', 'currency': 'TRY', 'desc': 'Выездное обслуживание мероприятий, цена за персону',            'img': 'https://picsum.photos/id/207/400/300', 'type': 'SERVICE', 'tags': ['еда', 'бизнес']},
+            {'name': 'Борщ домашний (1 л)',          'price': '200', 'currency': 'TRY', 'desc': 'Настоящий борщ по-домашнему, на говяжьем бульоне',             'img': 'https://picsum.photos/id/201/400/300', 'type': 'PRODUCT', 'tags': ['еда', 'доставка']},
         ],
         'stories': [
             {'caption': 'Сегодня готовим плов — принимаем заказы до 18:00', 'url': 'https://picsum.photos/id/225/600/900', 'hours_ago': 1},
             {'caption': 'Новое меню: турецкий завтрак с доставкой',          'url': 'https://picsum.photos/id/219/600/900', 'hours_ago': 11},
         ],
         'posts': [
-            {'text': 'Сегодня в меню: плов по-узбекски с бараниной — принимаем заказы до 18:00. Доставка по Стамбулу!', 'img': 'https://picsum.photos/id/225/800/600', 'type': 'IMAGE', 'hours_ago': 2},
-            {'text': 'Новое: турецкий завтрак на 2 персоны с доставкой. Сыры, оливки, яйца, мёд, варенье, хлеб, чай. 650 TRY.', 'img': 'https://picsum.photos/id/213/800/600', 'type': 'IMAGE', 'hours_ago': 25},
+            {'text': 'Сегодня в меню: плов по-узбекски с бараниной — принимаем заказы до 18:00. Доставка по Стамбулу!', 'img': 'https://picsum.photos/id/225/800/600', 'type': 'IMAGE', 'hours_ago': 2, 'tags': ['еда', 'доставка', 'стамбул']},
+            {'text': 'Новое: турецкий завтрак на 2 персоны с доставкой. Сыры, оливки, яйца, мёд, варенье, хлеб, чай. 650 TRY.', 'img': 'https://picsum.photos/id/213/800/600', 'type': 'IMAGE', 'hours_ago': 25, 'tags': ['еда', 'новинка']},
         ],
         'comments': [
             'Плов просто как у мамы! Заказываю каждую неделю 😍',
@@ -688,6 +688,35 @@ class Command(BaseCommand):
             if created:
                 cnt['tags'] += 1
         out(f'\n  [tags] {cnt["tags"]} new tags')
+
+        # ── Теги на продуктах и постах ──────────────────────────────────────
+        for data in BUSINESSES:
+            try:
+                biz = Business.objects.get(brand_name=data['brand_name'])
+            except Business.DoesNotExist:
+                continue
+            for p_data in data['products']:
+                p_tags = p_data.get('tags', [])
+                if p_tags:
+                    try:
+                        product = Product.objects.get(business=biz, name=p_data['name'])
+                        for t in p_tags:
+                            if t in tag_objects:
+                                product.tags.add(tag_objects[t])
+                    except Product.DoesNotExist:
+                        pass
+            for p_data in data.get('posts', []):
+                p_tags = p_data.get('tags', [])
+                if p_tags:
+                    try:
+                        post = Post.objects.filter(business=biz, text__startswith=p_data['text'][:30]).first()
+                        if post:
+                            for t in p_tags:
+                                if t in tag_objects:
+                                    post.tags.add(tag_objects[t])
+                    except Exception:
+                        pass
+        out('  [tags] assigned to products and posts')
 
         # Собираем все бизнесы и посты для связей
         all_businesses = list(Business.objects.select_related('owner').all())
