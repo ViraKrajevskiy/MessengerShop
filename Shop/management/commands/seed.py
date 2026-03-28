@@ -154,7 +154,7 @@ BUSINESSES = [
         'address': 'Beyoğlu, İstiklal Cd. 12, İstanbul',
         'phone': '+90 212 555 01 01',
         'website': 'https://beauty-istanbul.ru',
-        'is_vip': True,
+        'plan_type': 'VIP',
         'is_verified': True,
         'rating': '4.90',
         'products': [
@@ -199,7 +199,7 @@ BUSINESSES = [
         'address': 'Şişli, Büyükdere Cd. 88, İstanbul',
         'phone': '+90 212 555 02 02',
         'website': 'https://istanbul-realty.ru',
-        'is_vip': True,
+        'plan_type': 'VIP',
         'is_verified': True,
         'rating': '4.80',
         'products': [
@@ -242,7 +242,7 @@ BUSINESSES = [
         'address': 'Çankaya, Atatürk Blv. 45, Ankara',
         'phone': '+90 312 555 03 03',
         'website': 'https://turkmed.ru',
-        'is_vip': True,
+        'plan_type': 'VIP',
         'is_verified': True,
         'rating': '4.75',
         'products': [
@@ -283,7 +283,7 @@ BUSINESSES = [
         'address': 'Fatih, Ordu Cd. 22, İstanbul',
         'phone': '+90 212 555 04 04',
         'website': 'https://istanbul-lang.ru',
-        'is_vip': False,
+        'plan_type': 'PRO',
         'is_verified': True,
         'rating': '4.60',
         'products': [
@@ -324,7 +324,7 @@ BUSINESSES = [
         'address': 'Levent, Büyükdere Cd. 145, İstanbul',
         'phone': '+90 212 555 05 05',
         'website': 'https://vostok-finance.tr',
-        'is_vip': False,
+        'plan_type': 'FREE',
         'is_verified': False,
         'rating': '4.50',
         'products': [
@@ -361,7 +361,7 @@ BUSINESSES = [
         'address': 'Antalya, Atatürk Blv. 33',
         'phone': '+90 242 555 06 06',
         'website': 'https://istanbul-tours.ru',
-        'is_vip': False,
+        'plan_type': 'PRO',
         'is_verified': True,
         'rating': '4.85',
         'products': [
@@ -405,7 +405,7 @@ BUSINESSES = [
         'address': 'Beşiktaş, Barbaros Blv. 18, İstanbul',
         'phone': '+90 212 555 07 07',
         'website': 'https://turklegal.ru',
-        'is_vip': False,
+        'plan_type': 'FREE',
         'is_verified': False,
         'rating': '4.70',
         'products': [
@@ -443,7 +443,7 @@ BUSINESSES = [
         'address': 'Üsküdar, İcadiye Cd. 7, İstanbul',
         'phone': '+90 212 555 08 08',
         'website': '',
-        'is_vip': False,
+        'plan_type': 'FREE',
         'is_verified': False,
         'rating': '4.95',
         'products': [
@@ -566,7 +566,9 @@ class Command(BaseCommand):
                     'address':     data['address'],
                     'phone':       data['phone'],
                     'website':     data.get('website', ''),
-                    'is_vip':      data['is_vip'],
+                    'plan_type':       data['plan_type'],
+                    'plan_period':     'YEAR' if data['plan_type'] != 'FREE' else None,
+                    'plan_expires_at': timezone.now() + timedelta(days=365) if data['plan_type'] != 'FREE' else None,
                     'is_verified': data['is_verified'],
                     'rating':      data['rating'],
                 },

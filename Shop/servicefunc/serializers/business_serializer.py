@@ -8,12 +8,15 @@ class BusinessListSerializer(serializers.ModelSerializer):
     owner_avatar      = serializers.ImageField(source='owner.avatar', read_only=True)
     category_label    = serializers.CharField(source='get_category_display', read_only=True)
     subscribers_count = serializers.SerializerMethodField()
+    is_vip            = serializers.BooleanField(read_only=True)
+    is_pro            = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Business
         fields = [
             'id', 'brand_name', 'category', 'category_label',
-            'city', 'logo', 'is_verified', 'is_vip',
+            'city', 'logo', 'is_verified', 'is_vip', 'is_pro',
+            'plan_type',
             'rating', 'views_count', 'subscribers_count',
             'owner_username', 'owner_avatar',
         ]
@@ -32,19 +35,22 @@ class BusinessDetailSerializer(serializers.ModelSerializer):
     products          = serializers.SerializerMethodField()
     subscribers_count = serializers.SerializerMethodField()
     is_subscribed     = serializers.SerializerMethodField()
+    is_vip            = serializers.BooleanField(read_only=True)
+    is_pro            = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Business
         fields = [
             'id', 'brand_name', 'description', 'category', 'category_label',
             'city', 'address', 'phone', 'website',
-            'logo', 'cover', 'is_verified', 'is_vip',
+            'logo', 'cover', 'is_verified', 'is_vip', 'is_pro',
+            'plan_type', 'plan_period', 'plan_expires_at',
             'rating', 'views_count', 'created_at',
             'owner_username', 'owner_email', 'owner_avatar',
             'subscribers_count', 'is_subscribed',
             'products', 'group_id',
         ]
-        read_only_fields = ['is_verified', 'is_vip', 'rating', 'views_count', 'created_at']
+        read_only_fields = ['is_verified', 'is_vip', 'is_pro', 'rating', 'views_count', 'created_at']
 
     def get_products(self, obj):
         if hasattr(obj, '_prefetched_products'):

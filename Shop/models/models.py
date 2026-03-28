@@ -59,6 +59,16 @@ class Business(BaseController):
         TRANSPORT = 'TRANSPORT', 'Транспорт'
         OTHER     = 'OTHER',     'Другое'
 
+    class PlanType(models.TextChoices):
+        FREE = 'FREE', 'Бесплатный'
+        PRO  = 'PRO',  'Pro'
+        VIP  = 'VIP',  'VIP'
+
+    class PlanPeriod(models.TextChoices):
+        MONTH   = 'MONTH',   '1 месяц'
+        QUARTER = 'QUARTER', '3 месяца'
+        YEAR    = 'YEAR',    '12 месяцев'
+
     owner = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
@@ -75,7 +85,9 @@ class Business(BaseController):
     logo         = models.ImageField(upload_to='logos/', blank=True, null=True)
     cover        = models.ImageField(upload_to='covers/', blank=True, null=True)
     is_verified  = models.BooleanField(default=False)
-    is_vip       = models.BooleanField(default=False)
+    plan_type    = models.CharField(max_length=10, choices=PlanType.choices, default=PlanType.FREE)
+    plan_period  = models.CharField(max_length=10, choices=PlanPeriod.choices, null=True, blank=True)
+    plan_expires_at = models.DateTimeField(null=True, blank=True)
     rating       = models.DecimalField(max_digits=3, decimal_places=2, default=0.00)
     views_count  = models.PositiveIntegerField(default=0)
     group        = models.OneToOneField(
@@ -84,8 +96,24 @@ class Business(BaseController):
     )
     audio = models.FileField(upload_to='business_audio/', blank=True, null=True)
 
+    @property
+    def is_vip(self):
+        if self.plan_type != self.PlanType.VIP:
+            return False
+        if self.plan_expires_at and self.plan_expires_at < timezone.now():
+            return False
+        return True
+
+    @property
+    def is_pro(self):
+        if self.plan_type not in (self.PlanType.PRO, self.PlanType.VIP):
+            return False
+        if self.plan_expires_at and self.plan_expires_at < timezone.now():
+            return False
+        return True
+
     class Meta:
-        ordering = ['-is_vip', '-rating', '-created_at']
+        ordering = ['-plan_type', '-rating', '-created_at']
         verbose_name = 'Business'
         verbose_name_plural = 'Businesses'
 

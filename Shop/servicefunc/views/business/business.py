@@ -42,7 +42,7 @@ class BusinessListView(APIView):
 
         if city:     qs = qs.filter(city__icontains=city)
         if category: qs = qs.filter(category=category)
-        if vip:      qs = qs.filter(is_vip=True)
+        if vip:      qs = qs.filter(plan_type='VIP')
         if search:   qs = qs.filter(brand_name__icontains=search)
 
         serializer = BusinessListSerializer(qs, many=True, context={'request': request})

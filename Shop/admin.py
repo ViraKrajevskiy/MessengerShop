@@ -59,11 +59,11 @@ class UserAdmin(BaseUserAdmin):
 # ── Business ──────────────────────────────────────────────────────────────────
 @admin.register(Business)
 class BusinessAdmin(admin.ModelAdmin):
-    list_display  = ('brand_name', 'owner_email', 'category', 'city', 'is_verified', 'is_vip', 'created_at')
-    list_filter   = ('category', 'is_verified', 'is_vip')
+    list_display  = ('brand_name', 'owner_email', 'category', 'city', 'is_verified', 'plan_type', 'plan_expires_at', 'created_at')
+    list_filter   = ('category', 'is_verified', 'plan_type')
     search_fields = ('brand_name', 'owner__email', 'city')
     ordering      = ('-created_at',)
-    list_editable = ('is_verified', 'is_vip')
+    list_editable = ('is_verified', 'plan_type', 'plan_expires_at')
 
     def owner_email(self, obj):
         return obj.owner.email if obj.owner else '—'

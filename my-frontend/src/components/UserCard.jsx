@@ -18,7 +18,7 @@ const CARD_PHOTOS = [
   'https://picsum.photos/id/429/400/530',
 ]
 
-export default function UserCard({ id, name = 'Имя', city = 'Город', badge = null, type = 'card', logo = null }) {
+export default function UserCard({ id, name = 'Имя', city = 'Город', badge = null, type = 'card', logo = null, planType = 'FREE' }) {
   const { addViewed } = useViewed()
   const { user } = useAuth()
   const navigate = useNavigate()
@@ -64,10 +64,16 @@ export default function UserCard({ id, name = 'Имя', city = 'Город', bad
 
   return (
     <>
-      <div className="user-card" onClick={handleClick}>
+      <div className={`user-card${planType === 'VIP' ? ' user-card--vip-plan' : planType === 'PRO' ? ' user-card--pro-plan' : ''}`} onClick={handleClick}>
         <div className="user-card__image">
           <img className="user-card__photo" src={photo} alt={name} loading="lazy" />
-          {badge && <span className="user-card__badge">{badge}</span>}
+          {planType === 'VIP' ? (
+            <span className="user-card__badge user-card__badge--vip">VIP</span>
+          ) : planType === 'PRO' ? (
+            <span className="user-card__badge user-card__badge--pro">PRO</span>
+          ) : badge ? (
+            <span className="user-card__badge">{badge}</span>
+          ) : null}
 
           {/* Action buttons — появляются при hover */}
           <div className="user-card__actions">

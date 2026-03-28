@@ -377,6 +377,7 @@ export default function BusinessDashboardPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError]     = useState('')
   const [bizId, setBizId]     = useState(null)
+  const [bizData, setBizData] = useState(null)
   const [toast, setToast]     = useState('')
 
   // Modals
@@ -399,7 +400,7 @@ export default function BusinessDashboardPage() {
       headers: { Authorization: `Bearer ${tokens.access}` },
     })
       .then(r => r.ok ? r.json() : Promise.reject())
-      .then(data => setBizId(data.id))
+      .then(data => { setBizId(data.id); setBizData(data) })
       .catch(() => {})
 
     fetch(`${BASE}/businesses/me/stats/`, {
@@ -527,6 +528,29 @@ export default function BusinessDashboardPage() {
                 />
               )}
             </div>
+
+            {/* ── Plan section ── */}
+            {bizData && (
+              <div className="biz-plan-card">
+                <div className="biz-plan-card__left">
+                  <span className={`biz-plan-badge biz-plan-badge--${(bizData.plan_type || 'FREE').toLowerCase()}`}>
+                    {bizData.plan_type === 'VIP' ? '⭐ VIP' : bizData.plan_type === 'PRO' ? '⚡ Pro' : 'Бесплатный'}
+                  </span>
+                  <span className="biz-plan-card__label">Текущий тариф</span>
+                  {bizData.plan_expires_at && bizData.plan_type !== 'FREE' && (
+                    <span className="biz-plan-card__expires">
+                      Действует до {new Date(bizData.plan_expires_at).toLocaleDateString('ru-RU')}
+                    </span>
+                  )}
+                </div>
+                <button className="biz-plan-card__upgrade" onClick={() => navigate('/pricing')}>
+                  {bizData.plan_type === 'FREE' ? 'Улучшить тариф' : bizData.plan_type === 'PRO' ? 'Перейти на VIP' : 'Продлить'}
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                  </svg>
+                </button>
+              </div>
+            )}
 
             <div className="biz-dashboard__section">
               <div className="biz-dashboard__section-header">

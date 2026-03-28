@@ -114,6 +114,31 @@
   background: rgba(229, 57, 53, 0.9);
 }
 
+/* ── Plan-based styling ── */
+.user-card--vip-plan {
+  border-color: #f5a623;
+  box-shadow: 0 0 0 1.5px rgba(245, 166, 35, 0.3), var(--card-shadow);
+}
+.user-card--vip-plan:hover {
+  border-color: #f5a623;
+  box-shadow: 0 0 0 2px rgba(245, 166, 35, 0.4), var(--card-shadow-hover);
+}
+.user-card--pro-plan {
+  border-color: #42a5f5;
+}
+.user-card--pro-plan:hover {
+  border-color: #42a5f5;
+}
+
+.user-card__badge--vip {
+  background: linear-gradient(135deg, #f5a623, #ff8f00) !important;
+  box-shadow: 0 3px 10px rgba(245, 166, 35, 0.45) !important;
+}
+.user-card__badge--pro {
+  background: linear-gradient(135deg, #42a5f5, #1e88e5) !important;
+  box-shadow: 0 3px 10px rgba(66, 165, 245, 0.45) !important;
+}
+
 .user-card--new {
   box-shadow: none;
   background: transparent;

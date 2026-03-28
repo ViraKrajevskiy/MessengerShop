@@ -46,6 +46,8 @@ function bizToCard(b) {
     logo: b.logo,
     is_verified: b.is_verified,
     is_vip: b.is_vip,
+    is_pro: b.is_pro,
+    plan_type: b.plan_type || 'FREE',
     rating: b.rating,
   }
 }
@@ -220,7 +222,7 @@ export default function HomePage() {
                     ? filteredAll.slice(cardsPage * CARDS_PER_PAGE, (cardsPage + 1) * CARDS_PER_PAGE)
                     : filteredAll.slice(0, GUEST_LIMIT)
                   ).map(u => (
-                    <UserCard key={u.id} id={u.id} name={u.name} city={u.city} logo={u.logo} badge={u.is_vip ? 'VIP' : 'NEW'} type="all" />
+                    <UserCard key={u.id} id={u.id} name={u.name} city={u.city} logo={u.logo} planType={u.plan_type} type="all" />
                   ))}
                 </div>
               ) : (
