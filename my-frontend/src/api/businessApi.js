@@ -369,6 +369,17 @@ export const CATEGORY_LABELS = {
   OTHER:     'Другое',
 }
 
+export const apiGetProducts = async () => {
+  try {
+    const response = await fetch(`${BASE}/products/`);
+    if (!response.ok) throw new Error('Ошибка при загрузке продуктов');
+    return await response.json();
+  } catch (error) {
+    console.error("Ошибка в apiGetProducts:", error);
+    return [];
+  }
+};
+
 export const apiGetNews = async () => {
   try {
     const response = await fetch(`${BASE}/news/`);

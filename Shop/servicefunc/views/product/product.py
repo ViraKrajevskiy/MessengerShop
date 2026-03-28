@@ -12,6 +12,19 @@ from Shop.servicefunc.serializers.product_serializer import ProductSerializer, P
 
 
 @extend_schema(tags=['Products'])
+class AllProductsListView(APIView):
+    permission_classes = [AllowAny]
+
+    @extend_schema(summary='Все товары и услуги', responses={200: ProductSerializer(many=True)})
+    def get(self, request):
+        qs = Product.objects.filter(is_available=True).select_related('business').prefetch_related('tags').order_by('-created_at')
+        product_type = request.query_params.get('type')
+        if product_type in ('PRODUCT', 'SERVICE'):
+            qs = qs.filter(product_type=product_type)
+        return Response(ProductSerializer(qs, many=True, context={'request': request}).data)
+
+
+@extend_schema(tags=['Products'])
 class BusinessProductListView(APIView):
     def get_permissions(self):
         if self.request.method == 'GET':

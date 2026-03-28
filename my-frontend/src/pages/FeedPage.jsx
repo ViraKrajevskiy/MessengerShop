@@ -4,7 +4,7 @@ import Header from '../components/Header'
 import Footer from '../components/Footer'
 import Stories from '../components/Stories'
 import { useAuth } from '../context/AuthContext'
-import { apiGetPosts, apiGetBusinesses, apiGetNews, apiToggleSubscription, CATEGORY_LABELS } from '../api/businessApi'
+import { apiGetPosts, apiGetBusinesses, apiGetNews, apiGetProducts, apiToggleSubscription, CATEGORY_LABELS } from '../api/businessApi'
 import './FeedPage.css'
 
 // ── Tag pills ────────────────────────────────────────────────────────────────
@@ -281,6 +281,7 @@ export default function FeedPage() {
   const [posts, setPosts]       = useState([])
   const [businesses, setBiz]    = useState([])
   const [news, setNews]         = useState([])
+  const [products, setProducts] = useState([])
   const [loading, setLoading]   = useState(true)
   const [tab, setTab]           = useState('all') // all | posts | tweets | services | products | news
   const [activeTags, setActiveTags] = useState([])
@@ -295,34 +296,30 @@ export default function FeedPage() {
 
   useEffect(() => {
     getAccessToken().then(token =>
-      Promise.all([apiGetPosts(token), apiGetBusinesses(), apiGetNews()])
-        .then(([p, b, n]) => { setPosts(p); setBiz(b); setNews(Array.isArray(n) ? n : []) })
+      Promise.all([apiGetPosts(token), apiGetBusinesses(), apiGetNews(), apiGetProducts()])
+        .then(([p, b, n, pr]) => {
+          setPosts(p)
+          setBiz(b)
+          setNews(Array.isArray(n) ? n : [])
+          setProducts(Array.isArray(pr) ? pr : [])
+        })
         .catch(() => {})
         .finally(() => setLoading(false))
     )
   }, [])
 
-  // Products/Services from businesses
-  const allItems = businesses.flatMap(b =>
-    (b.products || []).map(p => ({
-      ...p,
-      business_id: b.id,
-      business_name: b.brand_name,
-      _biz_verified: b.is_verified,
-      _biz_vip: b.is_vip,
-    }))
-  )
-  const allProducts = allItems.filter(p => p.product_type !== 'SERVICE')
-  const allServices = allItems.filter(p => p.product_type === 'SERVICE')
+  // Products/Services from API
+  const allProducts = products.filter(p => p.product_type !== 'SERVICE')
+  const allServices = products.filter(p => p.product_type === 'SERVICE')
 
   // Collect all unique tags
   const allTags = useMemo(() => {
     const set = new Set()
     posts.forEach(p => (p.tags || []).forEach(t => set.add(t)))
-    allItems.forEach(p => (p.tags || []).forEach(t => set.add(t)))
+    products.forEach(p => (p.tags || []).forEach(t => set.add(t)))
     news.forEach(n => (n.tags || []).forEach(t => set.add(t)))
     return [...set].sort()
-  }, [posts, allItems, news])
+  }, [posts, products, news])
 
   const handleTagClick = (tag) => {
     setActiveTags(prev =>
@@ -595,7 +592,7 @@ export default function FeedPage() {
                 )}
 
                 {/* Auth gate for tab=all */}
-                {tab === 'all' && !user && (posts.length > GUEST_LIMIT || allItems.length > GUEST_LIMIT) && (
+                {tab === 'all' && !user && (posts.length > GUEST_LIMIT || products.length > GUEST_LIMIT) && (
                   <div className="feed-auth-gate">
                     <div className="feed-auth-gate__blur" />
                     <div className="feed-auth-gate__box">
@@ -614,7 +611,7 @@ export default function FeedPage() {
                   </div>
                 )}
 
-                {!loading && !hasActiveFilters && posts.length === 0 && allItems.length === 0 && news.length === 0 && (
+                {!loading && !hasActiveFilters && posts.length === 0 && products.length === 0 && news.length === 0 && (
                   <div className="feed-page__empty">
                     Лента пуста. Запусти <code>python manage.py seed</code>
                   </div>

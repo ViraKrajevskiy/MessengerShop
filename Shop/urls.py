@@ -19,7 +19,7 @@ from Shop.servicefunc.views.business.business import (
 )
 from Shop.servicefunc.views.business.subscribe import BusinessSubscribeView
 from Shop.servicefunc.views.product.product import (
-    BusinessProductListView, ProductDetailView, ProductLikeView,
+    AllProductsListView, BusinessProductListView, ProductDetailView, ProductLikeView,
     ProductSearchView, BusinessStatsView,
 )
 from Shop.servicefunc.views.post.post import (
@@ -60,6 +60,7 @@ urlpatterns = [
     path('businesses/<int:pk>/posts/',    BusinessPostListView.as_view(),         name='business_posts'),
     path('businesses/<int:pk>/news/',     BusinessNewsListView.as_view(),        name='business_news'),
 
+    path('products/',                     AllProductsListView.as_view(),          name='all_products'),
     path('products/<int:pk>/reviews/',   ProductReviewListCreateView.as_view(),  name='product_reviews'),
     path('products/search/',             ProductSearchView.as_view(),            name='product_search'),
     path('products/<int:pk>/',           ProductDetailView.as_view(),            name='product_detail'),
