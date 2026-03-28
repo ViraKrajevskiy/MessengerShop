@@ -93,7 +93,7 @@ export default function PostCard({ post }) {
       </div>
 
       <div className="post-card__image">
-        <img src={media} alt="" loading="lazy" />
+        <img src={media} alt="" loading="lazy" width="400" height="300" />
       </div>
 
       {post.text && (

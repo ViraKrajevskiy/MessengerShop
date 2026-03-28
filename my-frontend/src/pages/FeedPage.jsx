@@ -118,7 +118,7 @@ function FeedPost({ post, onTagClick }) {
 
       {/* Image */}
       <div className="feed-post__media">
-        <img src={media} alt={post.text?.slice(0, 30)} loading="lazy" />
+        <img src={media} alt={post.text?.slice(0, 30)} loading="lazy" width="400" height="300" />
         {post.media_type === 'VIDEO' && <div className="feed-post__play">▶</div>}
       </div>
 

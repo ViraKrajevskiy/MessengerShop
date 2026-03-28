@@ -66,7 +66,7 @@ export default function UserCard({ id, name = 'Имя', city = 'Город', bad
     <>
       <div className={`user-card${planType === 'VIP' ? ' user-card--vip-plan' : planType === 'PRO' ? ' user-card--pro-plan' : ''}`} onClick={handleClick}>
         <div className="user-card__image">
-          <img className="user-card__photo" src={photo} alt={name} loading="lazy" />
+          <img className="user-card__photo" src={photo} alt={name} loading="lazy" width="400" height="530" />
           {planType === 'VIP' ? (
             <span className="user-card__badge user-card__badge--vip">VIP</span>
           ) : planType === 'PRO' ? (

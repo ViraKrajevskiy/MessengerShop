@@ -293,6 +293,8 @@
 /* Posts section */
 .home-posts-section {
   margin: 32px 0;
+  min-height: 380px;
+  contain: layout style;
 }
 
 .home-posts-section .section-header {

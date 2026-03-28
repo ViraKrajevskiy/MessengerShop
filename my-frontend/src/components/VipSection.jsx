@@ -69,7 +69,7 @@ export default function VipSection({ users = [], loading = false }) {
         </div>
       ) : displayUsers.length > 0 ? (
         <div className="vip-section__grid">
-          {displayUsers.map((user) => (
+          {displayUsers.map((user, idx) => (
             <div
               key={user.id}
               className="vip-card"
@@ -82,7 +82,10 @@ export default function VipSection({ users = [], loading = false }) {
                   ? (user.logo.startsWith('http') ? user.logo : `https://api.101-school.uz${user.logo}`)
                   : VIP_PHOTOS[user.id % VIP_PHOTOS.length]}
                 alt={user.name}
-                loading="lazy"
+                loading={idx < 4 ? 'eager' : 'lazy'}
+                fetchpriority={idx === 0 ? 'high' : undefined}
+                width="400"
+                height="530"
               />
                 <span className="vip-card__badge">VIP</span>
                 <div className="vip-card__overlay">

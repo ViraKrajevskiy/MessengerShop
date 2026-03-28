@@ -7,7 +7,6 @@ import ViewedBar from '../components/ViewedBar'
 import VipSection from '../components/VipSection'
 import NewsCard from '../components/NewsCard'
 import NewUsers from '../components/NewUsers'
-import SocialClub from '../components/SocialClub'
 import UserCard from '../components/UserCard'
 import Footer from '../components/Footer'
 import TweetsSidebar from '../components/TweetsSidebar'
@@ -235,7 +234,6 @@ export default function HomePage() {
         )}
 
         <NewUsers />
-        <SocialClub />
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <h2 className="section-title all-cards-title" style={{ margin: 0 }}>Все карточки</h2>
