@@ -323,9 +323,19 @@
 
 @media (max-width: 520px) {
   .feed-posts-grid {
-    grid-template-columns: 1fr;
-    gap: 14px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
   }
+  .feed-post__header { padding: 8px 10px 6px; gap: 6px; }
+  .feed-post__avatar { width: 28px; height: 28px; }
+  .feed-post__name { font-size: 11px; }
+  .feed-post__follow { padding: 3px 8px; font-size: 10px; }
+  .feed-post__body { padding: 6px 10px 0; }
+  .feed-post__text { font-size: 11px; -webkit-line-clamp: 2; }
+  .feed-post__expand { font-size: 11px; }
+  .feed-post__footer { padding: 4px 10px 8px; }
+  .feed-post__fav { font-size: 11px; }
+  .feed-post__fav svg { width: 14px; height: 14px; }
 }
 
 /* ── Feed Product Card ──────────────────────────────────────────── */
