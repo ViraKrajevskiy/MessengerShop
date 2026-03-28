@@ -73,6 +73,7 @@ export default function HomePage() {
   // Состояние для публикаций
   const [posts, setPosts] = useState([])
   const [loadingPosts, setLoadingPosts] = useState(true)
+  const [postsPage, setPostsPage] = useState(0)
 
   // Состояние для новостей
   const [news, setNews] = useState([]);
@@ -165,21 +166,42 @@ export default function HomePage() {
         <VipSection users={filteredVip} loading={loadingBiz} />
 
         {/* ---------- Секция публикаций ---------- */}
-        {!loadingPosts && posts.length > 0 && (
-          <section className="home-posts-section">
-            <div className="section-header">
-              <h2 className="section-title">Публикации</h2>
-              <button className="see-all-btn" onClick={() => navigate('/feed')}>
-                Все публикации
-              </button>
-            </div>
-            <div className="post-cards-grid">
-              {(user ? posts : posts.slice(0, GUEST_LIMIT)).map(p => (
-                <PostCard key={p.id} post={p} />
-              ))}
-            </div>
-          </section>
-        )}
+        {!loadingPosts && posts.length > 0 && (() => {
+          const visiblePosts = user ? posts : posts.slice(0, GUEST_LIMIT)
+          const POSTS_PER_PAGE = 3
+          const maxPage = Math.max(0, Math.ceil(visiblePosts.length / POSTS_PER_PAGE) - 1)
+          return (
+            <section className="home-posts-section">
+              <div className="section-header">
+                <h2 className="section-title">Публикации</h2>
+                <button className="see-all-btn" onClick={() => navigate('/feed')}>
+                  Все публикации
+                </button>
+              </div>
+              <div className="home-posts-carousel">
+                <button
+                  className="home-posts-carousel__arrow"
+                  onClick={() => setPostsPage(p => Math.max(0, p - 1))}
+                  disabled={postsPage === 0}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                </button>
+                <div className="home-posts-carousel__track">
+                  {visiblePosts.slice(postsPage * POSTS_PER_PAGE, (postsPage + 1) * POSTS_PER_PAGE).map(p => (
+                    <PostCard key={p.id} post={p} />
+                  ))}
+                </div>
+                <button
+                  className="home-posts-carousel__arrow"
+                  onClick={() => setPostsPage(p => Math.min(maxPage, p + 1))}
+                  disabled={postsPage >= maxPage}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+              </div>
+            </section>
+          )
+        })()}
 
         {/* ---------- Секция новостей ---------- */}
         {!loadingNews && news.length > 0 && (
