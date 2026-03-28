@@ -290,6 +290,18 @@
   color: var(--accent-1);
 }
 
+/* Posts section */
+.home-posts-section {
+  margin: 32px 0;
+}
+
+.home-posts-section .section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
 /* Loading state */
 .home-page__loading {
   display: flex;

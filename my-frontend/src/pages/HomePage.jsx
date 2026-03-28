@@ -11,7 +11,8 @@ import SocialClub from '../components/SocialClub'
 import UserCard from '../components/UserCard'
 import Footer from '../components/Footer'
 import TweetsSidebar from '../components/TweetsSidebar'
-import { apiGetBusinesses, apiGetNews, CATEGORY_LABELS } from '../api/businessApi'
+import PostCard from '../components/PostCard'
+import { apiGetBusinesses, apiGetNews, apiGetPosts, CATEGORY_LABELS } from '../api/businessApi'
 import './HomePage.css'
 
 // ---------- adaptive descriptions ----------
@@ -69,6 +70,10 @@ export default function HomePage() {
   const [cardsPage, setCardsPage] = useState(0)
   const CARDS_PER_PAGE = 10
 
+  // Состояние для публикаций
+  const [posts, setPosts] = useState([])
+  const [loadingPosts, setLoadingPosts] = useState(true)
+
   // Состояние для новостей
   const [news, setNews] = useState([]);
   const [loadingNews, setLoadingNews] = useState(true);
@@ -83,6 +88,15 @@ export default function HomePage() {
       })
       .catch(() => {})
       .finally(() => setLoadingBiz(false))
+  }, [])
+
+  // Загружаем публикации (6 свежих)
+  useEffect(() => {
+    setLoadingPosts(true)
+    apiGetPosts()
+      .then(data => setPosts(Array.isArray(data) ? data.slice(0, 6) : []))
+      .catch(() => setPosts([]))
+      .finally(() => setLoadingPosts(false))
   }, [])
 
   // Загружаем новости (3 свежих)
@@ -149,6 +163,23 @@ export default function HomePage() {
 
         {/* VIP — оплаченные карточки */}
         <VipSection users={filteredVip} loading={loadingBiz} />
+
+        {/* ---------- Секция публикаций ---------- */}
+        {!loadingPosts && posts.length > 0 && (
+          <section className="home-posts-section">
+            <div className="section-header">
+              <h2 className="section-title">Публикации</h2>
+              <button className="see-all-btn" onClick={() => navigate('/feed')}>
+                Все публикации
+              </button>
+            </div>
+            <div className="post-cards-grid">
+              {(user ? posts : posts.slice(0, GUEST_LIMIT)).map(p => (
+                <PostCard key={p.id} post={p} />
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* ---------- Секция новостей ---------- */}
         {!loadingNews && news.length > 0 && (
