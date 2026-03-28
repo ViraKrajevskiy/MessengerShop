@@ -874,41 +874,152 @@
   color: var(--accent-1);
 }
 
-/* ── Tag filter bar ───────────────────────────────────────────────── */
-.feed-page__tag-filter {
-  display: flex;
-  gap: 6px;
+/* ── Filters panel ────────────────────────────────────────────────── */
+.feed-filters {
   margin-bottom: 18px;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  padding-bottom: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
-.feed-page__tag-filter::-webkit-scrollbar { display: none; }
 
-.feed-page__tag-btn {
-  padding: 5px 14px;
-  border-radius: 16px;
+.feed-filters__row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* ── Filter chips ─────────────────────────────────────────────────── */
+.feed-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px;
+  border-radius: 20px;
   border: 1.5px solid var(--border-color);
   background: var(--bg-secondary);
   color: var(--text-secondary);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.18s;
   font-family: inherit;
   white-space: nowrap;
-  flex-shrink: 0;
+  user-select: none;
 }
-.feed-page__tag-btn:hover {
+
+.feed-filter-chip__icon {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.feed-filter-chip:hover {
   border-color: var(--accent-1);
-  color: var(--accent-1);
+  color: var(--text-primary);
 }
-.feed-page__tag-btn--active {
+
+/* VIP chip */
+.feed-filter-chip--vip .feed-filter-chip__icon { color: #f5a623; }
+.feed-filter-chip--vip.feed-filter-chip--on {
+  background: linear-gradient(135deg, #f5a623, #e8871e);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 3px 10px rgba(245, 166, 35, 0.3);
+}
+.feed-filter-chip--vip.feed-filter-chip--on .feed-filter-chip__icon { color: #fff; }
+
+/* Verified chip */
+.feed-filter-chip--verified .feed-filter-chip__icon { color: #4fc3f7; }
+.feed-filter-chip--verified.feed-filter-chip--on {
+  background: linear-gradient(135deg, #4fc3f7, #2196f3);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 3px 10px rgba(33, 150, 243, 0.3);
+}
+.feed-filter-chip--verified.feed-filter-chip--on .feed-filter-chip__icon { color: #fff; }
+
+/* Clear chip */
+.feed-filter-chip--clear {
+  border-color: rgba(229, 57, 53, 0.3);
+  color: var(--accent-1);
+  font-size: 12px;
+}
+.feed-filter-chip--clear:hover {
+  background: rgba(229, 57, 53, 0.08);
+}
+
+/* Tag chip */
+.feed-filter-chip--tag {
+  font-size: 12px;
+  padding: 5px 12px;
+}
+.feed-filter-chip--tag.feed-filter-chip--on {
   background: var(--accent-1);
   color: #fff;
   border-color: transparent;
+}
+
+/* More button */
+.feed-filter-chip--more {
+  font-size: 12px;
+  padding: 5px 12px;
+  color: var(--accent-1);
+  border-style: dashed;
+}
+
+/* Tags area */
+.feed-filters__tags-list {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.feed-filters__tags-list--expanded {
+  /* just allow wrapping, already flex-wrap */
+}
+
+/* Active tags (selected below) */
+.feed-filters__active {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.feed-filter-active-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  background: rgba(229, 57, 53, 0.12);
+  color: var(--accent-1);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.feed-filter-active-tag:hover {
+  background: rgba(229, 57, 53, 0.22);
+}
+.feed-filter-active-tag__x {
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+/* Empty state reset */
+.feed-page__empty-reset {
+  display: block;
+  margin: 12px auto 0;
+  padding: 8px 20px;
+  border-radius: 20px;
+  border: none;
+  background: var(--accent-1);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
 }
 
 /* ── Tag pills on cards ───────────────────────────────────────────── */

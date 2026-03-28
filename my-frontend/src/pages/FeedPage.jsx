@@ -283,7 +283,10 @@ export default function FeedPage() {
   const [news, setNews]         = useState([])
   const [loading, setLoading]   = useState(true)
   const [tab, setTab]           = useState('all') // all | posts | tweets | services | products | news
-  const [activeTag, setActiveTag] = useState(null)
+  const [activeTags, setActiveTags] = useState([])
+  const [filterVip, setFilterVip] = useState(false)
+  const [filterVerified, setFilterVerified] = useState(false)
+  const [showAllTags, setShowAllTags] = useState(false)
   const navigate = useNavigate()
   const { getAccessToken, user } = useAuth()
   const GUEST_LIMIT = 6
@@ -299,7 +302,13 @@ export default function FeedPage() {
 
   // Products/Services from businesses
   const allItems = businesses.flatMap(b =>
-    (b.products || []).map(p => ({ ...p, business_id: b.id, business_name: b.brand_name }))
+    (b.products || []).map(p => ({
+      ...p,
+      business_id: b.id,
+      business_name: b.brand_name,
+      _biz_verified: b.is_verified,
+      _biz_vip: b.is_vip,
+    }))
   )
   const allProducts = allItems.filter(p => p.product_type !== 'SERVICE')
   const allServices = allItems.filter(p => p.product_type === 'SERVICE')
@@ -314,15 +323,39 @@ export default function FeedPage() {
   }, [posts, allItems, news])
 
   const handleTagClick = (tag) => {
-    setActiveTag(prev => prev === tag ? null : tag)
+    setActiveTags(prev =>
+      prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
+    )
   }
 
-  // Filter by active tag
-  const hasTag = (item) => !activeTag || (item.tags || []).includes(activeTag)
-  const fPosts = posts.filter(hasTag)
-  const fProducts = allProducts.filter(hasTag)
-  const fServices = allServices.filter(hasTag)
-  const fNews = news.filter(hasTag)
+  const clearFilters = () => {
+    setActiveTags([])
+    setFilterVip(false)
+    setFilterVerified(false)
+  }
+
+  const hasActiveFilters = activeTags.length > 0 || filterVip || filterVerified
+
+  // VIP/verified business IDs for filtering
+  const vipBizIds = useMemo(() => new Set(businesses.filter(b => b.is_vip).map(b => b.id)), [businesses])
+  const verifiedBizIds = useMemo(() => new Set(businesses.filter(b => b.is_verified).map(b => b.id)), [businesses])
+
+  // Filter by tags + vip/verified
+  const passesFilter = (item, bizIdKey = 'business_id') => {
+    if (activeTags.length > 0 && !activeTags.some(t => (item.tags || []).includes(t))) return false
+    if (filterVip && !vipBizIds.has(item[bizIdKey])) return false
+    if (filterVerified && !verifiedBizIds.has(item[bizIdKey])) return false
+    return true
+  }
+  const fPosts = posts.filter(p => passesFilter(p))
+  const fProducts = allProducts.filter(p => passesFilter(p))
+  const fServices = allServices.filter(p => passesFilter(p))
+  const fNews = news.filter(n => {
+    if (activeTags.length > 0 && !activeTags.some(t => (n.tags || []).includes(t))) return false
+    if (filterVip && n.business_id && !vipBizIds.has(n.business_id)) return false
+    if (filterVerified && n.business_id && !verifiedBizIds.has(n.business_id)) return false
+    return true
+  })
 
   const TABS = [
     { key: 'all',      label: 'Всё' },
@@ -356,26 +389,63 @@ export default function FeedPage() {
           ))}
         </div>
 
-        {/* Tag filter */}
-        {allTags.length > 0 && (
-          <div className="feed-page__tag-filter">
+        {/* Filters */}
+        <div className="feed-filters">
+          {/* Status filters */}
+          <div className="feed-filters__row">
             <button
-              className={`feed-page__tag-btn ${!activeTag ? 'feed-page__tag-btn--active' : ''}`}
-              onClick={() => setActiveTag(null)}
+              className={`feed-filter-chip feed-filter-chip--vip ${filterVip ? 'feed-filter-chip--on' : ''}`}
+              onClick={() => setFilterVip(v => !v)}
             >
-              Все
+              <span className="feed-filter-chip__icon">&#9733;</span> VIP
             </button>
-            {allTags.map(tag => (
-              <button
-                key={tag}
-                className={`feed-page__tag-btn ${activeTag === tag ? 'feed-page__tag-btn--active' : ''}`}
-                onClick={() => handleTagClick(tag)}
-              >
-                #{tag}
+            <button
+              className={`feed-filter-chip feed-filter-chip--verified ${filterVerified ? 'feed-filter-chip--on' : ''}`}
+              onClick={() => setFilterVerified(v => !v)}
+            >
+              <span className="feed-filter-chip__icon">&#10003;</span> Проверенные
+            </button>
+            {hasActiveFilters && (
+              <button className="feed-filter-chip feed-filter-chip--clear" onClick={clearFilters}>
+                &#10005; Сбросить
               </button>
-            ))}
+            )}
           </div>
-        )}
+
+          {/* Tags */}
+          {allTags.length > 0 && (
+            <div className="feed-filters__tags">
+              <div className={`feed-filters__tags-list ${showAllTags ? 'feed-filters__tags-list--expanded' : ''}`}>
+                {(showAllTags ? allTags : allTags.slice(0, 8)).map(tag => (
+                  <button
+                    key={tag}
+                    className={`feed-filter-chip feed-filter-chip--tag ${activeTags.includes(tag) ? 'feed-filter-chip--on' : ''}`}
+                    onClick={() => handleTagClick(tag)}
+                  >
+                    #{tag}
+                  </button>
+                ))}
+                {allTags.length > 8 && (
+                  <button
+                    className="feed-filter-chip feed-filter-chip--more"
+                    onClick={() => setShowAllTags(v => !v)}
+                  >
+                    {showAllTags ? 'Свернуть' : `+${allTags.length - 8}`}
+                  </button>
+                )}
+              </div>
+              {activeTags.length > 0 && (
+                <div className="feed-filters__active">
+                  {activeTags.map(tag => (
+                    <span key={tag} className="feed-filter-active-tag" onClick={() => handleTagClick(tag)}>
+                      #{tag} <span className="feed-filter-active-tag__x">&#10005;</span>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
 
         <div className="feed-page__layout">
           {/* ── Main feed ── */}
@@ -492,13 +562,14 @@ export default function FeedPage() {
                   </div>
                 )}
 
-                {activeTag && fPosts.length === 0 && fProducts.length === 0 && fServices.length === 0 && fNews.length === 0 && (
+                {hasActiveFilters && fPosts.length === 0 && fProducts.length === 0 && fServices.length === 0 && fNews.length === 0 && (
                   <div className="feed-page__empty">
-                    По тегу <strong>#{activeTag}</strong> ничего не найдено
+                    По выбранным фильтрам ничего не найдено
+                    <button className="feed-page__empty-reset" onClick={clearFilters}>Сбросить фильтры</button>
                   </div>
                 )}
 
-                {!loading && !activeTag && posts.length === 0 && allItems.length === 0 && news.length === 0 && (
+                {!loading && !hasActiveFilters && posts.length === 0 && allItems.length === 0 && news.length === 0 && (
                   <div className="feed-page__empty">
                     Лента пуста. Запусти <code>python manage.py seed</code>
                   </div>
