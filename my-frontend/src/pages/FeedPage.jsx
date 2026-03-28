@@ -161,7 +161,7 @@ function FeedProduct({ product, onTagClick }) {
 
   return (
     <div className="feed-product">
-      <div className="feed-product__img-wrap" onClick={() => navigate(`/business/${product.business_id}`)}>
+      <div className="feed-product__img-wrap" onClick={() => navigate(`/product/${product.id}`)}>
         <img src={img} alt={product.name} loading="lazy" />
         <div className="feed-product__save-btn"
           onClick={e => { e.stopPropagation(); requireAuth(() => setSaved(!saved)) }}
@@ -172,14 +172,14 @@ function FeedProduct({ product, onTagClick }) {
         </div>
       </div>
       <div className="feed-product__body">
-        <p className="feed-product__biz" onClick={() => navigate(`/business/${product.business_id}`)}>
+        <p className="feed-product__biz" onClick={e => { e.stopPropagation(); navigate(`/business/${product.business_id}`) }}>
           {product.business_name}
         </p>
-        <h3 className="feed-product__name">{product.name}</h3>
+        <h3 className="feed-product__name" onClick={() => navigate(`/product/${product.id}`)}>{product.name}</h3>
         <TagPills tags={product.tags} onTagClick={onTagClick} />
         <div className="feed-product__footer">
           <span className="feed-product__price">{priceStr}</span>
-          <button className="feed-product__btn" onClick={() => navigate(`/business/${product.business_id}`)}>
+          <button className="feed-product__btn" onClick={() => navigate(`/product/${product.id}`)}>
             Подробнее
           </button>
         </div>

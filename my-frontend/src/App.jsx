@@ -18,6 +18,7 @@ const MessengerPage         = lazy(() => import('./pages/MessengerPage'))
 const MyProfilePage         = lazy(() => import('./pages/MyProfilePage'))
 const BusinessDashboardPage = lazy(() => import('./pages/BusinessDashboardPage'))
 const NewsDetailPage        = lazy(() => import('./pages/NewsDetailPage'))
+const ProductDetailPage     = lazy(() => import('./pages/ProductDetailPage'))
 
 /* ─── Skeleton loader для Suspense ─── */
 function PageFallback() {
@@ -73,6 +74,7 @@ function App() {
                 <Route path="/me"        element={<PrivateRoute><MyProfilePage /></PrivateRoute>} />
                 <Route path="/dashboard" element={<PrivateRoute><BusinessDashboardPage /></PrivateRoute>} />
                 <Route path="/news/:id" element={<NewsDetailPage />} />
+                <Route path="/product/:id" element={<ProductDetailPage />} />
               </Routes>
             </Suspense>
           </ViewedProvider>
