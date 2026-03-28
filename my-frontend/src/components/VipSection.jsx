@@ -83,7 +83,7 @@ export default function VipSection({ users = [], loading = false }) {
                   : VIP_PHOTOS[user.id % VIP_PHOTOS.length]}
                 alt={user.name}
                 loading={idx < 4 ? 'eager' : 'lazy'}
-                fetchpriority={idx === 0 ? 'high' : undefined}
+                fetchPriority={idx === 0 ? 'high' : undefined}
                 width="400"
                 height="530"
               />

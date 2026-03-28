@@ -7,7 +7,9 @@ import './NewUsers.css'
 const FALLBACK_LOGO = 'https://i.pravatar.cc/150?u='
 
 function timeAgo(dateStr) {
+  if (!dateStr) return 'Недавно'
   const diff = Date.now() - new Date(dateStr).getTime()
+  if (isNaN(diff)) return 'Недавно'
   const mins = Math.floor(diff / 60000)
   if (mins < 1) return 'только что'
   if (mins < 60) return `${mins} мин. назад`
