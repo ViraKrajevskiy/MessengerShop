@@ -6,9 +6,9 @@
 
 /* Two-column layout: main content + tweets sidebar */
 .home-page__layout {
-  max-width: 1220px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 0 28px;
+  padding: 0 20px;
   display: flex;
   gap: 24px;
   align-items: flex-start;
@@ -17,7 +17,7 @@
 .home-page__content {
   flex: 1;
   min-width: 0;
-  padding: 0 0 40px;
+  padding: 0 0 60px;
 }
 
 .home-page__hero {
@@ -73,9 +73,9 @@
   position: sticky;
   top: 62px;
   z-index: 40;
-  max-width: 1220px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 0 28px;
+  padding: 0 20px;
 }
 
 /* Card grids */
@@ -176,19 +176,19 @@
     display: none;
   }
   .home-page__layout {
-    padding: 0 16px;
+    padding: 0 20px;
   }
 }
 
 @media (max-width: 768px) {
   .home-page__layout {
-    padding: 0 12px;
+    padding: 0 16px;
   }
   .home-page__content {
     padding: 0 0 60px;
   }
   .home-page__viewed-wrapper {
-    padding: 0 12px;
+    padding: 0 16px;
   }
   .home-page__hero {
     padding: 20px 0 10px;

@@ -39,7 +39,7 @@
 .bp__wrap {
   max-width: 1100px;
   margin: 0 auto;
-  padding: 0 20px 60px;
+  padding: 24px 20px 60px;
 }
 
 /* ── Hero ── */
@@ -854,7 +854,7 @@
 }
 
 @media (max-width: 600px) {
-  .bp__wrap { padding: 0 12px 40px; }
+  .bp__wrap { padding: 16px 12px 60px; }
   .bp__cover { height: 160px; }
   .bp__hero { margin-top: -44px; padding: 14px; border-radius: 16px; gap: 12px; }
   .bp__avatar { width: 90px; min-height: 90px; border-radius: 14px; }
