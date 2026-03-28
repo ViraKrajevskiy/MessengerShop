@@ -165,18 +165,28 @@ export default function HomePage() {
         <VipSection users={filteredVip} loading={loadingBiz} />
 
         {/* ---------- Секция публикаций ---------- */}
-        {!loadingPosts && posts.length > 0 && (() => {
-          const visiblePosts = user ? posts : posts.slice(0, GUEST_LIMIT)
-          const POSTS_PER_PAGE = 3
-          const maxPage = Math.max(0, Math.ceil(visiblePosts.length / POSTS_PER_PAGE) - 1)
-          return (
-            <section className="home-posts-section">
-              <div className="section-header">
-                <h2 className="section-title">Публикации</h2>
-                <button className="see-all-btn" onClick={() => navigate('/feed')}>
-                  Все публикации
-                </button>
-              </div>
+        <section className="home-posts-section">
+          <div className="section-header">
+            <h2 className="section-title">Публикации</h2>
+            <button className="see-all-btn" onClick={() => navigate('/feed')}>
+              Все публикации
+            </button>
+          </div>
+          {loadingPosts ? (
+            <div className="home-posts-carousel__track">
+              {[1,2,3].map(i => (
+                <div key={i} className="post-card-skeleton">
+                  <div className="post-card-skeleton__header"><div className="skel-circle" /><div className="skel-lines"><div className="skel-line" /><div className="skel-line skel-line--short" /></div></div>
+                  <div className="skel-img" />
+                  <div className="skel-body"><div className="skel-line" /><div className="skel-line skel-line--short" /></div>
+                </div>
+              ))}
+            </div>
+          ) : posts.length > 0 ? (() => {
+            const visiblePosts = user ? posts : posts.slice(0, GUEST_LIMIT)
+            const POSTS_PER_PAGE = 3
+            const maxPage = Math.max(0, Math.ceil(visiblePosts.length / POSTS_PER_PAGE) - 1)
+            return (
               <div className="home-posts-carousel">
                 <button
                   className="home-posts-carousel__arrow"
@@ -198,26 +208,35 @@ export default function HomePage() {
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
               </div>
-            </section>
-          )
-        })()}
+            )
+          })() : null}
+        </section>
 
         {/* ---------- Секция новостей ---------- */}
-        {!loadingNews && news.length > 0 && (
-          <section className="home-news-section">
-            <div className="section-header">
-              <h2 className="section-title">Последние новости</h2>
-              <button className="see-all-btn" onClick={() => navigate('/feed?tab=news')}>
-                Смотреть все
-              </button>
+        <section className="home-news-section">
+          <div className="section-header">
+            <h2 className="section-title">Последние новости</h2>
+            <button className="see-all-btn" onClick={() => navigate('/feed?tab=news')}>
+              Смотреть все
+            </button>
+          </div>
+          {loadingNews ? (
+            <div className="news-grid-home">
+              {[1,2,3].map(i => (
+                <div key={i} className="post-card-skeleton">
+                  <div className="skel-img" />
+                  <div className="skel-body"><div className="skel-line" /><div className="skel-line skel-line--short" /></div>
+                </div>
+              ))}
             </div>
+          ) : news.length > 0 ? (
             <div className="news-grid-home">
               {news.map(item => (
                 <NewsCard key={item.id} item={item} />
               ))}
             </div>
-          </section>
-        )}
+          ) : null}
+        </section>
 
         {/* ---------- Auth gate for guests ---------- */}
         {!user && !loadingBiz && filteredAll.length > GUEST_LIMIT && (
