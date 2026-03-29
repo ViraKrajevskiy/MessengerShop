@@ -180,6 +180,17 @@
   gap: 3px;
   transition: color 0.18s;
   line-height: 1.3;
+  min-width: 0;
+}
+
+.feed-post__name-text {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.feed-post__verified {
+  flex-shrink: 0;
 }
 
 .feed-post__name:hover { color: var(--accent-1); }
