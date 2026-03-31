@@ -45,6 +45,14 @@
   max-width: 560px;
 }
 
+/* Section header row */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
 /* Section title */
 .section-title {
   font-size: 19px;
@@ -297,12 +305,6 @@
   contain: layout style;
 }
 
-.home-posts-section .section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 18px;
-}
 
 /* Posts carousel */
 .home-posts-carousel {
@@ -462,12 +464,6 @@
   contain: layout style;
 }
 
-.home-news-section .section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 18px;
-}
 
 .see-all-btn {
   background: none;

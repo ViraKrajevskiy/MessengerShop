@@ -82,8 +82,15 @@
 @media (max-width: 768px) {
   .filter-bar__dropdowns {
     flex-wrap: wrap;
+    gap: 8px;
   }
   .filter-bar__dropdowns .sd {
-    flex: 1 1 calc(50% - 6px);
+    flex: 1 1 calc(50% - 4px);
   }
+}
+
+@media (max-width: 480px) {
+  .filter-bar { padding: 10px 0 14px; }
+  .filter-bar__dropdowns .sd { flex: 1 1 100%; }
+  .filter-bar__dropdowns { gap: 6px; margin-bottom: 10px; }
 }

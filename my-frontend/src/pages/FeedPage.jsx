@@ -295,7 +295,7 @@ export default function FeedPage() {
   const [news, setNews]         = useState([])
   const [products, setProducts] = useState([])
   const [loading, setLoading]   = useState(true)
-  const [tab, setTab]           = useState('all') // all | posts | tweets | services | products | news
+  const [tab, setTab]           = useState('posts') // posts | tweets | services | products | news | businesses
   const [activeTags, setActiveTags] = useState([])
   const [filterVip, setFilterVip] = useState(false)
   const [filterVerified, setFilterVerified] = useState(false)
@@ -417,7 +417,6 @@ export default function FeedPage() {
   })
 
   const TABS = [
-    { key: 'all',        label: 'Все' },
     { key: 'posts',      label: 'Посты' },
     { key: 'services',   label: 'Услуги' },
     { key: 'products',   label: 'Продукты' },

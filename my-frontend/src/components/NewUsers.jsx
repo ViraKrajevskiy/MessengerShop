@@ -62,7 +62,6 @@ export default function NewUsers() {
             <div key={biz.id} className="new-users__item" onClick={() => handleClick(biz)}>
               <div className="new-users__avatar">
                 <img className="new-users__avatar-img" src={logo} alt={biz.brand_name} loading="lazy" />
-                {biz.is_verified && <div className="new-users__online-dot" style={{ background: '#2196f3' }} />}
               </div>
               <span className="new-users__name">{biz.brand_name}</span>
               <span className="new-users__city">{biz.city || '—'}</span>

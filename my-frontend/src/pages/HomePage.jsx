@@ -3,15 +3,14 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Header from '../components/Header'
 import Stories from '../components/Stories'
-import ViewedBar from '../components/ViewedBar'
-import VipSection from '../components/VipSection'
-import NewsCard from '../components/NewsCard'
 import NewUsers from '../components/NewUsers'
 import UserCard from '../components/UserCard'
 import Footer from '../components/Footer'
 import TweetsSidebar from '../components/TweetsSidebar'
 import PostCard from '../components/PostCard'
-import { apiGetBusinesses, apiGetNews, apiGetPosts, CATEGORY_LABELS } from '../api/businessApi'
+import HeroSlider from '../components/HeroSlider'
+import NewsCard from '../components/NewsCard'
+import { apiGetBusinesses, apiGetPosts, apiGetNews, CATEGORY_LABELS } from '../api/businessApi'
 import './HomePage.css'
 
 // ---------- adaptive descriptions ----------
@@ -52,45 +51,36 @@ function bizToCard(b) {
   }
 }
 
-
 const GUEST_LIMIT = 4
+const CARDS_PER_PAGE = 8
 
 export default function HomePage() {
   const navigate = useNavigate()
   const { user, tokens } = useAuth()
 
-  const [filters, setFilters] = useState({
+  const [filters] = useState({
     country: '', city: '', category: '', service: '', activeTags: [],
   })
 
-  const [allBiz, setAllBiz]     = useState([])
-  const [vipBiz, setVipBiz]     = useState([])
+  const [allBiz, setAllBiz] = useState([])
   const [loadingBiz, setLoadingBiz] = useState(true)
   const [cardsPage, setCardsPage] = useState(0)
-  const CARDS_PER_PAGE = 10
 
-  // Состояние для публикаций
   const [posts, setPosts] = useState([])
   const [loadingPosts, setLoadingPosts] = useState(true)
   const [postsPage, setPostsPage] = useState(0)
 
-  // Состояние для новостей
-  const [news, setNews] = useState([]);
-  const [loadingNews, setLoadingNews] = useState(true);
+  const [news, setNews] = useState([])
+  const [loadingNews, setLoadingNews] = useState(true)
 
-  // Загружаем все бизнесы один раз
   useEffect(() => {
     setLoadingBiz(true)
     apiGetBusinesses()
-      .then(data => {
-        setAllBiz(data)
-        setVipBiz(data.filter(b => b.is_vip))
-      })
+      .then(data => setAllBiz(data))
       .catch(() => {})
       .finally(() => setLoadingBiz(false))
   }, [])
 
-  // Загружаем публикации (6 свежих)
   useEffect(() => {
     setLoadingPosts(true)
     apiGetPosts()
@@ -99,19 +89,14 @@ export default function HomePage() {
       .finally(() => setLoadingPosts(false))
   }, [])
 
-  // Загружаем новости (3 свежих)
   useEffect(() => {
-    setLoadingNews(true);
+    setLoadingNews(true)
     apiGetNews()
-      .then(data => {
-        // Предполагаем, что бэк отдает массив, берем первые 3
-        setNews(Array.isArray(data) ? data.slice(0, 3) : []);
-      })
+      .then(data => setNews(Array.isArray(data) ? data.slice(0, 3) : []))
       .catch(() => setNews([]))
-      .finally(() => setLoadingNews(false));
-  }, []);
+      .finally(() => setLoadingNews(false))
+  }, [])
 
-  // Фильтрация по параметрам
   const filteredAll = useMemo(() => {
     setCardsPage(0)
     return allBiz.filter(b => {
@@ -121,195 +106,213 @@ export default function HomePage() {
     }).map(bizToCard)
   }, [allBiz, filters])
 
-  const filteredVip = useMemo(() => {
-    return vipBiz.filter(b => {
-      if (filters.city && b.city && !b.city.toLowerCase().includes(filters.city.toLowerCase())) return false
-      if (filters.category && b.category !== filters.category) return false
-      return true
-    }).map(bizToCard)
-  }, [vipBiz, filters])
+  // Combine post images + business logos for slider
+  const sliderImages = useMemo(() => {
+    const postImgs = posts
+      .filter(p => p.media_display)
+      .map(p => ({
+        src: p.media_display.startsWith('http') ? p.media_display : `https://api.101-school.uz${p.media_display}`,
+        alt: p.text || '',
+      }))
+    const bizImgs = allBiz
+      .filter(b => b.logo)
+      .map(b => ({
+        src: b.logo.startsWith('http') ? b.logo : `https://api.101-school.uz${b.logo}`,
+        alt: b.brand_name,
+      }))
+    return [...postImgs, ...bizImgs].slice(0, 50)
+  }, [posts, allBiz])
 
   const desc = getDescription(filters)
-  const hasFilters = filters.country || filters.city || filters.category || filters.service || filters.activeTags.length > 0
-  const totalResults = filteredAll.length
 
   return (
     <div className="home-page">
       <Header />
 
-      <div className="home-page__viewed-wrapper">
-        <ViewedBar />
-      </div>
-
       <div className="home-page__layout">
-      <main className="home-page__content">
-        {/* Hero */}
-        <div className="home-page__hero">
-          <h1>{desc.title}</h1>
-          <p>
-            {desc.text.split('\n').map((line, i) => (
-              <span key={i}>{line}{i === 0 && <br />}</span>
-            ))}
-          </p>
-          {hasFilters && (
-            <div className="home-page__results-count">
-              Найдено результатов: <strong>{totalResults}</strong>
+        <main className="home-page__content">
+
+          {/* Hero text */}
+          <div className="home-page__hero">
+            <h1>{desc.title}</h1>
+            <p>
+              {desc.text.split('\n').map((line, i) => (
+                <span key={i}>{line}{i === 0 && <br />}</span>
+              ))}
+            </p>
+          </div>
+
+          {/* Hero image slider */}
+          <HeroSlider images={sliderImages} />
+
+          {/* Новые бизнесы */}
+          <NewUsers />
+
+          {/* Публикации */}
+          <section className="home-posts-section">
+            <div className="section-header">
+              <h2 className="section-title">Публикации</h2>
+              <button className="see-all-btn" onClick={() => navigate('/feed')}>
+                Все публикации
+              </button>
+            </div>
+
+            {/* Stories as author bar */}
+            <Stories noTitle />
+
+            {/* Post cards */}
+            {loadingPosts ? (
+              <div className="home-posts-carousel__track">
+                {[1, 2, 3].map(i => (
+                  <div key={i} className="post-card-skeleton">
+                    <div className="post-card-skeleton__header">
+                      <div className="skel-circle" />
+                      <div className="skel-lines">
+                        <div className="skel-line" />
+                        <div className="skel-line skel-line--short" />
+                      </div>
+                    </div>
+                    <div className="skel-img" />
+                    <div className="skel-body">
+                      <div className="skel-line" />
+                      <div className="skel-line skel-line--short" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : posts.length > 0 ? (() => {
+              const visiblePosts = user ? posts : posts.slice(0, GUEST_LIMIT)
+              const POSTS_PER_PAGE = 3
+              const maxPage = Math.max(0, Math.ceil(visiblePosts.length / POSTS_PER_PAGE) - 1)
+              return (
+                <div className="home-posts-carousel">
+                  <button
+                    className="home-posts-carousel__arrow"
+                    onClick={() => setPostsPage(p => Math.max(0, p - 1))}
+                    disabled={postsPage === 0}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                  </button>
+                  <div className="home-posts-carousel__track">
+                    {visiblePosts.slice(postsPage * POSTS_PER_PAGE, (postsPage + 1) * POSTS_PER_PAGE).map(p => (
+                      <PostCard key={p.id} post={p} />
+                    ))}
+                  </div>
+                  <button
+                    className="home-posts-carousel__arrow"
+                    onClick={() => setPostsPage(p => Math.min(maxPage, p + 1))}
+                    disabled={postsPage >= maxPage}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                  </button>
+                </div>
+              )
+            })() : null}
+          </section>
+
+          {/* Последние новости */}
+          <section className="home-news-section">
+            <div className="section-header">
+              <h2 className="section-title">Последние новости</h2>
+              <button className="see-all-btn" onClick={() => navigate('/feed?tab=news')}>
+                Смотреть все
+              </button>
+            </div>
+            {loadingNews ? (
+              <div className="news-grid-home">
+                {[1, 2, 3].map(i => (
+                  <div key={i} className="post-card-skeleton">
+                    <div className="skel-img" />
+                    <div className="skel-body">
+                      <div className="skel-line" />
+                      <div className="skel-line skel-line--short" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : news.length > 0 ? (
+              <div className="news-grid-home">
+                {news.map(item => (
+                  <NewsCard key={item.id} item={item} />
+                ))}
+              </div>
+            ) : null}
+          </section>
+
+          {/* Auth gate for guests */}
+          {!user && !loadingBiz && filteredAll.length > GUEST_LIMIT && (
+            <div className="home-auth-gate">
+              <div className="home-auth-gate__blur" />
+              <div className="home-auth-gate__content">
+                <p>Зарегистрируйтесь, чтобы увидеть все карточки и публикации</p>
+                <div className="home-auth-gate__btns">
+                  <button className="home-auth-gate__btn home-auth-gate__btn--login" onClick={() => navigate('/login')}>Войти</button>
+                  <button className="home-auth-gate__btn home-auth-gate__btn--reg" onClick={() => navigate('/register')}>Регистрация</button>
+                </div>
+              </div>
             </div>
           )}
-        </div>
 
-        {/* Stories */}
-        <Stories />
-
-        {/* VIP — оплаченные карточки */}
-        <VipSection users={filteredVip} loading={loadingBiz} />
-
-        {/* ---------- Секция публикаций ---------- */}
-        <section className="home-posts-section">
-          <div className="section-header">
-            <h2 className="section-title">Публикации</h2>
-            <button className="see-all-btn" onClick={() => navigate('/feed')}>
-              Все публикации
-            </button>
-          </div>
-          {loadingPosts ? (
-            <div className="home-posts-carousel__track">
-              {[1,2,3].map(i => (
-                <div key={i} className="post-card-skeleton">
-                  <div className="post-card-skeleton__header"><div className="skel-circle" /><div className="skel-lines"><div className="skel-line" /><div className="skel-line skel-line--short" /></div></div>
-                  <div className="skel-img" />
-                  <div className="skel-body"><div className="skel-line" /><div className="skel-line skel-line--short" /></div>
-                </div>
-              ))}
+          {/* Все карточки */}
+          <section className="all-cards-section">
+            <div className="section-header">
+              <h2 className="section-title">Все карточки</h2>
+              <button className="see-all-btn" onClick={() => navigate('/feed')}>
+                Все публикации
+              </button>
             </div>
-          ) : posts.length > 0 ? (() => {
-            const visiblePosts = user ? posts : posts.slice(0, GUEST_LIMIT)
-            const POSTS_PER_PAGE = 3
-            const maxPage = Math.max(0, Math.ceil(visiblePosts.length / POSTS_PER_PAGE) - 1)
-            return (
-              <div className="home-posts-carousel">
+            <div className="all-cards__carousel">
+              {tokens?.access && (
                 <button
-                  className="home-posts-carousel__arrow"
-                  onClick={() => setPostsPage(p => Math.max(0, p - 1))}
-                  disabled={postsPage === 0}
+                  className="all-cards__arrow"
+                  onClick={() => setCardsPage(p => p - 1)}
+                  disabled={cardsPage === 0}
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
                 </button>
-                <div className="home-posts-carousel__track">
-                  {visiblePosts.slice(postsPage * POSTS_PER_PAGE, (postsPage + 1) * POSTS_PER_PAGE).map(p => (
-                    <PostCard key={p.id} post={p} />
-                  ))}
-                </div>
+              )}
+              <div className="all-cards__content">
+                {loadingBiz ? (
+                  <div className="card-grid card-grid--4">
+                    {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
+                      <div key={i} className="vip-card vip-card--skeleton">
+                        <div className="vip-card__image"><div className="vip-card__skel-img" /></div>
+                        <div className="vip-card__info">
+                          <div className="vip-card__skel-line" style={{ width: '70%' }} />
+                          <div className="vip-card__skel-line" style={{ width: '40%' }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : filteredAll.length > 0 ? (
+                  <div className="card-grid card-grid--4">
+                    {(user
+                      ? filteredAll.slice(cardsPage * CARDS_PER_PAGE, (cardsPage + 1) * CARDS_PER_PAGE)
+                      : filteredAll.slice(0, GUEST_LIMIT)
+                    ).map(u => (
+                      <UserCard key={u.id} id={u.id} name={u.name} city={u.city} logo={u.logo} planType={u.plan_type} type="all" />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="no-results">Нет карточек по выбранным фильтрам</div>
+                )}
+              </div>
+              {tokens?.access && (
                 <button
-                  className="home-posts-carousel__arrow"
-                  onClick={() => setPostsPage(p => Math.min(maxPage, p + 1))}
-                  disabled={postsPage >= maxPage}
+                  className="all-cards__arrow"
+                  onClick={() => setCardsPage(p => p + 1)}
+                  disabled={(cardsPage + 1) * CARDS_PER_PAGE >= filteredAll.length}
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
-              </div>
-            )
-          })() : null}
-        </section>
-
-        {/* ---------- Секция новостей ---------- */}
-        <section className="home-news-section">
-          <div className="section-header">
-            <h2 className="section-title">Последние новости</h2>
-            <button className="see-all-btn" onClick={() => navigate('/feed?tab=news')}>
-              Смотреть все
-            </button>
-          </div>
-          {loadingNews ? (
-            <div className="news-grid-home">
-              {[1,2,3].map(i => (
-                <div key={i} className="post-card-skeleton">
-                  <div className="skel-img" />
-                  <div className="skel-body"><div className="skel-line" /><div className="skel-line skel-line--short" /></div>
-                </div>
-              ))}
-            </div>
-          ) : news.length > 0 ? (
-            <div className="news-grid-home">
-              {news.map(item => (
-                <NewsCard key={item.id} item={item} />
-              ))}
-            </div>
-          ) : null}
-        </section>
-
-        {/* ---------- Auth gate for guests ---------- */}
-        {!user && !loadingBiz && filteredAll.length > GUEST_LIMIT && (
-          <div className="home-auth-gate">
-            <div className="home-auth-gate__blur" />
-            <div className="home-auth-gate__content">
-              <p>Зарегистрируйтесь, чтобы увидеть все карточки и публикации</p>
-              <div className="home-auth-gate__btns">
-                <button className="home-auth-gate__btn home-auth-gate__btn--login" onClick={() => navigate('/login')}>Войти</button>
-                <button className="home-auth-gate__btn home-auth-gate__btn--reg" onClick={() => navigate('/register')}>Регистрация</button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        <NewUsers />
-
-        <h2 className="section-title all-cards-title">Все карточки</h2>
-
-        {/* Все карточки */}
-        <section className="all-cards-section">
-          <div className="all-cards__carousel">
-            {tokens?.access && (
-              <button
-                className="all-cards__arrow"
-                onClick={() => setCardsPage(p => p - 1)}
-                disabled={cardsPage === 0}
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-              </button>
-            )}
-            <div className="all-cards__content">
-              {loadingBiz ? (
-                <div className="card-grid card-grid--5">
-                  {[1,2,3,4,5,6,7,8,9,10].map(i => (
-                    <div key={i} className="vip-card vip-card--skeleton">
-                      <div className="vip-card__image"><div className="vip-card__skel-img" /></div>
-                      <div className="vip-card__info">
-                        <div className="vip-card__skel-line" style={{width:'70%'}} />
-                        <div className="vip-card__skel-line" style={{width:'40%'}} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : filteredAll.length > 0 ? (
-                <div className="card-grid card-grid--5">
-                  {(user
-                    ? filteredAll.slice(cardsPage * CARDS_PER_PAGE, (cardsPage + 1) * CARDS_PER_PAGE)
-                    : filteredAll.slice(0, GUEST_LIMIT)
-                  ).map(u => (
-                    <UserCard key={u.id} id={u.id} name={u.name} city={u.city} logo={u.logo} planType={u.plan_type} type="all" />
-                  ))}
-                </div>
-              ) : (
-                <div className="no-results">
-                  Нет карточек по выбранным фильтрам
-                </div>
               )}
             </div>
-            {tokens?.access && (
-              <button
-                className="all-cards__arrow"
-                onClick={() => setCardsPage(p => p + 1)}
-                disabled={(cardsPage + 1) * CARDS_PER_PAGE >= filteredAll.length}
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-              </button>
-            )}
-          </div>
-        </section>
-      </main>
-      <TweetsSidebar />
+          </section>
+
+        </main>
+        <TweetsSidebar />
       </div>
+
       <Footer />
     </div>
   )

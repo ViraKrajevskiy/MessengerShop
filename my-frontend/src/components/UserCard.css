@@ -144,3 +144,19 @@
   background: transparent;
   border: none;
 }
+
+/* ── Responsive ── */
+@media (hover: none) {
+  .user-card__actions {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 480px) {
+  .user-card:hover { transform: translateY(-3px); }
+  .user-card__info { padding: 7px 9px 10px; }
+  .user-card__name { font-size: 12px; }
+  .user-card__city { font-size: 10.5px; }
+  .user-card__action-btn { padding: 5px 8px; font-size: 11px; }
+}

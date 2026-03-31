@@ -129,3 +129,11 @@
   margin: 0;
   line-height: 1.5;
 }
+
+@media (max-width: 480px) {
+  .authgate__modal { padding: 28px 20px 22px; border-radius: 18px; }
+  .authgate__title { font-size: 19px; }
+  .authgate__text { font-size: 13px; margin-bottom: 18px; }
+  .authgate__icon { width: 56px; height: 56px; margin-bottom: 14px; }
+  .authgate__btn { padding: 12px; font-size: 14px; }
+}

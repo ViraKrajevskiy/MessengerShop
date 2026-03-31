@@ -42,16 +42,26 @@ const STORY_IMAGES = [
   'https://picsum.photos/id/399/400/700',
 ]
 
+// ---------- helpers ----------
+const FOLLOWERS_THRESHOLD = 100
+
+function formatFollowers(n) {
+  if (n < FOLLOWERS_THRESHOLD) return '< 100'
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`
+  if (n >= 1000) return `${(n / 1000).toFixed(1)}K`
+  return n.toLocaleString('ru-RU')
+}
+
 // ---------- mock user data ----------
 const usersDB = {
-  0: { name: 'Анна', city: 'Стамбул', country: 'Турция', category: 'Красота', verified: true, bio: 'Салон красоты в центре Стамбула. Более 5 лет опыта. Наращивание ресниц, маникюр, укладка волос.', followers: 1243, following: 87, posts: 12, isVip: true, avatar: PROFILE_AVATARS[0] },
-  1: { name: 'Елена', city: 'Анкара', country: 'Турция', category: 'Здоровье', verified: true, bio: 'Врач-косметолог. Консультации онлайн и оффлайн. Работаю с ведущими клиниками Анкары.', followers: 890, following: 134, posts: 8, isVip: false, avatar: PROFILE_AVATARS[1] },
-  2: { name: 'Мария', city: 'Стамбул', country: 'Турция', category: 'Недвижимость', verified: true, bio: 'Агент по недвижимости. Помогу найти квартиру мечты в Стамбуле. Покупка, продажа, аренда.', followers: 2100, following: 56, posts: 24, isVip: true, avatar: PROFILE_AVATARS[2] },
-  3: { name: 'Ольга', city: 'Анталья', country: 'Турция', category: 'Образование', verified: false, bio: 'Преподаватель турецкого языка. Курсы для начинающих и продвинутых. Индивидуальный подход.', followers: 567, following: 201, posts: 6, isVip: false, avatar: PROFILE_AVATARS[3] },
-  4: { name: 'Дарья', city: 'Измир', country: 'Турция', category: 'Юридические услуги', verified: true, bio: 'Юрист. Помощь с ВНЖ, гражданством, открытием бизнеса в Турции. Более 500 успешных кейсов.', followers: 3400, following: 42, posts: 18, isVip: true, avatar: PROFILE_AVATARS[4] },
-  5: { name: 'Камила', city: 'Бурса', country: 'Турция', category: 'Дизайн', verified: false, bio: 'Дизайнер интерьеров. Создаю уютные пространства. Работаю по всей Турции.', followers: 780, following: 165, posts: 9, isVip: false, avatar: PROFILE_AVATARS[5] },
-  6: { name: 'Нигора', city: 'Бурса', country: 'Турция', category: 'Юридические услуги', verified: true, bio: 'Нотариальные услуги и юридические консультации. Перевод документов.', followers: 450, following: 98, posts: 5, isVip: false, avatar: PROFILE_AVATARS[6] },
-  7: { name: 'Фатима', city: 'Стамбул', country: 'Турция', category: 'Туризм', verified: true, bio: 'Гид по Стамбулу. Индивидуальные и групповые экскурсии. Знаю все тайные места города!', followers: 5600, following: 120, posts: 31, isVip: true, avatar: PROFILE_AVATARS[7] },
+  0: { name: 'Анна', city: 'Стамбул', country: 'Турция', category: 'Красота', verified: true, bio: 'Салон красоты в центре Стамбула. Более 5 лет опыта. Наращивание ресниц, маникюр, укладка волос. Работаем с ведущими брендами профессиональной косметики. Приглашаем на бесплатную консультацию!', followers: 1243, following: 87, posts: 12, isVip: true, avatar: PROFILE_AVATARS[0], phone: '+90 532 111 22 33', website: 'beautystanbul.com', address: 'Taksim Meydanı 5, Beyoğlu, İstanbul', whatsapp: '+905321112233', telegram: 'beautystanbul' },
+  1: { name: 'Елена', city: 'Анкара', country: 'Турция', category: 'Здоровье', verified: true, bio: 'Врач-косметолог с 10-летним стажем. Консультации онлайн и оффлайн. Работаю с ведущими клиниками Анкары. Специализация: омоложение, коррекция фигуры, лечебная косметология.', followers: 890, following: 134, posts: 8, isVip: false, avatar: PROFILE_AVATARS[1], phone: '+90 533 222 33 44', address: 'Kızılay, Çankaya, Ankara', telegram: 'dr_elena_ankara' },
+  2: { name: 'Мария', city: 'Стамбул', country: 'Турция', category: 'Недвижимость', verified: true, bio: 'Лицензированный агент по недвижимости. Помогу найти квартиру мечты в Стамбуле. Покупка, продажа, аренда. Сопровождение сделки под ключ, помощь с ипотекой и оформлением документов.', followers: 2100, following: 56, posts: 24, isVip: true, avatar: PROFILE_AVATARS[2], phone: '+90 535 333 44 55', website: 'mariarealty.com.tr', address: 'Bağcılar, İstanbul', whatsapp: '+905353334455', telegram: 'maria_realty' },
+  3: { name: 'Ольга', city: 'Анталья', country: 'Турция', category: 'Образование', verified: false, bio: 'Преподаватель турецкого языка. Курсы для начинающих и продвинутых. Индивидуальный подход к каждому ученику. Онлайн и оффлайн занятия.', followers: 567, following: 201, posts: 6, isVip: false, avatar: PROFILE_AVATARS[3], telegram: 'olga_turkish' },
+  4: { name: 'Дарья', city: 'Измир', country: 'Турция', category: 'Юридические услуги', verified: true, bio: 'Юрист с российским и турецким образованием. Помощь с ВНЖ, гражданством, открытием бизнеса в Турции. Более 500 успешных кейсов. Консультация бесплатно при первом обращении.', followers: 3400, following: 42, posts: 18, isVip: true, avatar: PROFILE_AVATARS[4], phone: '+90 536 444 55 66', website: 'daria-law.com', address: 'Alsancak, Konak, İzmir', whatsapp: '+905364445566', telegram: 'daria_law_turkey' },
+  5: { name: 'Камила', city: 'Бурса', country: 'Турция', category: 'Дизайн', verified: false, bio: 'Дизайнер интерьеров. Создаю уютные пространства. Работаю по всей Турции. Разработка дизайн-проектов, авторский надзор, подбор мебели и декора.', followers: 780, following: 165, posts: 9, isVip: false, avatar: PROFILE_AVATARS[5], telegram: 'kamila_design' },
+  6: { name: 'Нигора', city: 'Бурса', country: 'Турция', category: 'Юридические услуги', verified: true, bio: 'Нотариальные услуги и юридические консультации. Перевод документов с/на русский, турецкий, узбекский языки. Апостиль, легализация документов.', followers: 450, following: 98, posts: 5, isVip: false, avatar: PROFILE_AVATARS[6], phone: '+90 537 555 66 77', address: 'Osmangazi, Bursa', whatsapp: '+905375556677', telegram: 'nigora_notary' },
+  7: { name: 'Фатима', city: 'Стамбул', country: 'Турция', category: 'Туризм', verified: true, bio: 'Сертифицированный гид по Стамбулу с лицензией Министерства культуры Турции. Индивидуальные и групповые экскурсии. Знаю все тайные места города! Экскурсии на русском языке.', followers: 5600, following: 120, posts: 31, isVip: true, avatar: PROFILE_AVATARS[7], phone: '+90 538 666 77 88', website: 'istanbul-guide.ru', whatsapp: '+905386667788', telegram: 'fatima_istanbul_guide' },
 }
 
 // ---------- mock stories for profile ----------
@@ -99,6 +109,24 @@ const userPosts = {
     { id: 'p9', img: POST_IMAGES[9], type: 'image', text: 'Закат на Босфоре. Одно из самых красивых мест в мире.', time: '1 дн. назад', likes: 678, comments: 89 },
     { id: 'p10', img: POST_IMAGES[10], type: 'image', text: 'Уличная еда Стамбула. Балык-экмек — рыбный сэндвич у Галатского моста.', time: '3 дн. назад', likes: 234, comments: 31 },
   ],
+}
+
+// ---------- Contact Tile ----------
+function ContactTile({ icon, label, value, color, onClick }) {
+  return (
+    <button className="profile-about__tile" onClick={onClick}>
+      <span className={`profile-about__tile-icon profile-about__tile-icon--${color}`}>
+        {icon}
+      </span>
+      <span className="profile-about__tile-body">
+        <span className="profile-about__tile-label">{label}</span>
+        <span className="profile-about__tile-value">{value}</span>
+      </span>
+      <svg className="profile-about__tile-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M9 18l6-6-6-6"/>
+      </svg>
+    </button>
+  )
 }
 
 // ---------- Story Viewer for Profile ----------
@@ -191,6 +219,14 @@ export default function ProfilePage() {
   const [subscribed, setSubscribed] = useState(false)
   const [storyViewerOpen, setStoryViewerOpen] = useState(false)
   const [storyStart, setStoryStart] = useState(0)
+  const [copiedPhone, setCopiedPhone] = useState(false)
+
+  const handleCopyPhone = (phone) => {
+    navigator.clipboard.writeText(phone).then(() => {
+      setCopiedPhone(true)
+      setTimeout(() => setCopiedPhone(false), 2000)
+    })
+  }
 
   const stories = userStories[userId] || []
   const posts = userPosts[userId] || []
@@ -250,8 +286,10 @@ export default function ProfilePage() {
               <h1 className="profile-header__name">
                 {user.name}
                 {user.verified && (
-                  <svg className="profile-header__verified" width="20" height="20" viewBox="0 0 24 24" fill="#2196f3">
-                    <path d="M12 2L9.19 4.09 5.5 3.82 4.41 7.41 1.42 9.72 2.83 13.21 1.42 16.71 4.41 19 5.5 22.59 9.19 22.32 12 24.41 14.81 22.32 18.5 22.59 19.59 19 22.58 16.71 21.17 13.21 22.58 9.72 19.59 7.41 18.5 3.82 14.81 4.09 12 2ZM10.09 16.72L7.29 13.91 8.71 12.5 10.09 13.88 15.34 8.63 16.76 10.05 10.09 16.72Z"/>
+                  <svg className="profile-header__verified" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-label="Верифицирован">
+                    <title>Верифицирован</title>
+                    <circle cx="12" cy="12" r="11" fill="#2196f3"/>
+                    <path d="M7 12.5l3.5 3.5 6.5-7" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 )}
               </h1>
@@ -272,8 +310,13 @@ export default function ProfilePage() {
                 <strong>{user.posts}</strong>
                 <span>публикаций</span>
               </div>
-              <div className="profile-header__stat">
-                <strong>{user.followers.toLocaleString()}</strong>
+              <div
+                className="profile-header__stat"
+                title={user.followers < FOLLOWERS_THRESHOLD ? 'Счётчик отображается после 100 подписчиков' : undefined}
+              >
+                <strong className={user.followers < FOLLOWERS_THRESHOLD ? 'profile-header__stat-masked' : ''}>
+                  {formatFollowers(user.followers)}
+                </strong>
                 <span>подписчиков</span>
               </div>
               <div className="profile-header__stat">
@@ -338,6 +381,15 @@ export default function ProfilePage() {
             </svg>
             Сетка
           </button>
+          <button
+            className={`profile-tabs__btn ${activeTab === 'about' ? 'profile-tabs__btn--active' : ''}`}
+            onClick={() => setActiveTab('about')}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            О нас
+          </button>
         </div>
 
         {/* ===== Posts Feed ===== */}
@@ -396,6 +448,112 @@ export default function ProfilePage() {
                 <span>&#128247;</span>
                 <p>Пока нет публикаций</p>
               </div>
+            )}
+          </div>
+        )}
+
+        {/* ===== About Section ===== */}
+        {activeTab === 'about' && (
+          <div className="profile-about">
+            {/* Bio */}
+            <div className="profile-about__bio">
+              <h3 className="profile-about__section-title">О нас</h3>
+              <p className="profile-about__bio-text">{user.bio}</p>
+            </div>
+
+            {/* Contacts */}
+            {(user.phone || user.website || user.address || user.whatsapp || user.telegram) && (
+              <>
+                <div className="profile-about__divider" />
+                <div className="profile-about__contacts">
+                  <h3 className="profile-about__section-title">Контакты</h3>
+                  <div className="profile-about__tiles">
+                    {user.phone && (
+                      <ContactTile
+                        color="phone"
+                        label={copiedPhone ? 'Скопировано!' : 'Телефон'}
+                        value={user.phone}
+                        onClick={() => handleCopyPhone(user.phone)}
+                        icon={
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92v2z"/>
+                          </svg>
+                        }
+                      />
+                    )}
+                    {user.website && (
+                      <ContactTile
+                        color="web"
+                        label="Сайт"
+                        value={user.website}
+                        onClick={() => window.open(`https://${user.website}`, '_blank', 'noopener,noreferrer')}
+                        icon={
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
+                            <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
+                          </svg>
+                        }
+                      />
+                    )}
+                    {user.address && (
+                      <ContactTile
+                        color="map"
+                        label="Адрес"
+                        value={user.address}
+                        onClick={() => window.open(`https://maps.google.com/?q=${encodeURIComponent(user.address)}`, '_blank', 'noopener,noreferrer')}
+                        icon={
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+                          </svg>
+                        }
+                      />
+                    )}
+                    {user.whatsapp && (
+                      <ContactTile
+                        color="wa"
+                        label="WhatsApp"
+                        value={user.whatsapp}
+                        onClick={() => window.open(`https://wa.me/${user.whatsapp.replace(/\D/g, '')}`, '_blank', 'noopener,noreferrer')}
+                        icon={
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                          </svg>
+                        }
+                      />
+                    )}
+                    {user.telegram && (
+                      <ContactTile
+                        color="tg"
+                        label="Telegram"
+                        value={`@${user.telegram}`}
+                        onClick={() => window.open(`https://t.me/${user.telegram}`, '_blank', 'noopener,noreferrer')}
+                        icon={
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+                          </svg>
+                        }
+                      />
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Verified Business Badge */}
+            {user.verified && (
+              <>
+                <div className="profile-about__divider" />
+                <div className="profile-about__verified-badge">
+                  <svg className="profile-about__badge-icon" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z" fill="rgba(33,150,243,0.15)" stroke="#2196f3" strokeWidth="1.5"/>
+                    <path d="M9 12l2 2 4-4" stroke="#2196f3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <div className="profile-about__badge-text">
+                    <strong>Верифицированный бизнес</strong>
+                    <span>Личность и деятельность подтверждены платформой</span>
+                  </div>
+                </div>
+              </>
             )}
           </div>
         )}

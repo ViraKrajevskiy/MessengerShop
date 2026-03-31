@@ -201,6 +201,14 @@
   color: var(--text-muted);
 }
 
+.profile-header__stat-masked {
+  background: none !important;
+  -webkit-text-fill-color: var(--text-muted) !important;
+  color: var(--text-muted) !important;
+  font-size: 15px !important;
+  letter-spacing: 0.01em;
+}
+
 /* Action buttons */
 .profile-header__actions {
   display: flex;
@@ -558,6 +566,145 @@
 .profile-posts__empty p {
   margin: 0;
   font-size: 14px;
+}
+
+/* ===== About Section ===== */
+.profile-about {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-about__section-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 14px;
+}
+
+.profile-about__bio {
+  padding-bottom: 4px;
+}
+
+.profile-about__bio-text {
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.75;
+  margin: 0;
+}
+
+.profile-about__divider {
+  height: 1px;
+  background: var(--border-color);
+  margin: 24px 0;
+}
+
+.profile-about__contacts {
+  margin-bottom: 4px;
+}
+
+.profile-about__tiles {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.profile-about__tile {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  text-align: left;
+  width: 100%;
+}
+
+.profile-about__tile:hover {
+  border-color: var(--accent-1);
+  transform: translateY(-1px);
+  box-shadow: var(--card-shadow-hover);
+}
+
+.profile-about__tile-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.profile-about__tile-icon--phone { background: rgba(76, 175, 80, 0.12); color: #4caf50; }
+.profile-about__tile-icon--web   { background: rgba(33, 150, 243, 0.12); color: #2196f3; }
+.profile-about__tile-icon--map   { background: rgba(255, 87, 34, 0.12); color: #ff5722; }
+.profile-about__tile-icon--wa    { background: rgba(37, 211, 102, 0.12); color: #25d366; }
+.profile-about__tile-icon--tg    { background: rgba(0, 136, 204, 0.12); color: #0088cc; }
+
+.profile-about__tile-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.profile-about__tile-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.profile-about__tile-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profile-about__tile-arrow {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* Verified Business Badge */
+.profile-about__verified-badge {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 22px;
+  background: linear-gradient(135deg, rgba(33, 150, 243, 0.08), rgba(33, 150, 243, 0.04));
+  border: 1.5px solid rgba(33, 150, 243, 0.25);
+  border-radius: 18px;
+}
+
+.profile-about__badge-icon {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+}
+
+.profile-about__badge-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.profile-about__badge-text strong {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.profile-about__badge-text span {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.4;
 }
 
 /* ===== Story Viewer (Profile) ===== */

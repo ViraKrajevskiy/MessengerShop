@@ -209,7 +209,7 @@ function StoryViewer({ stories, startIndex, onClose, onTrackViews }) {
   )
 }
 
-export default function Stories() {
+export default function Stories({ noTitle = false }) {
   const [storiesData, setStoriesData] = useState([])
   const [loadingStories, setLoadingStories] = useState(true)
   const { tokens } = useAuth()
@@ -265,7 +265,7 @@ export default function Stories() {
 
   if (loadingStories) return (
     <section className="stories">
-      <h2 className="section-title">Истории</h2>
+      {!noTitle && <h2 className="section-title">Истории</h2>}
       <div className="stories__loading">
         {Array.from({ length: 6 }).map((_, i) => (
           <div key={i} className="stories__skeleton">
@@ -279,14 +279,14 @@ export default function Stories() {
 
   if (storiesData.length === 0) return (
     <section className="stories">
-      <h2 className="section-title">Истории</h2>
+      {!noTitle && <h2 className="section-title">Истории</h2>}
       <p className="stories__empty">Пока нет активных историй</p>
     </section>
   )
 
   return (
     <section className="stories">
-      <h2 className="section-title">Истории</h2>
+      {!noTitle && <h2 className="section-title">Истории</h2>}
       <div className="stories__carousel">
         <button className="stories__arrow stories__arrow--left" onClick={prev} disabled={offset === 0}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>

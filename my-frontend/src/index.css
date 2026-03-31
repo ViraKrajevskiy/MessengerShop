@@ -136,3 +136,22 @@ button { font-family: inherit; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ── Global responsive helpers ── */
+@media (max-width: 768px) {
+  body { font-size: 14px; }
+}
+
+@media (max-width: 480px) {
+  body { font-size: 13.5px; }
+  /* Prevent horizontal overflow on all pages */
+  .home-page,
+  .feed-page,
+  .profile-page,
+  .bp,
+  .biz-dashboard-page,
+  .auth-page,
+  .my-profile-page {
+    overflow-x: hidden;
+  }
+}

@@ -217,7 +217,13 @@
 }
 
 @media (max-width: 768px) {
-  .vip-section__grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  .vip-section__grid { grid-template-columns: repeat(2, 1fr); }
+  .vip-section { padding: 20px 0; min-height: 260px; }
+}
+
+@media (max-width: 480px) {
+  .vip-section__grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .vip-card__name { font-size: 12px; }
+  .vip-card__city { font-size: 11px; }
+  .vip-card__info { padding: 8px 10px 10px; }
 }

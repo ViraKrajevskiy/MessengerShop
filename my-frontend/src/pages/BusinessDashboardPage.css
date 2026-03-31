@@ -654,6 +654,23 @@
 @media (max-width: 600px) {
   .biz-plan-card { flex-direction: column; align-items: stretch; }
   .biz-plan-card__upgrade { text-align: center; justify-content: center; }
+  .biz-dashboard { padding: 16px 12px 60px; }
+  .biz-dashboard__title { font-size: 18px; }
+  .biz-dashboard__header { gap: 10px; }
+  .biz-dashboard__profile-btn { margin-left: 0; width: 100%; text-align: center; }
+  .biz-stat-cards { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .biz-stat-card { padding: 14px 12px; gap: 10px; }
+  .biz-stat-card__value { font-size: 18px; }
+  /* Simplify product table: hide rank & status columns */
+  .biz-prod-list__head { display: none; }
+  .biz-prod-row {
+    grid-template-columns: 44px 1fr 80px;
+    gap: 10px;
+    padding: 10px 14px;
+  }
+  .biz-prod-row__rank { display: none; }
+  .biz-dashboard__section-header { padding: 14px 14px 12px; }
+  .biz-dashboard__legend { flex-wrap: wrap; gap: 8px; }
 }
 
 /* ── Toast ───────────────────────────────────────────────────────────────────── */
