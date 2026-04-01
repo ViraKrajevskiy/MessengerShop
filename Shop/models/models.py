@@ -95,6 +95,7 @@ class Business(BaseController):
         related_name='business',
     )
     audio = models.FileField(upload_to='business_audio/', blank=True, null=True)
+    faq   = models.JSONField(default=list, blank=True)
 
     @property
     def is_vip(self):

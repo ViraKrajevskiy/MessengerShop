@@ -2,9 +2,13 @@
   margin: 4px 0 24px;
 }
 
+/* ── Mosaic: [big] [sm sm] [big] ── */
+/*           [big] [sm sm] [big]     */
 .hero-slider__mosaic {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 2fr 1fr 1fr 2fr;
+  grid-template-rows: 1fr 1fr;
+  grid-auto-flow: dense;
   gap: 4px;
   height: 310px;
   border-radius: var(--radius-lg);
@@ -26,13 +30,6 @@
 
 .hero-slider__big:hover img {
   transform: scale(1.03);
-}
-
-.hero-slider__small-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  gap: 4px;
 }
 
 .hero-slider__small {
@@ -87,6 +84,5 @@
 @media (max-width: 480px) {
   .hero-slider__mosaic {
     height: 160px;
-    grid-template-columns: 1fr 1fr;
   }
 }

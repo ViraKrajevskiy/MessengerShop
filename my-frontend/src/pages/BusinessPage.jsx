@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Header from '../components/Header'
 import ReviewsSection from '../components/ReviewsSection'
-import { apiGetBusiness, apiGetBusinessPosts, apiGetBusinesses, apiToggleSubscription, apiJoinGroup, apiCheckGroupMembership } from '../api/businessApi'
+import { apiGetBusiness, apiGetBusinessPosts, apiGetBusinesses, apiToggleSubscription, apiJoinGroup, apiCheckGroupMembership, apiDeletePost, apiDeleteStory, apiDeleteProduct, apiUpdateMyBusiness } from '../api/businessApi'
 import './BusinessPage.css'
 
 const CATEGORY_ICONS = {
@@ -213,6 +213,240 @@ function AuthGate({ navigate }) {
   )
 }
 
+/* ── Услуги ── */
+function ServicesSection({ services, bizId, navigate, user, getAccessToken }) {
+  const [inquiryId, setInquiryId] = useState(null)   // id продукта для запроса
+  const [sending,   setSending]   = useState(false)
+  const [message,   setMessage]   = useState('')
+  const [sentOk,    setSentOk]    = useState(false)
+
+  const handleOrder = async () => {
+    if (!message.trim()) return
+    setSending(true)
+    try {
+      const token = await getAccessToken()
+      const res = await fetch(
+        `${API_BASE}/api/products/${inquiryId}/inquiry/`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ message }),
+        }
+      )
+      if (!res.ok) throw new Error()
+      setSentOk(true)
+      setTimeout(() => { setSentOk(false); setInquiryId(null); setMessage('') }, 2500)
+    } catch {
+      alert('Ошибка при отправке')
+    } finally {
+      setSending(false)
+    }
+  }
+
+  if (!services.length) return null
+  return (
+    <section className="bp__card bp__services" id="section-services">
+      <h2 className="bp__card-title">Услуги <span className="bp__pill">{services.length}</span></h2>
+      <div className="bp__svc-grid">
+        {services.map(s => (
+          <div key={s.id} className="bp__svc-card">
+            {s.image && (
+              <div className="bp__svc-img">
+                <img src={s.image} alt={s.name} loading="lazy" />
+              </div>
+            )}
+            <div className="bp__svc-body">
+              <h3 className="bp__svc-name">{s.name}</h3>
+              {s.description && <p className="bp__svc-desc">{s.description}</p>}
+              {s.price && (
+                <div className="bp__svc-price">
+                  {Number(s.price).toLocaleString('ru-RU')} {s.currency}
+                </div>
+              )}
+              <button
+                className="bp__svc-order"
+                onClick={() => {
+                  if (!user) { navigate('/login'); return }
+                  setInquiryId(s.id)
+                  setMessage('')
+                  setSentOk(false)
+                }}
+              >
+                Заказать / Узнать цену
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Модальное окно заказа */}
+      {inquiryId && (
+        <div className="bp__modal-overlay" onClick={e => e.target === e.currentTarget && setInquiryId(null)}>
+          <div className="bp__modal">
+            <button className="bp__modal-close" onClick={() => setInquiryId(null)}>✕</button>
+            <h3 className="bp__modal-title">
+              {services.find(s => s.id === inquiryId)?.name}
+            </h3>
+            {sentOk ? (
+              <div className="bp__modal-sent">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                  <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+                <p>Запрос отправлен! Бизнес ответит вам в мессенджере.</p>
+              </div>
+            ) : (
+              <>
+                <textarea
+                  className="bp__modal-textarea"
+                  placeholder="Опишите ваш запрос или задайте вопрос..."
+                  rows={4}
+                  value={message}
+                  onChange={e => setMessage(e.target.value)}
+                />
+                <div className="bp__modal-btns">
+                  <button className="bp__modal-cancel" onClick={() => setInquiryId(null)}>Отмена</button>
+                  <button
+                    className="bp__modal-submit"
+                    onClick={handleOrder}
+                    disabled={sending || !message.trim()}
+                  >
+                    {sending ? <span className="bp__modal-spinner" /> : 'Отправить запрос'}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+    </section>
+  )
+}
+
+/* ── FAQ ── */
+function FaqSection({ faqItems, isOwner, bizId, getAccessToken, onFaqUpdate }) {
+  const [openIdx, setOpenIdx]         = useState(null)
+  const [editing, setEditing]         = useState(false)
+  const [items, setItems]             = useState(faqItems || [])
+  const [saving, setSaving]           = useState(false)
+
+  // Синхронизируем если props изменились
+  useEffect(() => { setItems(faqItems || []) }, [faqItems])
+
+  const addItem   = () => setItems(prev => [...prev, { q: '', a: '' }])
+  const removeItem = idx => setItems(prev => prev.filter((_, i) => i !== idx))
+  const updateItem = (idx, field, val) =>
+    setItems(prev => prev.map((it, i) => i === idx ? { ...it, [field]: val } : it))
+
+  const handleSave = async () => {
+    const clean = items.filter(it => it.q.trim() && it.a.trim())
+    setSaving(true)
+    try {
+      const token = await getAccessToken()
+      const updated = await apiUpdateMyBusiness({ faq: clean }, token)
+      onFaqUpdate(updated.faq || [])
+      setEditing(false)
+    } catch {
+      alert('Ошибка сохранения FAQ')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const displayItems = editing ? items : (faqItems || [])
+
+  if (!isOwner && !displayItems.length) return null
+
+  return (
+    <section className="bp__card bp__faq" id="section-faq">
+      <div className="bp__card-head">
+        <h2 className="bp__card-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{marginRight:6}}>
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          Частые вопросы
+        </h2>
+        {isOwner && !editing && (
+          <button className="bp__faq-edit-btn" onClick={() => setEditing(true)}>
+            ✏️ Редактировать
+          </button>
+        )}
+      </div>
+
+      {editing ? (
+        <div className="bp__faq-editor">
+          {items.map((item, idx) => (
+            <div key={idx} className="bp__faq-edit-item">
+              <div className="bp__faq-edit-num">#{idx + 1}</div>
+              <div className="bp__faq-edit-fields">
+                <input
+                  className="bp__faq-edit-input"
+                  placeholder="Вопрос"
+                  value={item.q}
+                  onChange={e => updateItem(idx, 'q', e.target.value)}
+                />
+                <textarea
+                  className="bp__faq-edit-textarea"
+                  placeholder="Ответ"
+                  rows={3}
+                  value={item.a}
+                  onChange={e => updateItem(idx, 'a', e.target.value)}
+                />
+              </div>
+              <button className="bp__faq-remove" onClick={() => removeItem(idx)} title="Удалить">✕</button>
+            </div>
+          ))}
+          <button className="bp__faq-add" onClick={addItem}>
+            + Добавить вопрос
+          </button>
+          <div className="bp__faq-edit-actions">
+            <button className="bp__faq-cancel" onClick={() => { setItems(faqItems || []); setEditing(false) }}>
+              Отмена
+            </button>
+            <button className="bp__faq-save" onClick={handleSave} disabled={saving}>
+              {saving ? <span className="bp__modal-spinner" /> : 'Сохранить'}
+            </button>
+          </div>
+        </div>
+      ) : displayItems.length === 0 ? (
+        isOwner && (
+          <div className="bp__faq-empty">
+            <p>FAQ пока не заполнен.</p>
+            <button className="bp__faq-edit-btn" onClick={() => setEditing(true)}>
+              + Добавить вопросы
+            </button>
+          </div>
+        )
+      ) : (
+        <div className="bp__faq-list">
+          {displayItems.map((item, idx) => (
+            <div key={idx} className={`bp__faq-item ${openIdx === idx ? 'bp__faq-item--open' : ''}`}>
+              <button
+                className="bp__faq-q"
+                onClick={() => setOpenIdx(openIdx === idx ? null : idx)}
+              >
+                <span>{item.q}</span>
+                <svg
+                  className="bp__faq-arrow"
+                  width="18" height="18" viewBox="0 0 24 24"
+                  fill="none" stroke="currentColor" strokeWidth="2.5"
+                >
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </button>
+              {openIdx === idx && (
+                <div className="bp__faq-a">{item.a}</div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  )
+}
+
 export default function BusinessPage() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -228,6 +462,15 @@ export default function BusinessPage() {
   const [subLoading, setSubLoading] = useState(false)
   const [inGroup, setInGroup]       = useState(false)
   const [groupLoading, setGroupLoading] = useState(false)
+  const [isOwner, setIsOwner]       = useState(false)
+  const [deletingPost, setDeletingPost] = useState(null)
+  const [toast, setToast]           = useState('')
+  const [faq, setFaq]               = useState([])
+
+  const showToast = (msg) => {
+    setToast(msg)
+    setTimeout(() => setToast(''), 3000)
+  }
 
   useEffect(() => {
     setLoading(true)
@@ -238,6 +481,7 @@ export default function BusinessPage() {
       .then(([bizData, postsData]) => {
         setBiz(bizData)
         setPosts(postsData)
+        setFaq(Array.isArray(bizData.faq) ? bizData.faq : [])
         setSubscribed(bizData.is_subscribed || false)
         setSubCount(bizData.subscribers_count || 0)
         if (bizData.group_id) {
@@ -254,10 +498,37 @@ export default function BusinessPage() {
             .then(list => setSimilar(list.filter(b => b.id !== bizData.id).slice(0, 5)))
             .catch(() => {})
         }
+        // Determine ownership
+        if (user?.role === 'BUSINESS') {
+          getAccessToken().then(token => {
+            if (!token) return
+            fetch(`${API_BASE}/api/businesses/me/`, {
+              headers: { Authorization: `Bearer ${token}` },
+            })
+              .then(r => r.ok ? r.json() : null)
+              .then(me => { if (me && String(me.id) === String(id)) setIsOwner(true) })
+              .catch(() => {})
+          })
+        }
       })
       .catch(e => setError(e.message))
       .finally(() => setLoading(false))
   }, [id])
+
+  const handleDeletePost = async (postId) => {
+    if (!window.confirm('Удалить этот пост? Это действие нельзя отменить.')) return
+    setDeletingPost(postId)
+    try {
+      const token = await getAccessToken()
+      await apiDeletePost(id, postId, token)
+      setPosts(prev => prev.filter(p => p.id !== postId))
+      showToast('Пост удалён')
+    } catch (e) {
+      showToast(e.message || 'Ошибка удаления')
+    } finally {
+      setDeletingPost(null)
+    }
+  }
 
   const scrollToSection = (sectionId) => {
     const el = document.getElementById(`section-${sectionId}`)
@@ -326,6 +597,18 @@ export default function BusinessPage() {
   return (
     <div className="bp">
       <Header />
+
+      {/* Toast */}
+      {toast && (
+        <div style={{
+          position: 'fixed', top: '70px', left: '50%', transform: 'translateX(-50%)',
+          background: '#10b981', color: '#fff', padding: '10px 22px', borderRadius: '10px',
+          fontWeight: 600, fontSize: '14px', zIndex: 9999, boxShadow: '0 4px 16px rgba(0,0,0,0.18)',
+          pointerEvents: 'none',
+        }}>
+          {toast}
+        </div>
+      )}
 
       {/* Cover */}
       <div className="bp__cover" style={{ backgroundImage: `url(${cover})` }}>
@@ -488,7 +771,25 @@ export default function BusinessPage() {
               </div>
             </section>
 
+            {/* ── Услуги ── */}
+            <ServicesSection
+              services={(biz.products || []).filter(p => p.product_type === 'SERVICE')}
+              bizId={id}
+              navigate={navigate}
+              user={user}
+              getAccessToken={getAccessToken}
+            />
+
             <Gallery posts={posts} />
+
+            {/* ── FAQ ── */}
+            <FaqSection
+              faqItems={faq}
+              isOwner={isOwner}
+              bizId={id}
+              getAccessToken={getAccessToken}
+              onFaqUpdate={setFaq}
+            />
 
             {posts.length > 0 && (
               <section className="bp__card" id="section-posts">
@@ -507,9 +808,30 @@ export default function BusinessPage() {
                         <div className="bp__feed-hashtags">
                           {bizHashtags.slice(0, 3).map((h, i) => <span key={i} className="bp__feed-hashtag">{h}</span>)}
                         </div>
-                        <span className="bp__feed-date">
-                          {new Date(post.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}
-                        </span>
+                        <div className="bp__feed-footer">
+                          <span className="bp__feed-date">
+                            {new Date(post.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}
+                          </span>
+                          {isOwner && (
+                            <button
+                              className="bp__feed-delete"
+                              onClick={() => handleDeletePost(post.id)}
+                              disabled={deletingPost === post.id}
+                              title="Удалить пост"
+                            >
+                              {deletingPost === post.id ? (
+                                <span className="bp__feed-delete-spinner" />
+                              ) : (
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                                  <polyline points="3 6 5 6 21 6"/>
+                                  <path d="M19 6l-1 14H6L5 6"/>
+                                  <path d="M10 11v6M14 11v6"/>
+                                  <path d="M9 6V4h6v2"/>
+                                </svg>
+                              )}
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}

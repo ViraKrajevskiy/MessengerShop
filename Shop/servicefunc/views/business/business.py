@@ -169,3 +169,19 @@ class MyBusinessView(APIView):
         except Business.DoesNotExist:
             return Response({'detail': 'Профиль не создан.'}, status=status.HTTP_404_NOT_FOUND)
         return Response(BusinessDetailSerializer(biz, context={'request': request}).data)
+
+    @extend_schema(
+        summary='Обновить мой бизнес-профиль (включая FAQ)',
+        request=BusinessCreateUpdateSerializer,
+        responses={200: BusinessDetailSerializer},
+    )
+    def patch(self, request):
+        try:
+            biz = request.user.business_profile
+        except Business.DoesNotExist:
+            return Response({'detail': 'Профиль не создан.'}, status=status.HTTP_404_NOT_FOUND)
+        serializer = BusinessCreateUpdateSerializer(biz, data=request.data, partial=True, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(BusinessDetailSerializer(biz, context={'request': request}).data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

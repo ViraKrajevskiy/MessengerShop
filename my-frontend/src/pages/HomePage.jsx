@@ -9,6 +9,7 @@ import Footer from '../components/Footer'
 import TweetsSidebar from '../components/TweetsSidebar'
 import PostCard from '../components/PostCard'
 import HeroSlider from '../components/HeroSlider'
+import PremiumCarousel from '../components/PremiumCarousel'
 import NewsCard from '../components/NewsCard'
 import { apiGetBusinesses, apiGetPosts, apiGetNews, CATEGORY_LABELS } from '../api/businessApi'
 import './HomePage.css'
@@ -106,6 +107,12 @@ export default function HomePage() {
     }).map(bizToCard)
   }, [allBiz, filters])
 
+  // Premium (VIP/PRO) businesses for carousel
+  const premiumBiz = useMemo(() =>
+    allBiz.filter(b => b.plan_type === 'VIP' || b.plan_type === 'PRO' || b.is_vip || b.is_pro),
+    [allBiz]
+  )
+
   // Combine post images + business logos for slider
   const sliderImages = useMemo(() => {
     const postImgs = posts
@@ -142,8 +149,11 @@ export default function HomePage() {
             </p>
           </div>
 
-          {/* Hero image slider */}
-          <HeroSlider images={sliderImages} />
+          {/* Premium users carousel (VIP/PRO) — falls back to HeroSlider */}
+          {premiumBiz.length >= 4
+            ? <PremiumCarousel businesses={premiumBiz} />
+            : <HeroSlider images={sliderImages} />
+          }
 
           {/* Новые бизнесы */}
           <NewUsers />

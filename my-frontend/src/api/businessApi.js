@@ -141,6 +141,84 @@ export async function apiGetInquiryMessages(inquiryId, token) {
   return res.json()
 }
 
+// ── Content Delete ─────────────────────────────────────────────────────────────
+
+export async function apiDeletePost(bizId, postId, token) {
+  const res = await fetch(`${BASE}/businesses/${bizId}/posts/${postId}/`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${token}` },
+  })
+  if (!res.ok) throw new Error('Ошибка удаления поста')
+}
+
+export async function apiDeleteStory(storyId, token) {
+  const res = await fetch(`${BASE}/stories/${storyId}/`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${token}` },
+  })
+  if (!res.ok) throw new Error('Ошибка удаления истории')
+}
+
+export async function apiDeleteProduct(bizId, productId, token) {
+  const res = await fetch(`${BASE}/businesses/${bizId}/products/${productId}/`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${token}` },
+  })
+  if (!res.ok) throw new Error('Ошибка удаления продукта')
+}
+
+export async function apiUpdateMyBusiness(data, token) {
+  const res = await fetch(`${BASE}/businesses/me/`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  })
+  if (!res.ok) throw new Error('Ошибка обновления профиля')
+  return res.json()
+}
+
+export async function apiUpdateProduct(bizId, productId, data, token) {
+  const res = await fetch(`${BASE}/businesses/${bizId}/products/${productId}/`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  })
+  if (!res.ok) throw new Error('Ошибка обновления продукта')
+  return res.json()
+}
+
+export async function apiGetBusinessStories(bizId, token) {
+  const headers = token ? { 'Authorization': `Bearer ${token}` } : {}
+  // Try ?business_id= param; backend may also support ?business=
+  const res = await fetch(`${BASE}/stories/?business_id=${bizId}`, { headers })
+  if (res.ok) {
+    const data = await res.json()
+    // If backend ignores the param and returns all, filter client-side
+    const list = Array.isArray(data) ? data : (data.results || [])
+    return list.filter(s => {
+      const id = s.business_id ?? s.business ?? s.user_id ?? s.user
+      return id == null || String(id) === String(bizId)
+    })
+  }
+  // Fallback: fetch all and filter
+  const res2 = await fetch(`${BASE}/stories/`, { headers })
+  if (!res2.ok) throw new Error('Ошибка загрузки историй')
+  const all = await res2.json()
+  const list = Array.isArray(all) ? all : (all.results || [])
+  return list.filter(s => {
+    const id = s.business_id ?? s.business ?? s.user_id ?? s.user
+    return String(id) === String(bizId)
+  })
+}
+
+// ── Inquiry Delete ─────────────────────────────────────────────────────────────
+
 export async function apiDeleteInquiryMessage(inquiryId, msgId, token) {
   const res = await fetch(`${BASE}/inquiries/${inquiryId}/messages/${msgId}/`, {
     method: 'DELETE',

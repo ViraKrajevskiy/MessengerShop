@@ -17,12 +17,14 @@ function timeAgo(dateStr) {
   return `${Math.floor(hours / 24)} дн. назад`
 }
 
-export default function PostCard({ post }) {
+export default function PostCard({ post, onDelete }) {
   const navigate = useNavigate()
   const { user, getAccessToken } = useAuth()
+  const [deleteLoading, setDeleteLoading] = useState(false)
   const [followed, setFollowed] = useState(post.is_subscribed || false)
   const [subLoading, setSubLoading] = useState(false)
   const [fav, setFav] = useState(false)
+  const [expanded, setExpanded] = useState(false)
 
   const FAVS_KEY = 'post_favorites'
 
@@ -73,15 +75,16 @@ export default function PostCard({ post }) {
         <img className="post-card__avatar" src={logo} alt={post.business_name}
           onClick={(e) => { e.stopPropagation(); navigate(`/business/${post.business_id}`) }} />
         <div className="post-card__meta">
-          <div className="post-card__top-row">
-            <span className="post-card__name">
-              {post.business_name}
-              {post.is_verified && (
-                <svg className="post-card__verified" width="14" height="14" viewBox="0 0 24 24" fill="#2196f3">
-                  <path d="M12 2L9.19 4.09 5.5 3.82 4.41 7.41 1.42 9.72 2.83 13.21 1.42 16.71 4.41 19 5.5 22.59 9.19 22.32 12 24.41 14.81 22.32 18.5 22.59 19.59 19 22.58 16.71 21.17 13.21 22.58 9.72 19.59 7.41 18.5 3.82 14.81 4.09 12 2ZM10.09 16.72L7.29 13.91 8.71 12.5 10.09 13.88 15.34 8.63 16.76 10.05 10.09 16.72Z"/>
-                </svg>
-              )}
-            </span>
+          <span className="post-card__name">
+            {post.business_name}
+            {post.is_verified && (
+              <svg className="post-card__verified" width="14" height="14" viewBox="0 0 24 24" fill="#2196f3">
+                <path d="M12 2L9.19 4.09 5.5 3.82 4.41 7.41 1.42 9.72 2.83 13.21 1.42 16.71 4.41 19 5.5 22.59 9.19 22.32 12 24.41 14.81 22.32 18.5 22.59 19.59 19 22.58 16.71 21.17 13.21 22.58 9.72 19.59 7.41 18.5 3.82 14.81 4.09 12 2ZM10.09 16.72L7.29 13.91 8.71 12.5 10.09 13.88 15.34 8.63 16.76 10.05 10.09 16.72Z"/>
+              </svg>
+            )}
+          </span>
+          <div className="post-card__bottom-row">
+            <span className="post-card__time">{timeAgo(post.created_at)}</span>
             <button
               className={`post-card__follow ${followed ? 'post-card__follow--active' : ''}`}
               onClick={handleFollow}
@@ -90,7 +93,6 @@ export default function PostCard({ post }) {
               {followed ? 'Подписан' : 'Подписаться'}
             </button>
           </div>
-          <span className="post-card__time">{timeAgo(post.created_at)}</span>
         </div>
       </div>
 
@@ -100,12 +102,15 @@ export default function PostCard({ post }) {
 
       {post.text && (
         <div className="post-card__body">
-          <p className="post-card__text">
-            {isLong ? post.text.slice(0, SHORT) + '...' : post.text}
+          <p className={`post-card__text${expanded ? ' post-card__text--expanded' : ''}`}>
+            {isLong && !expanded ? post.text.slice(0, SHORT) + '...' : post.text}
           </p>
           {isLong && (
-            <span className="post-card__readmore" onClick={(e) => { e.stopPropagation(); navigate(`/business/${post.business_id}`) }}>
-              Читать далее
+            <span
+              className="post-card__readmore"
+              onClick={(e) => { e.stopPropagation(); setExpanded(prev => !prev) }}
+            >
+              {expanded ? 'Свернуть' : 'Читать далее'}
             </span>
           )}
         </div>
@@ -122,6 +127,32 @@ export default function PostCard({ post }) {
           </svg>
           <span>{fav ? '1' : '0'}</span>
         </button>
+
+        {onDelete && (
+          <button
+            className="post-card__delete"
+            onClick={async (e) => {
+              e.stopPropagation()
+              if (deleteLoading) return
+              setDeleteLoading(true)
+              try { await onDelete(post.id) } finally { setDeleteLoading(false) }
+            }}
+            disabled={deleteLoading}
+            title="Удалить пост"
+          >
+            {deleteLoading
+              ? <span className="post-card__delete-spinner" />
+              : (
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6l-1 14H6L5 6"/>
+                  <path d="M10 11v6M14 11v6"/>
+                  <path d="M9 6V4h6v2"/>
+                </svg>
+              )
+            }
+          </button>
+        )}
       </div>
     </div>
   )

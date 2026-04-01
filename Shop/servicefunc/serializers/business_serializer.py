@@ -48,7 +48,7 @@ class BusinessDetailSerializer(serializers.ModelSerializer):
             'rating', 'views_count', 'created_at',
             'owner_username', 'owner_email', 'owner_avatar',
             'subscribers_count', 'is_subscribed',
-            'products', 'group_id',
+            'products', 'group_id', 'faq',
         ]
         read_only_fields = ['is_verified', 'is_vip', 'is_pro', 'rating', 'views_count', 'created_at']
 
@@ -77,7 +77,7 @@ class BusinessCreateUpdateSerializer(serializers.ModelSerializer):
         model = Business
         fields = [
             'brand_name', 'description', 'category',
-            'city', 'address', 'phone', 'website', 'logo', 'cover',
+            'city', 'address', 'phone', 'website', 'logo', 'cover', 'faq',
         ]
 
     def create(self, validated_data):

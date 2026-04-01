@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from django.utils.html import format_html
+from django.utils.html import format_html, mark_safe
 from Shop.models import (
     User, Business, Product, Story, StoryView,
     Comment, Post, ProductInquiry,
@@ -26,7 +26,7 @@ class NewsAdmin(admin.ModelAdmin):
     list_editable = ('is_published',)
 
     def business_brand(self, obj):
-        return obj.business.brand_name if obj.business else format_html('<b style="color: #d32f2f;">Платформа</b>')
+        return obj.business.brand_name if obj.business else mark_safe('<b style="color: #d32f2f;">Платформа</b>')
 
     business_brand.short_description = 'Источник (Бизнес)'
 

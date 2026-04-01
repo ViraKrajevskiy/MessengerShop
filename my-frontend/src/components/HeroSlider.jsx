@@ -15,8 +15,8 @@ const FALLBACK = [
 ]
 
 export default function HeroSlider({ images = [] }) {
-  const imgs = images.length >= 5 ? images : FALLBACK
-  const PAGE_SIZE = 5
+  const imgs = images.length >= 6 ? images : FALLBACK
+  const PAGE_SIZE = 6
   const totalPages = Math.ceil(imgs.length / PAGE_SIZE)
   const [page, setPage] = useState(0)
 
@@ -27,8 +27,7 @@ export default function HeroSlider({ images = [] }) {
     return () => clearInterval(timer)
   }, [goNext])
 
-  // Build 5 images for current page (wrap around)
-  const pageImgs = Array.from({ length: 5 }, (_, i) => imgs[(page * PAGE_SIZE + i) % imgs.length])
+  const pageImgs = Array.from({ length: 6 }, (_, i) => imgs[(page * PAGE_SIZE + i) % imgs.length])
 
   return (
     <div className="hero-slider">
@@ -36,12 +35,20 @@ export default function HeroSlider({ images = [] }) {
         <div className="hero-slider__big">
           <img src={pageImgs[0].src} alt={pageImgs[0].alt || ''} loading="eager" />
         </div>
-        <div className="hero-slider__small-grid">
-          {pageImgs.slice(1).map((img, i) => (
-            <div key={i} className="hero-slider__small">
-              <img src={img.src} alt={img.alt || ''} loading="lazy" />
-            </div>
-          ))}
+        <div className="hero-slider__small">
+          <img src={pageImgs[1].src} alt={pageImgs[1].alt || ''} loading="lazy" />
+        </div>
+        <div className="hero-slider__small">
+          <img src={pageImgs[2].src} alt={pageImgs[2].alt || ''} loading="lazy" />
+        </div>
+        <div className="hero-slider__big">
+          <img src={pageImgs[3].src} alt={pageImgs[3].alt || ''} loading="lazy" />
+        </div>
+        <div className="hero-slider__small">
+          <img src={pageImgs[4].src} alt={pageImgs[4].alt || ''} loading="lazy" />
+        </div>
+        <div className="hero-slider__small">
+          <img src={pageImgs[5].src} alt={pageImgs[5].alt || ''} loading="lazy" />
         </div>
       </div>
       <div className="hero-slider__dots">

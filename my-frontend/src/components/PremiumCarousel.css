@@ -1,0 +1,173 @@
+.premium-carousel {
+  margin: 4px 0 24px;
+}
+
+/* ── Mosaic: [big] [sm sm] [big] ── */
+/*           [big] [sm sm] [big]     */
+.premium-carousel__mosaic {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 2fr;
+  grid-template-rows: 1fr 1fr;
+  grid-auto-flow: dense;
+  gap: 4px;
+  height: 310px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  cursor: grab;
+  user-select: none;
+}
+
+.premium-carousel__mosaic:active {
+  cursor: grabbing;
+}
+
+/* ── Card ── */
+.pc-card {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  background: var(--bg-tertiary);
+}
+
+.pc-card--big {
+  grid-row: span 2;
+}
+
+.pc-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.45s ease;
+  pointer-events: none;
+}
+
+.pc-card:hover img {
+  transform: scale(1.06);
+}
+
+/* ── Hover overlay ── */
+.pc-card__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.1) 55%, transparent 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 14px 12px;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.28s ease;
+}
+
+.pc-card:hover .pc-card__overlay {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .pc-card__overlay {
+    opacity: 1;
+    background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 55%);
+  }
+}
+
+/* ── Badge ── */
+.pc-card__badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #f5a623, #ff8f00);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 9px;
+  border-radius: 6px;
+  align-self: flex-start;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.pc-card__badge--pro {
+  background: linear-gradient(135deg, #42a5f5, #1e88e5);
+}
+
+/* ── Text ── */
+.pc-card__name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+}
+
+.pc-card__city {
+  font-size: 11px;
+  color: rgba(255,255,255,0.85);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+
+.pc-card--small .pc-card__overlay {
+  padding: 8px 10px;
+  gap: 2px;
+}
+
+.pc-card--small .pc-card__badge {
+  font-size: 9px;
+  padding: 1px 6px;
+}
+
+.pc-card--small .pc-card__name {
+  font-size: 11.5px;
+}
+
+.pc-card--small .pc-card__city {
+  font-size: 10px;
+}
+
+/* ── Dots ── */
+.premium-carousel__dots {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.premium-carousel__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border-color);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.25s;
+  flex-shrink: 0;
+}
+
+.premium-carousel__dot--active {
+  background: var(--accent-1);
+  width: 20px;
+  border-radius: 4px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .premium-carousel__mosaic {
+    height: 220px;
+  }
+  .pc-card__overlay { padding: 10px; }
+  .pc-card__name { font-size: 12px; }
+}
+
+@media (max-width: 480px) {
+  .premium-carousel__mosaic {
+    height: 160px;
+    gap: 3px;
+  }
+  .pc-card__badge { font-size: 8px; padding: 1px 5px; }
+  .pc-card__name { font-size: 10px; }
+  .pc-card__city { font-size: 9px; }
+  .pc-card--small .pc-card__overlay { padding: 6px 7px; }
+}

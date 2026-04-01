@@ -1,14 +1,43 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
 import { useAuth } from '../context/AuthContext'
+import {
+  apiDeletePost,
+  apiDeleteStory,
+  apiDeleteProduct,
+  apiUpdateProduct,
+  apiGetBusinessStories,
+} from '../api/businessApi'
 import './BusinessDashboardPage.css'
 
 const BASE = import.meta.env.PROD
   ? 'https://api.101-school.uz/api'
   : 'http://127.0.0.1:8000/api'
 
-// ── Stat Card ─────────────────────────────────────────────────────────────────
+// ── Helpers ────────────────────────────────────────────────────────────────────
+
+function timeAgo(dateStr) {
+  if (!dateStr) return ''
+  const diff = Date.now() - new Date(dateStr).getTime()
+  const mins = Math.floor(diff / 60000)
+  if (mins < 1) return 'только что'
+  if (mins < 60) return `${mins} мин. назад`
+  const hours = Math.floor(mins / 60)
+  if (hours < 24) return `${hours} ч. назад`
+  return `${Math.floor(hours / 24)} дн. назад`
+}
+
+const TrashIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+    <polyline points="3 6 5 6 21 6"/>
+    <path d="M19 6l-1 14H6L5 6"/>
+    <path d="M10 11v6M14 11v6"/>
+    <path d="M9 6V4h6v2"/>
+  </svg>
+)
+
+// ── Stat Card ──────────────────────────────────────────────────────────────────
 function StatCard({ icon, value, label, color }) {
   return (
     <div className="biz-stat-card" style={{ '--accent': color }}>
@@ -21,17 +50,21 @@ function StatCard({ icon, value, label, color }) {
   )
 }
 
-// ── Product Row ───────────────────────────────────────────────────────────────
-function ProductRow({ p, rank }) {
+// ── Product Row ────────────────────────────────────────────────────────────────
+function ProductRow({ p, rank, onDelete, onToggleStatus, togglingStatus }) {
+  const isToggling = togglingStatus === p.id
+
   return (
     <div className="biz-prod-row">
       <div className="biz-prod-row__rank">#{rank}</div>
+
       <div className="biz-prod-row__img">
         {p.image
           ? <img src={p.image} alt={p.name} />
           : <div className="biz-prod-row__img-placeholder">📦</div>
         }
       </div>
+
       <div className="biz-prod-row__info">
         <span className="biz-prod-row__name">{p.name}</span>
         <span className="biz-prod-row__type-badge">
@@ -41,6 +74,7 @@ function ProductRow({ p, rank }) {
           <span className="biz-prod-row__price">{p.price} {p.currency}</span>
         )}
       </div>
+
       <div className="biz-prod-row__metrics">
         <div className="biz-prod-row__metric" title="Просмотры">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -62,14 +96,109 @@ function ProductRow({ p, rank }) {
           {p.inquiries}
         </div>
       </div>
-      <div className={`biz-prod-row__status ${p.is_available ? '' : 'biz-prod-row__status--off'}`}>
-        {p.is_available ? 'Активен' : 'Скрыт'}
-      </div>
+
+      {/* ── Clickable status toggle ── */}
+      <button
+        className={`biz-prod-row__status-btn ${p.is_available ? 'biz-prod-row__status-btn--on' : 'biz-prod-row__status-btn--off'} ${isToggling ? 'biz-prod-row__status-btn--loading' : ''}`}
+        onClick={() => onToggleStatus(p.id, p.is_available)}
+        disabled={isToggling}
+        title={p.is_available ? 'Нажмите чтобы скрыть' : 'Нажмите чтобы активировать'}
+      >
+        {isToggling ? (
+          <span className="biz-row__delete-spinner" />
+        ) : (
+          <>
+            <span className="biz-prod-row__status-dot" />
+            {p.is_available ? 'Активен' : 'Скрыт'}
+            <svg className="biz-prod-row__status-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </>
+        )}
+      </button>
+
+      <button
+        className="biz-row__delete-btn"
+        onClick={() => onDelete(p.id)}
+        title="Удалить продукт"
+      >
+        <TrashIcon />
+      </button>
     </div>
   )
 }
 
-// ── Modal Wrapper ─────────────────────────────────────────────────────────────
+// ── Post Row ───────────────────────────────────────────────────────────────────
+function PostRow({ post, onDelete, deleting }) {
+  const media = post.media_display || post.media
+  return (
+    <div className="biz-content-row">
+      <div className="biz-content-row__thumb">
+        {media
+          ? <img src={media} alt="" />
+          : <div className="biz-content-row__thumb-placeholder">📝</div>
+        }
+      </div>
+      <div className="biz-content-row__info">
+        <p className="biz-content-row__text">
+          {post.text ? (post.text.length > 80 ? post.text.slice(0, 80) + '...' : post.text) : '—'}
+        </p>
+        <span className="biz-content-row__meta">{timeAgo(post.created_at)}</span>
+      </div>
+      <button
+        className="biz-row__delete-btn"
+        onClick={() => onDelete(post.id)}
+        disabled={deleting === post.id}
+        title="Удалить пост"
+      >
+        {deleting === post.id
+          ? <span className="biz-row__delete-spinner" />
+          : <TrashIcon />
+        }
+      </button>
+    </div>
+  )
+}
+
+// ── Story Row ──────────────────────────────────────────────────────────────────
+function StoryRow({ story, onDelete, deleting }) {
+  const media = story.media_display || story.media
+  const isVideo = story.media_type === 'VIDEO'
+  return (
+    <div className="biz-content-row">
+      <div className="biz-content-row__thumb biz-content-row__thumb--story">
+        {media
+          ? isVideo
+            ? <video src={media} className="biz-content-row__video-thumb" muted />
+            : <img src={media} alt="" />
+          : <div className="biz-content-row__thumb-placeholder">🎬</div>
+        }
+        <span className="biz-content-row__type-badge">
+          {isVideo ? '▶' : '📷'}
+        </span>
+      </div>
+      <div className="biz-content-row__info">
+        <p className="biz-content-row__text">
+          {story.caption || <em className="biz-content-row__no-caption">Без подписи</em>}
+        </p>
+        <span className="biz-content-row__meta">{timeAgo(story.created_at)}</span>
+      </div>
+      <button
+        className="biz-row__delete-btn"
+        onClick={() => onDelete(story.id)}
+        disabled={deleting === story.id}
+        title="Удалить историю"
+      >
+        {deleting === story.id
+          ? <span className="biz-row__delete-spinner" />
+          : <TrashIcon />
+        }
+      </button>
+    </div>
+  )
+}
+
+// ── Modal Wrapper ──────────────────────────────────────────────────────────────
 function Modal({ title, onClose, children }) {
   return (
     <div className="biz-modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
@@ -86,7 +215,35 @@ function Modal({ title, onClose, children }) {
   )
 }
 
-// ── Create Story Modal ────────────────────────────────────────────────────────
+// ── Confirm Delete Modal ───────────────────────────────────────────────────────
+function ConfirmModal({ message, onConfirm, onCancel, loading }) {
+  return (
+    <div className="biz-modal-overlay" onClick={e => e.target === e.currentTarget && onCancel()}>
+      <div className="biz-modal biz-modal--confirm">
+        <div className="biz-modal__body">
+          <div className="biz-confirm__icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#e53935" strokeWidth="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+          </div>
+          <p className="biz-confirm__text">{message}</p>
+          <div className="biz-confirm__btns">
+            <button className="biz-confirm__cancel" onClick={onCancel} disabled={loading}>
+              Отмена
+            </button>
+            <button className="biz-confirm__ok" onClick={onConfirm} disabled={loading}>
+              {loading ? <span className="biz-row__delete-spinner" /> : 'Удалить'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── Create Story Modal ─────────────────────────────────────────────────────────
 function CreateStoryModal({ tokens, onClose, onSuccess }) {
   const [file, setFile]       = useState(null)
   const [preview, setPreview] = useState(null)
@@ -156,7 +313,7 @@ function CreateStoryModal({ tokens, onClose, onSuccess }) {
   )
 }
 
-// ── Create Post Modal ─────────────────────────────────────────────────────────
+// ── Create Post Modal ──────────────────────────────────────────────────────────
 function CreatePostModal({ tokens, bizId, onClose, onSuccess }) {
   const [file, setFile]       = useState(null)
   const [preview, setPreview] = useState(null)
@@ -228,7 +385,7 @@ function CreatePostModal({ tokens, bizId, onClose, onSuccess }) {
   )
 }
 
-// ── Create Product Modal ──────────────────────────────────────────────────────
+// ── Create Product Modal ───────────────────────────────────────────────────────
 function CreateProductModal({ tokens, bizId, onClose, onSuccess }) {
   const [form, setForm] = useState({
     name: '', description: '', product_type: 'PRODUCT',
@@ -280,7 +437,6 @@ function CreateProductModal({ tokens, bizId, onClose, onSuccess }) {
   return (
     <Modal title="Новый продукт / услуга" onClose={onClose}>
       <div className="biz-form">
-        {/* Тип */}
         <div className="biz-form__type-toggle">
           <button
             className={`biz-form__type-btn ${form.product_type === 'PRODUCT' ? 'biz-form__type-btn--active' : ''}`}
@@ -310,7 +466,6 @@ function CreateProductModal({ tokens, bizId, onClose, onSuccess }) {
           rows={3}
         />
 
-        {/* Цена */}
         <div className="biz-form__row">
           <input
             className="biz-form__input"
@@ -331,7 +486,6 @@ function CreateProductModal({ tokens, bizId, onClose, onSuccess }) {
           </select>
         </div>
 
-        {/* Фото */}
         <div className="biz-form__upload biz-form__upload--sm" onClick={() => inputRef.current.click()}>
           {preview
             ? <img src={preview} className="biz-form__preview" alt="preview" />
@@ -350,7 +504,6 @@ function CreateProductModal({ tokens, bizId, onClose, onSuccess }) {
           onChange={e => set('image_url', e.target.value)}
         />
 
-        {/* Доступность */}
         <label className="biz-form__checkbox">
           <input
             type="checkbox"
@@ -369,10 +522,12 @@ function CreateProductModal({ tokens, bizId, onClose, onSuccess }) {
   )
 }
 
-// ── Main Page ─────────────────────────────────────────────────────────────────
+// ── Main Page ──────────────────────────────────────────────────────────────────
 export default function BusinessDashboardPage() {
   const navigate = useNavigate()
-  const { user, tokens } = useAuth()
+  const { user, tokens, getAccessToken } = useAuth()
+
+  // Stats & biz info
   const [stats, setStats]     = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError]     = useState('')
@@ -380,22 +535,89 @@ export default function BusinessDashboardPage() {
   const [bizData, setBizData] = useState(null)
   const [toast, setToast]     = useState('')
 
+  // Tab
+  const [activeTab, setActiveTab] = useState('products')
+
+  // Content lists
+  const [posts, setPosts]       = useState([])
+  const [postsLoaded, setPostsLoaded] = useState(false)
+  const [postsLoading, setPostsLoading] = useState(false)
+
+  const [stories, setStories]     = useState([])
+  const [storiesLoaded, setStoriesLoaded] = useState(false)
+  const [storiesLoading, setStoriesLoading] = useState(false)
+
+  // Delete confirm
+  const [confirmState, setConfirmState] = useState(null) // { type, id, label }
+  const [deleteLoading, setDeleteLoading] = useState(false)
+
+  // Status toggle
+  const [togglingStatus, setTogglingStatus] = useState(null) // product id being toggled
+
   // Modals
   const [showStory,   setShowStory]   = useState(false)
   const [showPost,    setShowPost]    = useState(false)
   const [showProduct, setShowProduct] = useState(false)
+
+  // ── Filters: Products ──────────────────────────────────────────────────────
+  const [prodSearch, setProdSearch]   = useState('')
+  const [prodType,   setProdType]     = useState('all')   // all | PRODUCT | SERVICE
+  const [prodStatus, setProdStatus]   = useState('all')   // all | active | hidden
+  const [prodSort,   setProdSort]     = useState('default') // default | views | likes | inquiries | price_asc | price_desc
+
+  // ── Filters: Posts ─────────────────────────────────────────────────────────
+  const [postSearch, setPostSearch]   = useState('')
+  const [postMedia,  setPostMedia]    = useState('all')   // all | with | without
+  const [postSort,   setPostSort]     = useState('newest') // newest | oldest
+
+  // ── Filters: Stories ───────────────────────────────────────────────────────
+  const [storySearch, setStorySearch] = useState('')
+  const [storyType,   setStoryType]   = useState('all')   // all | IMAGE | VIDEO
+  const [storySort,   setStorySort]   = useState('newest') // newest | oldest
 
   const showToast = msg => {
     setToast(msg)
     setTimeout(() => setToast(''), 3000)
   }
 
+  // ── Filtered + sorted lists ────────────────────────────────────────────────
+  const filteredProducts = useMemo(() => {
+    let list = [...(stats?.products || [])]
+    if (prodSearch.trim())    list = list.filter(p => p.name?.toLowerCase().includes(prodSearch.toLowerCase()))
+    if (prodType !== 'all')   list = list.filter(p => p.product_type === prodType)
+    if (prodStatus === 'active') list = list.filter(p => p.is_available)
+    if (prodStatus === 'hidden') list = list.filter(p => !p.is_available)
+    if (prodSort === 'views')       list.sort((a, b) => (b.views  || 0) - (a.views  || 0))
+    if (prodSort === 'likes')       list.sort((a, b) => (b.likes  || 0) - (a.likes  || 0))
+    if (prodSort === 'inquiries')   list.sort((a, b) => (b.inquiries || 0) - (a.inquiries || 0))
+    if (prodSort === 'price_asc')   list.sort((a, b) => (parseFloat(a.price) || 0) - (parseFloat(b.price) || 0))
+    if (prodSort === 'price_desc')  list.sort((a, b) => (parseFloat(b.price) || 0) - (parseFloat(a.price) || 0))
+    return list
+  }, [stats?.products, prodSearch, prodType, prodStatus, prodSort])
+
+  const filteredPosts = useMemo(() => {
+    let list = [...posts]
+    if (postSearch.trim()) list = list.filter(p => p.text?.toLowerCase().includes(postSearch.toLowerCase()))
+    if (postMedia === 'with')    list = list.filter(p => p.media_display || p.media)
+    if (postMedia === 'without') list = list.filter(p => !p.media_display && !p.media)
+    if (postSort === 'oldest') list.reverse()
+    return list
+  }, [posts, postSearch, postMedia, postSort])
+
+  const filteredStories = useMemo(() => {
+    let list = [...stories]
+    if (storySearch.trim())  list = list.filter(s => s.caption?.toLowerCase().includes(storySearch.toLowerCase()))
+    if (storyType !== 'all') list = list.filter(s => s.media_type === storyType)
+    if (storySort === 'oldest') list.reverse()
+    return list
+  }, [stories, storySearch, storyType, storySort])
+
+  // ── Load stats + biz data ──────────────────────────────────────────────────
   useEffect(() => {
     if (!user) { navigate('/login'); return }
     if (user.role !== 'BUSINESS') { navigate('/'); return }
     if (!tokens?.access) return
 
-    // Получаем ID бизнеса
     fetch(`${BASE}/businesses/me/`, {
       headers: { Authorization: `Bearer ${tokens.access}` },
     })
@@ -412,6 +634,66 @@ export default function BusinessDashboardPage() {
       .finally(() => setLoading(false))
   }, [tokens?.access])
 
+  // ── Refs to track load state without triggering re-renders/loops ────────────
+  const postsLoadedRef   = useRef(false)
+  const postsLoadingRef  = useRef(false)
+  const storiesLoadedRef = useRef(false)
+  const storiesLoadingRef = useRef(false)
+
+  // ── Lazy load posts ────────────────────────────────────────────────────────
+  const loadPosts = useCallback(async (id) => {
+    if (postsLoadedRef.current || postsLoadingRef.current) return
+    postsLoadingRef.current = true
+    setPostsLoading(true)
+    try {
+      const token = await getAccessToken()
+      const res = await fetch(`${BASE}/businesses/${id}/posts/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (!res.ok) throw new Error()
+      const data = await res.json()
+      setPosts(Array.isArray(data) ? data : (data.results || []))
+      postsLoadedRef.current = true
+      setPostsLoaded(true)
+    } catch {
+      postsLoadedRef.current = true   // stop retrying on error
+      setPostsLoaded(true)
+      showToast('Не удалось загрузить посты')
+    } finally {
+      postsLoadingRef.current = false
+      setPostsLoading(false)
+    }
+  }, [getAccessToken])
+
+  // ── Lazy load stories ──────────────────────────────────────────────────────
+  const loadStories = useCallback(async (id) => {
+    if (storiesLoadedRef.current || storiesLoadingRef.current) return
+    storiesLoadingRef.current = true
+    setStoriesLoading(true)
+    try {
+      const token = await getAccessToken()
+      const data = await apiGetBusinessStories(id, token)
+      setStories(Array.isArray(data) ? data : (data.results || []))
+      storiesLoadedRef.current = true
+      setStoriesLoaded(true)
+    } catch {
+      storiesLoadedRef.current = true  // stop retrying on error
+      setStoriesLoaded(true)
+      showToast('Не удалось загрузить истории')
+    } finally {
+      storiesLoadingRef.current = false
+      setStoriesLoading(false)
+    }
+  }, [getAccessToken])
+
+  // ── Single effect: fires when tab or bizId changes ─────────────────────────
+  useEffect(() => {
+    if (!bizId) return
+    if (activeTab === 'posts')    loadPosts(bizId)
+    if (activeTab === 'stories')  loadStories(bizId)
+  }, [activeTab, bizId])            // loadPosts/loadStories stable — no loop
+
+  // ── Refresh stats after create ─────────────────────────────────────────────
   const refreshStats = () => {
     if (!tokens?.access) return
     fetch(`${BASE}/businesses/me/stats/`, {
@@ -425,8 +707,88 @@ export default function BusinessDashboardPage() {
   const handleSuccess = msg => {
     showToast(msg)
     refreshStats()
+    // Invalidate loaded flags so lists reload on next tab switch
+    if (msg.includes('Пост')) {
+      postsLoadedRef.current = false
+      setPostsLoaded(false)
+      setPosts([])
+    }
+    if (msg.includes('Сторис')) {
+      storiesLoadedRef.current = false
+      setStoriesLoaded(false)
+      setStories([])
+    }
   }
 
+  // ── Delete flow ────────────────────────────────────────────────────────────
+  const requestDelete = (type, id, label) => {
+    setConfirmState({ type, id, label })
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!confirmState) return
+    const { type, id } = confirmState
+    setDeleteLoading(true)
+    try {
+      const token = await getAccessToken()
+      if (type === 'post') {
+        await apiDeletePost(bizId, id, token)
+        setPosts(prev => prev.filter(p => p.id !== id))
+        showToast('Пост удалён')
+        refreshStats()
+      } else if (type === 'story') {
+        await apiDeleteStory(id, token)
+        setStories(prev => prev.filter(s => s.id !== id))
+        showToast('История удалена')
+        refreshStats()
+      } else if (type === 'product') {
+        await apiDeleteProduct(bizId, id, token)
+        setStats(prev => prev
+          ? { ...prev, products: prev.products.filter(p => p.id !== id), total_products: prev.total_products - 1 }
+          : prev
+        )
+        showToast('Продукт удалён')
+      }
+    } catch (e) {
+      showToast(e.message || 'Ошибка удаления')
+    } finally {
+      setDeleteLoading(false)
+      setConfirmState(null)
+    }
+  }
+
+  // ── Toggle product status ──────────────────────────────────────────────────
+  const handleToggleStatus = async (productId, currentStatus) => {
+    if (togglingStatus === productId) return
+    setTogglingStatus(productId)
+    try {
+      const token = await getAccessToken()
+      await apiUpdateProduct(bizId, productId, { is_available: !currentStatus }, token)
+      // Optimistic update in stats.products
+      setStats(prev => prev ? {
+        ...prev,
+        products: prev.products.map(p =>
+          p.id === productId ? { ...p, is_available: !currentStatus } : p
+        ),
+      } : prev)
+      showToast(!currentStatus ? 'Продукт активирован' : 'Продукт скрыт')
+    } catch (e) {
+      showToast(e.message || 'Ошибка изменения статуса')
+    } finally {
+      setTogglingStatus(null)
+    }
+  }
+
+  // ── Confirm message per type ───────────────────────────────────────────────
+  const confirmMessage = confirmState
+    ? confirmState.type === 'post'
+      ? `Удалить пост${confirmState.label ? ` "${confirmState.label}"` : ''}? Это действие нельзя отменить.`
+      : confirmState.type === 'story'
+        ? 'Удалить эту историю? Это действие нельзя отменить.'
+        : `Удалить продукт${confirmState.label ? ` "${confirmState.label}"` : ''}? Это действие нельзя отменить.`
+    : ''
+
+  // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <div className="biz-dashboard-page">
       <Header />
@@ -488,6 +850,7 @@ export default function BusinessDashboardPage() {
           <div className="biz-dashboard__error">{error}</div>
         ) : stats ? (
           <>
+            {/* ── Stat Cards ── */}
             <div className="biz-stat-cards">
               <StatCard
                 icon={<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>}
@@ -529,7 +892,7 @@ export default function BusinessDashboardPage() {
               )}
             </div>
 
-            {/* ── Plan section ── */}
+            {/* ── Plan Card ── */}
             {bizData && (
               <div className="biz-plan-card">
                 <div className="biz-plan-card__left">
@@ -552,39 +915,298 @@ export default function BusinessDashboardPage() {
               </div>
             )}
 
+            {/* ── Content Tabs ── */}
             <div className="biz-dashboard__section">
-              <div className="biz-dashboard__section-header">
-                <h2>Статистика по товарам</h2>
-                <div className="biz-dashboard__legend">
-                  <span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Просмотры</span>
-                  <span><svg width="12" height="12" viewBox="0 0 24 24" fill="#e53935"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Лайки</span>
-                  <span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> Запросы</span>
-                </div>
+              <div className="biz-content-tabs">
+                <button
+                  className={`biz-content-tab ${activeTab === 'products' ? 'biz-content-tab--active' : ''}`}
+                  onClick={() => setActiveTab('products')}
+                >
+                  📦 Товары
+                  <span className="biz-content-tab__count">{stats.products?.length || 0}</span>
+                </button>
+                <button
+                  className={`biz-content-tab ${activeTab === 'posts' ? 'biz-content-tab--active' : ''}`}
+                  onClick={() => setActiveTab('posts')}
+                >
+                  📝 Посты
+                  {postsLoaded && <span className="biz-content-tab__count">{posts.length}</span>}
+                </button>
+                <button
+                  className={`biz-content-tab ${activeTab === 'stories' ? 'biz-content-tab--active' : ''}`}
+                  onClick={() => setActiveTab('stories')}
+                >
+                  🎬 Истории
+                  {storiesLoaded && <span className="biz-content-tab__count">{stories.length}</span>}
+                </button>
               </div>
 
-              {stats.products.length === 0 ? (
-                <div className="biz-dashboard__empty">
-                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" opacity="0.3">
-                    <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
-                  </svg>
-                  <p>Нет товаров. Нажмите «Продукт / Услуга» чтобы добавить.</p>
-                </div>
-              ) : (
-                <div className="biz-prod-list">
-                  <div className="biz-prod-list__head">
-                    <span></span>
-                    <span></span>
-                    <span>Товар</span>
-                    <span style={{textAlign:'right'}}>Метрики</span>
-                    <span>Статус</span>
+              {/* ── Products tab ── */}
+              {activeTab === 'products' && (
+                <>
+                  <div className="biz-dashboard__section-header">
+                    <h2>Товары и услуги</h2>
+                    <button className="biz-dashboard__add-btn" onClick={() => setShowProduct(true)}>
+                      + Добавить
+                    </button>
                   </div>
-                  {stats.products.map((p, i) => (
-                    <ProductRow key={p.id} p={p} rank={i + 1} />
-                  ))}
-                </div>
+
+                  {/* Product filters */}
+                  <div className="biz-filter-bar">
+                    <div className="biz-filter-bar__search">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                      </svg>
+                      <input
+                        type="text"
+                        className="biz-filter-bar__input"
+                        placeholder="Поиск по названию..."
+                        value={prodSearch}
+                        onChange={e => setProdSearch(e.target.value)}
+                      />
+                      {prodSearch && (
+                        <button className="biz-filter-bar__clear" onClick={() => setProdSearch('')}>✕</button>
+                      )}
+                    </div>
+                    <div className="biz-filter-bar__chips">
+                      {[['all','Все'],['PRODUCT','Продукты'],['SERVICE','Услуги']].map(([v, l]) => (
+                        <button key={v}
+                          className={`biz-filter-chip ${prodType === v ? 'biz-filter-chip--active' : ''}`}
+                          onClick={() => setProdType(v)}
+                        >{l}</button>
+                      ))}
+                    </div>
+                    <div className="biz-filter-bar__chips">
+                      {[['all','Все'],['active','Активные'],['hidden','Скрытые']].map(([v, l]) => (
+                        <button key={v}
+                          className={`biz-filter-chip ${prodStatus === v ? 'biz-filter-chip--active biz-filter-chip--status' : ''}`}
+                          onClick={() => setProdStatus(v)}
+                        >{l}</button>
+                      ))}
+                    </div>
+                    <select className="biz-filter-bar__select" value={prodSort} onChange={e => setProdSort(e.target.value)}>
+                      <option value="default">По умолчанию</option>
+                      <option value="views">По просмотрам</option>
+                      <option value="likes">По лайкам</option>
+                      <option value="inquiries">По запросам</option>
+                      <option value="price_asc">Цена ↑</option>
+                      <option value="price_desc">Цена ↓</option>
+                    </select>
+                  </div>
+
+                  {/* Result count */}
+                  {(prodSearch || prodType !== 'all' || prodStatus !== 'all') && (
+                    <div className="biz-filter-bar__result">
+                      Найдено: <strong>{filteredProducts.length}</strong> из {stats.products.length}
+                      <button className="biz-filter-bar__reset" onClick={() => { setProdSearch(''); setProdType('all'); setProdStatus('all'); setProdSort('default') }}>
+                        Сбросить
+                      </button>
+                    </div>
+                  )}
+
+                  {stats.products.length === 0 ? (
+                    <div className="biz-dashboard__empty">
+                      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" opacity="0.3">
+                        <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+                      </svg>
+                      <p>Нет товаров. Нажмите «Добавить» чтобы создать.</p>
+                    </div>
+                  ) : filteredProducts.length === 0 ? (
+                    <div className="biz-dashboard__empty">
+                      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.3">
+                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                      </svg>
+                      <p>Ничего не найдено. Попробуйте изменить фильтры.</p>
+                    </div>
+                  ) : (
+                    <div className="biz-prod-list">
+                      <div className="biz-prod-list__head">
+                        <span></span>
+                        <span></span>
+                        <span>Товар</span>
+                        <span style={{textAlign:'right'}}>Метрики</span>
+                        <span>Статус</span>
+                        <span></span>
+                      </div>
+                      {filteredProducts.map((p, i) => (
+                        <ProductRow
+                          key={p.id}
+                          p={p}
+                          rank={i + 1}
+                          onDelete={id => requestDelete('product', id, p.name)}
+                          onToggleStatus={handleToggleStatus}
+                          togglingStatus={togglingStatus}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* ── Posts tab ── */}
+              {activeTab === 'posts' && (
+                <>
+                  <div className="biz-dashboard__section-header">
+                    <h2>Мои посты</h2>
+                    <button className="biz-dashboard__add-btn" onClick={() => setShowPost(true)}>
+                      + Новый пост
+                    </button>
+                  </div>
+
+                  {/* Post filters */}
+                  <div className="biz-filter-bar">
+                    <div className="biz-filter-bar__search">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                      </svg>
+                      <input
+                        type="text"
+                        className="biz-filter-bar__input"
+                        placeholder="Поиск по тексту..."
+                        value={postSearch}
+                        onChange={e => setPostSearch(e.target.value)}
+                      />
+                      {postSearch && (
+                        <button className="biz-filter-bar__clear" onClick={() => setPostSearch('')}>✕</button>
+                      )}
+                    </div>
+                    <div className="biz-filter-bar__chips">
+                      {[['all','Все'],['with','С медиа'],['without','Только текст']].map(([v, l]) => (
+                        <button key={v}
+                          className={`biz-filter-chip ${postMedia === v ? 'biz-filter-chip--active' : ''}`}
+                          onClick={() => setPostMedia(v)}
+                        >{l}</button>
+                      ))}
+                    </div>
+                    <select className="biz-filter-bar__select" value={postSort} onChange={e => setPostSort(e.target.value)}>
+                      <option value="newest">Сначала новые</option>
+                      <option value="oldest">Сначала старые</option>
+                    </select>
+                  </div>
+
+                  {(postSearch || postMedia !== 'all') && (
+                    <div className="biz-filter-bar__result">
+                      Найдено: <strong>{filteredPosts.length}</strong> из {posts.length}
+                      <button className="biz-filter-bar__reset" onClick={() => { setPostSearch(''); setPostMedia('all'); setPostSort('newest') }}>
+                        Сбросить
+                      </button>
+                    </div>
+                  )}
+
+                  {postsLoading ? (
+                    <div className="biz-content-loading"><div className="biz-dashboard__spinner" /></div>
+                  ) : posts.length === 0 ? (
+                    <div className="biz-dashboard__empty">
+                      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" opacity="0.3">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/>
+                      </svg>
+                      <p>Нет постов. Нажмите «Новый пост» чтобы опубликовать.</p>
+                    </div>
+                  ) : filteredPosts.length === 0 ? (
+                    <div className="biz-dashboard__empty">
+                      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.3">
+                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                      </svg>
+                      <p>Ничего не найдено. Попробуйте изменить фильтры.</p>
+                    </div>
+                  ) : (
+                    <div className="biz-content-list">
+                      {filteredPosts.map(post => (
+                        <PostRow
+                          key={post.id}
+                          post={post}
+                          onDelete={id => requestDelete('post', id, post.text?.slice(0, 30))}
+                          deleting={null}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* ── Stories tab ── */}
+              {activeTab === 'stories' && (
+                <>
+                  <div className="biz-dashboard__section-header">
+                    <h2>Мои истории</h2>
+                    <button className="biz-dashboard__add-btn" onClick={() => setShowStory(true)}>
+                      + Новый сторис
+                    </button>
+                  </div>
+
+                  {/* Story filters */}
+                  <div className="biz-filter-bar">
+                    <div className="biz-filter-bar__search">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                      </svg>
+                      <input
+                        type="text"
+                        className="biz-filter-bar__input"
+                        placeholder="Поиск по подписи..."
+                        value={storySearch}
+                        onChange={e => setStorySearch(e.target.value)}
+                      />
+                      {storySearch && (
+                        <button className="biz-filter-bar__clear" onClick={() => setStorySearch('')}>✕</button>
+                      )}
+                    </div>
+                    <div className="biz-filter-bar__chips">
+                      {[['all','Все'],['IMAGE','📷 Фото'],['VIDEO','▶ Видео']].map(([v, l]) => (
+                        <button key={v}
+                          className={`biz-filter-chip ${storyType === v ? 'biz-filter-chip--active' : ''}`}
+                          onClick={() => setStoryType(v)}
+                        >{l}</button>
+                      ))}
+                    </div>
+                    <select className="biz-filter-bar__select" value={storySort} onChange={e => setStorySort(e.target.value)}>
+                      <option value="newest">Сначала новые</option>
+                      <option value="oldest">Сначала старые</option>
+                    </select>
+                  </div>
+
+                  {(storySearch || storyType !== 'all') && (
+                    <div className="biz-filter-bar__result">
+                      Найдено: <strong>{filteredStories.length}</strong> из {stories.length}
+                      <button className="biz-filter-bar__reset" onClick={() => { setStorySearch(''); setStoryType('all'); setStorySort('newest') }}>
+                        Сбросить
+                      </button>
+                    </div>
+                  )}
+
+                  {storiesLoading ? (
+                    <div className="biz-content-loading"><div className="biz-dashboard__spinner" /></div>
+                  ) : stories.length === 0 ? (
+                    <div className="biz-dashboard__empty">
+                      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" opacity="0.3">
+                        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/>
+                      </svg>
+                      <p>Нет активных историй. Нажмите «Новый сторис».</p>
+                    </div>
+                  ) : filteredStories.length === 0 ? (
+                    <div className="biz-dashboard__empty">
+                      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.3">
+                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                      </svg>
+                      <p>Ничего не найдено. Попробуйте изменить фильтры.</p>
+                    </div>
+                  ) : (
+                    <div className="biz-content-list">
+                      {filteredStories.map(story => (
+                        <StoryRow
+                          key={story.id}
+                          story={story}
+                          onDelete={id => requestDelete('story', id, null)}
+                          deleting={null}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </>
               )}
             </div>
 
+            {/* ── Action Buttons ── */}
             <div className="biz-dashboard__actions">
               <button className="biz-dashboard__action-btn" onClick={() => navigate('/messenger')}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -612,7 +1234,7 @@ export default function BusinessDashboardPage() {
         ) : null}
       </main>
 
-      {/* Modals */}
+      {/* ── Create Modals ── */}
       {showStory && (
         <CreateStoryModal
           tokens={tokens}
@@ -634,6 +1256,16 @@ export default function BusinessDashboardPage() {
           bizId={bizId}
           onClose={() => setShowProduct(false)}
           onSuccess={handleSuccess}
+        />
+      )}
+
+      {/* ── Confirm Delete Modal ── */}
+      {confirmState && (
+        <ConfirmModal
+          message={confirmMessage}
+          onConfirm={handleConfirmDelete}
+          onCancel={() => setConfirmState(null)}
+          loading={deleteLoading}
         />
       )}
     </div>

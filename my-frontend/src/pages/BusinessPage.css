@@ -465,10 +465,46 @@
   background: rgba(229,57,53,0.06);
   border-radius: 6px;
 }
+.bp__feed-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 6px;
+}
+
 .bp__feed-date {
   font-size: 11px;
   color: var(--text-muted);
 }
+
+.bp__feed-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.bp__feed-delete:hover {
+  background: rgba(239,68,68,0.10);
+  color: #ef4444;
+}
+.bp__feed-delete:disabled { opacity: 0.5; cursor: not-allowed; }
+.bp__feed-delete-spinner {
+  width: 13px;
+  height: 13px;
+  border: 2px solid var(--border-color);
+  border-top-color: #ef4444;
+  border-radius: 50%;
+  animation: bp-del-spin 0.7s linear infinite;
+  display: inline-block;
+}
+@keyframes bp-del-spin { to { transform: rotate(360deg); } }
 
 /* ── FAQ ── */
 .bp__faq-list {
