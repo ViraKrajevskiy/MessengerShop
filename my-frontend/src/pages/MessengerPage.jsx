@@ -611,7 +611,7 @@ function GroupChatView({ group, onBack, getAccessToken, currentUserId }) {
 }
 
 /* ─── Member Management Panel ─── */
-function MemberPanel({ detail, isAdmin, myRole, getAccessToken, onClose, onUpdate }) {
+function MemberPanel({ detail, isAdmin, getAccessToken, onClose, onUpdate }) {
   const [addUsername, setAddUsername] = useState('')
   const [addRole, setAddRole]        = useState('MEMBER')
   const [adding, setAdding]          = useState(false)

@@ -77,6 +77,7 @@ function App() {
                 <Route path="/news/:id" element={<NewsDetailPage />} />
                 <Route path="/product/:id" element={<ProductDetailPage />} />
                 <Route path="/pricing" element={<PricingPage />} />
+                <Route path="/vip" element={<Navigate to="/pricing" replace />} />
               </Routes>
             </Suspense>
           </ViewedProvider>

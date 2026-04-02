@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Header from '../components/Header'
 import ReviewsSection from '../components/ReviewsSection'
-import { apiGetBusiness, apiGetBusinessPosts, apiGetBusinesses, apiToggleSubscription, apiJoinGroup, apiCheckGroupMembership, apiDeletePost, apiDeleteStory, apiDeleteProduct, apiUpdateMyBusiness } from '../api/businessApi'
+import { apiGetBusiness, apiGetBusinessPosts, apiGetBusinesses, apiToggleSubscription, apiJoinGroup, apiCheckGroupMembership, apiDeletePost } from '../api/businessApi'
 import './BusinessPage.css'
 
 const CATEGORY_ICONS = {
@@ -25,52 +25,7 @@ function resolveUrl(url) {
   return `${API_BASE}${url}`
 }
 
-const SECTION_TABS = [
-  { id: 'about',   label: 'О нас' },
-  { id: 'gallery', label: 'Фото/Видео' },
-  { id: 'reviews', label: 'Отзывы' },
-  { id: 'posts',   label: 'Публикации' },
-]
 
-/* ── Кастомная печать верификации ── */
-function VerifiedStamp({ brandName }) {
-  const shortName = (brandName || 'BUSINESS').toUpperCase().slice(0, 14)
-  return (
-    <div className="bp__vstamp-wrap" title="Верифицированный бизнес">
-      <svg viewBox="0 0 120 120" width="90" height="90" xmlns="http://www.w3.org/2000/svg">
-        {Array.from({ length: 18 }).map((_, i) => {
-          const angle = (i * 360) / 18
-          const rad = (angle * Math.PI) / 180
-          const cx = 60 + 54 * Math.sin(rad)
-          const cy = 60 - 54 * Math.cos(rad)
-          return <circle key={i} cx={cx} cy={cy} r="8" fill="#1a3a6b" />
-        })}
-        <circle cx="60" cy="60" r="48" fill="#1a3a6b" />
-        <circle cx="60" cy="60" r="44" fill="#e8e0d0" />
-        <circle cx="60" cy="60" r="40" fill="none" stroke="#1a3a6b" strokeWidth="1.5" />
-        <rect x="16" y="47" width="88" height="26" fill="#1a3a6b" rx="2" />
-        <text x="60" y="63" textAnchor="middle" dominantBaseline="middle"
-          fontFamily="Arial, sans-serif" fontSize="13" fontWeight="800" fill="#e8e0d0" letterSpacing="2">
-          VERIFIED
-        </text>
-        {[-14, -5, 5, 14].map((x, i) => (
-          <text key={i} x={60 + x} y="40" textAnchor="middle" fontSize={i === 1 || i === 2 ? "8" : "6"} fill="#1a3a6b">★</text>
-        ))}
-        {[-14, -5, 5, 14].map((x, i) => (
-          <text key={i} x={60 + x} y="84" textAnchor="middle" fontSize={i === 1 || i === 2 ? "8" : "6"} fill="#1a3a6b">★</text>
-        ))}
-        <path id="vstampTop" d="M 22,60 A 38,38 0 0,1 98,60" fill="none" />
-        <text fontFamily="Arial, sans-serif" fontSize="7" fontWeight="600" fill="#1a3a6b">
-          <textPath href="#vstampTop" startOffset="50%" textAnchor="middle">{shortName}</textPath>
-        </text>
-        <path id="vstampBot" d="M 24,68 A 38,38 0 0,0 96,68" fill="none" />
-        <text fontFamily="Arial, sans-serif" fontSize="6" fontWeight="600" fill="#1a3a6b">
-          <textPath href="#vstampBot" startOffset="50%" textAnchor="middle">MESSENGERSHOP</textPath>
-        </text>
-      </svg>
-    </div>
-  )
-}
 
 /* ── Аудио-плеер с автовоспроизведением ── */
 function BusinessAudioPlayer({ audioUrl }) {
@@ -82,7 +37,6 @@ function BusinessAudioPlayer({ audioUrl }) {
   useEffect(() => {
     const audio = audioRef.current
     if (!audio) return
-    audio.play().then(() => setPlaying(true)).catch(() => {})
     const onTime   = () => setProgress(audio.currentTime)
     const onLoaded = () => setDuration(audio.duration)
     const onEnd    = () => setPlaying(false)
@@ -214,6 +168,60 @@ function AuthGate({ navigate }) {
 }
 
 
+function InfoTabs({ biz, categoryIcon, faq }) {
+  const [tab, setTab] = useState('props')
+  const [openFaq, setOpenFaq] = useState(null)
+  const hasFaq = faq && faq.length > 0
+
+  return (
+    <section className="bp__card">
+      <div className="bp__info-tabs">
+        <button
+          className={`bp__info-tab${tab === 'props' ? ' bp__info-tab--active' : ''}`}
+          onClick={() => setTab('props')}
+        >Характеристики</button>
+        {hasFaq && (
+          <button
+            className={`bp__info-tab${tab === 'faq' ? ' bp__info-tab--active' : ''}`}
+            onClick={() => setTab('faq')}
+          >FAQ</button>
+        )}
+      </div>
+
+      {tab === 'props' && (
+        <div className="bp__props">
+          <div className="bp__prop"><span>Категория</span><span>{categoryIcon} {biz.category_label}</span></div>
+          {biz.city && <div className="bp__prop"><span>Город</span><span>{biz.city}</span></div>}
+          <div className="bp__prop"><span>Рейтинг</span><span>⭐ {Number(biz.rating).toFixed(1)} / 5</span></div>
+          <div className="bp__prop">
+            <span>Статус</span>
+            <span style={{ color: biz.is_verified ? '#10b981' : 'var(--text-muted)' }}>
+              {biz.is_verified ? '✓ Подтверждён' : 'Не верифицирован'}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {tab === 'faq' && hasFaq && (
+        <div className="bp__faq-list">
+          {faq.map((item, i) => (
+            <div key={i} className="bp__faq-item">
+              <button className="bp__faq-q" onClick={() => setOpenFaq(openFaq === i ? null : i)}>
+                <span>{item.question}</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points={openFaq === i ? '18 15 12 9 6 15' : '6 9 12 15 18 9'} />
+                </svg>
+              </button>
+              {openFaq === i && <p className="bp__faq-a">{item.answer}</p>}
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  )
+}
+
+
 export default function BusinessPage() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -297,10 +305,6 @@ export default function BusinessPage() {
     }
   }
 
-  const scrollToSection = (sectionId) => {
-    const el = document.getElementById(`section-${sectionId}`)
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }
 
   if (loading) return (
     <div className="bp">
@@ -328,7 +332,6 @@ export default function BusinessPage() {
   const cover    = resolveUrl(biz.cover) || FALLBACK_COVER
   const audioUrl = resolveUrl(biz.audio) || null
   const categoryIcon = CATEGORY_ICONS[biz.category] || '🏢'
-  const rating10 = Math.min(10, (Number(biz.rating) * 2).toFixed(1))
 
   const bizHashtags = [
     `#${(biz.category || 'business').toLowerCase()}`,
@@ -459,16 +462,8 @@ export default function BusinessPage() {
             </div>
           </div>
 
-          {/* Печать верификации — правый верхний угол */}
-          {biz.is_verified && (
-            <div className="bp__hero-stamp">
-              <VerifiedStamp brandName={biz.brand_name} />
-            </div>
-          )}
         </div>
 
-        {/* Аудио-плеер под hero (автовоспроизведение при открытии профиля) */}
-        {audioUrl && <BusinessAudioPlayer audioUrl={audioUrl} />}
 
 
         <div className="bp__grid">
@@ -477,6 +472,7 @@ export default function BusinessPage() {
             {/* БЛОК 1: О нас + Контакты — объединённый */}
             <section className="bp__card" id="section-about">
               <h2 className="bp__card-title">О нас</h2>
+              {audioUrl && <BusinessAudioPlayer audioUrl={audioUrl} />}
               {biz.description && <p className="bp__about-text">{biz.description}</p>}
               {biz.description && <div className="bp__about-divider" />}
               <h3 className="bp__about-contacts-title">Контакты</h3>
@@ -513,50 +509,15 @@ export default function BusinessPage() {
                   </a>
                 )}
               </div>
-              {biz.is_verified && (
-                <div className="bp__verified-stamp">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="#10b981">
-                    <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                  </svg>
-                  Верифицированный бизнес
-                </div>
-              )}
             </section>
 
-            <section className="bp__card">
-              <h2 className="bp__card-title">Характеристики</h2>
-              <div className="bp__props">
-                <div className="bp__prop"><span>Категория</span><span>{categoryIcon} {biz.category_label}</span></div>
-                {biz.city && <div className="bp__prop"><span>Город</span><span>{biz.city}</span></div>}
-                <div className="bp__prop"><span>Рейтинг</span><span>⭐ {Number(biz.rating).toFixed(1)} / 5</span></div>
-                <div className="bp__prop">
-                  <span>Статус</span>
-                  <span style={{ color: biz.is_verified ? '#10b981' : 'var(--text-muted)' }}>
-                    {biz.is_verified ? '✓ Подтверждён' : 'Не верифицирован'}
-                  </span>
-                </div>
-              </div>
-            </section>
-
-            {/* ── Услуги ── */}
-            <ServicesSection
-              services={(biz.products || []).filter(p => p.product_type === 'SERVICE')}
-              bizId={id}
-              navigate={navigate}
-              user={user}
-              getAccessToken={getAccessToken}
+            <InfoTabs
+              biz={biz}
+              categoryIcon={categoryIcon}
+              faq={faq}
             />
 
             <Gallery posts={posts} />
-
-            {/* ── FAQ ── */}
-            <FaqSection
-              faqItems={faq}
-              isOwner={isOwner}
-              bizId={id}
-              getAccessToken={getAccessToken}
-              onFaqUpdate={setFaq}
-            />
 
             {posts.length > 0 && (
               <section className="bp__card" id="section-posts">

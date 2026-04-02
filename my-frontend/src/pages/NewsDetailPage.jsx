@@ -24,7 +24,7 @@ export default function NewsDetailPage() {
         setLoading(false);
       }
     };
-    fetchNews();
+    void fetchNews();
     window.scrollTo(0, 0); // Прокрутка вверх при открытии
   }, [id]);
 

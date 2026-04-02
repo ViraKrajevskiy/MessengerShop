@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { apiGetStories, apiViewStory } from '../api/businessApi'
@@ -135,7 +136,7 @@ function StoryViewer({ stories, startIndex, onClose, onTrackViews }) {
     navigate(`/business/${story.bizId || story.id}`)
   }
 
-  return (
+  return createPortal(
     <div className="story-viewer" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div
         className="story-viewer__container"
@@ -205,7 +206,8 @@ function StoryViewer({ stories, startIndex, onClose, onTrackViews }) {
           </button>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
 

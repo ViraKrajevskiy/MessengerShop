@@ -24,18 +24,6 @@ function Stars({ rating, size = 16, interactive = false, onSelect }) {
   )
 }
 
-function RatingBar({ star, count, total }) {
-  const pct = total > 0 ? (count / total) * 100 : 0
-  return (
-    <div className="rv-bar-row">
-      <span className="rv-bar-label">{star}★</span>
-      <div className="rv-bar-track">
-        <div className="rv-bar-fill" style={{ width: `${pct}%` }} />
-      </div>
-      <span className="rv-bar-count">{count}</span>
-    </div>
-  )
-}
 
 function ReviewCard({ review }) {
   const avatar = review.author_avatar || `${FALLBACK_AVATAR}${review.author_name}`
