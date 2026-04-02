@@ -100,11 +100,10 @@ export default function HomePage() {
 
   const filteredAll = useMemo(() => {
     setCardsPage(0)
-    return allBiz.filter(b => {
-      if (filters.city && b.city && !b.city.toLowerCase().includes(filters.city.toLowerCase())) return false
-      if (filters.category && b.category !== filters.category) return false
-      return true
-    }).map(bizToCard)
+    return allBiz.filter(b =>
+      (!filters.city || !b.city || b.city.toLowerCase().includes(filters.city.toLowerCase())) &&
+      (!filters.category || b.category === filters.category)
+    ).map(bizToCard)
   }, [allBiz, filters])
 
   // Premium (VIP/PRO) businesses for carousel

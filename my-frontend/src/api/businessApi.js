@@ -450,7 +450,7 @@ export const CATEGORY_LABELS = {
 export const apiGetProducts = async () => {
   try {
     const response = await fetch(`${BASE}/products/`);
-    if (!response.ok) throw new Error('Ошибка при загрузке продуктов');
+    if (!response.ok) return [];
     return await response.json();
   } catch (error) {
     console.error("Ошибка в apiGetProducts:", error);
@@ -461,10 +461,8 @@ export const apiGetProducts = async () => {
 export const apiGetNews = async () => {
   try {
     const response = await fetch(`${BASE}/news/`);
-    if (!response.ok) throw new Error('Ошибка при загрузке новостей');
-    // Исправлено: используем .json() вместо .data
-    const data = await response.json();
-    return data;
+    if (!response.ok) return [];
+    return await response.json();
   } catch (error) {
     console.error("Ошибка в apiGetNews:", error);
     return [];

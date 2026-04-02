@@ -272,11 +272,15 @@ function CreateStoryModal({ tokens, onClose, onSuccess }) {
         headers: { Authorization: `Bearer ${tokens.access}` },
         body: fd,
       })
-      if (!r.ok) throw new Error((await r.json()).detail || 'Ошибка')
+      if (!r.ok) {
+        const body = await r.json().catch(() => ({}))
+        setError(body.detail || 'Ошибка')
+        return
+      }
       onSuccess('Сторис опубликован!')
       onClose()
     } catch(e) {
-      setError(e.message)
+      setError('Ошибка соединения')
     } finally {
       setLoading(false)
     }
@@ -344,11 +348,15 @@ function CreatePostModal({ tokens, bizId, onClose, onSuccess }) {
         headers: { Authorization: `Bearer ${tokens.access}` },
         body: fd,
       })
-      if (!r.ok) throw new Error((await r.json()).detail || 'Ошибка')
+      if (!r.ok) {
+        const body = await r.json().catch(() => ({}))
+        setError(body.detail || 'Ошибка')
+        return
+      }
       onSuccess('Пост опубликован!')
       onClose()
     } catch(e) {
-      setError(e.message)
+      setError('Ошибка соединения')
     } finally {
       setLoading(false)
     }
@@ -424,11 +432,15 @@ function CreateProductModal({ tokens, bizId, onClose, onSuccess }) {
         headers: { Authorization: `Bearer ${tokens.access}` },
         body: fd,
       })
-      if (!r.ok) throw new Error((await r.json()).detail || 'Ошибка')
+      if (!r.ok) {
+        const body = await r.json().catch(() => ({}))
+        setError(body.detail || 'Ошибка')
+        return
+      }
       onSuccess('Продукт добавлен!')
       onClose()
     } catch(e) {
-      setError(e.message)
+      setError('Ошибка соединения')
     } finally {
       setLoading(false)
     }
@@ -650,7 +662,12 @@ export default function BusinessDashboardPage() {
       const res = await fetch(`${BASE}/businesses/${id}/posts/`, {
         headers: { Authorization: `Bearer ${token}` },
       })
-      if (!res.ok) throw new Error()
+      if (!res.ok) {
+        postsLoadedRef.current = true
+        setPostsLoaded(true)
+        showToast('Не удалось загрузить посты')
+        return
+      }
       const data = await res.json()
       setPosts(Array.isArray(data) ? data : (data.results || []))
       postsLoadedRef.current = true

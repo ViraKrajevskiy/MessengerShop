@@ -375,14 +375,12 @@ export default function FeedPage() {
     const hoursDiff = (Date.now() - new Date(item.created_at).getTime()) / 3600000
     return hoursDiff < 24
   }
-  const passesFilter = (item, bizIdKey = 'business_id') => {
-    if (activeTags.length > 0 && !activeTags.some(t => (item.tags || []).includes(t))) return false
-    if (filterVip && !vipBizIds.has(item[bizIdKey])) return false
-    if (filterVerified && !verifiedBizIds.has(item[bizIdKey])) return false
-    if (filterNew && !isNewItem(item)) return false
-    if (filterCity && bizCityMap.get(item[bizIdKey]) !== filterCity) return false
-    return true
-  }
+  const passesFilter = (item, bizIdKey = 'business_id') =>
+    (activeTags.length === 0 || activeTags.some(t => (item.tags || []).includes(t))) &&
+    (!filterVip || vipBizIds.has(item[bizIdKey])) &&
+    (!filterVerified || verifiedBizIds.has(item[bizIdKey])) &&
+    (!filterNew || isNewItem(item)) &&
+    (!filterCity || bizCityMap.get(item[bizIdKey]) === filterCity)
 
   // Sort helper
   const applySortDate = (arr) => {
@@ -399,22 +397,20 @@ export default function FeedPage() {
   const fPosts = applySortDate(posts.filter(p => passesFilter(p)))
   const fProducts = applySortPrice(allProducts.filter(p => passesFilter(p)))
   const fServices = applySortPrice(allServices.filter(p => passesFilter(p)))
-  const fNews = applySortDate(news.filter(n => {
-    if (activeTags.length > 0 && !activeTags.some(t => (n.tags || []).includes(t))) return false
-    if (filterVip && n.business_id && !vipBizIds.has(n.business_id)) return false
-    if (filterVerified && n.business_id && !verifiedBizIds.has(n.business_id)) return false
-    if (filterNew && !isNewItem(n)) return false
-    if (filterCity && n.business_id && bizCityMap.get(n.business_id) !== filterCity) return false
-    return true
-  }))
+  const fNews = applySortDate(news.filter(n =>
+    (activeTags.length === 0 || activeTags.some(t => (n.tags || []).includes(t))) &&
+    (!filterVip || !n.business_id || vipBizIds.has(n.business_id)) &&
+    (!filterVerified || !n.business_id || verifiedBizIds.has(n.business_id)) &&
+    (!filterNew || isNewItem(n)) &&
+    (!filterCity || !n.business_id || bizCityMap.get(n.business_id) === filterCity)
+  ))
 
   // Filtered businesses for "Компании" tab
-  const fBusinesses = businesses.filter(b => {
-    if (filterVip && !b.is_vip) return false
-    if (filterVerified && !b.is_verified) return false
-    if (filterCity && b.city !== filterCity) return false
-    return true
-  })
+  const fBusinesses = businesses.filter(b =>
+    (!filterVip || b.is_vip) &&
+    (!filterVerified || b.is_verified) &&
+    (!filterCity || b.city === filterCity)
+  )
 
   const TABS = [
     { key: 'posts',      label: 'Посты' },
