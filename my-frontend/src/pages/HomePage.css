@@ -243,20 +243,15 @@
 
 /* ── Auth gate for guests ── */
 .home-auth-gate {
-  position: relative;
-  margin: -40px 0 24px;
-  padding: 48px 20px 32px;
+  margin: 32px 0 8px;
+  padding: 40px 24px 40px;
   text-align: center;
-}
-.home-auth-gate__blur {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom, transparent, var(--bg-primary) 40%);
-  pointer-events: none;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  border: 1.5px solid var(--border-light);
 }
 .home-auth-gate__content {
   position: relative;
-  z-index: 1;
 }
 .home-auth-gate__content p {
   font-size: 15px;

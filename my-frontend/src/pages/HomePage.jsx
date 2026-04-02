@@ -249,20 +249,6 @@ export default function HomePage() {
             ) : null}
           </section>
 
-          {/* Auth gate for guests */}
-          {!user && !loadingBiz && filteredAll.length > GUEST_LIMIT && (
-            <div className="home-auth-gate">
-              <div className="home-auth-gate__blur" />
-              <div className="home-auth-gate__content">
-                <p>Зарегистрируйтесь, чтобы увидеть все карточки и публикации</p>
-                <div className="home-auth-gate__btns">
-                  <button className="home-auth-gate__btn home-auth-gate__btn--login" onClick={() => navigate('/login')}>Войти</button>
-                  <button className="home-auth-gate__btn home-auth-gate__btn--reg" onClick={() => navigate('/register')}>Регистрация</button>
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Все карточки */}
           <section className="all-cards-section">
             <div className="section-header">
@@ -318,6 +304,19 @@ export default function HomePage() {
               )}
             </div>
           </section>
+
+          {/* Auth gate for guests — shown below all cards */}
+          {!user && (
+            <div className="home-auth-gate">
+              <div className="home-auth-gate__content">
+                <p>Зарегистрируйтесь, чтобы увидеть все карточки и публикации</p>
+                <div className="home-auth-gate__btns">
+                  <button className="home-auth-gate__btn home-auth-gate__btn--login" onClick={() => navigate('/login')}>Войти</button>
+                  <button className="home-auth-gate__btn home-auth-gate__btn--reg" onClick={() => navigate('/register')}>Регистрация</button>
+                </div>
+              </div>
+            </div>
+          )}
 
         </main>
         <TweetsSidebar />
