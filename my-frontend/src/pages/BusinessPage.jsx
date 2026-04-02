@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Header from '../components/Header'
 import ReviewsSection from '../components/ReviewsSection'
-import { apiGetBusiness, apiGetBusinessPosts, apiGetBusinesses, apiToggleSubscription, apiJoinGroup, apiCheckGroupMembership, apiDeletePost, apiDeleteStory, apiDeleteProduct, apiUpdateMyBusiness } from '../api/businessApi'
+import { apiGetBusiness, apiGetBusinessPosts, apiGetBusinesses, apiToggleSubscription, apiJoinGroup, apiCheckGroupMembership, apiDeletePost } from '../api/businessApi'
 import './BusinessPage.css'
 
 const CATEGORY_ICONS = {
@@ -25,52 +25,7 @@ function resolveUrl(url) {
   return `${API_BASE}${url}`
 }
 
-const SECTION_TABS = [
-  { id: 'about',   label: 'О нас' },
-  { id: 'gallery', label: 'Фото/Видео' },
-  { id: 'reviews', label: 'Отзывы' },
-  { id: 'posts',   label: 'Публикации' },
-]
 
-/* ── Кастомная печать верификации ── */
-function VerifiedStamp({ brandName }) {
-  const shortName = (brandName || 'BUSINESS').toUpperCase().slice(0, 14)
-  return (
-    <div className="bp__vstamp-wrap" title="Верифицированный бизнес">
-      <svg viewBox="0 0 120 120" width="90" height="90" xmlns="http://www.w3.org/2000/svg">
-        {Array.from({ length: 18 }).map((_, i) => {
-          const angle = (i * 360) / 18
-          const rad = (angle * Math.PI) / 180
-          const cx = 60 + 54 * Math.sin(rad)
-          const cy = 60 - 54 * Math.cos(rad)
-          return <circle key={i} cx={cx} cy={cy} r="8" fill="#1a3a6b" />
-        })}
-        <circle cx="60" cy="60" r="48" fill="#1a3a6b" />
-        <circle cx="60" cy="60" r="44" fill="#e8e0d0" />
-        <circle cx="60" cy="60" r="40" fill="none" stroke="#1a3a6b" strokeWidth="1.5" />
-        <rect x="16" y="47" width="88" height="26" fill="#1a3a6b" rx="2" />
-        <text x="60" y="63" textAnchor="middle" dominantBaseline="middle"
-          fontFamily="Arial, sans-serif" fontSize="13" fontWeight="800" fill="#e8e0d0" letterSpacing="2">
-          VERIFIED
-        </text>
-        {[-14, -5, 5, 14].map((x, i) => (
-          <text key={i} x={60 + x} y="40" textAnchor="middle" fontSize={i === 1 || i === 2 ? "8" : "6"} fill="#1a3a6b">★</text>
-        ))}
-        {[-14, -5, 5, 14].map((x, i) => (
-          <text key={i} x={60 + x} y="84" textAnchor="middle" fontSize={i === 1 || i === 2 ? "8" : "6"} fill="#1a3a6b">★</text>
-        ))}
-        <path id="vstampTop" d="M 22,60 A 38,38 0 0,1 98,60" fill="none" />
-        <text fontFamily="Arial, sans-serif" fontSize="7" fontWeight="600" fill="#1a3a6b">
-          <textPath href="#vstampTop" startOffset="50%" textAnchor="middle">{shortName}</textPath>
-        </text>
-        <path id="vstampBot" d="M 24,68 A 38,38 0 0,0 96,68" fill="none" />
-        <text fontFamily="Arial, sans-serif" fontSize="6" fontWeight="600" fill="#1a3a6b">
-          <textPath href="#vstampBot" startOffset="50%" textAnchor="middle">MESSENGERSHOP</textPath>
-        </text>
-      </svg>
-    </div>
-  )
-}
 
 /* ── Аудио-плеер с автовоспроизведением ── */
 function BusinessAudioPlayer({ audioUrl }) {
@@ -266,62 +221,6 @@ function InfoTabs({ biz, categoryIcon, faq }) {
   )
 }
 
-function ServicesSection({ services, bizId, navigate }) {
-  if (!services || services.length === 0) return null
-  return (
-    <section className="bp__card" id="section-services">
-      <h2 className="bp__card-title">Услуги <span className="bp__pill">{services.length}</span></h2>
-      <div className="bp__services-grid">
-        {services.map(s => {
-          const img = s.image
-            ? (s.image.startsWith('http') ? s.image : `${API_BASE}${s.image}`)
-            : null
-          return (
-            <div key={s.id} className="bp__service-card" onClick={() => navigate(`/business/${bizId}`)}>
-              {img && (
-                <div className="bp__service-img">
-                  <img src={img} alt={s.name} loading="lazy" />
-                </div>
-              )}
-              <div className="bp__service-body">
-                <span className="bp__service-name">{s.name}</span>
-                {s.description && <p className="bp__service-desc">{s.description}</p>}
-                {s.price && (
-                  <span className="bp__service-price">
-                    {s.price} {s.currency || ''}
-                  </span>
-                )}
-              </div>
-            </div>
-          )
-        })}
-      </div>
-    </section>
-  )
-}
-
-function FaqSection({ faqItems }) {
-  const [open, setOpen] = useState(null)
-  if (!faqItems || faqItems.length === 0) return null
-  return (
-    <section className="bp__card" id="section-faq">
-      <h2 className="bp__card-title">Частые вопросы</h2>
-      <div className="bp__faq-list">
-        {faqItems.map((item, i) => (
-          <div key={i} className="bp__faq-item">
-            <button className="bp__faq-q" onClick={() => setOpen(open === i ? null : i)}>
-              <span>{item.question}</span>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <polyline points={open === i ? '18 15 12 9 6 15' : '6 9 12 15 18 9'} />
-              </svg>
-            </button>
-            {open === i && <p className="bp__faq-a">{item.answer}</p>}
-          </div>
-        ))}
-      </div>
-    </section>
-  )
-}
 
 export default function BusinessPage() {
   const { id } = useParams()
@@ -406,10 +305,6 @@ export default function BusinessPage() {
     }
   }
 
-  const scrollToSection = (sectionId) => {
-    const el = document.getElementById(`section-${sectionId}`)
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }
 
   if (loading) return (
     <div className="bp">
@@ -437,7 +332,6 @@ export default function BusinessPage() {
   const cover    = resolveUrl(biz.cover) || FALLBACK_COVER
   const audioUrl = resolveUrl(biz.audio) || null
   const categoryIcon = CATEGORY_ICONS[biz.category] || '🏢'
-  const rating10 = Math.min(10, (Number(biz.rating) * 2).toFixed(1))
 
   const bizHashtags = [
     `#${(biz.category || 'business').toLowerCase()}`,

@@ -5,9 +5,6 @@ export default function NewsCard({ item }) {
   const navigate = useNavigate();
   if (!item) return null;
 
-  const dateStr = item.created_at
-    ? new Date(item.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })
-    : '';
   const title = item.title?.length > 55 ? item.title.slice(0, 55) + '...' : item.title;
 
   return (

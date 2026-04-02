@@ -7,7 +7,10 @@
   align-self: flex-start;
   position: sticky;
   top: 80px;
-  margin-top: 110px;
+  margin-top: 148px;
+  height: 500px;
+  display: flex;
+  flex-direction: column;
   box-shadow: 0 2px 16px rgba(0,0,0,0.08);
 }
 
@@ -24,6 +27,8 @@
 .tweets-sidebar__list {
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
+  flex: 1;
 }
 
 /* Tweet item */

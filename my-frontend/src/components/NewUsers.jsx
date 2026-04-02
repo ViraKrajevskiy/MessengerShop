@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useViewed } from '../context/ViewedContext'
-import { apiGetBusinesses, CATEGORY_LABELS } from '../api/businessApi'
+import { apiGetBusinesses } from '../api/businessApi'
 import './NewUsers.css'
 
 const FALLBACK_LOGO = 'https://i.pravatar.cc/150?u='

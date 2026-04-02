@@ -689,8 +689,8 @@ export default function BusinessDashboardPage() {
   // ── Single effect: fires when tab or bizId changes ─────────────────────────
   useEffect(() => {
     if (!bizId) return
-    if (activeTab === 'posts')    loadPosts(bizId)
-    if (activeTab === 'stories')  loadStories(bizId)
+    if (activeTab === 'posts')    void loadPosts(bizId)
+    if (activeTab === 'stories')  void loadStories(bizId)
   }, [activeTab, bizId])            // loadPosts/loadStories stable — no loop
 
   // ── Refresh stats after create ─────────────────────────────────────────────
