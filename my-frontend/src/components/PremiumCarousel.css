@@ -10,7 +10,7 @@
   grid-template-rows: 1fr 1fr;
   grid-auto-flow: dense;
   gap: 4px;
-  height: 310px;
+  height: 420px;
   border-radius: var(--radius-lg);
   overflow: hidden;
   cursor: grab;
@@ -155,7 +155,7 @@
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .premium-carousel__mosaic {
-    height: 220px;
+    height: 280px;
   }
   .pc-card__overlay { padding: 10px; }
   .pc-card__name { font-size: 12px; }
@@ -163,7 +163,7 @@
 
 @media (max-width: 480px) {
   .premium-carousel__mosaic {
-    height: 160px;
+    height: 200px;
     gap: 3px;
   }
   .pc-card__badge { font-size: 8px; padding: 1px 5px; }

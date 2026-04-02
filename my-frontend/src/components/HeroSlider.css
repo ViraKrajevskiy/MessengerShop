@@ -10,7 +10,7 @@
   grid-template-rows: 1fr 1fr;
   grid-auto-flow: dense;
   gap: 4px;
-  height: 310px;
+  height: 420px;
   border-radius: var(--radius-lg);
   overflow: hidden;
 }
@@ -77,12 +77,12 @@
 
 @media (max-width: 768px) {
   .hero-slider__mosaic {
-    height: 200px;
+    height: 260px;
   }
 }
 
 @media (max-width: 480px) {
   .hero-slider__mosaic {
-    height: 160px;
+    height: 180px;
   }
 }
