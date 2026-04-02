@@ -14,7 +14,7 @@ const FALLBACK_IMGS = [
   'https://picsum.photos/id/338/80/80',
 ]
 
-const PAGE_SIZE = 5
+const PAGE_SIZE = 8
 
 export default function TweetsSidebar() {
   const [posts, setPosts] = useState([])
