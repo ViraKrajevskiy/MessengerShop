@@ -306,17 +306,6 @@ export default function HomePage() {
           </section>
 
           {/* Auth gate for guests — shown below all cards */}
-          {!user && (
-            <div className="home-auth-gate">
-              <div className="home-auth-gate__content">
-                <p>Зарегистрируйтесь, чтобы увидеть все карточки и публикации</p>
-                <div className="home-auth-gate__btns">
-                  <button className="home-auth-gate__btn home-auth-gate__btn--login" onClick={() => navigate('/login')}>Войти</button>
-                  <button className="home-auth-gate__btn home-auth-gate__btn--reg" onClick={() => navigate('/register')}>Регистрация</button>
-                </div>
-              </div>
-            </div>
-          )}
 
         </main>
         <TweetsSidebar />

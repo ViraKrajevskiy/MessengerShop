@@ -82,7 +82,6 @@ function BusinessAudioPlayer({ audioUrl }) {
   useEffect(() => {
     const audio = audioRef.current
     if (!audio) return
-    audio.play().then(() => setPlaying(true)).catch(() => {})
     const onTime   = () => setProgress(audio.currentTime)
     const onLoaded = () => setDuration(audio.duration)
     const onEnd    = () => setPlaying(false)
@@ -213,6 +212,116 @@ function AuthGate({ navigate }) {
   )
 }
 
+
+function InfoTabs({ biz, categoryIcon, faq }) {
+  const [tab, setTab] = useState('props')
+  const [openFaq, setOpenFaq] = useState(null)
+  const hasFaq = faq && faq.length > 0
+
+  return (
+    <section className="bp__card">
+      <div className="bp__info-tabs">
+        <button
+          className={`bp__info-tab${tab === 'props' ? ' bp__info-tab--active' : ''}`}
+          onClick={() => setTab('props')}
+        >Характеристики</button>
+        {hasFaq && (
+          <button
+            className={`bp__info-tab${tab === 'faq' ? ' bp__info-tab--active' : ''}`}
+            onClick={() => setTab('faq')}
+          >FAQ</button>
+        )}
+      </div>
+
+      {tab === 'props' && (
+        <div className="bp__props">
+          <div className="bp__prop"><span>Категория</span><span>{categoryIcon} {biz.category_label}</span></div>
+          {biz.city && <div className="bp__prop"><span>Город</span><span>{biz.city}</span></div>}
+          <div className="bp__prop"><span>Рейтинг</span><span>⭐ {Number(biz.rating).toFixed(1)} / 5</span></div>
+          <div className="bp__prop">
+            <span>Статус</span>
+            <span style={{ color: biz.is_verified ? '#10b981' : 'var(--text-muted)' }}>
+              {biz.is_verified ? '✓ Подтверждён' : 'Не верифицирован'}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {tab === 'faq' && hasFaq && (
+        <div className="bp__faq-list">
+          {faq.map((item, i) => (
+            <div key={i} className="bp__faq-item">
+              <button className="bp__faq-q" onClick={() => setOpenFaq(openFaq === i ? null : i)}>
+                <span>{item.question}</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points={openFaq === i ? '18 15 12 9 6 15' : '6 9 12 15 18 9'} />
+                </svg>
+              </button>
+              {openFaq === i && <p className="bp__faq-a">{item.answer}</p>}
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  )
+}
+
+function ServicesSection({ services, bizId, navigate }) {
+  if (!services || services.length === 0) return null
+  return (
+    <section className="bp__card" id="section-services">
+      <h2 className="bp__card-title">Услуги <span className="bp__pill">{services.length}</span></h2>
+      <div className="bp__services-grid">
+        {services.map(s => {
+          const img = s.image
+            ? (s.image.startsWith('http') ? s.image : `${API_BASE}${s.image}`)
+            : null
+          return (
+            <div key={s.id} className="bp__service-card" onClick={() => navigate(`/business/${bizId}`)}>
+              {img && (
+                <div className="bp__service-img">
+                  <img src={img} alt={s.name} loading="lazy" />
+                </div>
+              )}
+              <div className="bp__service-body">
+                <span className="bp__service-name">{s.name}</span>
+                {s.description && <p className="bp__service-desc">{s.description}</p>}
+                {s.price && (
+                  <span className="bp__service-price">
+                    {s.price} {s.currency || ''}
+                  </span>
+                )}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </section>
+  )
+}
+
+function FaqSection({ faqItems }) {
+  const [open, setOpen] = useState(null)
+  if (!faqItems || faqItems.length === 0) return null
+  return (
+    <section className="bp__card" id="section-faq">
+      <h2 className="bp__card-title">Частые вопросы</h2>
+      <div className="bp__faq-list">
+        {faqItems.map((item, i) => (
+          <div key={i} className="bp__faq-item">
+            <button className="bp__faq-q" onClick={() => setOpen(open === i ? null : i)}>
+              <span>{item.question}</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polyline points={open === i ? '18 15 12 9 6 15' : '6 9 12 15 18 9'} />
+              </svg>
+            </button>
+            {open === i && <p className="bp__faq-a">{item.answer}</p>}
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
 
 export default function BusinessPage() {
   const { id } = useParams()
@@ -459,16 +568,8 @@ export default function BusinessPage() {
             </div>
           </div>
 
-          {/* Печать верификации — правый верхний угол */}
-          {biz.is_verified && (
-            <div className="bp__hero-stamp">
-              <VerifiedStamp brandName={biz.brand_name} />
-            </div>
-          )}
         </div>
 
-        {/* Аудио-плеер под hero (автовоспроизведение при открытии профиля) */}
-        {audioUrl && <BusinessAudioPlayer audioUrl={audioUrl} />}
 
 
         <div className="bp__grid">
@@ -477,6 +578,7 @@ export default function BusinessPage() {
             {/* БЛОК 1: О нас + Контакты — объединённый */}
             <section className="bp__card" id="section-about">
               <h2 className="bp__card-title">О нас</h2>
+              {audioUrl && <BusinessAudioPlayer audioUrl={audioUrl} />}
               {biz.description && <p className="bp__about-text">{biz.description}</p>}
               {biz.description && <div className="bp__about-divider" />}
               <h3 className="bp__about-contacts-title">Контакты</h3>
@@ -513,50 +615,15 @@ export default function BusinessPage() {
                   </a>
                 )}
               </div>
-              {biz.is_verified && (
-                <div className="bp__verified-stamp">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="#10b981">
-                    <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                  </svg>
-                  Верифицированный бизнес
-                </div>
-              )}
             </section>
 
-            <section className="bp__card">
-              <h2 className="bp__card-title">Характеристики</h2>
-              <div className="bp__props">
-                <div className="bp__prop"><span>Категория</span><span>{categoryIcon} {biz.category_label}</span></div>
-                {biz.city && <div className="bp__prop"><span>Город</span><span>{biz.city}</span></div>}
-                <div className="bp__prop"><span>Рейтинг</span><span>⭐ {Number(biz.rating).toFixed(1)} / 5</span></div>
-                <div className="bp__prop">
-                  <span>Статус</span>
-                  <span style={{ color: biz.is_verified ? '#10b981' : 'var(--text-muted)' }}>
-                    {biz.is_verified ? '✓ Подтверждён' : 'Не верифицирован'}
-                  </span>
-                </div>
-              </div>
-            </section>
-
-            {/* ── Услуги ── */}
-            <ServicesSection
-              services={(biz.products || []).filter(p => p.product_type === 'SERVICE')}
-              bizId={id}
-              navigate={navigate}
-              user={user}
-              getAccessToken={getAccessToken}
+            <InfoTabs
+              biz={biz}
+              categoryIcon={categoryIcon}
+              faq={faq}
             />
 
             <Gallery posts={posts} />
-
-            {/* ── FAQ ── */}
-            <FaqSection
-              faqItems={faq}
-              isOwner={isOwner}
-              bizId={id}
-              getAccessToken={getAccessToken}
-              onFaqUpdate={setFaq}
-            />
 
             {posts.length > 0 && (
               <section className="bp__card" id="section-posts">
