@@ -94,7 +94,7 @@ function FeedPost({ post, onTagClick }) {
     <div className="feed-post" onClick={() => navigate(`/business/${post.business_id}`)}>
       {/* Header: avatar + name + subscribe */}
       <div className="feed-post__header">
-        <img className="feed-post__avatar" src={logo} alt={post.business_name}
+        <img className="feed-post__avatar" src={logo} alt={post.business_name} width="32" height="32"
           onClick={(e) => { e.stopPropagation(); navigate(`/business/${post.business_id}`) }} />
         <div className="feed-post__meta">
           <div className="feed-post__top-row">
@@ -210,7 +210,7 @@ function TweetCard({ post, onTagClick }) {
 
   return (
     <div className="feed-tweet" onClick={() => navigate(`/business/${post.business_id}`)}>
-      <img className="feed-tweet__avatar" src={logo} alt={post.business_name} />
+      <img className="feed-tweet__avatar" src={logo} alt={post.business_name} width="40" height="40" />
       <div className="feed-tweet__body">
         <div className="feed-tweet__top">
           <span className="feed-tweet__name">
@@ -262,7 +262,7 @@ function FeedBizCard({ biz }) {
     : `https://i.pravatar.cc/100?u=${biz.id}`
   return (
     <div className="feed-biz-card" onClick={() => navigate(`/business/${biz.id}`)}>
-      <img className="feed-biz-card__logo" src={logo} alt={biz.brand_name} />
+      <img className="feed-biz-card__logo" src={logo} alt={biz.brand_name} width="42" height="42" />
       <div className="feed-biz-card__info">
         <span className="feed-biz-card__name">{biz.brand_name}</span>
         <span className="feed-biz-card__cat">{CATEGORY_LABELS[biz.category] || biz.category}</span>
@@ -470,6 +470,7 @@ export default function FeedPage() {
             <div className="feed-filters__sep" />
 
             <select
+              name="sort-order"
               className="feed-filters__sort"
               value={sortOrder}
               onChange={e => setSortOrder(e.target.value)}
@@ -483,6 +484,7 @@ export default function FeedPage() {
 
             {allCities.length > 0 && (
               <select
+                name="filter-city"
                 className="feed-filters__sort"
                 value={filterCity}
                 onChange={e => setFilterCity(e.target.value)}

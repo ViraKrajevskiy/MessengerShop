@@ -149,7 +149,7 @@ export default function Header() {
 
           {/* Language */}
           <div className="header__lang">
-            <select value={lang} onChange={(e) => setLang(e.target.value)} className="header__lang-select">
+            <select name="language" value={lang} onChange={(e) => setLang(e.target.value)} className="header__lang-select">
               <option>Русский</option>
               <option>English</option>
               <option>Türkçe</option>
@@ -225,7 +225,7 @@ export default function Header() {
             <ThemeIcon />
             <span>{theme === 'light' ? 'Тёмная тема' : 'Светлая тема'}</span>
           </button>
-          <select value={lang} onChange={(e) => setLang(e.target.value)} className="header__lang-select">
+          <select name="language" value={lang} onChange={(e) => setLang(e.target.value)} className="header__lang-select">
             <option>Русский</option>
             <option>English</option>
             <option>Türkçe</option>
