@@ -1,6 +1,6 @@
 .stories {
   padding: 20px 0 24px;
-  min-height: 130px; /* CLS fix: reserve space for story circles */
+  min-height: 130px;
 }
 
 .stories__carousel {

@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { apiToggleSubscription } from '../api/businessApi'
+import { makeInitialAvatar } from '../utils/defaults'
 import './PostCard.css'
 
-const FALLBACK_IMG  = 'https://picsum.photos/id/342/800/600'
-const FALLBACK_LOGO = 'https://i.pravatar.cc/80?u=default'
+const FALLBACK_IMG = 'https://picsum.photos/id/342/800/600'
 
 function timeAgo(dateStr) {
   const diff = Date.now() - new Date(dateStr).getTime()
@@ -50,7 +50,7 @@ export default function PostCard({ post, onDelete }) {
 
   const logo = post.business_logo
     ? (post.business_logo.startsWith('http') ? post.business_logo : `https://api.101-school.uz${post.business_logo}`)
-    : FALLBACK_LOGO
+    : makeInitialAvatar(post.business_name)
   const media = post.media_display || FALLBACK_IMG
   const SHORT = 100
   const isLong = post.text && post.text.length > SHORT
@@ -83,16 +83,13 @@ export default function PostCard({ post, onDelete }) {
               </svg>
             )}
           </span>
-          <div className="post-card__bottom-row">
-            <span className="post-card__time">{timeAgo(post.created_at)}</span>
-            <button
-              className={`post-card__follow ${followed ? 'post-card__follow--active' : ''}`}
-              onClick={handleFollow}
-              disabled={subLoading}
-            >
-              {followed ? 'Подписан' : 'Подписаться'}
-            </button>
-          </div>
+          <button
+            className={`post-card__follow ${followed ? 'post-card__follow--active' : ''}`}
+            onClick={handleFollow}
+            disabled={subLoading}
+          >
+            {followed ? '✓ Подписан' : '+ Подписаться'}
+          </button>
         </div>
       </div>
 

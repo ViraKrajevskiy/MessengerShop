@@ -2,9 +2,8 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useViewed } from '../context/ViewedContext'
 import { apiGetBusinesses } from '../api/businessApi'
+import { makeInitialAvatar } from '../utils/defaults'
 import './NewUsers.css'
-
-const FALLBACK_LOGO = 'https://i.pravatar.cc/150?u='
 
 export default function NewUsers() {
   const [businesses, setBusinesses] = useState([])
@@ -44,7 +43,7 @@ export default function NewUsers() {
         {displayed.map(biz => {
           const logo = biz.logo
             ? (biz.logo.startsWith('http') ? biz.logo : `https://api.101-school.uz${biz.logo}`)
-            : `${FALLBACK_LOGO}${biz.id}`
+            : makeInitialAvatar(biz.brand_name)
           return (
             <div key={biz.id} className="new-users__item" onClick={() => handleClick(biz)}>
               <div className="new-users__avatar">

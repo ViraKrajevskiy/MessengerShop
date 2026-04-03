@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { apiPatchMe } from '../api/profileApi'
 import Header from '../components/Header'
+import { DEFAULT_AVATAR } from '../utils/defaults'
 import './MyProfilePage.css'
 
 const BASE = 'https://api.101-school.uz/api'
@@ -60,7 +61,7 @@ export default function MyProfilePage() {
   const avatarSrc = avatarPreview
     || (user.avatar
         ? (user.avatar.startsWith('http') ? user.avatar : `https://api.101-school.uz${user.avatar}`)
-        : `https://i.pravatar.cc/200?u=${user.email}`)
+        : DEFAULT_AVATAR)
 
   const role = ROLE_LABELS[user.role] || { label: user.role, color: '#64748b' }
 

@@ -5,6 +5,7 @@ import Footer from '../components/Footer'
 import Stories from '../components/Stories'
 import { useAuth } from '../context/AuthContext'
 import { apiGetPosts, apiGetBusinesses, apiGetNews, apiGetProducts, apiToggleSubscription, CATEGORY_LABELS } from '../api/businessApi'
+import { makeInitialAvatar } from '../utils/defaults'
 import './FeedPage.css'
 
 // ── Tag pills ────────────────────────────────────────────────────────────────
@@ -20,7 +21,6 @@ function TagPills({ tags, onTagClick }) {
 }
 
 const FALLBACK_IMG  = 'https://picsum.photos/id/342/800/600'
-const FALLBACK_LOGO = 'https://i.pravatar.cc/80?u=default'
 const PROD_IMGS = [
   'https://picsum.photos/id/119/400/300',
   'https://picsum.photos/id/137/400/300',
@@ -71,7 +71,7 @@ function FeedPost({ post, onTagClick }) {
 
   const logo  = post.business_logo
     ? (post.business_logo.startsWith('http') ? post.business_logo : `https://api.101-school.uz${post.business_logo}`)
-    : FALLBACK_LOGO
+    : makeInitialAvatar(post.business_name)
   const media = post.media_display || FALLBACK_IMG
   const SHORT = 100
   const isLong = post.text && post.text.length > SHORT
@@ -205,7 +205,7 @@ function TweetCard({ post, onTagClick }) {
   const navigate = useNavigate()
   const logo = post.business_logo
     ? (post.business_logo.startsWith('http') ? post.business_logo : `https://api.101-school.uz${post.business_logo}`)
-    : FALLBACK_LOGO
+    : makeInitialAvatar(post.business_name)
   const media = post.media_display || null
 
   return (
@@ -259,7 +259,7 @@ function FeedBizCard({ biz }) {
   const navigate = useNavigate()
   const logo = biz.logo
     ? (biz.logo.startsWith('http') ? biz.logo : `https://api.101-school.uz${biz.logo}`)
-    : `https://i.pravatar.cc/100?u=${biz.id}`
+    : makeInitialAvatar(biz.brand_name)
   return (
     <div className="feed-biz-card" onClick={() => navigate(`/business/${biz.id}`)}>
       <img className="feed-biz-card__logo" src={logo} alt={biz.brand_name} width="42" height="42" />

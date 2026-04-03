@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Header from '../components/Header'
 import ReviewsSection from '../components/ReviewsSection'
-import { apiGetBusiness, apiGetBusinessPosts, apiGetBusinesses, apiToggleSubscription, apiJoinGroup, apiCheckGroupMembership, apiDeletePost } from '../api/businessApi'
+import { apiGetBusiness, apiGetBusinessPosts, apiGetBusinesses, apiGetBusinessProducts, apiToggleSubscription, apiJoinGroup, apiCheckGroupMembership, apiDeletePost } from '../api/businessApi'
 import './BusinessPage.css'
 
 const CATEGORY_ICONS = {
@@ -27,7 +27,9 @@ function resolveUrl(url) {
 
 
 
-/* ── Аудио-плеер с автовоспроизведением ── */
+/* ── Аудио-плеер (голосовое сообщение) ── */
+const WAVE_BARS = [4,7,12,9,14,10,6,13,8,11,5,10,13,7,9,12,6,11,8,14,5,9,12,7,10,13,6,11,8,4]
+
 function BusinessAudioPlayer({ audioUrl }) {
   const audioRef = useRef(null)
   const [playing, setPlaying] = useState(false)
@@ -39,7 +41,7 @@ function BusinessAudioPlayer({ audioUrl }) {
     if (!audio) return
     const onTime   = () => setProgress(audio.currentTime)
     const onLoaded = () => setDuration(audio.duration)
-    const onEnd    = () => setPlaying(false)
+    const onEnd    = () => { setPlaying(false); setProgress(0) }
     audio.addEventListener('timeupdate', onTime)
     audio.addEventListener('loadedmetadata', onLoaded)
     audio.addEventListener('ended', onEnd)
@@ -55,7 +57,11 @@ function BusinessAudioPlayer({ audioUrl }) {
     const audio = audioRef.current
     if (!audio) return
     if (playing) { audio.pause(); setPlaying(false) }
-    else { audio.play(); setPlaying(true) }
+    else {
+      if (!audio.src) { audio.src = audioUrl; audio.load() }
+      audio.play().catch(() => {})
+      setPlaying(true)
+    }
   }
 
   const seek = (e) => {
@@ -70,23 +76,44 @@ function BusinessAudioPlayer({ audioUrl }) {
     return `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`
   }
 
+  const pct = duration ? progress / duration : 0
+
   return (
-    <div className="bp__audio-player">
-      <audio ref={audioRef} src={audioUrl} preload="metadata" />
-      <button className="bp__audio-btn" onClick={toggle}>
+    <div className="bp__voice">
+      <audio ref={audioRef} preload="none" />
+      <button className="bp__voice-btn" onClick={toggle} aria-label={playing ? 'Пауза' : 'Воспроизвести'}>
         {playing
-          ? <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-          : <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+          ? <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="3" width="5" height="18" rx="1"/><rect x="14" y="3" width="5" height="18" rx="1"/></svg>
+          : <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="6,3 20,12 6,21"/></svg>
         }
       </button>
-      <div className="bp__audio-track" onClick={seek}>
-        <div className="bp__audio-fill" style={{ width: duration ? `${(progress / duration) * 100}%` : '0%' }} />
+      <div className="bp__voice-body">
+        <div className="bp__voice-wave" onClick={seek}>
+          {WAVE_BARS.map((h, i) => {
+            const filled = i / WAVE_BARS.length < pct
+            return (
+              <span
+                key={i}
+                className={`bp__voice-bar${playing && !filled ? ' bp__voice-bar--anim' : ''}`}
+                style={{
+                  height: h,
+                  background: filled ? 'var(--accent-1)' : undefined,
+                  animationDelay: `${(i % 6) * 0.09}s`,
+                }}
+              />
+            )
+          })}
+        </div>
+        <div className="bp__voice-meta">
+          <span className="bp__voice-label">Голосовое приветствие</span>
+          <span className="bp__voice-time">{fmt(progress)}{duration ? ` / ${fmt(duration)}` : ''}</span>
+        </div>
       </div>
-      <span className="bp__audio-time">{fmt(progress)} / {fmt(duration)}</span>
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-1)" strokeWidth="2">
-        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-        <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+      <svg className="bp__voice-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+        <line x1="12" y1="19" x2="12" y2="23"/>
+        <line x1="8" y1="23" x2="16" y2="23"/>
       </svg>
     </div>
   )
@@ -168,10 +195,60 @@ function AuthGate({ navigate }) {
 }
 
 
-function InfoTabs({ biz, categoryIcon, faq }) {
+const CURRENCY_SYMBOL = { TRY: '₺', USD: '$', EUR: '€', RUB: '₽' }
+
+function ProductCard({ item, navigate }) {
+  const img = item.image_url || (item.image ? resolveUrl(item.image) : null) || `https://picsum.photos/id/${(item.id % 100) + 10}/400/300`
+  const symbol = CURRENCY_SYMBOL[item.currency] || item.currency
+  return (
+    <div className="bp__feed-item" onClick={() => navigate(`/products/${item.id}`)} style={{ cursor: 'pointer' }}>
+      <div className="bp__feed-media">
+        <img src={img} alt={item.name} loading="lazy" />
+      </div>
+      <div className="bp__feed-body">
+        <p className="bp__feed-text" style={{ fontWeight: 700, color: 'var(--text-primary)', WebkitLineClamp: 2 }}>{item.name}</p>
+        {item.description && <p className="bp__feed-text" style={{ fontSize: 12, marginTop: -2 }}>{item.description}</p>}
+        <div className="bp__feed-footer" style={{ marginTop: 4 }}>
+          {item.price && (
+            <span style={{ fontWeight: 800, fontSize: 14, color: 'var(--accent-1)' }}>
+              {Number(item.price).toLocaleString()} {symbol}
+            </span>
+          )}
+          {!item.is_available && (
+            <span style={{ fontSize: 11, color: 'var(--text-muted)', background: 'var(--bg-tertiary)', padding: '2px 8px', borderRadius: 6 }}>
+              Нет в наличии
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ServiceCard({ item, navigate }) {
+  const img = item.image_url || (item.image ? resolveUrl(item.image) : null) || `https://picsum.photos/id/${(item.id % 100) + 50}/400/300`
+  const symbol = CURRENCY_SYMBOL[item.currency] || item.currency
+  return (
+    <div className="bp__service-card" onClick={() => navigate(`/products/${item.id}`)}>
+      <div className="bp__service-img">
+        <img src={img} alt={item.name} loading="lazy" />
+      </div>
+      <div className="bp__service-body">
+        <p className="bp__service-name">{item.name}</p>
+        {item.description && <p className="bp__service-desc">{item.description}</p>}
+        {item.price && (
+          <p className="bp__service-price">{Number(item.price).toLocaleString()} {symbol}</p>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function InfoTabs({ biz, categoryIcon, faq, services, navigate }) {
   const [tab, setTab] = useState('props')
   const [openFaq, setOpenFaq] = useState(null)
   const hasFaq = faq && faq.length > 0
+  const serviceList = services || []
 
   return (
     <section className="bp__card">
@@ -180,12 +257,17 @@ function InfoTabs({ biz, categoryIcon, faq }) {
           className={`bp__info-tab${tab === 'props' ? ' bp__info-tab--active' : ''}`}
           onClick={() => setTab('props')}
         >Характеристики</button>
-        {hasFaq && (
-          <button
-            className={`bp__info-tab${tab === 'faq' ? ' bp__info-tab--active' : ''}`}
-            onClick={() => setTab('faq')}
-          >FAQ</button>
-        )}
+        <button
+          className={`bp__info-tab${tab === 'services' ? ' bp__info-tab--active' : ''}`}
+          onClick={() => setTab('services')}
+        >
+          Услуги
+          {serviceList.length > 0 && <span className="bp__info-tab-count">{serviceList.length}</span>}
+        </button>
+        <button
+          className={`bp__info-tab${tab === 'faq' ? ' bp__info-tab--active' : ''}`}
+          onClick={() => setTab('faq')}
+        >FAQ</button>
       </div>
 
       {tab === 'props' && (
@@ -202,20 +284,44 @@ function InfoTabs({ biz, categoryIcon, faq }) {
         </div>
       )}
 
-      {tab === 'faq' && hasFaq && (
-        <div className="bp__faq-list">
-          {faq.map((item, i) => (
-            <div key={i} className="bp__faq-item">
-              <button className="bp__faq-q" onClick={() => setOpenFaq(openFaq === i ? null : i)}>
-                <span>{item.question}</span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <polyline points={openFaq === i ? '18 15 12 9 6 15' : '6 9 12 15 18 9'} />
-                </svg>
-              </button>
-              {openFaq === i && <p className="bp__faq-a">{item.answer}</p>}
+      {tab === 'services' && (
+        serviceList.length > 0
+          ? <div className="bp__services-grid">
+              {serviceList.map(s => <ServiceCard key={s.id} item={s} navigate={navigate} />)}
             </div>
-          ))}
-        </div>
+          : <div className="bp__services-empty">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+              </svg>
+              <p>Пока услуг нет</p>
+              <span>Этот бизнес ещё не добавил услуги</span>
+            </div>
+      )}
+
+      {tab === 'faq' && (
+        hasFaq
+          ? <div className="bp__faq-list">
+              {faq.map((item, i) => (
+                <div key={i} className="bp__faq-item">
+                  <button className="bp__faq-q" onClick={() => setOpenFaq(openFaq === i ? null : i)}>
+                    <span>{item.question}</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points={openFaq === i ? '18 15 12 9 6 15' : '6 9 12 15 18 9'} />
+                    </svg>
+                  </button>
+                  {openFaq === i && <p className="bp__faq-a">{item.answer}</p>}
+                </div>
+              ))}
+            </div>
+          : <div className="bp__services-empty">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+              <p>Нет дополнительной информации</p>
+              <span>Бизнес ещё не добавил ответы на часто задаваемые вопросы</span>
+            </div>
       )}
     </section>
   )
@@ -241,6 +347,8 @@ export default function BusinessPage() {
   const [deletingPost, setDeletingPost] = useState(null)
   const [toast, setToast]           = useState('')
   const [faq, setFaq]               = useState([])
+  const [products, setProducts]     = useState([])
+  const [services, setServices]     = useState([])
 
   const showToast = (msg) => {
     setToast(msg)
@@ -252,11 +360,14 @@ export default function BusinessPage() {
     setError('')
     setBiz(null)
     setSimilar([])
-    Promise.all([apiGetBusiness(id), apiGetBusinessPosts(id)])
-      .then(([bizData, postsData]) => {
+    Promise.all([apiGetBusiness(id), apiGetBusinessPosts(id), apiGetBusinessProducts(id)])
+      .then(([bizData, postsData, productsData]) => {
         setBiz(bizData)
         setPosts(postsData)
         setFaq(Array.isArray(bizData.faq) ? bizData.faq : [])
+        const allProds = Array.isArray(productsData) ? productsData : (productsData.results || [])
+        setProducts(allProds.filter(p => p.product_type === 'PRODUCT' && p.is_available !== false))
+        setServices(allProds.filter(p => p.product_type === 'SERVICE' && p.is_available !== false))
         setSubscribed(bizData.is_subscribed || false)
         setSubCount(bizData.subscribers_count || 0)
         if (bizData.group_id) {
@@ -473,7 +584,7 @@ export default function BusinessPage() {
             <section className="bp__card" id="section-about">
               <h2 className="bp__card-title">О нас</h2>
               {audioUrl && <BusinessAudioPlayer audioUrl={audioUrl} />}
-              {biz.description && <p className="bp__about-text">{biz.description}</p>}
+              {biz.description && <p className="bp__about-text" style={{ marginTop: audioUrl ? 14 : 0 }}>{biz.description}</p>}
               {biz.description && <div className="bp__about-divider" />}
               <h3 className="bp__about-contacts-title">Контакты</h3>
               <div className="bp__contacts-row">
@@ -515,7 +626,20 @@ export default function BusinessPage() {
               biz={biz}
               categoryIcon={categoryIcon}
               faq={faq}
+              services={services}
+              navigate={navigate}
             />
+
+            {products.length > 0 && (
+              <section className="bp__card" id="section-products">
+                <h2 className="bp__card-title">Товары <span className="bp__pill">{products.length}</span></h2>
+                <div className="bp__products-grid">
+                  {products.map(p => (
+                    <ProductCard key={p.id} item={p} navigate={navigate} />
+                  ))}
+                </div>
+              </section>
+            )}
 
             <Gallery posts={posts} />
 

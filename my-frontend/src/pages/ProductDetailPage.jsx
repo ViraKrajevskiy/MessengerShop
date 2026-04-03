@@ -4,6 +4,7 @@ import Header from '../components/Header'
 import Footer from '../components/Footer'
 import { useAuth } from '../context/AuthContext'
 import { apiSendProductInquiry } from '../api/businessApi'
+import { DEFAULT_AVATAR } from '../utils/defaults'
 import './ProductDetailPage.css'
 
 const BASE = import.meta.env.PROD
@@ -148,7 +149,7 @@ export default function ProductDetailPage() {
               <div className="pdp__biz" onClick={() => navigate(`/business/${business.id}`)}>
                 <img
                   className="pdp__biz-logo"
-                  src={business.logo ? (business.logo.startsWith('http') ? business.logo : `https://api.101-school.uz${business.logo}`) : `https://i.pravatar.cc/80?u=${business.id}`}
+                  src={business.logo ? (business.logo.startsWith('http') ? business.logo : `https://api.101-school.uz${business.logo}`) : DEFAULT_AVATAR}
                   alt={business.brand_name}
                 />
                 <div className="pdp__biz-info">

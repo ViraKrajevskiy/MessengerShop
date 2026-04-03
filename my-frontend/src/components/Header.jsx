@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
+import { DEFAULT_AVATAR } from '../utils/defaults'
 import './Header.css'
 
 export default function Header() {
@@ -63,7 +64,7 @@ export default function Header() {
             <div className="header__user-menu" ref={menuRef}>
               <button className="header__user-btn" onClick={() => setMenuOpen(o => !o)}>
                 <img
-                  src={user.avatar || `https://i.pravatar.cc/150?u=${user.email}`}
+                  src={user.avatar || DEFAULT_AVATAR}
                   alt={user.username}
                   className="header__user-avatar"
                 />
@@ -77,7 +78,7 @@ export default function Header() {
               {menuOpen && (
                 <div className="header__dropdown">
                   <div className="header__dropdown-header">
-                    <img src={user.avatar || `https://i.pravatar.cc/150?u=${user.email}`} alt={user.username} className="header__dropdown-avatar" />
+                    <img src={user.avatar || DEFAULT_AVATAR} alt={user.username} className="header__dropdown-avatar" />
                     <div>
                       <div className="header__dropdown-name">{user.username}</div>
                       <div className="header__dropdown-email">{user.email}</div>
@@ -173,7 +174,7 @@ export default function Header() {
         <div className="header__mobile-drawer-top">
           {user ? (
             <div className="header__mobile-user">
-              <img src={user.avatar || `https://i.pravatar.cc/150?u=${user.email}`} alt={user.username} className="header__mobile-avatar" />
+              <img src={user.avatar || DEFAULT_AVATAR} alt={user.username} className="header__mobile-avatar" />
               <div>
                 <div className="header__mobile-username">{user.username}</div>
                 <div className="header__mobile-email">{user.email}</div>

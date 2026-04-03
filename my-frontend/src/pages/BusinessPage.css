@@ -506,6 +506,45 @@
 }
 @keyframes bp-del-spin { to { transform: rotate(360deg); } }
 
+/* ── Products grid ── */
+.bp__products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+}
+
+/* ── Audio section ── */
+.bp__audio-section .bp__card-title {
+  margin-bottom: 12px;
+}
+.bp__audio-section .bp__audio-player {
+  margin-top: 0;
+  background: var(--bg-primary);
+}
+
+/* ── Services empty state ── */
+.bp__services-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px;
+  gap: 8px;
+  color: var(--text-muted);
+  text-align: center;
+}
+.bp__services-empty svg { opacity: 0.35; margin-bottom: 4px; }
+.bp__services-empty p {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin: 0;
+}
+.bp__services-empty span {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
 /* ── Services ── */
 .bp__services-grid {
   display: grid;
@@ -585,6 +624,21 @@
 .bp__info-tab--active {
   color: var(--text-primary);
   border-bottom-color: var(--accent-1);
+}
+.bp__info-tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: var(--accent-gradient);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 20px;
+  margin-left: 4px;
+  vertical-align: middle;
 }
 .bp__info-tab:hover:not(.bp__info-tab--active) {
   color: var(--text-secondary);
@@ -1017,21 +1071,20 @@
   margin: 0 0 12px;
 }
 
-/* ── Аудио-плеер ── */
-.bp__audio-player {
+/* ── Голосовой плеер ── */
+.bp__voice {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-top: 12px;
-  padding: 10px 16px;
-  background: var(--bg-secondary);
-  border: 1.5px solid var(--border-color);
-  border-radius: 14px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, rgba(229,57,53,0.07) 0%, rgba(229,57,53,0.03) 100%);
+  border: 1.5px solid rgba(229,57,53,0.18);
+  border-radius: 16px;
 }
-.bp__audio-btn {
-  width: 34px;
-  height: 34px;
+.bp__voice-btn {
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   border: none;
   background: var(--accent-gradient);
@@ -1041,34 +1094,64 @@
   justify-content: center;
   cursor: pointer;
   flex-shrink: 0;
-  transition: transform 0.15s, opacity 0.15s;
+  box-shadow: 0 3px 12px rgba(229,57,53,0.35);
+  transition: transform 0.15s, box-shadow 0.15s;
 }
-.bp__audio-btn:hover { transform: scale(1.08); opacity: 0.9; }
-.bp__audio-track {
+.bp__voice-btn:hover { transform: scale(1.08); box-shadow: 0 5px 18px rgba(229,57,53,0.45); }
+.bp__voice-btn svg { margin-left: 2px; }
+.bp__voice-body {
   flex: 1;
-  height: 6px;
-  background: var(--bg-tertiary);
-  border-radius: 3px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+.bp__voice-wave {
+  display: flex;
+  align-items: center;
+  gap: 2.5px;
+  height: 28px;
   cursor: pointer;
-  position: relative;
-  overflow: hidden;
 }
-.bp__audio-fill {
-  height: 100%;
-  background: var(--accent-gradient);
-  border-radius: 3px;
-  transition: width 0.1s linear;
+.bp__voice-bar {
+  width: 3px;
+  border-radius: 2px;
+  background: var(--border-color);
+  flex-shrink: 0;
+  transition: background 0.1s;
 }
-.bp__audio-time {
+.bp__voice-bar--anim {
+  animation: voiceWave 0.7s ease-in-out infinite alternate;
+}
+@keyframes voiceWave {
+  0%   { transform: scaleY(0.4); opacity: 0.5; }
+  100% { transform: scaleY(1.1); opacity: 1; }
+}
+.bp__voice-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.bp__voice-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent-1);
+  letter-spacing: 0.2px;
+}
+.bp__voice-time {
   font-size: 11px;
   color: var(--text-muted);
-  white-space: nowrap;
   font-weight: 500;
-  min-width: 70px;
-  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.bp__voice-icon {
+  color: var(--accent-1);
+  flex-shrink: 0;
+  opacity: 0.7;
 }
 
 @media (max-width: 600px) {
   .bp__hero-stamp { display: none; }
-  .bp__audio-time { display: none; }
+  .bp__voice-icon { display: none; }
+  .bp__voice { padding: 10px 12px; gap: 10px; }
 }

@@ -11,9 +11,10 @@ import {
   apiAddGroupMember, apiUpdateGroupMember, apiRemoveGroupMember,
   apiSearchProducts,
 } from '../api/businessApi'
+import { DEFAULT_AVATAR } from '../utils/defaults'
 import './MessengerPage.css'
 
-const FALLBACK_AVATAR = 'https://i.pravatar.cc/100?u='
+const FALLBACK_AVATAR = DEFAULT_AVATAR
 const ROLE_LABELS = { OWNER: 'Владелец', ADMIN: 'Админ', MODERATOR: 'Модератор', MEMBER: 'Участник' }
 const CURRENCY_SYMBOLS = { TRY: '₺', USD: '$', EUR: '€', RUB: '₽' }
 
@@ -93,7 +94,7 @@ function timeAgo(dateStr) {
 
 /* ─── Inquiry contact item (existing) ─── */
 function ContactItem({ inquiry, isActive, onClick, isBusiness }) {
-  const avatar = inquiry.logo || `${FALLBACK_AVATAR}${isBusiness ? inquiry.sender_id : inquiry.biz_id}`
+  const avatar = inquiry.logo || FALLBACK_AVATAR
   const name   = isBusiness ? inquiry.sender_name : inquiry.biz_name
   return (
     <div className={`msg-contact ${isActive ? 'msg-contact--active' : ''}`} onClick={onClick}>
@@ -162,7 +163,7 @@ function ChatView({ inquiry, isBusiness, onBack, onProfileClick, getAccessToken,
   const [mentionResults, setMentionResults] = useState([])
   const mentionTimer = useRef(null)
 
-  const avatar = inquiry.logo || `${FALLBACK_AVATAR}${isBusiness ? inquiry.sender_id : inquiry.biz_id}`
+  const avatar = inquiry.logo || FALLBACK_AVATAR
   const name   = isBusiness ? inquiry.sender_name : inquiry.biz_name
 
   useEffect(() => {
@@ -280,7 +281,7 @@ function ChatView({ inquiry, isBusiness, onBack, onProfileClick, getAccessToken,
           <div style={{textAlign:'center',padding:'40px',color:'var(--text-muted)'}}>Нет сообщений</div>
         ) : messages.map(msg => {
           const isMe = msg.sender_id === currentUserId
-          const msgAvatar = msg.sender_avatar || `${FALLBACK_AVATAR}${msg.sender_id}`
+          const msgAvatar = msg.sender_avatar || FALLBACK_AVATAR
           return (
             <div key={msg.id} className={`msg-bubble-row ${isMe ? 'msg-bubble-row--me' : 'msg-bubble-row--them'}`}>
               {!isMe && (
@@ -521,7 +522,7 @@ function GroupChatView({ group, onBack, getAccessToken, currentUserId }) {
           const isMe = msg.sender_id === currentUserId
           const canDeleteThis = isMe || canDelete
           const hasActions = isMe || canPin || canDeleteThis
-          const msgAvatar = msg.sender_avatar || `${FALLBACK_AVATAR}${msg.sender_id}`
+          const msgAvatar = msg.sender_avatar || FALLBACK_AVATAR
           return (
             <div key={msg.id} className={`msg-bubble-row ${isMe ? 'msg-bubble-row--me' : 'msg-bubble-row--them'}`}>
               {!isMe && (

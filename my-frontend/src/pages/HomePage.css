@@ -368,8 +368,8 @@
     display: none;
   }
   .home-posts-carousel__track > * {
-    flex: 0 0 calc(50% - 6px);
-    min-width: calc(50% - 6px);
+    flex: 0 0 min(260px, 80%);
+    min-width: min(260px, 80%);
     scroll-snap-align: start;
   }
 }

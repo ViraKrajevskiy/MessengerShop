@@ -4,11 +4,18 @@ from Shop.models import Story, StoryView, Comment
 
 
 class StoryAuthorSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
-    email = serializers.EmailField()
-    username = serializers.CharField()
-    avatar = serializers.ImageField()
-    city = serializers.CharField()
+    id         = serializers.IntegerField()
+    email      = serializers.EmailField()
+    username   = serializers.CharField()
+    avatar     = serializers.ImageField()
+    city       = serializers.CharField()
+    brand_name = serializers.SerializerMethodField()
+
+    def get_brand_name(self, obj):
+        try:
+            return obj.business_profile.brand_name
+        except Exception:
+            return None
 
 
 class StorySerializer(serializers.ModelSerializer):

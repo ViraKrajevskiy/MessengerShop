@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { apiGetStories, apiViewStory } from '../api/businessApi'
+import { makeInitialAvatar } from '../utils/defaults'
 import './Stories.css'
 
 function groupStoriesByAuthor(apiStories) {
@@ -15,11 +16,11 @@ function groupStoriesByAuthor(apiStories) {
       map[aId] = {
         id:       aId,
         bizId:    aId,
-        userName: s.author.username || 'Бизнес',
+        userName: s.author.brand_name || s.author.username || 'Бизнес',
         city:     s.author.city || '',
         avatar:   s.author.avatar
           ? (s.author.avatar.startsWith('http') ? s.author.avatar : `https://api.101-school.uz${s.author.avatar}`)
-          : `https://i.pravatar.cc/200?u=${aId}`,
+          : makeInitialAvatar(s.author.brand_name || s.author.username || '?'),
         media:    [],
       }
     }

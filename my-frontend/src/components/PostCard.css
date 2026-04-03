@@ -20,7 +20,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 12px 8px;
+  padding: 12px 14px 10px;
 }
 
 .post-card__avatar {
@@ -53,12 +53,9 @@
   color: var(--text-primary);
   line-height: 1.3;
   min-width: 0;
-  flex: 1;
   overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  word-break: break-word;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .post-card__verified {
@@ -73,29 +70,31 @@
 }
 
 .post-card__follow {
-  flex-shrink: 0;
-  padding: 4px 10px;
+  align-self: flex-start;
+  padding: 4px 12px;
   border-radius: 20px;
   font-size: 11px;
   font-weight: 700;
   font-family: inherit;
   cursor: pointer;
   transition: all 0.2s;
-  border: 1.5px solid #2196f3;
+  border: 1.5px solid var(--accent-1);
   background: transparent;
-  color: #2196f3;
+  color: var(--accent-1);
   white-space: nowrap;
 }
 
 .post-card__follow:hover {
-  background: #2196f3;
+  background: var(--accent-gradient);
   color: #fff;
+  border-color: transparent;
 }
 
 .post-card__follow--active {
-  background: var(--bg-tertiary, #f0f0f0);
-  border-color: var(--border-color);
-  color: var(--text-muted);
+  background: rgba(229,57,53,0.08);
+  border-color: var(--accent-1);
+  color: var(--accent-1);
+  padding: 5px 10px;
 }
 
 .post-card__image {

@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { apiGetBusinessReviews, apiCreateBusinessReview, apiGetProductReviews, apiCreateProductReview } from '../api/businessApi'
+import { DEFAULT_AVATAR } from '../utils/defaults'
 import './ReviewsSection.css'
 
-const FALLBACK_AVATAR = 'https://i.pravatar.cc/40?u='
+const FALLBACK_AVATAR = DEFAULT_AVATAR
 
 function Stars({ rating, size = 16, interactive = false, onSelect }) {
   const [hover, setHover] = useState(0)
@@ -26,7 +27,7 @@ function Stars({ rating, size = 16, interactive = false, onSelect }) {
 
 
 function ReviewCard({ review }) {
-  const avatar = review.author_avatar || `${FALLBACK_AVATAR}${review.author_name}`
+  const avatar = review.author_avatar || FALLBACK_AVATAR
   const date = new Date(review.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })
   return (
     <div className="rv-card">
