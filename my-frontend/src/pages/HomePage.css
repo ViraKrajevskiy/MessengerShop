@@ -4,6 +4,13 @@
   transition: background 0.3s;
 }
 
+/* Hero + слайдер — на всю ширину */
+.home-page__hero-full {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
 /* Two-column layout: main content + tweets sidebar */
 .home-page__layout {
   max-width: 1100px;
@@ -186,10 +193,16 @@
   .home-page__layout {
     padding: 0 20px;
   }
+  .home-page__hero-full {
+    padding: 0 20px;
+  }
 }
 
 @media (max-width: 768px) {
   .home-page__layout {
+    padding: 0 16px;
+  }
+  .home-page__hero-full {
     padding: 0 16px;
   }
   .home-page__content {

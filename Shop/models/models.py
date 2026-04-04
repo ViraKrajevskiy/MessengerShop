@@ -94,8 +94,9 @@ class Business(BaseController):
         'GroupChat', on_delete=models.SET_NULL, null=True, blank=True,
         related_name='business',
     )
-    audio = models.FileField(upload_to='business_audio/', blank=True, null=True)
-    faq   = models.JSONField(default=list, blank=True)
+    audio    = models.FileField(upload_to='business_audio/', blank=True, null=True)
+    faq      = models.JSONField(default=list, blank=True)
+    services = models.JSONField(default=list, blank=True)
 
     @property
     def is_vip(self):

@@ -52,7 +52,7 @@ EXTRA_BUSINESSES = [
         'is_verified': True,
         'rating':     '4.70',
         'products': [
-            # Услуги (все активны)
+
             {'name': 'Трансфер аэропорт → отель',   'price': '1200',  'currency': 'TRY', 'type': 'SERVICE',
              'desc': 'Встреча с табличкой, помощь с багажом. Любой район Стамбула.',
              'img': 'https://picsum.photos/id/111/400/300', 'available': True,  'tags': ['транспорт', 'стамбул', 'топ']},

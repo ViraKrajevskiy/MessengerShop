@@ -545,6 +545,34 @@
   color: var(--text-muted);
 }
 
+/* ── Services simple list ── */
+.bp__svc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.bp__svc-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+.bp__svc-item:last-child { border-bottom: none; }
+.bp__svc-item__icon { font-size: 18px; flex-shrink: 0; }
+.bp__svc-item__name {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.bp__svc-item__price {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent-1);
+  white-space: nowrap;
+}
+
 /* ── Services ── */
 .bp__services-grid {
   display: grid;

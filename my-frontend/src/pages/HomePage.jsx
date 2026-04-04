@@ -135,24 +135,25 @@ export default function HomePage() {
     <div className="home-page">
       <Header />
 
+      {/* Hero + слайдер — полная ширина, вне двухколоночного layout */}
+      <div className="home-page__hero-full">
+        <div className="home-page__hero">
+          <h1>{desc.title}</h1>
+          <p>
+            {desc.text.split('\n').map((line, i) => (
+              <span key={i}>{line}{i === 0 && <br />}</span>
+            ))}
+          </p>
+        </div>
+
+        {premiumBiz.length >= 4
+          ? <PremiumCarousel businesses={premiumBiz} />
+          : <HeroSlider images={sliderImages} />
+        }
+      </div>
+
       <div className="home-page__layout">
         <main className="home-page__content">
-
-          {/* Hero text */}
-          <div className="home-page__hero">
-            <h1>{desc.title}</h1>
-            <p>
-              {desc.text.split('\n').map((line, i) => (
-                <span key={i}>{line}{i === 0 && <br />}</span>
-              ))}
-            </p>
-          </div>
-
-          {/* Premium users carousel (VIP/PRO) — falls back to HeroSlider */}
-          {premiumBiz.length >= 4
-            ? <PremiumCarousel businesses={premiumBiz} />
-            : <HeroSlider images={sliderImages} />
-          }
 
           {/* Новые бизнесы */}
           <NewUsers />

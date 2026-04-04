@@ -167,6 +167,16 @@ export async function apiDeleteProduct(bizId, productId, token) {
   if (!res.ok) throw new Error('Ошибка удаления продукта')
 }
 
+export async function apiGetMyBusiness() {
+  const tokens = JSON.parse(localStorage.getItem('auth_tokens') || 'null')
+  const access = tokens?.access
+  const res = await fetch(`${BASE}/businesses/me/`, {
+    headers: access ? { 'Authorization': `Bearer ${access}` } : {},
+  })
+  if (!res.ok) return null
+  return res.json()
+}
+
 export async function apiUpdateMyBusiness(data, token) {
   const res = await fetch(`${BASE}/businesses/me/`, {
     method: 'PATCH',

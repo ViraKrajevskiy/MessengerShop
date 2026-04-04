@@ -88,7 +88,7 @@ export default function PostCard({ post, onDelete }) {
             onClick={handleFollow}
             disabled={subLoading}
           >
-            {followed ? '✓ Подписан' : '+ Подписаться'}
+            {followed ? '✓ Подписан' : 'Подписаться'}
           </button>
         </div>
       </div>

@@ -20,6 +20,7 @@ const BusinessDashboardPage = lazy(() => import('./pages/BusinessDashboardPage')
 const NewsDetailPage        = lazy(() => import('./pages/NewsDetailPage'))
 const ProductDetailPage     = lazy(() => import('./pages/ProductDetailPage'))
 const PricingPage           = lazy(() => import('./pages/PricingPage'))
+const CatalogPage           = lazy(() => import('./pages/CatalogPage'))
 
 /* ─── Skeleton loader для Suspense ─── */
 function PageFallback() {
@@ -77,6 +78,7 @@ function App() {
                 <Route path="/news/:id" element={<NewsDetailPage />} />
                 <Route path="/product/:id" element={<ProductDetailPage />} />
                 <Route path="/pricing" element={<PricingPage />} />
+                <Route path="/catalog" element={<CatalogPage />} />
                 <Route path="/vip" element={<Navigate to="/pricing" replace />} />
               </Routes>
             </Suspense>

@@ -550,6 +550,13 @@ export default function BusinessDashboardPage() {
   // Tab
   const [activeTab, setActiveTab] = useState('products')
 
+  // Services management
+  const [bizServices, setBizServices]     = useState([])
+  const [svcName, setSvcName]             = useState('')
+  const [svcPrice, setSvcPrice]           = useState('')
+  const [svcCurrency, setSvcCurrency]     = useState('TRY')
+  const [savingServices, setSavingServices] = useState(false)
+
   // Content lists
   const [posts, setPosts]       = useState([])
   const [postsLoaded, setPostsLoaded] = useState(false)
@@ -634,7 +641,11 @@ export default function BusinessDashboardPage() {
       headers: { Authorization: `Bearer ${tokens.access}` },
     })
       .then(r => r.ok ? r.json() : Promise.reject())
-      .then(data => { setBizId(data.id); setBizData(data) })
+      .then(data => {
+        setBizId(data.id)
+        setBizData(data)
+        setBizServices(Array.isArray(data.services) ? data.services : [])
+      })
       .catch(() => {})
 
     fetch(`${BASE}/businesses/me/stats/`, {
@@ -793,6 +804,35 @@ export default function BusinessDashboardPage() {
       showToast(e.message || 'Ошибка изменения статуса')
     } finally {
       setTogglingStatus(null)
+    }
+  }
+
+  // ── Services management ────────────────────────────────────────────────────
+  const handleAddService = () => {
+    if (!svcName.trim()) return
+    setBizServices(prev => [...prev, { name: svcName.trim(), price: svcPrice.trim(), currency: svcCurrency }])
+    setSvcName(''); setSvcPrice('')
+  }
+
+  const handleRemoveService = (idx) => {
+    setBizServices(prev => prev.filter((_, i) => i !== idx))
+  }
+
+  const handleSaveServices = async () => {
+    if (!tokens?.access) return
+    setSavingServices(true)
+    try {
+      const res = await fetch(`${BASE}/businesses/me/`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${tokens.access}` },
+        body: JSON.stringify({ services: bizServices }),
+      })
+      if (!res.ok) throw new Error()
+      showToast('Услуги сохранены!')
+    } catch {
+      showToast('Ошибка сохранения')
+    } finally {
+      setSavingServices(false)
     }
   }
 
@@ -955,6 +995,13 @@ export default function BusinessDashboardPage() {
                 >
                   🎬 Истории
                   {storiesLoaded && <span className="biz-content-tab__count">{stories.length}</span>}
+                </button>
+                <button
+                  className={`biz-content-tab ${activeTab === 'services' ? 'biz-content-tab--active' : ''}`}
+                  onClick={() => setActiveTab('services')}
+                >
+                  🔧 Услуги
+                  <span className="biz-content-tab__count">{bizServices.length}</span>
                 </button>
               </div>
 
@@ -1219,6 +1266,82 @@ export default function BusinessDashboardPage() {
                       ))}
                     </div>
                   )}
+                </>
+              )}
+              {/* ── Services tab ── */}
+              {activeTab === 'services' && (
+                <>
+                  <div className="biz-dashboard__section-header">
+                    <h2>Услуги</h2>
+                  </div>
+
+                  {/* Add service form */}
+                  <div className="biz-svc-form">
+                    <input
+                      className="biz-svc-form__input biz-svc-form__input--name"
+                      placeholder="Название услуги *"
+                      value={svcName}
+                      onChange={e => setSvcName(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && handleAddService()}
+                    />
+                    <input
+                      className="biz-svc-form__input biz-svc-form__input--price"
+                      placeholder="Цена"
+                      type="number"
+                      min="0"
+                      value={svcPrice}
+                      onChange={e => setSvcPrice(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && handleAddService()}
+                    />
+                    <select
+                      className="biz-svc-form__select"
+                      value={svcCurrency}
+                      onChange={e => setSvcCurrency(e.target.value)}
+                    >
+                      <option value="TRY">₺ TRY</option>
+                      <option value="USD">$ USD</option>
+                      <option value="EUR">€ EUR</option>
+                      <option value="RUB">₽ RUB</option>
+                    </select>
+                    <button className="biz-svc-form__add" onClick={handleAddService} disabled={!svcName.trim()}>
+                      + Добавить
+                    </button>
+                  </div>
+
+                  {/* Services list */}
+                  {bizServices.length === 0 ? (
+                    <div className="biz-dashboard__empty">
+                      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" opacity="0.3">
+                        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                      </svg>
+                      <p>Нет услуг. Добавьте первую услугу выше.</p>
+                    </div>
+                  ) : (
+                    <div className="biz-svc-list">
+                      {bizServices.map((svc, idx) => (
+                        <div key={idx} className="biz-svc-row">
+                          <div className="biz-svc-row__icon">🔧</div>
+                          <div className="biz-svc-row__name">{svc.name}</div>
+                          {svc.price && (
+                            <div className="biz-svc-row__price">
+                              {Number(svc.price).toLocaleString()} {svc.currency === 'TRY' ? '₺' : svc.currency === 'USD' ? '$' : svc.currency === 'EUR' ? '€' : '₽'}
+                            </div>
+                          )}
+                          <button className="biz-row__delete-btn" onClick={() => handleRemoveService(idx)} title="Удалить">
+                            <TrashIcon />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Save button */}
+                  <div className="biz-svc-save-row">
+                    <button className="biz-svc-save-btn" onClick={handleSaveServices} disabled={savingServices}>
+                      {savingServices ? <span className="biz-form__spinner" /> : '💾 Сохранить услуги'}
+                    </button>
+                    <span className="biz-svc-hint">Услуги отображаются на странице вашего магазина</span>
+                  </div>
                 </>
               )}
             </div>

@@ -75,7 +75,9 @@ export default function PricingPage() {
       navigate('/login')
       return
     }
-    navigate('/messenger')
+    const planLabel = planType === 'PRO' ? '⚡ Pro' : '⭐ VIP'
+    const msg = `Здравствуйте! Хочу подключить тариф ${planLabel} на ${PERIOD_LABELS[period]} — $${PLANS[planType][period].price}. Прошу прислать реквизиты для оплаты.`
+    navigate('/verification', { state: { pricingMessage: msg } })
   }
 
   const getSaving = (planType) => {

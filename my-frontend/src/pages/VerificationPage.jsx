@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Header from '../components/Header'
 import './VerificationPage.css'
@@ -25,6 +25,8 @@ const STATUS_CONFIG = {
 export default function VerificationPage() {
   const { user, tokens } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
+  const pricingMessage = location.state?.pricingMessage || ''
 
   const [verReq, setVerReq]       = useState(null)    // текущая заявка
   const [loading, setLoading]     = useState(true)
@@ -43,12 +45,28 @@ export default function VerificationPage() {
     else if (user.role !== 'BUSINESS') navigate('/')
   }, [user, navigate])
 
-  // Загружаем статус заявки
+  // Загружаем статус заявки; если пришли с тарифной страницы — предзаполняем сообщение
   useEffect(() => {
     if (!tokens?.access || user?.role !== 'BUSINESS') return
     apiFetch('/verification/my/', tokens.access)
-      .then(setVerReq)
-      .catch(() => setVerReq(null))
+      .then(data => {
+        setVerReq(data)
+        if (pricingMessage) setMsgText(pricingMessage)
+      })
+      .catch(async () => {
+        // Нет заявки — если пришли с тарифной страницы, создаём автоматически
+        if (pricingMessage) {
+          try {
+            const data = await apiFetch('/verification/my/', tokens.access, { method: 'POST' })
+            setVerReq(data)
+            setMsgText(pricingMessage)
+          } catch {
+            setVerReq(null)
+          }
+        } else {
+          setVerReq(null)
+        }
+      })
       .finally(() => setLoading(false))
   }, [tokens?.access])
 
@@ -226,11 +244,13 @@ export default function VerificationPage() {
           {/* Chat */}
           <div className="vp__chat">
             <div className="vp__chat-header">
-              <div className="vp__chat-avatar">🛡️</div>
+              <div className="vp__chat-avatar">{pricingMessage ? '💳' : '🛡️'}</div>
               <div>
-                <div className="vp__chat-name">Служба верификации</div>
+                <div className="vp__chat-name">
+                  {pricingMessage ? 'Подключение тарифа' : 'Служба верификации'}
+                </div>
                 <div className="vp__chat-status">
-                  {verReq?.status === 'PENDING' ? '● Ожидает проверки' : status?.label}
+                  {verReq?.status === 'PENDING' ? '● Ожидает ответа модератора' : status?.label}
                 </div>
               </div>
             </div>
@@ -238,7 +258,11 @@ export default function VerificationPage() {
             <div className="vp__messages" ref={chatRef}>
               {/* Системное приветствие */}
               <div className="vp__msg vp__msg--system">
-                <p>👋 Добро пожаловать в чат верификации! Загрузите документы слева и напишите сообщение — модератор ответит в ближайшее время.</p>
+                <p>
+                  {pricingMessage
+                    ? '💳 Для подключения тарифа напишите сообщение — модератор пришлёт реквизиты и активирует тариф после оплаты.'
+                    : '👋 Добро пожаловать в чат верификации! Загрузите документы слева и напишите сообщение — модератор ответит в ближайшее время.'}
+                </p>
               </div>
 
               {verReq?.messages?.map(msg => (

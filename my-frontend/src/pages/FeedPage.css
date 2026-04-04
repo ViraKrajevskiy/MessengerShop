@@ -206,7 +206,7 @@
 
 .feed-post__follow {
   padding: 4px 10px;
-  border: 1.5px solid #2196f3;
+  border: none;
   border-radius: 20px;
   background: transparent;
   color: #2196f3;
@@ -226,7 +226,6 @@
 
 .feed-post__follow--active {
   background: var(--bg-tertiary, #f0f0f0);
-  border-color: var(--border-color);
   color: var(--text-muted);
 }
 

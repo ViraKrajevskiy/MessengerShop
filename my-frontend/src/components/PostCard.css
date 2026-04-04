@@ -78,22 +78,20 @@
   font-family: inherit;
   cursor: pointer;
   transition: all 0.2s;
-  border: 1.5px solid var(--accent-1);
+  border: none;
   background: transparent;
-  color: var(--accent-1);
+  color: #2196f3;
   white-space: nowrap;
 }
 
 .post-card__follow:hover {
-  background: var(--accent-gradient);
+  background: #2196f3;
   color: #fff;
-  border-color: transparent;
 }
 
 .post-card__follow--active {
-  background: rgba(229,57,53,0.08);
-  border-color: var(--accent-1);
-  color: var(--accent-1);
+  background: transparent;
+  color: var(--text-muted);
   padding: 5px 10px;
 }
 

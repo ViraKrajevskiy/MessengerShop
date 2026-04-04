@@ -286,8 +286,19 @@ function InfoTabs({ biz, categoryIcon, faq, services, navigate }) {
 
       {tab === 'services' && (
         serviceList.length > 0
-          ? <div className="bp__services-grid">
-              {serviceList.map(s => <ServiceCard key={s.id} item={s} navigate={navigate} />)}
+          ? <div className="bp__svc-list">
+              {serviceList.map((s, i) => {
+                const symbol = { TRY: '₺', USD: '$', EUR: '€', RUB: '₽' }[s.currency] || s.currency || ''
+                return (
+                  <div key={i} className="bp__svc-item">
+                    <div className="bp__svc-item__icon">🔧</div>
+                    <div className="bp__svc-item__name">{s.name}</div>
+                    {s.price && (
+                      <div className="bp__svc-item__price">{Number(s.price).toLocaleString()} {symbol}</div>
+                    )}
+                  </div>
+                )
+              })}
             </div>
           : <div className="bp__services-empty">
               <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -367,7 +378,7 @@ export default function BusinessPage() {
         setFaq(Array.isArray(bizData.faq) ? bizData.faq : [])
         const allProds = Array.isArray(productsData) ? productsData : (productsData.results || [])
         setProducts(allProds.filter(p => p.product_type === 'PRODUCT' && p.is_available !== false))
-        setServices(allProds.filter(p => p.product_type === 'SERVICE' && p.is_available !== false))
+        setServices(Array.isArray(bizData.services) ? bizData.services : [])
         setSubscribed(bizData.is_subscribed || false)
         setSubCount(bizData.subscribers_count || 0)
         if (bizData.group_id) {

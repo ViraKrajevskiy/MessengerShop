@@ -4,7 +4,7 @@ import Header from '../components/Header'
 import Footer from '../components/Footer'
 import Stories from '../components/Stories'
 import { useAuth } from '../context/AuthContext'
-import { apiGetPosts, apiGetBusinesses, apiGetNews, apiGetProducts, apiToggleSubscription, CATEGORY_LABELS } from '../api/businessApi'
+import { apiGetPosts, apiGetBusinesses, apiGetNews, apiToggleSubscription, CATEGORY_LABELS } from '../api/businessApi'
 import { makeInitialAvatar } from '../utils/defaults'
 import './FeedPage.css'
 
@@ -21,13 +21,6 @@ function TagPills({ tags, onTagClick }) {
 }
 
 const FALLBACK_IMG  = 'https://picsum.photos/id/342/800/600'
-const PROD_IMGS = [
-  'https://picsum.photos/id/119/400/300',
-  'https://picsum.photos/id/137/400/300',
-  'https://picsum.photos/id/145/400/300',
-  'https://picsum.photos/id/177/400/300',
-  'https://picsum.photos/id/200/400/300',
-]
 
 function timeAgo(dateStr) {
   const diff = Date.now() - new Date(dateStr).getTime()
@@ -155,51 +148,6 @@ function FeedPost({ post, onTagClick }) {
   )
 }
 
-// ── Product card (feed style) ─────────────────────────────────────────────────
-function FeedProduct({ product, onTagClick }) {
-  const navigate = useNavigate()
-  const { user } = useAuth()
-  const [saved, setSaved] = useState(false)
-
-  const img      = product.image_display || PROD_IMGS[product.id % PROD_IMGS.length]
-  const priceStr = product.price != null
-    ? `${Number(product.price).toLocaleString('ru-RU')} ${product.currency_symbol || product.currency}`
-    : 'Цена по запросу'
-
-  const requireAuth = (cb) => {
-    if (!user) { navigate('/login'); return }
-    cb()
-  }
-
-  return (
-    <div className="feed-product">
-      <div className="feed-product__img-wrap" onClick={() => navigate(`/product/${product.id}`)}>
-        <img src={img} alt={product.name} loading="lazy" />
-        <div className="feed-product__save-btn"
-          onClick={e => { e.stopPropagation(); requireAuth(() => setSaved(!saved)) }}
-          title="В избранное">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill={saved ? '#f59e0b' : 'none'} stroke={saved ? '#f59e0b' : '#fff'} strokeWidth="2">
-            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
-          </svg>
-        </div>
-      </div>
-      <div className="feed-product__body">
-        <p className="feed-product__biz" onClick={e => { e.stopPropagation(); navigate(`/business/${product.business_id}`) }}>
-          {product.business_name}
-        </p>
-        <h3 className="feed-product__name" onClick={() => navigate(`/product/${product.id}`)}>{product.name}</h3>
-        <TagPills tags={product.tags} onTagClick={onTagClick} />
-        <div className="feed-product__footer">
-          <span className="feed-product__price">{priceStr}</span>
-          <button className="feed-product__btn" onClick={() => navigate(`/product/${product.id}`)}>
-            Подробнее
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 // ── Tweet card (compact post) ────────────────────────────────────────────────
 function TweetCard({ post, onTagClick }) {
   const navigate = useNavigate()
@@ -293,9 +241,8 @@ export default function FeedPage() {
   const [posts, setPosts]       = useState([])
   const [businesses, setBiz]    = useState([])
   const [news, setNews]         = useState([])
-  const [products, setProducts] = useState([])
   const [loading, setLoading]   = useState(true)
-  const [tab, setTab]           = useState('posts') // posts | tweets | services | products | news | businesses
+  const [tab, setTab]           = useState('posts') // posts | photos | videos | news | tweets
   const [activeTags, setActiveTags] = useState([])
   const [filterVip, setFilterVip] = useState(false)
   const [filterVerified, setFilterVerified] = useState(false)
@@ -309,30 +256,24 @@ export default function FeedPage() {
 
   useEffect(() => {
     getAccessToken().then(token =>
-      Promise.all([apiGetPosts(token), apiGetBusinesses(), apiGetNews(), apiGetProducts()])
-        .then(([p, b, n, pr]) => {
+      Promise.all([apiGetPosts(token), apiGetBusinesses(), apiGetNews()])
+        .then(([p, b, n]) => {
           setPosts(p)
           setBiz(b)
           setNews(Array.isArray(n) ? n : [])
-          setProducts(Array.isArray(pr) ? pr : [])
         })
         .catch(() => {})
         .finally(() => setLoading(false))
     )
   }, [])
 
-  // Products/Services from API
-  const allProducts = products.filter(p => p.product_type !== 'SERVICE')
-  const allServices = products.filter(p => p.product_type === 'SERVICE')
-
   // Collect all unique tags
   const allTags = useMemo(() => {
     const set = new Set()
     posts.forEach(p => (p.tags || []).forEach(t => set.add(t)))
-    products.forEach(p => (p.tags || []).forEach(t => set.add(t)))
     news.forEach(n => (n.tags || []).forEach(t => set.add(t)))
     return [...set].sort()
-  }, [posts, products, news])
+  }, [posts, news])
 
   const handleTagClick = (tag) => {
     setActiveTags(prev =>
@@ -395,8 +336,6 @@ export default function FeedPage() {
   }
 
   const fPosts = applySortDate(posts.filter(p => passesFilter(p)))
-  const fProducts = applySortPrice(allProducts.filter(p => passesFilter(p)))
-  const fServices = applySortPrice(allServices.filter(p => passesFilter(p)))
   const fNews = applySortDate(news.filter(n =>
     (activeTags.length === 0 || activeTags.some(t => (n.tags || []).includes(t))) &&
     (!filterVip || !n.business_id || vipBizIds.has(n.business_id)) &&
@@ -405,20 +344,16 @@ export default function FeedPage() {
     (!filterCity || !n.business_id || bizCityMap.get(n.business_id) === filterCity)
   ))
 
-  // Filtered businesses for "Компании" tab
-  const fBusinesses = businesses.filter(b =>
-    (!filterVip || b.is_vip) &&
-    (!filterVerified || b.is_verified) &&
-    (!filterCity || b.city === filterCity)
-  )
+  // Фото / Видео — фильтрация постов по типу медиа
+  const fPhotos = fPosts.filter(p => p.media_display && p.media_type !== 'VIDEO')
+  const fVideos = fPosts.filter(p => p.media_display && p.media_type === 'VIDEO')
 
   const TABS = [
-    { key: 'posts',      label: 'Посты' },
-    { key: 'services',   label: 'Услуги' },
-    { key: 'products',   label: 'Продукты' },
-    { key: 'news',       label: 'Новости' },
-    { key: 'tweets',     label: 'Твиты' },
-    { key: 'businesses', label: 'Компании' },
+    { key: 'posts',  label: 'Посты'   },
+    { key: 'photos', label: 'Фото'    },
+    { key: 'videos', label: 'Видео'   },
+    { key: 'news',   label: 'Новости' },
+    { key: 'tweets', label: 'Твиты'   },
   ]
 
   return (
@@ -426,11 +361,6 @@ export default function FeedPage() {
       <Header />
 
       <main className="feed-page__main">
-        {/* Stories strip */}
-        <div className="feed-page__stories">
-          <Stories />
-        </div>
-
         {/* Tabs */}
         <div className="feed-page__tabs">
           {TABS.map(t => (
@@ -545,106 +475,92 @@ export default function FeedPage() {
               [0,1,2].map(i => <FeedSkeleton key={i} />)
             ) : (
               <>
-                {/* ── Посты ── */}
-                {(tab === 'all' || tab === 'posts') && (() => {
-                  const visiblePosts = user ? fPosts : fPosts.slice(0, GUEST_LIMIT)
-                  const hasMore = !user && fPosts.length > GUEST_LIMIT
-                  return (
-                    <>
-                      {tab === 'all' && visiblePosts.length > 0 && (
-                        <div className="feed-section-label"><span>Посты</span></div>
-                      )}
-                      <div className="feed-posts-grid">
-                        {(tab === 'all' ? visiblePosts.slice(0, 4) : visiblePosts).map(post => (
-                          <FeedPost key={`post-${post.id}`} post={post} onTagClick={handleTagClick} />
-                        ))}
-                      </div>
-                      {hasMore && tab === 'posts' && (
-                        <div className="feed-auth-gate">
-                          <div className="feed-auth-gate__blur" />
-                          <div className="feed-auth-gate__box">
-                            <div className="feed-auth-gate__icon">🔒</div>
-                            <p className="feed-auth-gate__text">Войдите, чтобы видеть все публикации</p>
-                            <button className="feed-auth-gate__btn" onClick={() => navigate('/login')}>Войти</button>
-                            <button className="feed-auth-gate__reg" onClick={() => navigate('/register')}>Регистрация</button>
-                          </div>
-                        </div>
-                      )}
-                    </>
-                  )
-                })()}
-
-                {/* ── Услуги ── */}
-                {(tab === 'all' || tab === 'services') && fServices.length > 0 && (
+                {/* ── Посты (+ Истории вверху) ── */}
+                {tab === 'posts' && (
                   <>
-                    {tab === 'all' && (
-                      <div className="feed-section-label">
-                        <span>Услуги</span>
-                        <button onClick={() => setTab('services')}>Все →</button>
-                      </div>
-                    )}
-                    <div className="feed-products-grid">
-                      {(user ? fServices : fServices.slice(0, GUEST_LIMIT)).slice(0, tab === 'all' ? 4 : undefined).map(p => (
-                        <FeedProduct key={`svc-${p.id}`} product={p} onTagClick={handleTagClick} />
-                      ))}
-                    </div>
-                    {!user && fServices.length > GUEST_LIMIT && tab === 'services' && (
-                      <div className="feed-auth-gate">
-                        <div className="feed-auth-gate__blur" />
-                        <div className="feed-auth-gate__box">
-                          <div className="feed-auth-gate__icon">&#128274;</div>
-                          <p className="feed-auth-gate__text">Войдите, чтобы видеть все услуги</p>
-                          <button className="feed-auth-gate__btn" onClick={() => navigate('/login')}>Войти</button>
-                          <button className="feed-auth-gate__reg" onClick={() => navigate('/register')}>Регистрация</button>
-                        </div>
-                      </div>
-                    )}
+                    <Stories />
+                    {(() => {
+                      const visiblePosts = user ? fPosts : fPosts.slice(0, GUEST_LIMIT)
+                      const hasMore = !user && fPosts.length > GUEST_LIMIT
+                      return (
+                        <>
+                          <div className="feed-posts-grid">
+                            {visiblePosts.map(post => (
+                              <FeedPost key={`post-${post.id}`} post={post} onTagClick={handleTagClick} />
+                            ))}
+                          </div>
+                          {hasMore && (
+                            <div className="feed-auth-gate">
+                              <div className="feed-auth-gate__blur" />
+                              <div className="feed-auth-gate__box">
+                                <div className="feed-auth-gate__icon">🔒</div>
+                                <p className="feed-auth-gate__text">Войдите, чтобы видеть все публикации</p>
+                                <button className="feed-auth-gate__btn" onClick={() => navigate('/login')}>Войти</button>
+                                <button className="feed-auth-gate__reg" onClick={() => navigate('/register')}>Регистрация</button>
+                              </div>
+                            </div>
+                          )}
+                        </>
+                      )
+                    })()}
                   </>
                 )}
 
-                {/* ── Продукты ── */}
-                {(tab === 'all' || tab === 'products') && fProducts.length > 0 && (
+                {/* ── Фото ── */}
+                {tab === 'photos' && (
                   <>
-                    {tab === 'all' && (
-                      <div className="feed-section-label">
-                        <span>Продукты</span>
-                        <button onClick={() => setTab('products')}>Все →</button>
-                      </div>
-                    )}
-                    <div className="feed-products-grid">
-                      {(user ? fProducts : fProducts.slice(0, GUEST_LIMIT)).slice(0, tab === 'all' ? 4 : undefined).map(p => (
-                        <FeedProduct key={`prod-${p.id}`} product={p} onTagClick={handleTagClick} />
+                    <div className="feed-posts-grid">
+                      {(user ? fPhotos : fPhotos.slice(0, GUEST_LIMIT)).map(post => (
+                        <FeedPost key={`photo-${post.id}`} post={post} onTagClick={handleTagClick} />
                       ))}
                     </div>
-                    {!user && fProducts.length > GUEST_LIMIT && tab === 'products' && (
+                    {!user && fPhotos.length > GUEST_LIMIT && (
                       <div className="feed-auth-gate">
                         <div className="feed-auth-gate__blur" />
                         <div className="feed-auth-gate__box">
-                          <div className="feed-auth-gate__icon">&#128274;</div>
-                          <p className="feed-auth-gate__text">Войдите, чтобы видеть все продукты</p>
+                          <div className="feed-auth-gate__icon">🔒</div>
+                          <p className="feed-auth-gate__text">Войдите, чтобы видеть все фото</p>
                           <button className="feed-auth-gate__btn" onClick={() => navigate('/login')}>Войти</button>
                           <button className="feed-auth-gate__reg" onClick={() => navigate('/register')}>Регистрация</button>
                         </div>
                       </div>
                     )}
+                    {fPhotos.length === 0 && <div className="feed-page__empty">Фото пока нет</div>}
+                  </>
+                )}
+
+                {/* ── Видео ── */}
+                {tab === 'videos' && (
+                  <>
+                    <div className="feed-posts-grid">
+                      {(user ? fVideos : fVideos.slice(0, GUEST_LIMIT)).map(post => (
+                        <FeedPost key={`video-${post.id}`} post={post} onTagClick={handleTagClick} />
+                      ))}
+                    </div>
+                    {!user && fVideos.length > GUEST_LIMIT && (
+                      <div className="feed-auth-gate">
+                        <div className="feed-auth-gate__blur" />
+                        <div className="feed-auth-gate__box">
+                          <div className="feed-auth-gate__icon">🔒</div>
+                          <p className="feed-auth-gate__text">Войдите, чтобы видеть все видео</p>
+                          <button className="feed-auth-gate__btn" onClick={() => navigate('/login')}>Войти</button>
+                          <button className="feed-auth-gate__reg" onClick={() => navigate('/register')}>Регистрация</button>
+                        </div>
+                      </div>
+                    )}
+                    {fVideos.length === 0 && <div className="feed-page__empty">Видео пока нет</div>}
                   </>
                 )}
 
                 {/* ── Новости ── */}
-                {(tab === 'all' || tab === 'news') && fNews.length > 0 && (
+                {tab === 'news' && (
                   <>
-                    {tab === 'all' && (
-                      <div className="feed-section-label">
-                        <span>Новости</span>
-                        <button onClick={() => setTab('news')}>Все →</button>
-                      </div>
-                    )}
                     <div className="feed-news-list">
-                      {(user ? fNews : fNews.slice(0, GUEST_LIMIT)).slice(0, tab === 'all' ? 3 : undefined).map(item => (
+                      {(user ? fNews : fNews.slice(0, GUEST_LIMIT)).map(item => (
                         <FeedNewsCard key={`news-${item.id}`} item={item} onTagClick={handleTagClick} />
                       ))}
                     </div>
-                    {!user && fNews.length > GUEST_LIMIT && tab === 'news' && (
+                    {!user && fNews.length > GUEST_LIMIT && (
                       <div className="feed-auth-gate">
                         <div className="feed-auth-gate__blur" />
                         <div className="feed-auth-gate__box">
@@ -655,24 +571,19 @@ export default function FeedPage() {
                         </div>
                       </div>
                     )}
+                    {fNews.length === 0 && <div className="feed-page__empty">Новостей пока нет</div>}
                   </>
                 )}
 
                 {/* ── Твиты ── */}
-                {(tab === 'all' || tab === 'tweets') && fPosts.length > 0 && (
+                {tab === 'tweets' && (
                   <>
-                    {tab === 'all' && (
-                      <div className="feed-section-label">
-                        <span>Твиты</span>
-                        <button onClick={() => setTab('tweets')}>Все →</button>
-                      </div>
-                    )}
                     <div className="feed-tweets-list">
-                      {(user ? fPosts : fPosts.slice(0, GUEST_LIMIT)).slice(0, tab === 'all' ? 4 : undefined).map(post => (
+                      {(user ? fPosts : fPosts.slice(0, GUEST_LIMIT)).map(post => (
                         <TweetCard key={`tweet-${post.id}`} post={post} onTagClick={handleTagClick} />
                       ))}
                     </div>
-                    {!user && fPosts.length > GUEST_LIMIT && tab === 'tweets' && (
+                    {!user && fPosts.length > GUEST_LIMIT && (
                       <div className="feed-auth-gate">
                         <div className="feed-auth-gate__blur" />
                         <div className="feed-auth-gate__box">
@@ -683,61 +594,19 @@ export default function FeedPage() {
                         </div>
                       </div>
                     )}
+                    {fPosts.length === 0 && <div className="feed-page__empty">Твитов пока нет</div>}
                   </>
                 )}
 
-                {/* ── Компании ── */}
-                {(tab === 'all' || tab === 'businesses') && fBusinesses.length > 0 && (
-                  <>
-                    {tab === 'all' && (
-                      <div className="feed-section-label">
-                        <span>Компании</span>
-                        <button onClick={() => setTab('businesses')}>Все →</button>
-                      </div>
-                    )}
-                    <div className="feed-biz-grid">
-                      {(user ? fBusinesses : fBusinesses.slice(0, GUEST_LIMIT)).slice(0, tab === 'all' ? 4 : undefined).map(b => (
-                        <FeedBizCard key={`biz-${b.id}`} biz={b} />
-                      ))}
-                    </div>
-                    {!user && fBusinesses.length > GUEST_LIMIT && tab === 'businesses' && (
-                      <div className="feed-auth-gate">
-                        <div className="feed-auth-gate__blur" />
-                        <div className="feed-auth-gate__box">
-                          <div className="feed-auth-gate__icon">&#128274;</div>
-                          <p className="feed-auth-gate__text">Войдите, чтобы видеть все компании</p>
-                          <button className="feed-auth-gate__btn" onClick={() => navigate('/login')}>Войти</button>
-                          <button className="feed-auth-gate__reg" onClick={() => navigate('/register')}>Регистрация</button>
-                        </div>
-                      </div>
-                    )}
-                  </>
-                )}
-
-                {/* Auth gate for tab=all */}
-                {tab === 'all' && !user && (posts.length > GUEST_LIMIT || products.length > GUEST_LIMIT || news.length > GUEST_LIMIT) && (
-                  <div className="feed-auth-gate">
-                    <div className="feed-auth-gate__blur" />
-                    <div className="feed-auth-gate__box">
-                      <div className="feed-auth-gate__icon">&#128274;</div>
-                      <p className="feed-auth-gate__text">Войдите, чтобы видеть все публикации</p>
-                      <button className="feed-auth-gate__btn" onClick={() => navigate('/login')}>Войти</button>
-                      <button className="feed-auth-gate__reg" onClick={() => navigate('/register')}>Регистрация</button>
-                    </div>
-                  </div>
-                )}
-
-                {hasActiveFilters && fPosts.length === 0 && fProducts.length === 0 && fServices.length === 0 && fNews.length === 0 && (
+                {hasActiveFilters && fPosts.length === 0 && fNews.length === 0 && tab !== 'news' && tab !== 'tweets' && (
                   <div className="feed-page__empty">
                     По выбранным фильтрам ничего не найдено
                     <button className="feed-page__empty-reset" onClick={clearFilters}>Сбросить фильтры</button>
                   </div>
                 )}
 
-                {!loading && !hasActiveFilters && posts.length === 0 && products.length === 0 && news.length === 0 && (
-                  <div className="feed-page__empty">
-                    Пока нет публикаций
-                  </div>
+                {!loading && !hasActiveFilters && posts.length === 0 && news.length === 0 && (
+                  <div className="feed-page__empty">Пока нет публикаций</div>
                 )}
               </>
             )}
