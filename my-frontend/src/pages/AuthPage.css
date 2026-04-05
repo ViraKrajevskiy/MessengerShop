@@ -424,8 +424,8 @@
 
 /* Social buttons */
 .auth-card__socials {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 10px;
 }
 
@@ -721,4 +721,30 @@
   .auth-code-inputs {
     gap: 6px;
   }
+}
+
+/* Full-width social button */
+.auth-social-btn--full {
+  width: 100%;
+  justify-content: center;
+}
+
+/* Google role picker */
+.auth-google-role {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border: 1.5px solid var(--border-color);
+  border-radius: 16px;
+  background: var(--bg-tertiary);
+  animation: authCardIn 0.2s ease;
+}
+
+.auth-google-role__title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin: 0;
+  text-align: center;
 }

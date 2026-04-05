@@ -8,11 +8,23 @@ from Shop.servicefunc.views.auth.verify_email import VerifyEmailView
 from Shop.servicefunc.views.auth.me import MeView
 from Shop.servicefunc.views.auth.password_reset import PasswordResetRequestView, PasswordResetConfirmView
 from Shop.servicefunc.views.auth.qr_login import QRTokenView, QRLoginView
+from Shop.servicefunc.views.auth.google_auth import GoogleAuthView
+from Shop.servicefunc.views.moderator.auth import ModeratorLoginView
+from Shop.servicefunc.views.moderator.posts import ModeratorPostListView, ModeratorPostBlockView
+from Shop.servicefunc.views.moderator.complaints import ComplaintCreateView, ModeratorComplaintListView, ModeratorComplaintDetailView
+from Shop.servicefunc.views.moderator.tariffs import ModeratorBusinessListView, ModeratorTariffAssignView
+from Shop.servicefunc.views.moderator.content import (
+    ModeratorStoryListView, ModeratorStoryBlockView,
+    ModeratorCommentListView, ModeratorCommentBlockView,
+    ModeratorProductListView, ModeratorProductBlockView,
+    ModeratorReviewListView, ModeratorReviewBlockView,
+)
 from Shop.servicefunc.views.story.stories import StoryListCreateView, StoryDetailView, StoryViewersView
 from Shop.servicefunc.views.story.comments import CommentListCreateView, CommentDetailView
 from Shop.servicefunc.views.verification.verification import (
     MyVerificationView, UploadDocumentView, VerificationChatView,
     ModeratorVerificationListView, ModeratorVerificationDetailView,
+    VerificationMessageEditView,
 )
 from Shop.servicefunc.views.business.business import (
     BusinessListView, BusinessCreateView, BusinessDetailView, MyBusinessView,
@@ -36,6 +48,7 @@ from Shop.servicefunc.views.groups import (
     GroupJoinView,
 )
 from Shop.servicefunc.views.news.newses import BusinessNewsListView, NewsListView, NewsCreateView, NewsDetailView
+from Shop.servicefunc.views.tags import TagListView
 
 urlpatterns = [
     path('auth/register/',               RegisterView.as_view(),              name='auth_register'),
@@ -48,6 +61,7 @@ urlpatterns = [
     path('auth/password-reset/confirm/', PasswordResetConfirmView.as_view(),  name='password_reset_confirm'),
     path('auth/qr-token/',               QRTokenView.as_view(),               name='qr_token'),
     path('auth/qr-login/',               QRLoginView.as_view(),               name='qr_login'),
+    path('auth/google/',                 GoogleAuthView.as_view(),            name='google_auth'),
 
     path('businesses/',                  BusinessListView.as_view(),          name='business_list'),
     path('businesses/create/',           BusinessCreateView.as_view(),        name='business_create'),
@@ -85,6 +99,7 @@ urlpatterns = [
     path('verification/my/',                MyVerificationView.as_view(),              name='verification_my'),
     path('verification/upload/',            UploadDocumentView.as_view(),              name='verification_upload'),
     path('verification/chat/',              VerificationChatView.as_view(),            name='verification_chat'),
+    path('verification/messages/<int:msg_id>/', VerificationMessageEditView.as_view(),  name='verification_msg_edit'),
     path('verification/',                   ModeratorVerificationListView.as_view(),   name='verification_list'),
     path('verification/<int:pk>/',          ModeratorVerificationDetailView.as_view(), name='verification_detail'),
     path('verification/<int:req_id>/chat/', VerificationChatView.as_view(),            name='verification_mod_chat'),
@@ -103,4 +118,27 @@ urlpatterns = [
 
     path('posts/favorites/',           PostFavoritesListView.as_view(), name='post_favorites'),
     path('posts/<int:pk>/favorite/',   PostFavoriteView.as_view(),      name='post_favorite'),
+
+    path('tags/',                      TagListView.as_view(),           name='tag_list'),
+
+    # ── Complaints (any authenticated user) ──────────────────────────────────
+    path('complaints/',                ComplaintCreateView.as_view(),              name='complaint_create'),
+
+    # ── Moderator panel ──────────────────────────────────────────────────────
+    path('moderator/login/',           ModeratorLoginView.as_view(),               name='moderator_login'),
+    path('moderator/posts/',           ModeratorPostListView.as_view(),            name='moderator_post_list'),
+    path('moderator/posts/<int:pk>/block/', ModeratorPostBlockView.as_view(),      name='moderator_post_block'),
+    path('moderator/complaints/',      ModeratorComplaintListView.as_view(),       name='moderator_complaint_list'),
+    path('moderator/complaints/<int:pk>/', ModeratorComplaintDetailView.as_view(), name='moderator_complaint_detail'),
+    path('moderator/businesses/',      ModeratorBusinessListView.as_view(),        name='moderator_business_list'),
+    path('moderator/businesses/<int:pk>/tariff/', ModeratorTariffAssignView.as_view(), name='moderator_tariff_assign'),
+
+    path('moderator/stories/',                      ModeratorStoryListView.as_view(),    name='moderator_story_list'),
+    path('moderator/stories/<int:pk>/block/',        ModeratorStoryBlockView.as_view(),   name='moderator_story_block'),
+    path('moderator/comments/',                     ModeratorCommentListView.as_view(),  name='moderator_comment_list'),
+    path('moderator/comments/<int:pk>/block/',       ModeratorCommentBlockView.as_view(), name='moderator_comment_block'),
+    path('moderator/products/',                     ModeratorProductListView.as_view(),  name='moderator_product_list'),
+    path('moderator/products/<int:pk>/block/',       ModeratorProductBlockView.as_view(), name='moderator_product_block'),
+    path('moderator/reviews/',                      ModeratorReviewListView.as_view(),   name='moderator_review_list'),
+    path('moderator/reviews/<int:pk>/block/',        ModeratorReviewBlockView.as_view(),  name='moderator_review_block'),
 ]

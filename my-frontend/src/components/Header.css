@@ -525,7 +525,7 @@
 
 /* ── Mobile breakpoints ── */
 @media (max-width: 640px) {
-  .header { padding: 0 16px; }
+  .header { padding: 0 14px; }
   .header__burger { display: flex; }
   .header__lang { display: none; }
   .header__btn--register { display: none; }
@@ -533,4 +533,13 @@
   .header__feed-btn { display: none; }
   .header__messenger-btn { display: none; }
   .header__theme-toggle { display: none; }
+  .header__input { width: 100px; }
+  .header__input:focus { width: 110px; }
+  .header__user-btn { padding: 4px 8px 4px 4px; }
+  .header__user-avatar { width: 28px; height: 28px; }
+}
+
+@media (max-width: 380px) {
+  .header__input { display: none; }
+  .header__btn--login { padding: 7px 14px; font-size: 12px; }
 }

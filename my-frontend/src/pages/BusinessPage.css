@@ -1183,3 +1183,15 @@
   .bp__voice-icon { display: none; }
   .bp__voice { padding: 10px 12px; gap: 10px; }
 }
+
+@media (max-width: 480px) {
+  .bp__wrap { padding: 12px 10px 70px; }
+  .bp__cover { height: 140px; }
+  .bp__hero { margin-top: -38px; padding: 12px; gap: 10px; border-radius: 14px; }
+  .bp__avatar { width: 76px; min-height: 76px; border-radius: 12px; }
+  .bp__name { font-size: 18px; }
+  .bp__section-tab { padding: 5px 10px; font-size: 11.5px; }
+  .bp__act-btn { padding: 7px 10px; font-size: 11.5px; gap: 4px; }
+  .bp__gallery { grid-template-columns: repeat(3, 1fr); gap: 3px; }
+  .bp__card { padding: 12px 12px; border-radius: 12px; }
+}

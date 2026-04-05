@@ -109,3 +109,15 @@ export async function apiRefreshToken(refreshToken) {
     body: JSON.stringify({ refresh: refreshToken }),
   })
 }
+
+/**
+ * POST /api/auth/google/
+ * Body: { credential, role }
+ * → 200: { access, refresh, user }
+ */
+export async function apiGoogleAuth({ credential, role = 'USER' }) {
+  return request('/auth/google/', {
+    method: 'POST',
+    body: JSON.stringify({ credential, role }),
+  })
+}

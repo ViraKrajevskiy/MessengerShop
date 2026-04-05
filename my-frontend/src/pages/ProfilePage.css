@@ -886,7 +886,7 @@
 
 @media (max-width: 480px) {
   .profile-page__content {
-    padding: 0 16px 40px;
+    padding: 0 12px 70px;
   }
 
   .profile-header__stats {
@@ -902,5 +902,10 @@
   .profile-header__message {
     width: 100%;
     justify-content: center;
+  }
+
+  .profile-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3px;
   }
 }

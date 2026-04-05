@@ -2,13 +2,11 @@
   margin: 4px 0 24px;
 }
 
-/* ── Mosaic: [big] [sm sm] [big] ── */
-/*           [big] [sm sm] [big]     */
+/* ── Mosaic: [big] [center] [big] — 3 equal columns, 1 row ── */
 .premium-carousel__mosaic {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 2fr;
-  grid-template-rows: 1fr 1fr;
-  grid-auto-flow: dense;
+  grid-template-columns: 2fr 2fr 2fr;
+  grid-template-rows: 1fr;
   gap: 4px;
   height: 500px;
   border-radius: var(--radius-lg);
@@ -30,7 +28,7 @@
 }
 
 .pc-card--big {
-  grid-row: span 2;
+  /* full height via grid row */
 }
 
 .pc-card img {
@@ -163,11 +161,14 @@
 
 @media (max-width: 480px) {
   .premium-carousel__mosaic {
-    height: 200px;
-    gap: 3px;
+    grid-template-columns: 1fr;
+    height: 220px;
+    gap: 0;
   }
-  .pc-card__badge { font-size: 8px; padding: 1px 5px; }
-  .pc-card__name { font-size: 10px; }
-  .pc-card__city { font-size: 9px; }
-  .pc-card--small .pc-card__overlay { padding: 6px 7px; }
+  .pc-card:not(:first-child) {
+    display: none;
+  }
+  .pc-card__badge { font-size: 9px; padding: 2px 7px; }
+  .pc-card__name { font-size: 12px; }
+  .pc-card__city { font-size: 10px; }
 }

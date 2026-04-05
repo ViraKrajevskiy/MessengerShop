@@ -73,6 +73,7 @@ export default function HomePage() {
 
   const [news, setNews] = useState([])
   const [loadingNews, setLoadingNews] = useState(true)
+  const [newsPage, setNewsPage] = useState(0)
 
   useEffect(() => {
     setLoadingBiz(true)
@@ -93,7 +94,7 @@ export default function HomePage() {
   useEffect(() => {
     setLoadingNews(true)
     apiGetNews()
-      .then(data => setNews(Array.isArray(data) ? data.slice(0, 3) : []))
+      .then(data => setNews(Array.isArray(data) ? data.slice(0, 9) : []))
       .catch(() => setNews([]))
       .finally(() => setLoadingNews(false))
   }, [])
@@ -229,24 +230,53 @@ export default function HomePage() {
               </button>
             </div>
             {loadingNews ? (
-              <div className="news-grid-home">
-                {[1, 2, 3].map(i => (
-                  <div key={i} className="post-card-skeleton">
-                    <div className="skel-img" />
-                    <div className="skel-body">
-                      <div className="skel-line" />
-                      <div className="skel-line skel-line--short" />
+              <div className="home-posts-carousel">
+                <div className="home-posts-carousel__track">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="post-card-skeleton">
+                      <div className="post-card-skeleton__header">
+                        <div className="skel-circle" />
+                        <div className="skel-lines">
+                          <div className="skel-line" />
+                          <div className="skel-line skel-line--short" />
+                        </div>
+                      </div>
+                      <div className="skel-img" />
+                      <div className="skel-body">
+                        <div className="skel-line" />
+                        <div className="skel-line skel-line--short" />
+                      </div>
                     </div>
+                  ))}
+                </div>
+              </div>
+            ) : news.length > 0 ? (() => {
+              const NEWS_PER_PAGE = 3
+              const maxNewsPage = Math.max(0, Math.ceil(news.length / NEWS_PER_PAGE) - 1)
+              return (
+                <div className="home-posts-carousel">
+                  <button
+                    className="home-posts-carousel__arrow"
+                    onClick={() => setNewsPage(p => Math.max(0, p - 1))}
+                    disabled={newsPage === 0}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                  </button>
+                  <div className="home-posts-carousel__track">
+                    {news.slice(newsPage * NEWS_PER_PAGE, (newsPage + 1) * NEWS_PER_PAGE).map(item => (
+                      <NewsCard key={item.id} item={item} />
+                    ))}
                   </div>
-                ))}
-              </div>
-            ) : news.length > 0 ? (
-              <div className="news-grid-home">
-                {news.map(item => (
-                  <NewsCard key={item.id} item={item} />
-                ))}
-              </div>
-            ) : null}
+                  <button
+                    className="home-posts-carousel__arrow"
+                    onClick={() => setNewsPage(p => Math.min(maxNewsPage, p + 1))}
+                    disabled={newsPage >= maxNewsPage}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                  </button>
+                </div>
+              )
+            })() : null}
           </section>
 
           {/* Все карточки */}

@@ -4,3 +4,4 @@ from .models import Post, ProductInquiry, InquiryMessage, ProductLike, Review, B
 from .models import GroupChat, GroupMember, GroupMessage
 from .models import VerificationRequest, VerificationDocument, VerificationMessage
 from .models import News
+from .models import Complaint, PostFavorite, Tag, Article

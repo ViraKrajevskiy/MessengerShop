@@ -97,6 +97,15 @@ class Business(BaseController):
     audio    = models.FileField(upload_to='business_audio/', blank=True, null=True)
     faq      = models.JSONField(default=list, blank=True)
     services = models.JSONField(default=list, blank=True)
+    tags     = models.ManyToManyField('Tag', blank=True, related_name='businesses')
+
+    # Social media links
+    social_telegram  = models.CharField(max_length=200, blank=True)
+    social_whatsapp  = models.CharField(max_length=200, blank=True)
+    social_instagram = models.CharField(max_length=200, blank=True)
+    social_youtube   = models.CharField(max_length=200, blank=True)
+    social_tiktok    = models.CharField(max_length=200, blank=True)
+    social_facebook  = models.CharField(max_length=200, blank=True)
 
     @property
     def is_vip(self):
@@ -141,6 +150,11 @@ class Story(BaseController):
     media_type = models.CharField(max_length=10, choices=MediaType.choices, default=MediaType.IMAGE)
     caption    = models.CharField(max_length=500, blank=True)
     expires_at = models.DateTimeField(default=story_expires_at)
+    is_blocked  = models.BooleanField(default=False)
+    blocked_by  = models.ForeignKey(
+        'User', null=True, blank=True, on_delete=models.SET_NULL, related_name='blocked_stories',
+    )
+    blocked_at  = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ['-created_at']
@@ -199,6 +213,11 @@ class Product(BaseController):
     is_available = models.BooleanField(default=True)
     views_count  = models.PositiveIntegerField(default=0)
     tags         = models.ManyToManyField('Tag', blank=True, related_name='products')
+    is_blocked   = models.BooleanField(default=False)
+    blocked_by   = models.ForeignKey(
+        'User', null=True, blank=True, on_delete=models.SET_NULL, related_name='blocked_products',
+    )
+    blocked_at   = models.DateTimeField(null=True, blank=True)
 
 
 class VerificationRequest(BaseController):
@@ -242,6 +261,7 @@ class VerificationMessage(models.Model):
     text       = models.TextField(blank=True)
     file       = models.FileField(upload_to='verification_chat/', null=True, blank=True)
     file_name  = models.CharField(max_length=255, blank=True)
+    is_edited  = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -303,13 +323,18 @@ class Post(BaseController):
         VIDEO = 'VIDEO', 'Video'
 
     views_count = models.PositiveIntegerField(default=0)
-    tags = models.ManyToManyField('Tag', blank=True, related_name='posts')  # НОВОЕ
+    tags = models.ManyToManyField('Tag', blank=True, related_name='posts')
     business   = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='posts')
     text       = models.TextField(blank=True)
     media      = models.FileField(upload_to='posts/', blank=True, null=True)
     media_url  = models.URLField(blank=True)
     media_type = models.CharField(max_length=10, choices=MediaType.choices, default=MediaType.IMAGE)
     views_count = models.PositiveIntegerField(default=0)
+    is_blocked  = models.BooleanField(default=False)
+    blocked_by  = models.ForeignKey(
+        'User', null=True, blank=True, on_delete=models.SET_NULL, related_name='blocked_posts',
+    )
+    blocked_at  = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ['-created_at']
@@ -379,6 +404,11 @@ class Review(models.Model):
     pros     = models.CharField(max_length=500, blank=True)
     cons     = models.CharField(max_length=500, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    is_blocked = models.BooleanField(default=False)
+    blocked_by = models.ForeignKey(
+        User, null=True, blank=True, on_delete=models.SET_NULL, related_name='blocked_reviews',
+    )
+    blocked_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ['-created_at']
@@ -531,6 +561,11 @@ class Comment(BaseController):
     )
     text       = models.TextField(max_length=1000)
     is_deleted = models.BooleanField(default=False)
+    is_blocked = models.BooleanField(default=False)
+    blocked_by = models.ForeignKey(
+        User, null=True, blank=True, on_delete=models.SET_NULL, related_name='blocked_comments',
+    )
+    blocked_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ['created_at']
@@ -554,3 +589,38 @@ class PostFavorite(models.Model):
 
     def __str__(self):
         return f'{self.user.email} → {self.post.id}'
+
+
+class Complaint(BaseController):
+    class Reason(models.TextChoices):
+        SPAM           = 'SPAM',          'Спам'
+        INAPPROPRIATE  = 'INAPPROPRIATE', 'Неприемлемый контент'
+        FRAUD          = 'FRAUD',         'Мошенничество'
+        MISINFORMATION = 'MISINFORMATION','Дезинформация'
+        OTHER          = 'OTHER',         'Другое'
+
+    class Status(models.TextChoices):
+        PENDING  = 'PENDING',  'На рассмотрении'
+        RESOLVED = 'RESOLVED', 'Решено'
+        REJECTED = 'REJECTED', 'Отклонено'
+
+    reporter     = models.ForeignKey(User, on_delete=models.CASCADE, related_name='complaints_sent')
+    post         = models.ForeignKey(Post, null=True, blank=True, on_delete=models.CASCADE, related_name='complaints')
+    business     = models.ForeignKey(Business, null=True, blank=True, on_delete=models.CASCADE, related_name='complaints')
+    reason       = models.CharField(max_length=20, choices=Reason.choices, default=Reason.OTHER)
+    description  = models.TextField(blank=True)
+    status       = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
+    resolved_by  = models.ForeignKey(
+        User, null=True, blank=True, on_delete=models.SET_NULL, related_name='resolved_complaints',
+    )
+    resolved_at     = models.DateTimeField(null=True, blank=True)
+    resolution_note = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Complaint'
+        verbose_name_plural = 'Complaints'
+
+    def __str__(self):
+        target = f'post#{self.post_id}' if self.post_id else f'business#{self.business_id}'
+        return f'Complaint [{self.status}] by {self.reporter.email} → {target}'

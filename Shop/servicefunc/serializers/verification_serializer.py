@@ -17,7 +17,7 @@ class VerificationMessageSerializer(serializers.ModelSerializer):
     class Meta:
         model  = VerificationMessage
         fields = ['id', 'sender_username', 'sender_role', 'sender_avatar',
-                  'text', 'file', 'file_name', 'created_at', 'is_mine']
+                  'text', 'file', 'file_name', 'is_edited', 'created_at', 'is_mine']
 
     def get_is_mine(self, obj):
         request = self.context.get('request')

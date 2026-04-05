@@ -25,6 +25,7 @@ else:
 SECRET_KEY = env('SECRET_KEY', default='fallback-key-if-env-fails-12345')
 DEBUG = env('DEBUG', default=True)
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['127.0.0.1', 'localhost'])
+MODERATOR_SECRET_KEY = env('MODERATOR_SECRET_KEY', default='mod-secret-2024')
 INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',

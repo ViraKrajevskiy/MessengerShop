@@ -164,6 +164,28 @@ class VerificationChatView(APIView):
         )
 
 
+# ── Редактирование сообщения ──────────────────────────────────────────────────
+
+@extend_schema(tags=['Verification'])
+class VerificationMessageEditView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, msg_id):
+        try:
+            msg = VerificationMessage.objects.get(pk=msg_id, sender=request.user)
+        except VerificationMessage.DoesNotExist:
+            return Response({'detail': 'Сообщение не найдено или нет доступа.'}, status=status.HTTP_404_NOT_FOUND)
+
+        text = request.data.get('text', '').strip()
+        if not text:
+            return Response({'detail': 'Текст не может быть пустым.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        msg.text = text
+        msg.is_edited = True
+        msg.save(update_fields=['text', 'is_edited'])
+        return Response(VerificationMessageSerializer(msg, context={'request': request}).data)
+
+
 # ── Модератор: список заявок ──────────────────────────────────────────────────
 
 @extend_schema(tags=['Verification / Moderator'])

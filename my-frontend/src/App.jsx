@@ -1,8 +1,11 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { GoogleOAuthProvider } from '@react-oauth/google'
 import { ThemeProvider } from './context/ThemeContext'
 import { ViewedProvider } from './context/ViewedContext'
 import { AuthProvider, useAuth } from './context/AuthContext'
+
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || ''
 
 /* ─── Lazy-loaded pages (code splitting) ─── */
 const HomePage              = lazy(() => import('./pages/HomePage'))
@@ -19,8 +22,10 @@ const MyProfilePage         = lazy(() => import('./pages/MyProfilePage'))
 const BusinessDashboardPage = lazy(() => import('./pages/BusinessDashboardPage'))
 const NewsDetailPage        = lazy(() => import('./pages/NewsDetailPage'))
 const ProductDetailPage     = lazy(() => import('./pages/ProductDetailPage'))
-const PricingPage           = lazy(() => import('./pages/PricingPage'))
-const CatalogPage           = lazy(() => import('./pages/CatalogPage'))
+const PricingPage             = lazy(() => import('./pages/PricingPage'))
+const CatalogPage             = lazy(() => import('./pages/CatalogPage'))
+const ModeratorLoginPage      = lazy(() => import('./pages/ModeratorLoginPage'))
+const ModeratorDashboardPage  = lazy(() => import('./pages/ModeratorDashboardPage'))
 
 /* ─── Skeleton loader для Suspense ─── */
 function PageFallback() {
@@ -57,6 +62,7 @@ function PrivateRoute({ children }) {
 
 function App() {
   return (
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
     <BrowserRouter>
       <ThemeProvider>
         <AuthProvider>
@@ -80,12 +86,15 @@ function App() {
                 <Route path="/pricing" element={<PricingPage />} />
                 <Route path="/catalog" element={<CatalogPage />} />
                 <Route path="/vip" element={<Navigate to="/pricing" replace />} />
+                <Route path="/moderator/login" element={<ModeratorLoginPage />} />
+                <Route path="/moderator" element={<ModeratorDashboardPage />} />
               </Routes>
             </Suspense>
           </ViewedProvider>
         </AuthProvider>
       </ThemeProvider>
     </BrowserRouter>
+    </GoogleOAuthProvider>
   )
 }
 

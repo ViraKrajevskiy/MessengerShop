@@ -546,6 +546,7 @@ export default function BusinessDashboardPage() {
   const [bizId, setBizId]     = useState(null)
   const [bizData, setBizData] = useState(null)
   const [toast, setToast]     = useState('')
+  const [verStatus, setVerStatus] = useState(null) // null | 'PENDING' | 'APPROVED' | 'REJECTED'
 
   // Tab
   const [activeTab, setActiveTab] = useState('products')
@@ -573,6 +574,41 @@ export default function BusinessDashboardPage() {
   // Status toggle
   const [togglingStatus, setTogglingStatus] = useState(null) // product id being toggled
 
+  // Profile edit
+  const [editDesc,    setEditDesc]    = useState('')
+  const [editPhone,   setEditPhone]   = useState('')
+  const [editWebsite, setEditWebsite] = useState('')
+  const [editAddress, setEditAddress] = useState('')
+  const [editCity,    setEditCity]    = useState('')
+  const [editLogo,    setEditLogo]    = useState(null)
+  const [editCover,   setEditCover]   = useState(null)
+  const [editAudio,   setEditAudio]   = useState(null)
+  const [savingProfile, setSavingProfile] = useState(false)
+
+  // Hashtags
+  const [bizTags,      setBizTags]      = useState([])
+  const [tagInput,     setTagInput]     = useState('')
+  const [tagSuggests,  setTagSuggests]  = useState([])
+  const [tagsLoading,  setTagsLoading]  = useState(false)
+  const [savingTags,   setSavingTags]   = useState(false)
+
+  const TAG_LIMITS = { FREE: 5, PRO: 15, VIP: null }
+  const tagLimit = TAG_LIMITS[bizData?.plan_type] ?? 5
+
+  // Social links
+  const [editTelegram,  setEditTelegram]  = useState('')
+  const [editWhatsapp,  setEditWhatsapp]  = useState('')
+  const [editInstagram, setEditInstagram] = useState('')
+  const [editYoutube,   setEditYoutube]   = useState('')
+  const [editTiktok,    setEditTiktok]    = useState('')
+  const [editFacebook,  setEditFacebook]  = useState('')
+
+  // FAQ edit
+  const [bizFaq,      setBizFaq]      = useState([])
+  const [faqQuestion, setFaqQuestion] = useState('')
+  const [faqAnswer,   setFaqAnswer]   = useState('')
+  const [savingFaq,   setSavingFaq]   = useState(false)
+
   // Modals
   const [showStory,   setShowStory]   = useState(false)
   const [showPost,    setShowPost]    = useState(false)
@@ -597,6 +633,143 @@ export default function BusinessDashboardPage() {
   const showToast = msg => {
     setToast(msg)
     setTimeout(() => setToast(''), 3000)
+  }
+
+  // ── Populate profile form when bizData loads ───────────────────────────────
+  useEffect(() => {
+    if (!bizData) return
+    setEditDesc(bizData.description || '')
+    setEditPhone(bizData.phone || '')
+    setEditWebsite(bizData.website || '')
+    setEditAddress(bizData.address || '')
+    setEditCity(bizData.city || '')
+    setBizFaq(Array.isArray(bizData.faq) ? bizData.faq : [])
+    setBizTags(Array.isArray(bizData.tags) ? bizData.tags : [])
+    setEditTelegram(bizData.social_telegram || '')
+    setEditWhatsapp(bizData.social_whatsapp || '')
+    setEditInstagram(bizData.social_instagram || '')
+    setEditYoutube(bizData.social_youtube || '')
+    setEditTiktok(bizData.social_tiktok || '')
+    setEditFacebook(bizData.social_facebook || '')
+  }, [bizData])
+
+  // ── Save profile handler ───────────────────────────────────────────────────
+  const handleSaveProfile = async () => {
+    setSavingProfile(true)
+    try {
+      const token = await getAccessToken()
+      const fd = new FormData()
+      fd.append('description', editDesc)
+      fd.append('phone', editPhone)
+      fd.append('website', editWebsite)
+      fd.append('address', editAddress)
+      fd.append('city', editCity)
+      fd.append('social_telegram',  editTelegram)
+      fd.append('social_whatsapp',  editWhatsapp)
+      fd.append('social_instagram', editInstagram)
+      fd.append('social_youtube',   editYoutube)
+      fd.append('social_tiktok',    editTiktok)
+      fd.append('social_facebook',  editFacebook)
+      if (editLogo)  fd.append('logo',  editLogo)
+      if (editCover) fd.append('cover', editCover)
+      if (editAudio) fd.append('audio', editAudio)
+      const res = await fetch(`${BASE}/businesses/me/`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${token}` },
+        body: fd,
+      })
+      if (!res.ok) throw new Error()
+      const updated = await res.json()
+      setBizData(updated)
+      setEditLogo(null)
+      setEditCover(null)
+      setEditAudio(null)
+      showToast('✅ Профиль сохранён!')
+    } catch {
+      showToast('❌ Ошибка при сохранении')
+    } finally {
+      setSavingProfile(false)
+    }
+  }
+
+  // ── FAQ handlers ──────────────────────────────────────────────────────────
+  const handleAddFaq = () => {
+    if (!faqQuestion.trim() || !faqAnswer.trim()) return
+    setBizFaq(prev => [...prev, { question: faqQuestion.trim(), answer: faqAnswer.trim() }])
+    setFaqQuestion('')
+    setFaqAnswer('')
+  }
+
+  const handleRemoveFaq = (idx) => {
+    setBizFaq(prev => prev.filter((_, i) => i !== idx))
+  }
+
+  const handleSaveFaq = async () => {
+    setSavingFaq(true)
+    try {
+      const token = await getAccessToken()
+      const res = await fetch(`${BASE}/businesses/me/`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ faq: bizFaq }),
+      })
+      if (!res.ok) throw new Error()
+      const updated = await res.json()
+      setBizData(updated)
+      showToast('✅ FAQ сохранён!')
+    } catch {
+      showToast('❌ Ошибка при сохранении FAQ')
+    } finally {
+      setSavingFaq(false)
+    }
+  }
+
+  // ── Hashtag handlers ──────────────────────────────────────────────────────
+  const searchTags = async (q) => {
+    setTagInput(q)
+    const clean = q.trim().replace(/^#+/, '')
+    if (!clean) { setTagSuggests([]); return }
+    setTagsLoading(true)
+    try {
+      const res = await fetch(`${BASE}/tags/?q=${encodeURIComponent(clean)}`)
+      const data = await res.json()
+      setTagSuggests(Array.isArray(data) ? data.filter(t => !bizTags.includes(t)) : [])
+    } catch {
+      setTagSuggests([])
+    } finally {
+      setTagsLoading(false)
+    }
+  }
+
+  const handleSelectTag = (tag) => {
+    const limit = TAG_LIMITS[bizData?.plan_type] ?? 5
+    if (limit !== null && bizTags.length >= limit) return
+    if (bizTags.includes(tag)) return
+    setBizTags(prev => [...prev, tag])
+    setTagInput('')
+    setTagSuggests([])
+  }
+
+  const handleRemoveTag = (tag) => setBizTags(prev => prev.filter(t => t !== tag))
+
+  const handleSaveTags = async () => {
+    setSavingTags(true)
+    try {
+      const token = await getAccessToken()
+      const res = await fetch(`${BASE}/businesses/me/`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tags: bizTags }),
+      })
+      if (!res.ok) throw new Error()
+      const updated = await res.json()
+      setBizData(updated)
+      showToast('✅ Хэштеги сохранены!')
+    } catch {
+      showToast('❌ Ошибка при сохранении хэштегов')
+    } finally {
+      setSavingTags(false)
+    }
   }
 
   // ── Filtered + sorted lists ────────────────────────────────────────────────
@@ -655,6 +828,13 @@ export default function BusinessDashboardPage() {
       .then(data => setStats(data))
       .catch(() => setError('Не удалось загрузить статистику'))
       .finally(() => setLoading(false))
+
+    fetch(`${BASE}/verification/my/`, {
+      headers: { Authorization: `Bearer ${tokens.access}` },
+    })
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(data => setVerStatus(data.status))
+      .catch(() => setVerStatus(null))
   }, [tokens?.access])
 
   // ── Refs to track load state without triggering re-renders/loops ────────────
@@ -972,6 +1152,35 @@ export default function BusinessDashboardPage() {
               </div>
             )}
 
+            {/* ── Verification Chat Card ── */}
+            <div
+              className={`biz-ver-card biz-ver-card--${verStatus ? verStatus.toLowerCase() : 'none'}`}
+              onClick={() => navigate('/verification')}
+            >
+              <div className="biz-ver-card__icon">
+                {verStatus === 'APPROVED' ? '✅' : verStatus === 'REJECTED' ? '❌' : verStatus === 'PENDING' ? '⏳' : '🛡️'}
+              </div>
+              <div className="biz-ver-card__info">
+                <div className="biz-ver-card__title">
+                  {verStatus === 'APPROVED' ? 'Бизнес верифицирован'
+                    : verStatus === 'REJECTED' ? 'Заявка отклонена'
+                    : verStatus === 'PENDING' ? 'Заявка на рассмотрении'
+                    : 'Верификация бизнеса'}
+                </div>
+                <div className="biz-ver-card__sub">
+                  {verStatus === 'APPROVED' ? 'Ваш аккаунт подтверждён — клиенты видят значок ✓'
+                    : verStatus === 'REJECTED' ? 'Откройте чат — можно отправить новые документы'
+                    : verStatus === 'PENDING' ? 'Ответьте модератору в чате верификации'
+                    : 'Пройдите верификацию чтобы получить значок доверия'}
+                </div>
+              </div>
+              <div className="biz-ver-card__arrow">
+                {verStatus === 'PENDING'
+                  ? <span className="biz-ver-card__badge">Открыть чат →</span>
+                  : <span className="biz-ver-card__arrow-icon">→</span>}
+              </div>
+            </div>
+
             {/* ── Content Tabs ── */}
             <div className="biz-dashboard__section">
               <div className="biz-content-tabs">
@@ -1002,6 +1211,12 @@ export default function BusinessDashboardPage() {
                 >
                   🔧 Услуги
                   <span className="biz-content-tab__count">{bizServices.length}</span>
+                </button>
+                <button
+                  className={`biz-content-tab ${activeTab === 'profile' ? 'biz-content-tab--active' : ''}`}
+                  onClick={() => setActiveTab('profile')}
+                >
+                  ✏️ Профиль
                 </button>
               </div>
 
@@ -1341,6 +1556,390 @@ export default function BusinessDashboardPage() {
                       {savingServices ? <span className="biz-form__spinner" /> : '💾 Сохранить услуги'}
                     </button>
                     <span className="biz-svc-hint">Услуги отображаются на странице вашего магазина</span>
+                  </div>
+                </>
+              )}
+
+              {/* ── Profile Edit tab ── */}
+              {activeTab === 'profile' && (
+                <>
+                  <div className="biz-dashboard__section-header">
+                    <h2>Редактировать профиль</h2>
+                  </div>
+
+                  <div className="biz-profile-edit">
+
+                    {/* Avatar */}
+                    <div className="biz-profile-edit__row">
+                      <label className="biz-profile-edit__label">Аватар / Логотип</label>
+                      <div className="biz-profile-edit__avatar-wrap">
+                        {(editLogo
+                          ? <img src={URL.createObjectURL(editLogo)} className="biz-profile-edit__avatar-preview" alt="preview" />
+                          : bizData?.logo
+                            ? <img src={bizData.logo.startsWith('http') ? bizData.logo : `https://api.101-school.uz${bizData.logo}`} className="biz-profile-edit__avatar-preview" alt="logo" />
+                            : <div className="biz-profile-edit__avatar-placeholder">{bizData?.brand_name?.[0] || '?'}</div>
+                        )}
+                        <label className="biz-profile-edit__upload-btn">
+                          📷 Сменить фото
+                          <input type="file" accept="image/*" hidden onChange={e => setEditLogo(e.target.files[0] || null)} />
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* Cover */}
+                    <div className="biz-profile-edit__row">
+                      <label className="biz-profile-edit__label">Обложка</label>
+                      <div className="biz-profile-edit__cover-wrap">
+                        {editCover
+                          ? <img src={URL.createObjectURL(editCover)} className="biz-profile-edit__cover-preview" alt="cover preview" />
+                          : bizData?.cover
+                            ? <img src={bizData.cover.startsWith('http') ? bizData.cover : `https://api.101-school.uz${bizData.cover}`} className="biz-profile-edit__cover-preview" alt="cover" />
+                            : <div className="biz-profile-edit__cover-placeholder">Нет обложки</div>
+                        }
+                        <label className="biz-profile-edit__upload-btn">
+                          🖼️ Сменить обложку
+                          <input type="file" accept="image/*" hidden onChange={e => setEditCover(e.target.files[0] || null)} />
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* Description */}
+                    <div className="biz-profile-edit__row">
+                      <label className="biz-profile-edit__label">О нас</label>
+                      <textarea
+                        className="biz-profile-edit__textarea"
+                        placeholder="Расскажите о вашем бизнесе..."
+                        value={editDesc}
+                        onChange={e => setEditDesc(e.target.value)}
+                        rows={4}
+                      />
+                    </div>
+
+                    {/* City */}
+                    <div className="biz-profile-edit__row">
+                      <label className="biz-profile-edit__label">Город</label>
+                      <input
+                        className="biz-profile-edit__input"
+                        placeholder="Например: Стамбул"
+                        value={editCity}
+                        onChange={e => setEditCity(e.target.value)}
+                      />
+                    </div>
+
+                    {/* Phone */}
+                    <div className="biz-profile-edit__row">
+                      <label className="biz-profile-edit__label">Телефон</label>
+                      <input
+                        className="biz-profile-edit__input"
+                        placeholder="+90 555 000 00 00"
+                        value={editPhone}
+                        onChange={e => setEditPhone(e.target.value)}
+                      />
+                    </div>
+
+                    {/* Website */}
+                    <div className="biz-profile-edit__row">
+                      <label className="biz-profile-edit__label">Сайт</label>
+                      <input
+                        className="biz-profile-edit__input"
+                        placeholder="https://example.com"
+                        value={editWebsite}
+                        onChange={e => setEditWebsite(e.target.value)}
+                      />
+                    </div>
+
+                    {/* Address */}
+                    <div className="biz-profile-edit__row">
+                      <label className="biz-profile-edit__label">Адрес</label>
+                      <input
+                        className="biz-profile-edit__input"
+                        placeholder="Улица, дом, район, город"
+                        value={editAddress}
+                        onChange={e => setEditAddress(e.target.value)}
+                      />
+                    </div>
+
+                    {/* Audio */}
+                    <div className="biz-profile-edit__row">
+                      <label className="biz-profile-edit__label">🎵 Фоновая музыка</label>
+                      <div className="biz-profile-edit__audio-wrap">
+                        {bizData?.audio && !editAudio && (
+                          <audio
+                            className="biz-profile-edit__audio-player"
+                            src={bizData.audio.startsWith('http') ? bizData.audio : `https://api.101-school.uz${bizData.audio}`}
+                            controls
+                          />
+                        )}
+                        {editAudio && (
+                          <audio
+                            className="biz-profile-edit__audio-player"
+                            src={URL.createObjectURL(editAudio)}
+                            controls
+                          />
+                        )}
+                        <label className="biz-profile-edit__upload-btn">
+                          🎵 {bizData?.audio || editAudio ? 'Сменить музыку' : 'Добавить музыку'}
+                          <input
+                            type="file"
+                            accept="audio/*"
+                            hidden
+                            onChange={e => setEditAudio(e.target.files[0] || null)}
+                          />
+                        </label>
+                        {editAudio && (
+                          <button className="biz-profile-edit__remove-btn" onClick={() => setEditAudio(null)}>
+                            ✕ Убрать
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="biz-svc-save-row">
+                      <button
+                        className="biz-svc-save-btn"
+                        onClick={handleSaveProfile}
+                        disabled={savingProfile}
+                      >
+                        {savingProfile ? <span className="biz-form__spinner" /> : '💾 Сохранить профиль'}
+                      </button>
+                      <span className="biz-svc-hint">Изменения отобразятся на странице вашего магазина</span>
+                    </div>
+                  </div>
+
+                  {/* ── Social links section ── */}
+                  <div className="biz-profile-edit biz-profile-edit--section">
+                    <div className="biz-profile-edit__section-title">🔗 Социальные сети</div>
+
+                    {[
+                      { key: 'telegram',  label: 'Telegram',  icon: '✈️',  state: editTelegram,  set: setEditTelegram,  placeholder: 'https://t.me/username' },
+                      { key: 'whatsapp',  label: 'WhatsApp',  icon: '📱',  state: editWhatsapp,  set: setEditWhatsapp,  placeholder: 'https://wa.me/79001234567' },
+                      { key: 'instagram', label: 'Instagram', icon: '📸',  state: editInstagram, set: setEditInstagram, placeholder: 'https://instagram.com/username' },
+                      { key: 'youtube',   label: 'YouTube',   icon: '▶️',  state: editYoutube,   set: setEditYoutube,   placeholder: 'https://youtube.com/@channel' },
+                      { key: 'tiktok',    label: 'TikTok',    icon: '🎵',  state: editTiktok,    set: setEditTiktok,    placeholder: 'https://tiktok.com/@username' },
+                      { key: 'facebook',  label: 'Facebook',  icon: '📘',  state: editFacebook,  set: setEditFacebook,  placeholder: 'https://facebook.com/page' },
+                    ].map(({ key, label, icon, state, set, placeholder }) => (
+                      <div key={key} className="biz-social-row">
+                        <span className="biz-social-row__icon">{icon}</span>
+                        <span className="biz-social-row__label">{label}</span>
+                        <input
+                          className="biz-profile-edit__input biz-social-row__input"
+                          placeholder={placeholder}
+                          value={state}
+                          onChange={e => set(e.target.value)}
+                        />
+                      </div>
+                    ))}
+
+                    <div className="biz-svc-hint" style={{ marginTop: 4 }}>
+                      Ссылки отображаются на странице вашего магазина. Сохраните через кнопку «💾 Сохранить профиль» выше.
+                    </div>
+                  </div>
+
+                  {/* ── Hashtags section ── */}
+                  <div className="biz-profile-edit biz-profile-edit--section">
+                    <div className="biz-profile-edit__section-title">
+                      # Хэштеги
+                      <span className="biz-tags-limit">
+                        {tagLimit === null
+                          ? `${bizTags.length} / ∞`
+                          : `${bizTags.length} / ${tagLimit}`}
+                        <span className={`biz-tags-plan biz-tags-plan--${(bizData?.plan_type || 'FREE').toLowerCase()}`}>
+                          {bizData?.plan_type === 'VIP' ? '⭐ VIP' : bizData?.plan_type === 'PRO' ? '⚡ Pro' : 'Free'}
+                        </span>
+                      </span>
+                    </div>
+
+                    <p className="biz-svc-hint">
+                      По хэштегам пользователи находят ваш магазин в поиске.
+                      {tagLimit !== null && ` Тариф ${bizData?.plan_type} — до ${tagLimit} тегов.`}
+                    </p>
+
+                    {/* Current tags */}
+                    {bizTags.length > 0 && (
+                      <div className="biz-tags-list">
+                        {bizTags.map(tag => (
+                          <span key={tag} className="biz-tag-chip">
+                            #{tag}
+                            <button className="biz-tag-chip__remove" onClick={() => handleRemoveTag(tag)}>✕</button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Add tag input with autocomplete */}
+                    {(tagLimit === null || bizTags.length < tagLimit) && (
+                      <div className="biz-tags-add">
+                        <div className="biz-tags-search">
+                          <input
+                            className="biz-profile-edit__input"
+                            placeholder="Начните вводить тег для поиска..."
+                            value={tagInput}
+                            onChange={e => searchTags(e.target.value)}
+                            autoComplete="off"
+                          />
+                          {tagsLoading && <span className="biz-tags-search__spinner" />}
+                          {tagSuggests.length > 0 && (
+                            <div className="biz-tags-dropdown">
+                              {tagSuggests.map(tag => (
+                                <button
+                                  key={tag}
+                                  className="biz-tags-dropdown__item"
+                                  onMouseDown={() => handleSelectTag(tag)}
+                                >
+                                  #{tag}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                          {tagInput.trim() && !tagsLoading && tagSuggests.length === 0 && (
+                            <div className="biz-tags-dropdown">
+                              <div className="biz-tags-dropdown__empty">Теги не найдены</div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {tagLimit !== null && bizTags.length >= tagLimit && (
+                      <p className="biz-tags-limit-warn">
+                        Достигнут лимит тегов для вашего тарифа.
+                        <button className="biz-tags-upgrade" onClick={() => navigate('/pricing')}>
+                          Улучшить тариф →
+                        </button>
+                      </p>
+                    )}
+
+                    <div className="biz-svc-save-row">
+                      <button className="biz-svc-save-btn" onClick={handleSaveTags} disabled={savingTags}>
+                        {savingTags ? <span className="biz-form__spinner" /> : '💾 Сохранить хэштеги'}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* ── FAQ section ── */}
+                  <div className="biz-profile-edit biz-profile-edit--section">
+                    <div className="biz-profile-edit__section-title">❓ Часто задаваемые вопросы (FAQ)</div>
+
+                    {/* Existing FAQ items */}
+                    {bizFaq.length > 0 && (
+                      <div className="biz-faq-list">
+                        {bizFaq.map((item, idx) => (
+                          <div key={idx} className="biz-faq-item">
+                            <div className="biz-faq-item__texts">
+                              <div className="biz-faq-item__q">❓ {item.question}</div>
+                              <div className="biz-faq-item__a">💬 {item.answer}</div>
+                            </div>
+                            <button
+                              className="biz-row__delete-btn"
+                              onClick={() => handleRemoveFaq(idx)}
+                              title="Удалить"
+                            >
+                              <TrashIcon />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Add new FAQ */}
+                    <div className="biz-faq-add">
+                      <input
+                        className="biz-profile-edit__input"
+                        placeholder="Вопрос..."
+                        value={faqQuestion}
+                        onChange={e => setFaqQuestion(e.target.value)}
+                      />
+                      <textarea
+                        className="biz-profile-edit__textarea"
+                        placeholder="Ответ..."
+                        value={faqAnswer}
+                        onChange={e => setFaqAnswer(e.target.value)}
+                        rows={3}
+                      />
+                      <button
+                        className="biz-faq-add__btn"
+                        onClick={handleAddFaq}
+                        disabled={!faqQuestion.trim() || !faqAnswer.trim()}
+                      >
+                        + Добавить вопрос
+                      </button>
+                    </div>
+
+                    <div className="biz-svc-save-row">
+                      <button className="biz-svc-save-btn" onClick={handleSaveFaq} disabled={savingFaq}>
+                        {savingFaq ? <span className="biz-form__spinner" /> : '💾 Сохранить FAQ'}
+                      </button>
+                      <span className="biz-svc-hint">FAQ отображается на странице вашего магазина</span>
+                    </div>
+                  </div>
+
+                  {/* ── Services section ── */}
+                  <div className="biz-profile-edit biz-profile-edit--section">
+                    <div className="biz-profile-edit__section-title">🔧 Услуги</div>
+
+                    {/* Add service form */}
+                    <div className="biz-svc-form">
+                      <input
+                        className="biz-svc-form__input biz-svc-form__input--name"
+                        placeholder="Название услуги *"
+                        value={svcName}
+                        onChange={e => setSvcName(e.target.value)}
+                        onKeyDown={e => e.key === 'Enter' && handleAddService()}
+                      />
+                      <input
+                        className="biz-svc-form__input biz-svc-form__input--price"
+                        placeholder="Цена"
+                        type="number"
+                        min="0"
+                        value={svcPrice}
+                        onChange={e => setSvcPrice(e.target.value)}
+                        onKeyDown={e => e.key === 'Enter' && handleAddService()}
+                      />
+                      <select
+                        className="biz-svc-form__select"
+                        value={svcCurrency}
+                        onChange={e => setSvcCurrency(e.target.value)}
+                      >
+                        <option value="TRY">₺ TRY</option>
+                        <option value="USD">$ USD</option>
+                        <option value="EUR">€ EUR</option>
+                        <option value="RUB">₽ RUB</option>
+                      </select>
+                      <button className="biz-svc-form__add" onClick={handleAddService} disabled={!svcName.trim()}>
+                        + Добавить
+                      </button>
+                    </div>
+
+                    {/* Services list */}
+                    {bizServices.length === 0 ? (
+                      <div className="biz-dashboard__empty">
+                        <p>Нет услуг. Добавьте первую услугу выше.</p>
+                      </div>
+                    ) : (
+                      <div className="biz-svc-list">
+                        {bizServices.map((svc, idx) => (
+                          <div key={idx} className="biz-svc-row">
+                            <div className="biz-svc-row__icon">🔧</div>
+                            <div className="biz-svc-row__name">{svc.name}</div>
+                            {svc.price && (
+                              <div className="biz-svc-row__price">
+                                {Number(svc.price).toLocaleString()} {svc.currency === 'TRY' ? '₺' : svc.currency === 'USD' ? '$' : svc.currency === 'EUR' ? '€' : '₽'}
+                              </div>
+                            )}
+                            <button className="biz-row__delete-btn" onClick={() => handleRemoveService(idx)} title="Удалить">
+                              <TrashIcon />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="biz-svc-save-row">
+                      <button className="biz-svc-save-btn" onClick={handleSaveServices} disabled={savingServices}>
+                        {savingServices ? <span className="biz-form__spinner" /> : '💾 Сохранить услуги'}
+                      </button>
+                      <span className="biz-svc-hint">Услуги отображаются на странице вашего магазина</span>
+                    </div>
                   </div>
                 </>
               )}

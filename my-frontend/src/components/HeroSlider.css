@@ -2,21 +2,19 @@
   margin: 4px 0 24px;
 }
 
-/* ── Mosaic: [big] [sm sm] [big] ── */
-/*           [big] [sm sm] [big]     */
+/* ── Mosaic: [big | center | big]  — 3 photos, center spans both rows ── */
 .hero-slider__mosaic {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 2fr;
-  grid-template-rows: 1fr 1fr;
-  grid-auto-flow: dense;
+  grid-template-columns: 2fr 2fr 2fr;
+  grid-template-rows: 1fr;
   gap: 4px;
   height: 500px;
   border-radius: var(--radius-lg);
   overflow: hidden;
 }
 
+/* Left & right — tall single image */
 .hero-slider__big {
-  grid-row: span 2;
   overflow: hidden;
 }
 
@@ -32,22 +30,24 @@
   transform: scale(1.03);
 }
 
-.hero-slider__small {
+/* Center — single photo, same height */
+.hero-slider__center {
   overflow: hidden;
 }
 
-.hero-slider__small img {
+.hero-slider__center img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform 0.4s ease;
+  transition: transform 0.5s ease;
 }
 
-.hero-slider__small:hover img {
-  transform: scale(1.05);
+.hero-slider__center:hover img {
+  transform: scale(1.04);
 }
 
+/* Dots */
 .hero-slider__dots {
   display: flex;
   justify-content: center;
@@ -83,6 +83,14 @@
 
 @media (max-width: 480px) {
   .hero-slider__mosaic {
-    height: 180px;
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+  .hero-slider__big:not(:first-child),
+  .hero-slider__center {
+    display: none;
+  }
+  .hero-slider__big:first-child {
+    height: 200px;
   }
 }
