@@ -28,6 +28,11 @@ class User(AbstractUser, BaseController):
     google_id = models.CharField(max_length=255, blank=True, null=True)
     qr_token  = models.UUIDField(default=uuid_lib.uuid4, unique=True, editable=False)
     last_seen = models.DateTimeField(null=True, blank=True)
+    is_profile_blocked = models.BooleanField(default=False)
+    profile_blocked_by = models.ForeignKey(
+        'self', null=True, blank=True, on_delete=models.SET_NULL, related_name='profile_blocks_given',
+    )
+    profile_blocked_at = models.DateTimeField(null=True, blank=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
@@ -607,6 +612,9 @@ class Complaint(BaseController):
     reporter     = models.ForeignKey(User, on_delete=models.CASCADE, related_name='complaints_sent')
     post         = models.ForeignKey(Post, null=True, blank=True, on_delete=models.CASCADE, related_name='complaints')
     business     = models.ForeignKey(Business, null=True, blank=True, on_delete=models.CASCADE, related_name='complaints')
+    target_user  = models.ForeignKey(
+        User, null=True, blank=True, on_delete=models.CASCADE, related_name='complaints_received',
+    )
     reason       = models.CharField(max_length=20, choices=Reason.choices, default=Reason.OTHER)
     description  = models.TextField(blank=True)
     status       = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
@@ -622,5 +630,60 @@ class Complaint(BaseController):
         verbose_name_plural = 'Complaints'
 
     def __str__(self):
-        target = f'post#{self.post_id}' if self.post_id else f'business#{self.business_id}'
+        if self.post_id:        target = f'post#{self.post_id}'
+        elif self.business_id:  target = f'business#{self.business_id}'
+        elif self.target_user_id: target = f'user#{self.target_user_id}'
+        else:                   target = '?'
         return f'Complaint [{self.status}] by {self.reporter.email} → {target}'
+
+
+class PaymentRequest(BaseController):
+    """Заявка на оплату тарифа — пользователь прикладывает скрин/фото оплаты."""
+    class Status(models.TextChoices):
+        PENDING  = 'PENDING',  'На рассмотрении'
+        APPROVED = 'APPROVED', 'Подтверждено'
+        REJECTED = 'REJECTED', 'Отклонено'
+
+    business        = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='payment_requests')
+    plan_type       = models.CharField(max_length=10, choices=Business.PlanType.choices)
+    plan_period     = models.CharField(max_length=10, choices=Business.PlanPeriod.choices, null=True, blank=True)
+    message         = models.TextField(blank=True)
+    proof_file      = models.FileField(upload_to='payment_proofs/', null=True, blank=True)
+    status          = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
+    reviewed_by     = models.ForeignKey(
+        User, null=True, blank=True, on_delete=models.SET_NULL, related_name='reviewed_payments',
+    )
+    reviewed_at     = models.DateTimeField(null=True, blank=True)
+    rejection_note  = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Payment Request'
+        verbose_name_plural = 'Payment Requests'
+
+    def __str__(self):
+        return f'Payment [{self.status}] {self.business.brand_name} → {self.plan_type}'
+
+
+class Notification(models.Model):
+    class Type(models.TextChoices):
+        FOLLOW      = 'FOLLOW',      'Новый подписчик'
+        NEW_POST    = 'NEW_POST',    'Новый пост'
+        INQUIRY_MSG = 'INQUIRY_MSG', 'Сообщение в запросе'
+        GROUP_MSG   = 'GROUP_MSG',   'Сообщение в группе'
+
+    recipient  = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    type       = models.CharField(max_length=20, choices=Type.choices)
+    title      = models.CharField(max_length=200)
+    body       = models.TextField(blank=True)
+    is_read    = models.BooleanField(default=False)
+    data       = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Notification'
+        verbose_name_plural = 'Notifications'
+
+    def __str__(self):
+        return f'[{self.type}] → {self.recipient.email}'

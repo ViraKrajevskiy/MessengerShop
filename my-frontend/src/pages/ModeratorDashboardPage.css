@@ -515,6 +515,160 @@
 }
 .mod-doc-link:hover { background: rgba(255,255,255,0.1); }
 
+/* ── Chat modal ── */
+.mod-modal__box--chat {
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  max-height: 88vh;
+}
+
+.mod-modal__docs {
+  padding: 12px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mod-modal__docs-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Chat messages */
+.mod-chat {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 180px;
+  max-height: 320px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
+}
+
+.mod-chat__empty {
+  text-align: center;
+  color: rgba(255,255,255,0.2);
+  font-size: 13px;
+  padding: 24px 0;
+}
+
+.mod-msg { display: flex; }
+.mod-msg--out { justify-content: flex-end; }
+.mod-msg--in  { justify-content: flex-start; }
+
+.mod-msg__bubble {
+  max-width: 80%;
+  padding: 10px 13px;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mod-msg--in  .mod-msg__bubble {
+  background: rgba(255,255,255,0.07);
+  border-bottom-left-radius: 4px;
+}
+.mod-msg--out .mod-msg__bubble {
+  background: rgba(99,102,241,0.25);
+  border-bottom-right-radius: 4px;
+}
+
+.mod-msg__sender {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.4);
+}
+
+.mod-msg__text {
+  font-size: 13.5px;
+  color: rgba(255,255,255,0.9);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.mod-msg__file {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.5px;
+  color: #93c5fd;
+  text-decoration: none;
+  padding: 4px 8px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.1);
+  transition: background 0.2s;
+}
+.mod-msg__file:hover { background: rgba(255,255,255,0.12); }
+
+.mod-msg__time {
+  font-size: 10.5px;
+  color: rgba(255,255,255,0.25);
+  align-self: flex-end;
+}
+
+/* Review section */
+.mod-modal__review {
+  padding: 12px 16px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Chat input */
+.mod-chat__input {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+}
+
+.mod-chat__textarea {
+  flex: 1;
+  padding: 10px 13px;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+  font-size: 13px;
+  font-family: inherit;
+  resize: none;
+  outline: none;
+  transition: border-color 0.2s;
+  line-height: 1.5;
+}
+.mod-chat__textarea:focus { border-color: rgba(99,102,241,0.5); }
+.mod-chat__textarea::placeholder { color: rgba(255,255,255,0.2); }
+
+.mod-chat__send {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.mod-chat__send:hover:not(:disabled) { box-shadow: 0 4px 14px rgba(99,102,241,0.4); }
+.mod-chat__send:disabled { opacity: 0.4; cursor: not-allowed; }
+
 /* ── Mobile ── */
 @media (max-width: 768px) {
   .mod-sidebar { display: none; }
@@ -559,3 +713,47 @@
   .mod-modal { padding: 0; align-items: flex-end; }
   .mod-modal__box { border-radius: 20px 20px 0 0; max-width: 100%; }
 }
+
+
+/* ── Payment proof ── */
+.mod-pay__proof {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 6px 12px;
+  background: rgba(99,102,241,0.15);
+  border: 1px solid rgba(99,102,241,0.3);
+  border-radius: 8px;
+  color: #a5b4fc;
+  font-size: 13px;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+.mod-pay__proof:hover { background: rgba(99,102,241,0.3); }
+
+.mod-pay__img-wrap { margin: 12px 0; }
+.mod-pay__img {
+  max-width: 100%;
+  max-height: 240px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.1);
+  display: block;
+}
+
+/* ── Avatar placeholder ── */
+.mod-card__avatar-placeholder {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(139,92,246,0.25);
+  color: #c4b5fd;
+  font-weight: 700;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.mod-card__logo--round { border-radius: 50%; }

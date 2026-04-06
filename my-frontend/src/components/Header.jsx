@@ -1,8 +1,9 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 import { DEFAULT_AVATAR } from '../utils/defaults'
+import { apiGetNotifications, apiMarkNotificationRead, apiMarkAllNotificationsRead } from '../api/notificationsApi'
 import './Header.css'
 
 export default function Header() {
@@ -10,15 +11,20 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [bizId, setBizId] = useState(null)
+  const [notifOpen, setNotifOpen] = useState(false)
+  const [notifications, setNotifications] = useState([])
+  const [unreadCount, setUnreadCount] = useState(0)
   const { theme, toggleTheme } = useTheme()
   const { user, logout, getAccessToken } = useAuth()
   const navigate = useNavigate()
   const menuRef = useRef(null)
+  const notifRef = useRef(null)
 
   // Close dropdown on outside click
   useEffect(() => {
     const handle = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false)
+      if (notifRef.current && !notifRef.current.contains(e.target)) setNotifOpen(false)
     }
     document.addEventListener('mousedown', handle)
     return () => document.removeEventListener('mousedown', handle)
@@ -173,6 +179,7 @@ export default function Header() {
             </svg>
           </button>
 
+          
           {/* Theme */}
           <button className="header__theme-toggle" onClick={toggleTheme} title="Сменить тему">
             <ThemeIcon />

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   apiModeratorGetVerifications, apiModeratorReviewVerification,
+  apiModeratorGetVerificationDetail, apiModeratorSendVerificationMessage,
   apiModeratorGetPosts, apiModeratorBlockPost,
   apiModeratorGetComplaints, apiModeratorResolveComplaint,
   apiModeratorGetBusinesses, apiModeratorAssignTariff,
@@ -9,10 +10,14 @@ import {
   apiModeratorGetComments, apiModeratorBlockComment,
   apiModeratorGetProducts, apiModeratorBlockProduct,
   apiModeratorGetReviews, apiModeratorBlockReview,
+  apiModeratorGetPayments, apiModeratorReviewPayment,
+  apiModeratorGetUsers, apiModeratorBlockUser,
+  apiModeratorGetFeed,
 } from '../api/moderatorApi'
 import './ModeratorDashboardPage.css'
 
 const TABS = [
+  { id: 'feed',         label: 'Лента',        icon: '📰' },
   { id: 'verification', label: 'Верификация', icon: '🛡️' },
   { id: 'posts',        label: 'Посты',        icon: '📝' },
   { id: 'stories',      label: 'Истории',      icon: '🎬' },
@@ -21,6 +26,8 @@ const TABS = [
   { id: 'reviews',      label: 'Отзывы',       icon: '⭐' },
   { id: 'complaints',   label: 'Жалобы',       icon: '🚨' },
   { id: 'tariffs',      label: 'Тарифы',       icon: '💎' },
+  { id: 'payments',     label: 'Оплаты',       icon: '💳' },
+  { id: 'profiles',     label: 'Профили',      icon: '👤' },
 ]
 
 const PLAN_LABELS = { FREE: 'Бесплатный', PRO: 'Pro', VIP: 'VIP' }
@@ -60,12 +67,17 @@ function useModeratorAuth() {
 
 // ── Verification Tab ──────────────────────────────────────────────────────────
 function VerificationTab({ token }) {
-  const [items, setItems] = useState([])
+  const [items, setItems]     = useState([])
   const [loading, setLoading] = useState(true)
-  const [filter, setFilter] = useState('')
-  const [selected, setSelected] = useState(null)
+  const [filter, setFilter]   = useState('')
+  const [detail, setDetail]   = useState(null)   // полные данные выбранной заявки
+  const [detailLoading, setDetailLoading] = useState(false)
   const [comment, setComment] = useState('')
-  const [saving, setSaving] = useState(false)
+  const [saving, setSaving]   = useState(false)
+  const [msgText, setMsgText] = useState('')
+  const [sending, setSending] = useState(false)
+  const chatEndRef = useState(null)[0]
+  const chatRef    = { current: null }
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -78,15 +90,43 @@ function VerificationTab({ token }) {
 
   useEffect(() => { load() }, [load])
 
-  const handleReview = async (status) => {
+  const openDetail = async (item) => {
+    setDetail({ ...item, messages: [], documents: [] })
+    setDetailLoading(true)
+    setComment('')
+    setMsgText('')
+    try {
+      const full = await apiModeratorGetVerificationDetail(token, item.id)
+      setDetail(full)
+    } catch { /* ignore */ }
+    finally { setDetailLoading(false) }
+  }
+
+  const handleReview = async (action) => {
     setSaving(true)
     try {
-      await apiModeratorReviewVerification(token, selected.id, { status, comment })
-      setSelected(null)
-      setComment('')
+      await apiModeratorReviewVerification(token, detail.id, { status: action, comment })
+      const updated = await apiModeratorGetVerificationDetail(token, detail.id)
+      setDetail(updated)
       load()
     } catch { /* ignore */ }
     finally { setSaving(false) }
+  }
+
+  const sendMessage = async () => {
+    if (!msgText.trim()) return
+    setSending(true)
+    try {
+      await apiModeratorSendVerificationMessage(token, detail.id, msgText.trim())
+      setMsgText('')
+      const updated = await apiModeratorGetVerificationDetail(token, detail.id)
+      setDetail(updated)
+    } catch { /* ignore */ }
+    finally { setSending(false) }
+  }
+
+  const handleMsgKey = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() }
   }
 
   return (
@@ -103,15 +143,16 @@ function VerificationTab({ token }) {
         <div className="mod-list">
           {items.length === 0 && <div className="mod-empty">Нет заявок</div>}
           {items.map(item => (
-            <div key={item.id} className="mod-card" onClick={() => { setSelected(item); setComment('') }}>
+            <div key={item.id} className="mod-card" onClick={() => openDetail(item)}>
               <div className="mod-card__row">
-                <div className="mod-card__title">{item.business?.brand_name || '—'}</div>
+                <div className="mod-card__title">{item.brand_name || '—'}</div>
                 <span className={`mod-badge mod-badge--${STATUS_COLORS[item.status] || 'gray'}`}>
                   {STATUS_LABELS[item.status] || item.status}
                 </span>
               </div>
               <div className="mod-card__meta">
-                {item.business?.owner_email || item.owner_email || '—'} · {new Date(item.created_at).toLocaleDateString('ru')}
+                {item.owner_email || '—'} · {new Date(item.created_at).toLocaleDateString('ru')}
+                {item.docs_count > 0 && ` · 📎 ${item.docs_count} файл(а)`}
               </div>
               {item.comment && <div className="mod-card__note">💬 {item.comment}</div>}
             </div>
@@ -119,45 +160,109 @@ function VerificationTab({ token }) {
         </div>
       )}
 
-      {selected && (
-        <div className="mod-modal" onClick={() => setSelected(null)}>
-          <div className="mod-modal__box" onClick={e => e.stopPropagation()}>
+      {detail && (
+        <div className="mod-modal" onClick={() => setDetail(null)}>
+          <div className="mod-modal__box mod-modal__box--chat" onClick={e => e.stopPropagation()}>
+            {/* Header */}
             <div className="mod-modal__header">
-              <h3>{selected.business?.brand_name}</h3>
-              <button className="mod-modal__close" onClick={() => setSelected(null)}>✕</button>
+              <div>
+                <h3>{detail.brand_name}</h3>
+                <span className={`mod-badge mod-badge--${STATUS_COLORS[detail.status] || 'gray'}`} style={{ fontSize: 11 }}>
+                  {STATUS_LABELS[detail.status] || detail.status}
+                </span>
+              </div>
+              <button className="mod-modal__close" onClick={() => setDetail(null)}>✕</button>
             </div>
-            <div className="mod-modal__body">
-              <p><b>Статус:</b> {STATUS_LABELS[selected.status] || selected.status}</p>
-              <p><b>Создано:</b> {new Date(selected.created_at).toLocaleString('ru')}</p>
-              {selected.documents?.length > 0 && (
-                <div className="mod-docs">
-                  {selected.documents.map(d => (
-                    <a key={d.id} href={d.file} target="_blank" rel="noopener noreferrer" className="mod-doc-link">
-                      📄 {d.name}
-                    </a>
-                  ))}
-                </div>
-              )}
-              {selected.status === 'PENDING' && (
-                <>
-                  <textarea
-                    className="mod-textarea"
-                    placeholder="Комментарий (необязательно)"
-                    value={comment}
-                    onChange={e => setComment(e.target.value)}
-                    rows={3}
-                  />
-                  <div className="mod-modal__actions">
-                    <button className="mod-btn mod-btn--green" disabled={saving} onClick={() => handleReview('APPROVED')}>
-                      {saving ? '…' : '✅ Одобрить'}
-                    </button>
-                    <button className="mod-btn mod-btn--red" disabled={saving} onClick={() => handleReview('REJECTED')}>
-                      {saving ? '…' : '❌ Отклонить'}
-                    </button>
+
+            {detailLoading ? (
+              <div className="mod-loader" style={{ padding: 32 }}>Загрузка…</div>
+            ) : (
+              <>
+                {/* Documents */}
+                {detail.documents?.length > 0 && (
+                  <div className="mod-modal__docs">
+                    <div className="mod-modal__docs-title">📎 Документы</div>
+                    <div className="mod-docs">
+                      {detail.documents.map(d => (
+                        <a key={d.id} href={d.file} target="_blank" rel="noopener noreferrer" className="mod-doc-link">
+                          📄 {d.name}
+                        </a>
+                      ))}
+                    </div>
                   </div>
-                </>
-              )}
-            </div>
+                )}
+
+                {/* Chat messages */}
+                <div className="mod-chat" ref={el => { chatRef.current = el }}>
+                  {detail.messages?.length === 0 && (
+                    <div className="mod-chat__empty">Сообщений пока нет</div>
+                  )}
+                  {detail.messages?.map(msg => {
+                    const isMod = msg.sender_role === 'MODERATOR'
+                    return (
+                      <div key={msg.id} className={`mod-msg ${isMod ? 'mod-msg--out' : 'mod-msg--in'}`}>
+                        <div className="mod-msg__bubble">
+                          <div className="mod-msg__sender">
+                            {isMod ? '🛡️ Вы' : `👤 ${msg.sender_username}`}
+                          </div>
+                          {msg.text && <div className="mod-msg__text">{msg.text}</div>}
+                          {msg.file && (
+                            <a href={msg.file} target="_blank" rel="noopener noreferrer" className="mod-msg__file">
+                              📎 {msg.file_name || 'Файл'}
+                            </a>
+                          )}
+                          <div className="mod-msg__time">
+                            {new Date(msg.created_at).toLocaleString('ru', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' })}
+                            {msg.is_edited && ' · изменено'}
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+
+                {/* Actions: approve/reject */}
+                {detail.status === 'PENDING' && (
+                  <div className="mod-modal__review">
+                    <textarea
+                      className="mod-textarea"
+                      placeholder="Комментарий к решению (необязательно)"
+                      value={comment}
+                      onChange={e => setComment(e.target.value)}
+                      rows={2}
+                    />
+                    <div className="mod-modal__actions">
+                      <button className="mod-btn mod-btn--green" disabled={saving} onClick={() => handleReview('APPROVED')}>
+                        {saving ? '…' : '✅ Одобрить'}
+                      </button>
+                      <button className="mod-btn mod-btn--red" disabled={saving} onClick={() => handleReview('REJECTED')}>
+                        {saving ? '…' : '❌ Отклонить'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Message input */}
+                <div className="mod-chat__input">
+                  <textarea
+                    className="mod-chat__textarea"
+                    placeholder="Написать сообщение… (Enter — отправить)"
+                    value={msgText}
+                    onChange={e => setMsgText(e.target.value)}
+                    onKeyDown={handleMsgKey}
+                    rows={2}
+                  />
+                  <button className="mod-chat__send" onClick={sendMessage} disabled={sending || !msgText.trim()}>
+                    {sending ? '…' : (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <line x1="22" y1="2" x2="11" y2="13"/>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                      </svg>
+                    )}
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
@@ -550,9 +655,422 @@ function BlockableTab({ token, fetchFn, blockFn, renderTitle, renderMeta, render
   )
 }
 
+// ── Feed Tab ──────────────────────────────────────────────────────────────────
+const CONTENT_TYPE_LABELS = { post: '📝 Пост', story: '🎬 История', product: '🛍️ Продукт' }
+const CONTENT_TYPE_COLORS = { post: 'blue', story: 'teal', product: 'gold' }
+
+function FeedTab({ token }) {
+  const [items, setItems]       = useState([])
+  const [loading, setLoading]   = useState(true)
+  const [typeFilter, setType]   = useState('')
+  const [blockedFilter, setBlocked] = useState('')
+  const [toggling, setToggling] = useState(null)
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    try {
+      const params = {}
+      if (typeFilter)    params.type    = typeFilter
+      if (blockedFilter) params.blocked = blockedFilter
+      const data = await apiModeratorGetFeed(token, params)
+      setItems(data)
+    } catch { /* ignore */ }
+    finally { setLoading(false) }
+  }, [token, typeFilter, blockedFilter])
+
+  useEffect(() => { load() }, [load])
+
+  const toggleBlock = async (item) => {
+    setToggling(`${item.content_type}-${item.id}`)
+    try {
+      const endpointMap = { post: 'posts', story: 'stories', product: 'products' }
+      const endpoint = endpointMap[item.content_type]
+      const BASE = import.meta.env.PROD ? 'https://api.101-school.uz/api' : 'http://127.0.0.1:8000/api'
+      await fetch(`${BASE}/moderator/${endpoint}/${item.id}/block/`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ blocked: !item.is_blocked }),
+      })
+      setItems(prev => prev.map(i =>
+        i.content_type === item.content_type && i.id === item.id
+          ? { ...i, is_blocked: !i.is_blocked }
+          : i
+      ))
+    } catch { /* ignore */ }
+    finally { setToggling(null) }
+  }
+
+  return (
+    <div className="mod-tab">
+      <div className="mod-tab__filters">
+        {[{ v: '', l: 'Всё' }, { v: 'post', l: '📝 Посты' }, { v: 'story', l: '🎬 Истории' }, { v: 'product', l: '🛍️ Продукты' }].map(f => (
+          <button key={f.v} className={`mod-filter-btn ${typeFilter === f.v ? 'mod-filter-btn--active' : ''}`} onClick={() => setType(f.v)}>
+            {f.l}
+          </button>
+        ))}
+        <div style={{ width: 1, background: 'rgba(255,255,255,0.1)', margin: '0 4px' }} />
+        {[{ v: '', l: 'Все' }, { v: 'false', l: 'Активные' }, { v: 'true', l: 'Заблокированные' }].map(f => (
+          <button key={f.v} className={`mod-filter-btn ${blockedFilter === f.v ? 'mod-filter-btn--active' : ''}`} onClick={() => setBlocked(f.v)}>
+            {f.l}
+          </button>
+        ))}
+      </div>
+
+      {loading ? <div className="mod-loader">Загрузка…</div> : (
+        <div className="mod-list">
+          {items.length === 0 && <div className="mod-empty">Лента пуста</div>}
+          {items.map(item => {
+            const key = `${item.content_type}-${item.id}`
+            const isToggling = toggling === key
+            return (
+              <div key={key} className={`mod-card ${item.is_blocked ? 'mod-card--blocked' : ''}`}>
+                <div className="mod-card__row">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span className={`mod-badge mod-badge--${CONTENT_TYPE_COLORS[item.content_type] || 'gray'}`} style={{ fontSize: 11 }}>
+                      {CONTENT_TYPE_LABELS[item.content_type] || item.content_type}
+                    </span>
+                    <div className="mod-card__title">{item.title}</div>
+                  </div>
+                  <span className={`mod-badge ${item.is_blocked ? 'mod-badge--red' : 'mod-badge--green'}`}>
+                    {item.is_blocked ? 'Заблок.' : 'Активен'}
+                  </span>
+                </div>
+
+                {item.text && (
+                  <div className="mod-card__text">{item.text.slice(0, 160)}{item.text.length > 160 ? '…' : ''}</div>
+                )}
+
+                {item.media && item.media_type === 'IMAGE' && (
+                  <div className="mod-card__media">
+                    <img src={item.media} alt="" className="mod-card__img" />
+                  </div>
+                )}
+                {item.media && item.media_type === 'VIDEO' && (
+                  <div className="mod-card__media">
+                    <video src={item.media} className="mod-card__img" controls />
+                  </div>
+                )}
+
+                <div className="mod-card__meta">
+                  {new Date(item.created_at).toLocaleString('ru')}
+                  {item.meta?.business_name && ` · ${item.meta.business_name}`}
+                  {item.meta?.price && ` · ${item.meta.price} ${item.meta.currency}`}
+                  {item.is_blocked && item.blocked_by && ` · Заблок.: ${item.blocked_by}`}
+                </div>
+
+                {item.is_blocked && item.blocked_at && (
+                  <div className="mod-card__meta" style={{ color: 'rgba(248,113,113,0.7)' }}>
+                    🗑️ Авто-удаление: {new Date(new Date(item.blocked_at).getTime() + 4*24*60*60*1000).toLocaleDateString('ru')}
+                  </div>
+                )}
+
+                <div className="mod-card__actions">
+                  <button
+                    className={`mod-btn ${item.is_blocked ? 'mod-btn--green' : 'mod-btn--red'}`}
+                    disabled={isToggling}
+                    onClick={() => toggleBlock(item)}
+                  >
+                    {isToggling ? '…' : item.is_blocked ? '🔓 Разблокировать' : '🚫 Заблокировать'}
+                  </button>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── Payments Tab ──────────────────────────────────────────────────────────────
+function PaymentsTab({ token }) {
+  const [items, setItems]     = useState([])
+  const [loading, setLoading] = useState(true)
+  const [filter, setFilter]   = useState('PENDING')
+  const [selected, setSelected] = useState(null)
+  const [note, setNote]       = useState('')
+  const [saving, setSaving]   = useState(false)
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    try {
+      const data = await apiModeratorGetPayments(token, { status: filter || undefined })
+      setItems(data)
+    } catch { /* ignore */ }
+    finally { setLoading(false) }
+  }, [token, filter])
+
+  useEffect(() => { load() }, [load])
+
+  const handleReview = async (action) => {
+    setSaving(true)
+    try {
+      await apiModeratorReviewPayment(token, selected.id, { action, rejection_note: note })
+      setSelected(null)
+      setNote('')
+      load()
+    } catch { /* ignore */ }
+    finally { setSaving(false) }
+  }
+
+  const PERIOD_LABELS = { MONTH: '1 месяц', QUARTER: '3 месяца', YEAR: '1 год' }
+
+  return (
+    <div className="mod-tab">
+      <div className="mod-tab__filters">
+        {[{ v: '', l: 'Все' }, { v: 'PENDING', l: 'Ожидают' }, { v: 'APPROVED', l: 'Одобрены' }, { v: 'REJECTED', l: 'Отклонены' }].map(f => (
+          <button key={f.v} className={`mod-filter-btn ${filter === f.v ? 'mod-filter-btn--active' : ''}`} onClick={() => setFilter(f.v)}>
+            {f.l}
+          </button>
+        ))}
+      </div>
+
+      {loading ? <div className="mod-loader">Загрузка…</div> : (
+        <div className="mod-list">
+          {items.length === 0 && <div className="mod-empty">Нет заявок</div>}
+          {items.map(p => (
+            <div key={p.id} className="mod-card" onClick={() => { setSelected(p); setNote('') }}>
+              <div className="mod-card__row">
+                <div className="mod-card__biz">
+                  {p.business?.logo && <img src={p.business.logo} alt="" className="mod-card__logo" />}
+                  <div>
+                    <div className="mod-card__title">{p.business?.brand_name}</div>
+                    <div className="mod-card__meta">{p.business?.owner_email}</div>
+                  </div>
+                </div>
+                <span className={`mod-badge mod-badge--${STATUS_COLORS[p.status] || 'gray'}`}>
+                  {STATUS_LABELS[p.status] || p.status}
+                </span>
+              </div>
+              <div className="mod-card__meta" style={{ marginTop: 6 }}>
+                Тариф: <b>{PLAN_LABELS[p.plan_type]}</b>
+                {p.plan_period && ` · ${PERIOD_LABELS[p.plan_period]}`}
+                {' · '}{new Date(p.created_at).toLocaleDateString('ru')}
+              </div>
+              {p.message && <div className="mod-card__text">{p.message}</div>}
+              {p.proof_file && (
+                <a href={p.proof_file} target="_blank" rel="noopener noreferrer" className="mod-pay__proof">
+                  📎 Скриншот оплаты
+                </a>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {selected && (
+        <div className="mod-modal" onClick={() => setSelected(null)}>
+          <div className="mod-modal__box" onClick={e => e.stopPropagation()}>
+            <div className="mod-modal__header">
+              <h3>Заявка на тариф — {selected.business?.brand_name}</h3>
+              <button className="mod-modal__close" onClick={() => setSelected(null)}>✕</button>
+            </div>
+            <div className="mod-modal__body">
+              <p><b>Тариф:</b> {PLAN_LABELS[selected.plan_type]} {selected.plan_period ? `· ${PERIOD_LABELS[selected.plan_period]}` : ''}</p>
+              <p><b>От:</b> {selected.business?.owner_email}</p>
+              {selected.message && <p><b>Сообщение:</b> {selected.message}</p>}
+              {selected.proof_file && (
+                <div className="mod-pay__img-wrap">
+                  <a href={selected.proof_file} target="_blank" rel="noopener noreferrer">
+                    <img src={selected.proof_file} alt="Скриншот" className="mod-pay__img" onError={e => e.target.style.display='none'} />
+                    <div className="mod-pay__proof">📎 Открыть файл</div>
+                  </a>
+                </div>
+              )}
+              {selected.reviewed_by && <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12 }}>Проверил: {selected.reviewed_by}</p>}
+              {selected.rejection_note && <p><b>Причина отклонения:</b> {selected.rejection_note}</p>}
+
+              {selected.status === 'PENDING' && (
+                <>
+                  <textarea
+                    className="mod-textarea"
+                    placeholder="Причина отклонения (если отклоняете)"
+                    value={note}
+                    onChange={e => setNote(e.target.value)}
+                    rows={3}
+                    style={{ marginTop: 12 }}
+                  />
+                  <div className="mod-modal__actions">
+                    <button className="mod-btn mod-btn--green" disabled={saving} onClick={() => handleReview('approve')}>
+                      {saving ? '…' : '✅ Одобрить и назначить тариф'}
+                    </button>
+                    <button className="mod-btn mod-btn--red" disabled={saving} onClick={() => handleReview('reject')}>
+                      {saving ? '…' : '❌ Отклонить'}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── Profiles Tab ──────────────────────────────────────────────────────────────
+function ProfilesTab({ token }) {
+  const [items, setItems]     = useState([])
+  const [loading, setLoading] = useState(true)
+  const [search, setSearch]   = useState('')
+  const [roleFilter, setRoleFilter]       = useState('')
+  const [blockedFilter, setBlockedFilter] = useState('')
+  const [selected, setSelected] = useState(null)
+  const [toggling, setToggling] = useState(null)
+  const [deactivate, setDeactivate] = useState(false)
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    try {
+      const params = {}
+      if (roleFilter)    params.role    = roleFilter
+      if (blockedFilter) params.blocked = blockedFilter
+      if (search)        params.search  = search
+      const data = await apiModeratorGetUsers(token, params)
+      setItems(data)
+    } catch { /* ignore */ }
+    finally { setLoading(false) }
+  }, [token, roleFilter, blockedFilter, search])
+
+  useEffect(() => {
+    const t = setTimeout(() => load(), 300)
+    return () => clearTimeout(t)
+  }, [load])
+
+  const toggleBlock = async (user, block) => {
+    setToggling(user.id)
+    try {
+      const updated = await apiModeratorBlockUser(token, user.id, { blocked: block, deactivate })
+      setItems(prev => prev.map(u => u.id === user.id ? { ...u, ...updated } : u))
+      if (selected?.id === user.id) setSelected(prev => ({ ...prev, ...updated }))
+    } catch { /* ignore */ }
+    finally { setToggling(null) }
+  }
+
+  const ROLE_LABELS = { USER: 'Пользователь', BUSINESS: 'Бизнес', MODERATOR: 'Модератор' }
+
+  return (
+    <div className="mod-tab">
+      <div className="mod-tab__search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input
+          className="mod-search-input"
+          placeholder="Поиск по имени или email…"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+        />
+      </div>
+
+      <div className="mod-tab__filters">
+        {[{ v: '', l: 'Все роли' }, { v: 'USER', l: 'Пользователи' }, { v: 'BUSINESS', l: 'Бизнес' }].map(f => (
+          <button key={f.v} className={`mod-filter-btn ${roleFilter === f.v ? 'mod-filter-btn--active' : ''}`} onClick={() => setRoleFilter(f.v)}>
+            {f.l}
+          </button>
+        ))}
+        <div style={{ width: 1, background: 'rgba(255,255,255,0.1)', margin: '0 4px' }} />
+        {[{ v: '', l: 'Все' }, { v: 'true', l: 'Заблокированные' }, { v: 'false', l: 'Активные' }].map(f => (
+          <button key={f.v} className={`mod-filter-btn ${blockedFilter === f.v ? 'mod-filter-btn--active' : ''}`} onClick={() => setBlockedFilter(f.v)}>
+            {f.l}
+          </button>
+        ))}
+      </div>
+
+      {loading ? <div className="mod-loader">Загрузка…</div> : (
+        <div className="mod-list">
+          {items.length === 0 && <div className="mod-empty">Нет пользователей</div>}
+          {items.map(u => (
+            <div key={u.id} className={`mod-card ${u.is_profile_blocked ? 'mod-card--blocked' : ''}`} onClick={() => { setSelected(u); setDeactivate(false) }}>
+              <div className="mod-card__row">
+                <div className="mod-card__biz">
+                  {u.avatar
+                    ? <img src={u.avatar} alt="" className="mod-card__logo mod-card__logo--round" />
+                    : <div className="mod-card__avatar-placeholder">{u.username?.[0]?.toUpperCase() || '?'}</div>
+                  }
+                  <div>
+                    <div className="mod-card__title">{u.username}</div>
+                    <div className="mod-card__meta">{u.email}</div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+                  <span className={`mod-badge mod-badge--${u.role === 'BUSINESS' ? 'blue' : u.role === 'MODERATOR' ? 'teal' : 'gray'}`}>
+                    {ROLE_LABELS[u.role] || u.role}
+                  </span>
+                  {u.is_profile_blocked && <span className="mod-badge mod-badge--red">Заблокирован</span>}
+                  {!u.is_active && <span className="mod-badge mod-badge--red">Деактивирован</span>}
+                </div>
+              </div>
+              <div className="mod-card__meta" style={{ marginTop: 4 }}>
+                {u.city && `${u.city} · `}
+                Рег: {new Date(u.date_joined).toLocaleDateString('ru')}
+                {u.complaints_count > 0 && <span style={{ color: '#f87171', marginLeft: 8 }}>⚠️ {u.complaints_count} жалоб(ы)</span>}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {selected && (
+        <div className="mod-modal" onClick={() => setSelected(null)}>
+          <div className="mod-modal__box" onClick={e => e.stopPropagation()}>
+            <div className="mod-modal__header">
+              <h3>{selected.username}</h3>
+              <button className="mod-modal__close" onClick={() => setSelected(null)}>✕</button>
+            </div>
+            <div className="mod-modal__body">
+              <p><b>Email:</b> {selected.email}</p>
+              <p><b>Роль:</b> {ROLE_LABELS[selected.role] || selected.role}</p>
+              {selected.city && <p><b>Город:</b> {selected.city}</p>}
+              <p><b>Регистрация:</b> {new Date(selected.date_joined).toLocaleDateString('ru')}</p>
+              {selected.last_seen && <p><b>Был в сети:</b> {new Date(selected.last_seen).toLocaleString('ru')}</p>}
+              <p><b>Профиль заблокирован:</b> {selected.is_profile_blocked ? 'Да' : 'Нет'}</p>
+              <p><b>Аккаунт активен:</b> {selected.is_active ? 'Да' : 'Нет'}</p>
+              {selected.profile_blocked_by && <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Заблокировал: {selected.profile_blocked_by}</p>}
+
+              {selected.role !== 'MODERATOR' && (
+                <>
+                  <label className="mod-field__label" style={{ marginTop: 14, display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={deactivate}
+                      onChange={e => setDeactivate(e.target.checked)}
+                      style={{ accentColor: '#f87171' }}
+                    />
+                    Также деактивировать аккаунт (запрет входа)
+                  </label>
+                  <div className="mod-modal__actions" style={{ marginTop: 12 }}>
+                    {selected.is_profile_blocked ? (
+                      <button
+                        className="mod-btn mod-btn--green"
+                        disabled={toggling === selected.id}
+                        onClick={() => toggleBlock(selected, false)}
+                      >
+                        {toggling === selected.id ? '…' : '🔓 Разблокировать профиль'}
+                      </button>
+                    ) : (
+                      <button
+                        className="mod-btn mod-btn--red"
+                        disabled={toggling === selected.id}
+                        onClick={() => toggleBlock(selected, true)}
+                      >
+                        {toggling === selected.id ? '…' : '🚫 Заблокировать профиль'}
+                      </button>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ── Main Dashboard ────────────────────────────────────────────────────────────
 export default function ModeratorDashboardPage() {
-  const [tab, setTab] = useState('verification')
+  const [tab, setTab] = useState('feed')
   const { token, modUser, logout } = useModeratorAuth()
 
   if (!token) return null
@@ -622,6 +1140,7 @@ export default function ModeratorDashboardPage() {
         </div>
 
         <div className="mod-content">
+          {tab === 'feed'         && <FeedTab         token={token} />}
           {tab === 'verification' && <VerificationTab token={token} />}
           {tab === 'posts'        && <PostsTab        token={token} />}
           {tab === 'complaints'   && <ComplaintsTab   token={token} />}
@@ -667,6 +1186,8 @@ export default function ModeratorDashboardPage() {
               renderExtra={i => i.text && <div className="mod-card__text">{i.text}</div>}
             />
           )}
+          {tab === 'payments'  && <PaymentsTab  token={token} />}
+          {tab === 'profiles'  && <ProfilesTab  token={token} />}
         </div>
       </main>
     </div>

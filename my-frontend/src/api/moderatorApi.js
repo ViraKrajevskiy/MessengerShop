@@ -81,6 +81,10 @@ export async function apiModeratorReviewVerification(token, id, { status, commen
   })
 }
 
+export async function apiModeratorGetVerificationDetail(token, id) {
+  return request(`/verification/${id}/`, { headers: auth(token) })
+}
+
 export async function apiModeratorGetVerificationChat(token, reqId) {
   return request(`/verification/${reqId}/chat/`, { headers: auth(token) })
 }
@@ -134,5 +138,45 @@ export async function apiModeratorGetReviews(token, { blocked } = {}) {
 export async function apiModeratorBlockReview(token, id, blocked) {
   return request(`/moderator/reviews/${id}/block/`, {
     method: 'PATCH', headers: auth(token), body: JSON.stringify({ blocked }),
+  })
+}
+
+// ── Feed ──────────────────────────────────────────────────────────────────────
+export async function apiModeratorGetFeed(token, { type, blocked, limit } = {}) {
+  const p = new URLSearchParams()
+  if (type)    p.set('type', type)
+  if (blocked !== undefined) p.set('blocked', blocked)
+  if (limit)   p.set('limit', limit)
+  const qs = p.toString() ? `?${p.toString()}` : ''
+  return request(`/moderator/feed/${qs}`, { headers: auth(token) })
+}
+
+// ── Payments ──────────────────────────────────────────────────────────────────
+export async function apiModeratorGetPayments(token, { status } = {}) {
+  const params = status ? `?status=${status}` : ''
+  return request(`/moderator/payments/${params}`, { headers: auth(token) })
+}
+export async function apiModeratorReviewPayment(token, id, { action, rejection_note = '' }) {
+  return request(`/moderator/payments/${id}/`, {
+    method: 'PATCH',
+    headers: auth(token),
+    body: JSON.stringify({ action, rejection_note }),
+  })
+}
+
+// ── User profiles ─────────────────────────────────────────────────────────────
+export async function apiModeratorGetUsers(token, { role, blocked, search } = {}) {
+  const p = new URLSearchParams()
+  if (role)    p.set('role', role)
+  if (blocked !== undefined) p.set('blocked', blocked)
+  if (search)  p.set('search', search)
+  const qs = p.toString() ? `?${p.toString()}` : ''
+  return request(`/moderator/users/${qs}`, { headers: auth(token) })
+}
+export async function apiModeratorBlockUser(token, id, { blocked, deactivate = false }) {
+  return request(`/moderator/users/${id}/block/`, {
+    method: 'PATCH',
+    headers: auth(token),
+    body: JSON.stringify({ blocked, deactivate }),
   })
 }

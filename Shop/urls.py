@@ -13,6 +13,11 @@ from Shop.servicefunc.views.moderator.auth import ModeratorLoginView
 from Shop.servicefunc.views.moderator.posts import ModeratorPostListView, ModeratorPostBlockView
 from Shop.servicefunc.views.moderator.complaints import ComplaintCreateView, ModeratorComplaintListView, ModeratorComplaintDetailView
 from Shop.servicefunc.views.moderator.tariffs import ModeratorBusinessListView, ModeratorTariffAssignView
+from Shop.servicefunc.views.moderator.payments import (
+    PaymentRequestCreateView, PaymentRequestStatusView,
+    ModeratorPaymentListView, ModeratorPaymentDetailView,
+)
+from Shop.servicefunc.views.moderator.profiles import ModeratorUserListView, ModeratorUserBlockView
 from Shop.servicefunc.views.moderator.content import (
     ModeratorStoryListView, ModeratorStoryBlockView,
     ModeratorCommentListView, ModeratorCommentBlockView,
@@ -49,6 +54,7 @@ from Shop.servicefunc.views.groups import (
 )
 from Shop.servicefunc.views.news.newses import BusinessNewsListView, NewsListView, NewsCreateView, NewsDetailView
 from Shop.servicefunc.views.tags import TagListView
+from Shop.servicefunc.views.moderator.feed import ModeratorFeedView
 
 urlpatterns = [
     path('auth/register/',               RegisterView.as_view(),              name='auth_register'),
@@ -141,4 +147,17 @@ urlpatterns = [
     path('moderator/products/<int:pk>/block/',       ModeratorProductBlockView.as_view(), name='moderator_product_block'),
     path('moderator/reviews/',                      ModeratorReviewListView.as_view(),   name='moderator_review_list'),
     path('moderator/reviews/<int:pk>/block/',        ModeratorReviewBlockView.as_view(),  name='moderator_review_block'),
+
+    # ── Payment proofs (business submits, moderator approves) ────────────────
+    path('tariff/payment/',                 PaymentRequestCreateView.as_view(),  name='payment_create'),
+    path('tariff/payment/status/',          PaymentRequestStatusView.as_view(),  name='payment_status'),
+    path('moderator/payments/',             ModeratorPaymentListView.as_view(),  name='moderator_payment_list'),
+    path('moderator/payments/<int:pk>/',    ModeratorPaymentDetailView.as_view(),name='moderator_payment_detail'),
+
+    # ── User profile moderation ───────────────────────────────────────────────
+    path('moderator/users/',                     ModeratorUserListView.as_view(),  name='moderator_user_list'),
+    path('moderator/users/<int:pk>/block/',       ModeratorUserBlockView.as_view(), name='moderator_user_block'),
+
+    # ── Moderator unified feed ────────────────────────────────────────────────
+    path('moderator/feed/',                 ModeratorFeedView.as_view(),          name='moderator_feed'),
 ]

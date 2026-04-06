@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from Shop.models import Complaint, Post, Business
+from Shop.models import Complaint, Post, Business, User
 from Shop.servicefunc.views.verification.verification import IsModerator
 
 
@@ -18,14 +18,16 @@ class ComplaintCreateView(APIView):
     def post(self, request):
         post_id     = request.data.get('post_id')
         business_id = request.data.get('business_id')
+        user_id     = request.data.get('user_id')
         reason      = request.data.get('reason', 'OTHER')
         description = request.data.get('description', '')
 
-        if not post_id and not business_id:
-            return Response({'detail': 'Укажите post_id или business_id.'}, status=400)
+        if not post_id and not business_id and not user_id:
+            return Response({'detail': 'Укажите post_id, business_id или user_id.'}, status=400)
 
-        post     = None
-        business = None
+        post        = None
+        business    = None
+        target_user = None
 
         if post_id:
             try:
@@ -39,6 +41,14 @@ class ComplaintCreateView(APIView):
             except Business.DoesNotExist:
                 return Response({'detail': 'Бизнес не найден.'}, status=404)
 
+        if user_id:
+            try:
+                target_user = User.objects.get(pk=user_id)
+            except User.DoesNotExist:
+                return Response({'detail': 'Пользователь не найден.'}, status=404)
+            if target_user == request.user:
+                return Response({'detail': 'Нельзя жаловаться на себя.'}, status=400)
+
         valid_reasons = [r.value for r in Complaint.Reason]
         if reason not in valid_reasons:
             reason = 'OTHER'
@@ -47,6 +57,7 @@ class ComplaintCreateView(APIView):
             reporter=request.user,
             post=post,
             business=business,
+            target_user=target_user,
             reason=reason,
             description=description,
         )
@@ -80,19 +91,24 @@ class ModeratorComplaintListView(APIView):
                 'resolved_at': c.resolved_at,
                 'resolution_note': c.resolution_note,
                 'reporter': {
-                    'id':    c.reporter.id,
-                    'email': c.reporter.email,
+                    'id':       c.reporter.id,
+                    'email':    c.reporter.email,
                     'username': c.reporter.username,
                 },
                 'post': {
-                    'id':   c.post.id,
-                    'text': c.post.text[:100],
+                    'id':            c.post.id,
+                    'text':          c.post.text[:100],
                     'business_name': c.post.business.brand_name,
                 } if c.post else None,
                 'business': {
                     'id':         c.business.id,
                     'brand_name': c.business.brand_name,
                 } if c.business else None,
+                'target_user': {
+                    'id':       c.target_user.id,
+                    'username': c.target_user.username,
+                    'email':    c.target_user.email,
+                } if c.target_user else None,
                 'resolved_by': c.resolved_by.email if c.resolved_by else None,
             })
 
