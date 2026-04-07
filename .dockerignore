@@ -1,0 +1,16 @@
+.env
+.env.*
+!.env.example
+
+my-frontend/
+*.pyc
+__pycache__/
+*.pyo
+.git/
+.gitignore
+db.sqlite3
+media/
+staticfiles/
+.venv/
+venv/
+*.log
