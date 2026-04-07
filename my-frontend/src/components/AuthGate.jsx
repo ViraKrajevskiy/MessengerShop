@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useLanguage } from '../context/LanguageContext'
 import './AuthGate.css'
 
 /**
@@ -31,6 +32,7 @@ export function useAuthGate() {
 
 function AuthGateModal({ onClose }) {
   const navigate = useNavigate()
+  const { t } = useLanguage()
 
   return (
     <div className="authgate__overlay" onClick={onClose}>
@@ -44,9 +46,9 @@ function AuthGateModal({ onClose }) {
           </svg>
         </div>
 
-        <h2 className="authgate__title">Требуется вход</h2>
+        <h2 className="authgate__title">{t('authGate_title')}</h2>
         <p className="authgate__text">
-          Войдите или зарегистрируйтесь, чтобы лайкать, комментировать и создавать публикации
+          {t('authGate_sub')}
         </p>
 
         <div className="authgate__actions">
@@ -54,13 +56,13 @@ function AuthGateModal({ onClose }) {
             className="authgate__btn authgate__btn--login"
             onClick={() => { onClose(); navigate('/login') }}
           >
-            Войти
+            {t('nav_login')}
           </button>
           <button
             className="authgate__btn authgate__btn--register"
             onClick={() => { onClose(); navigate('/register') }}
           >
-            Зарегистрироваться
+            {t('nav_register')}
           </button>
         </div>
 

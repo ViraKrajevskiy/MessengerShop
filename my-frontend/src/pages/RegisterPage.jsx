@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useGoogleLogin } from '@react-oauth/google'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
+import { useLanguage } from '../context/LanguageContext'
 import { apiGoogleAuth } from '../api/authApi'
 import './AuthPage.css'
 
@@ -11,6 +12,7 @@ const CITIES = ['Стамбул', 'Анкара', 'Анталья', 'Измир'
 export default function RegisterPage() {
   const { register, verifyEmail, loginWithData } = useAuth()
   const { theme, toggleTheme } = useTheme()
+  const { t } = useLanguage()
   const navigate = useNavigate()
 
   const [step, setStep] = useState(1)
@@ -63,8 +65,8 @@ export default function RegisterPage() {
     if (!form.email.trim()) errs.email = 'Введите email'
     else if (!/\S+@\S+\.\S+/.test(form.email)) errs.email = 'Некорректный email'
     if (!form.password) errs.password = 'Введите пароль'
-    else if (form.password.length < 6) errs.password = 'Минимум 6 символов'
-    if (form.password !== form.confirm) errs.confirm = 'Пароли не совпадают'
+    else if (form.password.length < 6) errs.password = t('reg_min6')
+    if (form.password !== form.confirm) errs.confirm = t('reg_pwdMismatch')
     return errs
   }
 
@@ -154,7 +156,7 @@ export default function RegisterPage() {
 
       {/* Top bar */}
       <div className="auth-page__topbar">
-        <div className="auth-page__logo" onClick={() => navigate('/')}>БизнесТурция</div>
+        <div className="auth-page__logo" onClick={() => navigate('/')}>{t('appName')}</div>
         <button className="auth-page__icon-btn" onClick={toggleTheme} title="Тема">
           {theme === 'light'
             ? <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -171,8 +173,8 @@ export default function RegisterPage() {
             <div className="auth-card__icon auth-card__icon--purple">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
             </div>
-            <h1 className="auth-card__title">Создать аккаунт</h1>
-            <p className="auth-card__subtitle">Присоединяйтесь к бизнес-сообществу</p>
+            <h1 className="auth-card__title">{t('reg_createAccount')}</h1>
+            <p className="auth-card__subtitle">{t('reg_step1_sub')}</p>
           </div>
 
           {/* Steps indicator */}
@@ -202,7 +204,7 @@ export default function RegisterPage() {
 
               {/* Username */}
               <div className="auth-field">
-                <label className="auth-field__label">Имя пользователя</label>
+                <label className="auth-field__label">{t('reg_username')}</label>
                 <div className="auth-field__wrap">
                   <span className="auth-field__icon">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -216,7 +218,7 @@ export default function RegisterPage() {
 
               {/* Email */}
               <div className="auth-field">
-                <label className="auth-field__label">Email</label>
+                <label className="auth-field__label">{t('auth_email')}</label>
                 <div className="auth-field__wrap">
                   <span className="auth-field__icon">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
@@ -230,13 +232,13 @@ export default function RegisterPage() {
 
               {/* Password */}
               <div className="auth-field">
-                <label className="auth-field__label">Пароль</label>
+                <label className="auth-field__label">{t('reg_newPassword')}</label>
                 <div className="auth-field__wrap">
                   <span className="auth-field__icon">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                   </span>
                   <input className={`auth-field__input ${errors.password ? 'auth-field__input--error' : ''}`}
-                    type={showPass ? 'text' : 'password'} name="password" placeholder="Минимум 6 символов"
+                    type={showPass ? 'text' : 'password'} name="password" placeholder={t('reg_min6')}
                     value={form.password} onChange={handleChange} autoComplete="new-password" />
                   <button type="button" className="auth-field__eye" onClick={() => setShowPass(s => !s)}>
                     {showPass
@@ -250,7 +252,7 @@ export default function RegisterPage() {
 
               {/* Confirm */}
               <div className="auth-field">
-                <label className="auth-field__label">Повторите пароль</label>
+                <label className="auth-field__label">{t('reg_confirmPwd')}</label>
                 <div className="auth-field__wrap">
                   <span className="auth-field__icon">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
@@ -263,7 +265,7 @@ export default function RegisterPage() {
               </div>
 
               <button className="auth-card__submit auth-card__submit--purple" type="button" onClick={handleNext}>
-                Далее →
+                {t('reg_continue')} →
               </button>
 
               <div className="auth-card__divider"><span>или</span></div>
@@ -278,27 +280,27 @@ export default function RegisterPage() {
                   {googleLoading ? <span className="auth-card__spinner" style={{ borderTopColor: '#4285F4', borderColor: 'rgba(66,133,244,0.3)', width: 16, height: 16 }} /> : (
                     <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
                   )}
-                  Зарегистрироваться через Google
+                  {t('reg_googleBtn')}
                 </button>
               ) : (
                 <div className="auth-google-role">
-                  <p className="auth-google-role__title">Выберите тип аккаунта Google</p>
+                  <p className="auth-google-role__title">{t('reg_step3_sub')}</p>
                   <div className="auth-role-btns">
                     <label className={`auth-role-btn ${googleRole === 'USER' ? 'auth-role-btn--active' : ''}`}>
                       <input type="radio" name="googleRole" value="USER" checked={googleRole === 'USER'} onChange={() => setGoogleRole('USER')} />
                       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                      <span>Пользователь</span>
+                      <span>{t('reg_roleUser')}</span>
                       <small>Ищу услуги</small>
                     </label>
                     <label className={`auth-role-btn ${googleRole === 'BUSINESS' ? 'auth-role-btn--active' : ''}`}>
                       <input type="radio" name="googleRole" value="BUSINESS" checked={googleRole === 'BUSINESS'} onChange={() => setGoogleRole('BUSINESS')} />
                       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
-                      <span>Бизнесмен</span>
+                      <span>{t('reg_roleBusiness')}</span>
                       <small>Продвигаю бизнес</small>
                     </label>
                   </div>
                   <div className="auth-card__two-btns" style={{ marginTop: 8 }}>
-                    <button type="button" className="auth-card__back" onClick={() => setShowGoogleRole(false)}>Отмена</button>
+                    <button type="button" className="auth-card__back" onClick={() => setShowGoogleRole(false)}>{t('reg_back')}</button>
                     <button
                       type="button"
                       className="auth-card__submit auth-card__submit--purple"
@@ -306,7 +308,7 @@ export default function RegisterPage() {
                       onClick={() => handleGoogleRegister()}
                       disabled={googleLoading}
                     >
-                      {googleLoading ? <span className="auth-card__spinner" /> : 'Продолжить с Google'}
+                      {googleLoading ? <span className="auth-card__spinner" /> : t('reg_continue')}
                     </button>
                   </div>
                 </div>
@@ -322,18 +324,18 @@ export default function RegisterPage() {
 
               {/* Роль */}
               <div className="auth-field">
-                <label className="auth-field__label">Тип аккаунта</label>
+                <label className="auth-field__label">{t('reg_step3_title')}</label>
                 <div className="auth-role-btns">
                   <label className={`auth-role-btn ${form.role === 'USER' ? 'auth-role-btn--active' : ''}`}>
                     <input type="radio" name="role" value="USER" checked={form.role === 'USER'} onChange={handleChange} />
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                    <span>Пользователь</span>
+                    <span>{t('reg_roleUser')}</span>
                     <small>Ищу услуги</small>
                   </label>
                   <label className={`auth-role-btn ${form.role === 'BUSINESS' ? 'auth-role-btn--active' : ''}`}>
                     <input type="radio" name="role" value="BUSINESS" checked={form.role === 'BUSINESS'} onChange={handleChange} />
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
-                    <span>Бизнесмен</span>
+                    <span>{t('reg_roleBusiness')}</span>
                     <small>Продвигаю бизнес</small>
                   </label>
                 </div>
@@ -368,9 +370,9 @@ export default function RegisterPage() {
               {errors.general && <div className="auth-card__error">{errors.general}</div>}
 
               <div className="auth-card__two-btns">
-                <button type="button" className="auth-card__back" onClick={() => setStep(1)}>← Назад</button>
+                <button type="button" className="auth-card__back" onClick={() => setStep(1)}>← {t('reg_back')}</button>
                 <button className="auth-card__submit auth-card__submit--purple" type="submit" disabled={loading}>
-                  {loading ? <span className="auth-card__spinner" /> : 'Создать аккаунт'}
+                  {loading ? <span className="auth-card__spinner" /> : t('reg_createAccount')}
                 </button>
               </div>
             </form>
@@ -422,8 +424,8 @@ export default function RegisterPage() {
           )}
 
           <div className="auth-card__footer">
-            Уже есть аккаунт?{' '}
-            <Link to="/login" className="auth-card__switch-link">Войти</Link>
+            {t('auth_hasAccount')}{' '}
+            <Link to="/login" className="auth-card__switch-link">{t('nav_login')}</Link>
           </div>
         </div>
       </div>

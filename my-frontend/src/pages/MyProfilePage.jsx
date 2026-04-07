@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useLanguage } from '../context/LanguageContext'
 import { apiPatchMe } from '../api/profileApi'
 import Header from '../components/Header'
 import { DEFAULT_AVATAR } from '../utils/defaults'
@@ -17,22 +18,23 @@ async function fetchVerStatus(token) {
   return res.json()
 }
 
-const VER_STATUS = {
-  PENDING:  { label: 'На рассмотрении', color: '#f59e0b', icon: '⏳', bg: 'rgba(245,158,11,0.1)' },
-  APPROVED: { label: 'Верифицирован',   color: '#10b981', icon: '✅', bg: 'rgba(16,185,129,0.1)' },
-  REJECTED: { label: 'Отклонён',        color: '#ef4444', icon: '❌', bg: 'rgba(239,68,68,0.1)' },
-}
-
-const ROLE_LABELS = {
-  USER:      { label: 'Пользователь', color: '#3b82f6' },
-  BUSINESS:  { label: 'Бизнесмен',   color: '#f59e0b' },
-  MODERATOR: { label: 'Модератор',    color: '#8b5cf6' },
-}
-
 export default function MyProfilePage() {
   const { user, tokens, logout } = useAuth()
+  const { t } = useLanguage()
   const navigate = useNavigate()
   const fileRef = useRef(null)
+
+  const VER_STATUS = {
+    PENDING:  { label: t('verif_status_pending'),  color: '#f59e0b', icon: '⏳', bg: 'rgba(245,158,11,0.1)' },
+    APPROVED: { label: t('verif_status_approved'), color: '#10b981', icon: '✅', bg: 'rgba(16,185,129,0.1)' },
+    REJECTED: { label: t('verif_status_rejected'), color: '#ef4444', icon: '❌', bg: 'rgba(239,68,68,0.1)' },
+  }
+
+  const ROLE_LABELS = {
+    USER:      { label: t('role_user'),      color: '#3b82f6' },
+    BUSINESS:  { label: t('role_business'),  color: '#f59e0b' },
+    MODERATOR: { label: t('role_moderator'), color: '#8b5cf6' },
+  }
 
   const [editing, setEditing]             = useState(false)
   const [form, setForm]                   = useState({ username: '', city: '' })
@@ -121,10 +123,10 @@ export default function MyProfilePage() {
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M19 12H5M12 19l-7-7 7-7"/>
           </svg>
-          Назад
+          {t('back')}
         </button>
 
-        {saveOk && <div className="my-profile__toast">✓ Профиль обновлён</div>}
+        {saveOk && <div className="my-profile__toast">✓ {t('success')}</div>}
 
         <div className="my-profile__layout">
 
@@ -137,7 +139,7 @@ export default function MyProfilePage() {
                     <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
                     <circle cx="12" cy="13" r="4"/>
                   </svg>
-                  <span>Сменить</span>
+                  <span>{t('myprofile_changePhoto')}</span>
                 </div>
               )}
               <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFileChange} />
@@ -151,9 +153,9 @@ export default function MyProfilePage() {
             </div>
 
             <div className="my-profile__stats-grid">
-              <div className="my-profile__stat"><strong>0</strong><span>публикаций</span></div>
-              <div className="my-profile__stat"><strong>0</strong><span>подписчиков</span></div>
-              <div className="my-profile__stat"><strong>0</strong><span>подписок</span></div>
+              <div className="my-profile__stat"><strong>0</strong><span>{t('myprofile_posts')}</span></div>
+              <div className="my-profile__stat"><strong>0</strong><span>{t('myprofile_subscribers')}</span></div>
+              <div className="my-profile__stat"><strong>0</strong><span>{t('myprofile_subscriptions')}</span></div>
             </div>
 
             <div className="my-profile__meta">
@@ -169,13 +171,13 @@ export default function MyProfilePage() {
               )}
               <div className="my-profile__meta-item">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                Зарегистрирован {joinDate}
+                {joinDate}
               </div>
             </div>
 
             <button className="my-profile__logout-btn" onClick={handleLogout}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-              Выйти из аккаунта
+              {t('nav_logout')}
             </button>
           </aside>
 
@@ -188,13 +190,13 @@ export default function MyProfilePage() {
               {!editing ? (
                 <button className="my-profile__edit-btn" onClick={() => setEditing(true)}>
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                  Редактировать
+                  {t('myprofile_edit')}
                 </button>
               ) : (
                 <div className="my-profile__edit-actions">
-                  <button className="my-profile__cancel-btn" onClick={handleCancel}>Отмена</button>
+                  <button className="my-profile__cancel-btn" onClick={handleCancel}>{t('myprofile_cancel')}</button>
                   <button className="my-profile__save-btn" onClick={handleSave} disabled={saving}>
-                    {saving ? <span className="my-profile__btn-spinner" /> : 'Сохранить'}
+                    {saving ? <span className="my-profile__btn-spinner" /> : t('myprofile_save')}
                   </button>
                 </div>
               )}
@@ -203,11 +205,11 @@ export default function MyProfilePage() {
             {saveError && <div className="my-profile__save-error">{saveError}</div>}
 
             <div className="my-profile__card">
-              <h3 className="my-profile__card-title">Основная информация</h3>
+              <h3 className="my-profile__card-title">{t('myprofile_title')}</h3>
               <div className="my-profile__fields">
 
                 <div className="my-profile__field">
-                  <label className="my-profile__field-label">Имя пользователя</label>
+                  <label className="my-profile__field-label">{t('myprofile_username')}</label>
                   {editing
                     ? <input className="my-profile__field-input" type="text" value={form.username} onChange={e => setForm(f => ({ ...f, username: e.target.value }))} placeholder="username" />
                     : <span className="my-profile__field-value">{user.username}</span>
@@ -218,27 +220,27 @@ export default function MyProfilePage() {
                   <label className="my-profile__field-label">Email</label>
                   <span className="my-profile__field-value my-profile__field-value--muted">
                     {user.email}
-                    <span className="my-profile__verified-badge">✓ Подтверждён</span>
+                    <span className="my-profile__verified-badge">✓ {t('verif_status_approved')}</span>
                   </span>
                 </div>
 
                 <div className="my-profile__field">
-                  <label className="my-profile__field-label">Город</label>
+                  <label className="my-profile__field-label">{t('myprofile_city')}</label>
                   {editing
-                    ? <input className="my-profile__field-input" type="text" value={form.city} onChange={e => setForm(f => ({ ...f, city: e.target.value }))} placeholder="Стамбул" />
-                    : <span className="my-profile__field-value">{user.city || <span style={{ color: 'var(--text-muted)' }}>Не указан</span>}</span>
+                    ? <input className="my-profile__field-input" type="text" value={form.city} onChange={e => setForm(f => ({ ...f, city: e.target.value }))} placeholder={t('myprofile_city')} />
+                    : <span className="my-profile__field-value">{user.city || <span style={{ color: 'var(--text-muted)' }}>—</span>}</span>
                   }
                 </div>
 
                 <div className="my-profile__field">
-                  <label className="my-profile__field-label">Роль</label>
+                  <label className="my-profile__field-label">{t('myprofile_verif')}</label>
                   <span className="my-profile__field-value">{role.label}</span>
                 </div>
 
                 <div className="my-profile__field">
-                  <label className="my-profile__field-label">Статус</label>
+                  <label className="my-profile__field-label">{t('myprofile_tariff')}</label>
                   <span className={`my-profile__status ${user.is_active ? 'my-profile__status--active' : 'my-profile__status--inactive'}`}>
-                    {user.is_active ? '● Активен' : '● Не активирован'}
+                    {user.is_active ? '● ' + t('success') : '● ' + t('myprofile_noVerif')}
                   </span>
                 </div>
 
@@ -247,26 +249,26 @@ export default function MyProfilePage() {
 
             {user.role === 'BUSINESS' && (
               <div className="my-profile__card my-profile__card--ver">
-                <h3 className="my-profile__card-title">Верификация аккаунта</h3>
+                <h3 className="my-profile__card-title">{t('myprofile_verif')}</h3>
 
                 {verStatus === undefined ? (
-                  <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: 0 }}>Загрузка...</p>
+                  <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: 0 }}>{t('loading')}</p>
                 ) : verStatus === null ? (
-                  /* Нет заявки */
+                  /* No application */
                   <div className="my-profile__ver-start">
                     <div className="my-profile__ver-icon">🛡️</div>
                     <p className="my-profile__ver-text">
-                      Получите значок <strong>✓ Верифицирован</strong> — это повысит доверие клиентов.
+                      {t('myprofile_noVerif')}
                     </p>
                     <button className="my-profile__ver-btn" onClick={() => navigate('/verification')}>
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                       </svg>
-                      Подтвердить аккаунт
+                      {t('myprofile_goVerif')}
                     </button>
                   </div>
                 ) : (
-                  /* Заявка есть */
+                  /* Application exists */
                   <div
                     className="my-profile__ver-status"
                     style={{ background: VER_STATUS[verStatus.status]?.bg }}
@@ -277,11 +279,11 @@ export default function MyProfilePage() {
                         {VER_STATUS[verStatus.status]?.label}
                       </div>
                       {verStatus.status === 'REJECTED' && verStatus.comment && (
-                        <div className="my-profile__ver-reason">Причина: {verStatus.comment}</div>
+                        <div className="my-profile__ver-reason">{verStatus.comment}</div>
                       )}
                     </div>
                     <button className="my-profile__ver-link" onClick={() => navigate('/verification')}>
-                      Открыть чат →
+                      {t('myprofile_goVerif')} →
                     </button>
                   </div>
                 )}
@@ -289,15 +291,15 @@ export default function MyProfilePage() {
             )}
 
             <div className="my-profile__card my-profile__card--posts">
-              <h3 className="my-profile__card-title">Публикации</h3>
+              <h3 className="my-profile__card-title">{t('myprofile_posts')}</h3>
               <div className="my-profile__posts-empty">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" opacity="0.3">
                   <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
                   <polyline points="21 15 16 10 5 21"/>
                 </svg>
-                <p>Пока нет публикаций</p>
+                <p>{t('feed_noPosts')}</p>
                 {user.role === 'BUSINESS' && (
-                  <span className="my-profile__posts-hint">Вы можете публиковать сторисы как бизнесмен</span>
+                  <span className="my-profile__posts-hint">{t('myprofile_qrCode')}</span>
                 )}
               </div>
             </div>

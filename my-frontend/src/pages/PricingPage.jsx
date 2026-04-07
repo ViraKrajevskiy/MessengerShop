@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import { useAuth } from '../context/AuthContext'
+import { useLanguage } from '../context/LanguageContext'
 import './PricingPage.css'
 
 const PLANS = {
@@ -18,57 +19,58 @@ const PLANS = {
   },
 }
 
-const PERIOD_LABELS = {
-  MONTH: '1 месяц',
-  QUARTER: '3 месяца',
-  YEAR: '12 месяцев',
-}
-
-const FEATURES = {
-  FREE: [
-    { text: 'Профиль компании', yes: true },
-    { text: 'Публикации и посты', yes: true },
-    { text: 'Товары и услуги', yes: true },
-    { text: 'Групповой чат', yes: true },
-    { text: 'Значок Pro / VIP', yes: false },
-    { text: 'Приоритет в выдаче', yes: false },
-    { text: 'Секция VIP на главной', yes: false },
-    { text: 'Золотая рамка профиля', yes: false },
-  ],
-  PRO: [
-    { text: 'Профиль компании', yes: true },
-    { text: 'Публикации и посты', yes: true },
-    { text: 'Товары и услуги', yes: true },
-    { text: 'Групповой чат', yes: true },
-    { text: 'Значок Pro', yes: true },
-    { text: 'Приоритет в выдаче', yes: true },
-    { text: 'Секция VIP на главной', yes: false },
-    { text: 'Золотая рамка профиля', yes: false },
-  ],
-  VIP: [
-    { text: 'Профиль компании', yes: true },
-    { text: 'Публикации и посты', yes: true },
-    { text: 'Товары и услуги', yes: true },
-    { text: 'Групповой чат', yes: true },
-    { text: 'Значок VIP', yes: true },
-    { text: 'Топ в выдаче', yes: true },
-    { text: 'Секция VIP на главной', yes: true },
-    { text: 'Золотая рамка профиля', yes: true },
-  ],
-}
-
-const FAQS = [
-  { q: 'Как оплатить тариф?', a: 'Нажмите «Написать модератору», отправьте запрос с выбранным тарифом. Модератор отправит реквизиты для оплаты. После оплаты пришлите квитанцию — модератор активирует тариф.' },
-  { q: 'Можно ли отменить подписку?', a: 'Да, напишите в поддержку через мессенджер. Подписка будет действовать до конца оплаченного периода.' },
-  { q: 'Что будет после окончания тарифа?', a: 'Ваш профиль автоматически перейдёт на бесплатный тариф. Все данные сохранятся, но значок и приоритет в выдаче будут отключены.' },
-  { q: 'Какой тариф выгоднее?', a: 'Годовой тариф самый выгодный — вы экономите до 34% по сравнению с помесячной оплатой.' },
-]
-
 export default function PricingPage() {
   const navigate = useNavigate()
   const { user } = useAuth()
+  const { t } = useLanguage()
   const [period, setPeriod] = useState('YEAR')
   const [faqOpen, setFaqOpen] = useState(null)
+
+  const PERIOD_LABELS = {
+    MONTH: t('pricing_month'),
+    QUARTER: t('pricing_quarter'),
+    YEAR: t('pricing_year'),
+  }
+
+  const FEATURES = {
+    FREE: [
+      { text: t('pricing_bizProfile'), yes: true },
+      { text: t('pricing_posts'), yes: true },
+      { text: t('pricing_products'), yes: true },
+      { text: t('pricing_groupChat'), yes: true },
+      { text: t('pricing_proBadge'), yes: false },
+      { text: t('pricing_priority'), yes: false },
+      { text: t('pricing_vipSection'), yes: false },
+      { text: t('pricing_goldBorder'), yes: false },
+    ],
+    PRO: [
+      { text: t('pricing_bizProfile'), yes: true },
+      { text: t('pricing_posts'), yes: true },
+      { text: t('pricing_products'), yes: true },
+      { text: t('pricing_groupChat'), yes: true },
+      { text: t('pricing_proBadge'), yes: true },
+      { text: t('pricing_priority'), yes: true },
+      { text: t('pricing_vipSection'), yes: false },
+      { text: t('pricing_goldBorder'), yes: false },
+    ],
+    VIP: [
+      { text: t('pricing_bizProfile'), yes: true },
+      { text: t('pricing_posts'), yes: true },
+      { text: t('pricing_products'), yes: true },
+      { text: t('pricing_groupChat'), yes: true },
+      { text: t('pricing_proBadge'), yes: true },
+      { text: t('pricing_topResults'), yes: true },
+      { text: t('pricing_vipSection'), yes: true },
+      { text: t('pricing_goldBorder'), yes: true },
+    ],
+  }
+
+  const FAQS = [
+    { q: t('pricing_faq1q'), a: t('pricing_faq1a') },
+    { q: t('pricing_faq2q'), a: t('pricing_faq2a') },
+    { q: t('pricing_faq3q'), a: t('pricing_faq3a') },
+    { q: t('pricing_faq4q'), a: t('pricing_faq4a') },
+  ]
 
   const handleCta = (planType) => {
     if (!user) {
@@ -76,7 +78,7 @@ export default function PricingPage() {
       return
     }
     const planLabel = planType === 'PRO' ? '⚡ Pro' : '⭐ VIP'
-    const msg = `Здравствуйте! Хочу подключить тариф ${planLabel} на ${PERIOD_LABELS[period]} — $${PLANS[planType][period].price}. Прошу прислать реквизиты для оплаты.`
+    const msg = `${t('pricing_msgTariff')} ${planLabel} — ${PERIOD_LABELS[period]} — $${PLANS[planType][period].price}. ${t('pricing_msgReqs')}`
     navigate('/verification', { state: { pricingMessage: msg } })
   }
 
@@ -95,8 +97,8 @@ export default function PricingPage() {
       <Header />
       <main className="pricing__main">
         <div className="pricing__hero">
-          <h1>Тарифные планы</h1>
-          <p>Выберите подходящий тариф для вашего бизнеса</p>
+          <h1>{t('pricing_title')}</h1>
+          <p>{t('pricing_sub')}</p>
         </div>
 
         {/* Period toggle */}
@@ -118,7 +120,7 @@ export default function PricingPage() {
           {/* Free */}
           <div className="pricing__card pricing__card--free">
             <div className="pricing__card-icon">&#128100;</div>
-            <h3 className="pricing__card-name">Бесплатный</h3>
+            <h3 className="pricing__card-name">{t('pricing_free')}</h3>
             <p className="pricing__card-desc">Базовый профиль для старта</p>
             <div className="pricing__price">
               <span className="pricing__price-free">$0</span>
@@ -139,7 +141,7 @@ export default function PricingPage() {
           {/* Pro */}
           <div className="pricing__card pricing__card--pro">
             <div className="pricing__card-icon">&#9889;</div>
-            <h3 className="pricing__card-name">Pro</h3>
+            <h3 className="pricing__card-name">{t('pricing_pro')}</h3>
             <p className="pricing__card-desc">Больше видимости и приоритет</p>
             <div className="pricing__price">
               <span className="pricing__price-current">
@@ -163,14 +165,14 @@ export default function PricingPage() {
               ))}
             </ul>
             <button className="pricing__cta pricing__cta--pro" onClick={() => handleCta('PRO')}>
-              Написать модератору
+              {t('pricing_writeMod')}
             </button>
           </div>
 
           {/* VIP */}
           <div className="pricing__card pricing__card--vip">
             <div className="pricing__card-icon">&#11088;</div>
-            <h3 className="pricing__card-name">VIP</h3>
+            <h3 className="pricing__card-name">{t('pricing_vip')}</h3>
             <p className="pricing__card-desc">Максимальная видимость и престиж</p>
             <div className="pricing__price">
               <span className="pricing__price-current">
@@ -194,7 +196,7 @@ export default function PricingPage() {
               ))}
             </ul>
             <button className="pricing__cta pricing__cta--vip" onClick={() => handleCta('VIP')}>
-              Написать модератору
+              {t('pricing_writeMod')}
             </button>
           </div>
         </div>
@@ -213,7 +215,7 @@ export default function PricingPage() {
             <div className="pricing__step">
               <span className="pricing__step-num">2</span>
               <div className="pricing__step-text">
-                <strong>Напишите модератору</strong>
+                <strong>{t('pricing_writeMod')}</strong>
                 Отправьте запрос и получите реквизиты
               </div>
             </div>

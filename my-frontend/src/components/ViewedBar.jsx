@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useViewed } from '../context/ViewedContext'
+import { useLanguage } from '../context/LanguageContext'
 import './ViewedBar.css'
 
 const VIEWED_PHOTOS = [
@@ -18,6 +19,7 @@ const VIEWED_PHOTOS = [
 export default function ViewedBar() {
   const { viewedCards, clearViewed } = useViewed()
   const navigate = useNavigate()
+  const { t } = useLanguage()
 
   // Don't show if nothing has been viewed
   if (viewedCards.length === 0) return null
@@ -29,9 +31,9 @@ export default function ViewedBar() {
   return (
     <div className="viewed-bar">
       <div className="viewed-bar__header">
-        <h3 className="viewed-bar__title">Просмотренные</h3>
+        <h3 className="viewed-bar__title">{t('viewed_title')}</h3>
         <button className="viewed-bar__clear" onClick={clearViewed}>
-          Очистить
+          {t('viewed_clear')}
         </button>
       </div>
       <div className="viewed-bar__list">

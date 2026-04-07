@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useLanguage } from '../context/LanguageContext'
 import { apiGetBusinessReviews, apiCreateBusinessReview, apiGetProductReviews, apiCreateProductReview } from '../api/businessApi'
 import { DEFAULT_AVATAR } from '../utils/defaults'
 import './ReviewsSection.css'
@@ -27,6 +28,7 @@ function Stars({ rating, size = 16, interactive = false, onSelect }) {
 
 
 function ReviewCard({ review }) {
+  const { t } = useLanguage()
   const avatar = review.author_avatar || FALLBACK_AVATAR
   const date = new Date(review.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })
   return (
@@ -41,13 +43,13 @@ function ReviewCard({ review }) {
       </div>
       {review.pros && (
         <div className="rv-card__row">
-          <span className="rv-card__label rv-card__label--pros">Достоинства:</span>
+          <span className="rv-card__label rv-card__label--pros">{t('review_pros')}</span>
           <span>{review.pros}</span>
         </div>
       )}
       {review.cons && (
         <div className="rv-card__row">
-          <span className="rv-card__label rv-card__label--cons">Недостатки:</span>
+          <span className="rv-card__label rv-card__label--cons">{t('review_cons')}</span>
           <span>{review.cons}</span>
         </div>
       )}
@@ -106,6 +108,7 @@ function ReviewForm({ onSubmit, onCancel, loading, error }) {
 
 export default function ReviewsSection({ type, targetId, horizontal }) {
   const { user, getAccessToken } = useAuth()
+  const { t } = useLanguage()
   const navigate = useNavigate()
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)

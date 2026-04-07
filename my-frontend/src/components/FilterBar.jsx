@@ -1,25 +1,28 @@
+import { useLanguage } from '../context/LanguageContext'
 import SearchableDropdown from './SearchableDropdown'
 import './FilterBar.css'
 
-const HASHTAGS = [
-  'С отзывами',
-  'С видео',
-  '100% проверенные',
-  'Обновлённые',
-  'SKYPE',
-  'Частные',
-  'Онлайн',
-  'Красота',
-  'Здоровье',
-  'Юрист',
-  'Недвижимость',
-  'Финансы',
-  'Образование',
-  'Переводчик',
-  'Туризм',
-]
-
 export default function FilterBar({ filters, onFilterChange }) {
+  const { t } = useLanguage()
+
+  const HASHTAGS = [
+    t('filter_withReviews'),
+    t('filter_withVideo'),
+    t('filter_verified100'),
+    t('filter_updated'),
+    'SKYPE',
+    t('filter_private'),
+    t('filter_online'),
+    t('cat_beauty'),
+    t('cat_health'),
+    t('cat_legal'),
+    t('cat_realty'),
+    t('cat_finance'),
+    t('cat_education'),
+    t('cat_translate'),
+    t('cat_tourism'),
+  ]
+
   const {
     country = '',
     city = '',
@@ -35,7 +38,7 @@ export default function FilterBar({ filters, onFilterChange }) {
 
   const toggleTag = (tag) => {
     const next = activeTags.includes(tag)
-      ? activeTags.filter((t) => t !== tag)
+      ? activeTags.filter((tg) => tg !== tag)
       : [...activeTags, tag]
     onFilterChange({ ...filters, activeTags: next })
   }
@@ -48,13 +51,15 @@ export default function FilterBar({ filters, onFilterChange }) {
     <div className="filter-bar">
       <div className="filter-bar__dropdowns">
         <SearchableDropdown
-          label="СТРАНА"
+          label={t('filter_country')}
+          placeholder={t('filter_searchCountry')}
           options={countries}
           value={country}
           onChange={(v) => updateFilter('country', v)}
         />
         <SearchableDropdown
-          label="ГОРОД"
+          label={t('filter_city')}
+          placeholder={t('filter_searchCity')}
           options={cities}
           value={city}
           onChange={(v) => updateFilter('city', v)}
@@ -94,7 +99,7 @@ export default function FilterBar({ filters, onFilterChange }) {
           className="filter-bar__clear-all"
           onClick={() => onFilterChange({ ...filters, activeTags: [] })}
         >
-          Сбросить фильтры
+          ✕
         </button>
       )}
     </div>

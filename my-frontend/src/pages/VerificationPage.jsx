@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useLanguage } from '../context/LanguageContext'
 import Header from '../components/Header'
 import './VerificationPage.css'
 
@@ -16,21 +17,10 @@ async function apiFetch(url, token, opts = {}) {
   return data
 }
 
-const STATUS_CONFIG = {
-  PENDING:  { label: 'На рассмотрении', color: '#f59e0b', icon: '⏳' },
-  APPROVED: { label: 'Подтверждён',     color: '#10b981', icon: '✅' },
-  REJECTED: { label: 'Отклонён',        color: '#ef4444', icon: '❌' },
-}
-
-const QUICK_ACTIONS = [
-  { label: '💳 Купить тариф',        text: 'Здравствуйте! Хочу подключить тариф. Подскажите пожалуйста реквизиты для оплаты и условия.' },
-  { label: '⚠️ Сообщить о проблеме', text: 'Здравствуйте! Хочу сообщить о проблеме: ' },
-  { label: '❓ Задать вопрос',        text: 'Здравствуйте! У меня вопрос: ' },
-]
-
 function ChatPanel({ chatName, chatIcon, systemMsg, canSend, showQuickActions,
                      verReq, setVerReq, statusLabel, chatRef,
-                     msgText, setMsgText, sending, onSend, error, token }) {
+                     msgText, setMsgText, sending, onSend, error, token,
+                     quickActions }) {
   const [editingId,   setEditingId]   = useState(null)
   const [editingText, setEditingText] = useState('')
   const [savingEdit,  setSavingEdit]  = useState(false)
@@ -67,7 +57,7 @@ function ChatPanel({ chatName, chatIcon, systemMsg, canSend, showQuickActions,
         <div className="vp__chat-avatar">{chatIcon}</div>
         <div>
           <div className="vp__chat-name">{chatName}</div>
-          <div className="vp__chat-status">{canSend ? '● Онлайн' : statusLabel || ''}</div>
+          <div className="vp__chat-status">{canSend ? '● Online' : statusLabel || ''}</div>
         </div>
       </div>
 
@@ -75,7 +65,7 @@ function ChatPanel({ chatName, chatIcon, systemMsg, canSend, showQuickActions,
         <div className="vp__msg vp__msg--system"><p>{systemMsg}</p></div>
         {showQuickActions && verReq?.messages?.length === 0 && (
           <div className="vp__quick-actions">
-            {QUICK_ACTIONS.map(a => (
+            {(quickActions || []).map(a => (
               <button key={a.label} className="vp__quick-btn" onClick={() => setMsgText(a.text)}>
                 {a.label}
               </button>
@@ -86,7 +76,7 @@ function ChatPanel({ chatName, chatIcon, systemMsg, canSend, showQuickActions,
           <div key={msg.id} className={`vp__msg ${msg.is_mine ? 'vp__msg--mine' : 'vp__msg--their'}`}>
             {!msg.is_mine && (
               <div className="vp__msg-author">
-                {msg.sender_role === 'MODERATOR' ? '🛡️ Поддержка' : msg.sender_username}
+                {msg.sender_role === 'MODERATOR' ? '🛡️ Support' : msg.sender_username}
               </div>
             )}
 
@@ -102,9 +92,9 @@ function ChatPanel({ chatName, chatIcon, systemMsg, canSend, showQuickActions,
                 />
                 <div className="vp__msg-edit__actions">
                   <button className="vp__msg-edit__save" onClick={() => saveEdit(msg.id)} disabled={savingEdit || !editingText.trim()}>
-                    {savingEdit ? '...' : 'Сохранить'}
+                    {savingEdit ? '...' : 'OK'}
                   </button>
-                  <button className="vp__msg-edit__cancel" onClick={cancelEdit}>Отмена</button>
+                  <button className="vp__msg-edit__cancel" onClick={cancelEdit}>✕</button>
                 </div>
               </div>
             ) : (
@@ -125,10 +115,10 @@ function ChatPanel({ chatName, chatIcon, systemMsg, canSend, showQuickActions,
             <div className="vp__msg-footer">
               <span className="vp__msg-time">
                 {new Date(msg.created_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
-                {msg.is_edited && <em className="vp__msg-edited"> · изменено</em>}
+                {msg.is_edited && <em className="vp__msg-edited"> · edited</em>}
               </span>
               {msg.is_mine && msg.text && editingId !== msg.id && (
-                <button className="vp__msg-edit-btn" onClick={() => startEdit(msg)} title="Редактировать">
+                <button className="vp__msg-edit-btn" onClick={() => startEdit(msg)} title="Edit">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
@@ -146,7 +136,7 @@ function ChatPanel({ chatName, chatIcon, systemMsg, canSend, showQuickActions,
             className="vp__input"
             value={msgText}
             onChange={e => setMsgText(e.target.value)}
-            placeholder="Напишите сообщение..."
+            placeholder="..."
             disabled={sending}
           />
           <button className="vp__send-btn" type="submit" disabled={sending || !msgText.trim()}>
@@ -170,9 +160,22 @@ export default function VerificationPage() {
   const { user, tokens } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
+  const { t } = useLanguage()
   const pricingMessage = location.state?.pricingMessage || ''
 
-  const [verReq, setVerReq]       = useState(null)    // текущая заявка
+  const STATUS_CONFIG = {
+    PENDING:  { label: t('verif_status_pending'),  color: '#f59e0b', icon: '⏳' },
+    APPROVED: { label: t('verif_status_approved'), color: '#10b981', icon: '✅' },
+    REJECTED: { label: t('verif_status_rejected'), color: '#ef4444', icon: '❌' },
+  }
+
+  const QUICK_ACTIONS = [
+    { label: `💳 ${t('verif_buyTariff')}`,   text: t('verif_msgTariff') },
+    { label: `⚠️ ${t('verif_problem')}`,      text: t('verif_msgProblem') },
+    { label: `❓ ${t('verif_question')}`,      text: t('verif_msgQuestion') },
+  ]
+
+  const [verReq, setVerReq]       = useState(null)
   const [loading, setLoading]     = useState(true)
   const [creating, setCreating]   = useState(false)
   const [msgText, setMsgText]     = useState('')
@@ -183,13 +186,12 @@ export default function VerificationPage() {
   const chatRef  = useRef(null)
   const fileRef  = useRef(null)
 
-  // Redirect hooks — всегда вверху
+  // Redirect hooks
   useEffect(() => {
     if (!user) navigate('/login')
     else if (user.role !== 'BUSINESS') navigate('/')
   }, [user, navigate])
 
-  // Загружаем статус заявки; если пришли с тарифной страницы — предзаполняем сообщение
   useEffect(() => {
     if (!tokens?.access || user?.role !== 'BUSINESS') return
     apiFetch('/verification/my/', tokens.access)
@@ -198,7 +200,6 @@ export default function VerificationPage() {
         if (pricingMessage) setMsgText(pricingMessage)
       })
       .catch(async () => {
-        // Нет заявки — если пришли с тарифной страницы, создаём автоматически
         if (pricingMessage) {
           try {
             const data = await apiFetch('/verification/my/', tokens.access, { method: 'POST' })
@@ -214,14 +215,12 @@ export default function VerificationPage() {
       .finally(() => setLoading(false))
   }, [tokens?.access])
 
-  // Скролл вниз при новых сообщениях
   useEffect(() => {
     if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight
   }, [verReq?.messages?.length])
 
   if (!user || user.role !== 'BUSINESS') return null
 
-  // ── Создать заявку ──────────────────────────────────────────────────────────
   const handleCreate = async () => {
     setCreating(true)
     setError('')
@@ -235,7 +234,6 @@ export default function VerificationPage() {
     }
   }
 
-  // ── Отправить сообщение ─────────────────────────────────────────────────────
   const handleSend = async (e) => {
     e.preventDefault()
     if (!msgText.trim()) return
@@ -255,7 +253,6 @@ export default function VerificationPage() {
     }
   }
 
-  // ── Загрузить документ ──────────────────────────────────────────────────────
   const handleUpload = async (e) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -265,7 +262,6 @@ export default function VerificationPage() {
       const fd = new FormData()
       fd.append('file', file)
       const doc = await apiFetch('/verification/upload/', tokens.access, { method: 'POST', body: fd })
-      // добавляем документ и системное сообщение в чат
       const fakeMsg = {
         id: Date.now(), sender_username: user.username, sender_role: 'BUSINESS',
         text: '', file: doc.name, file_name: doc.name, is_mine: true,
@@ -292,27 +288,30 @@ export default function VerificationPage() {
     verReq, setVerReq, statusLabel: status?.label, chatRef,
     msgText, setMsgText, sending, onSend: handleSend, error,
     token: tokens?.access,
+    quickActions: QUICK_ACTIONS,
   }
 
-  // ── ВЕРИФИЦИРОВАН: только чат поддержки, без инструкций ────────────────────
+  if (loading) return <div className="vp__loading">{t('loading')}</div>
+
+  // ── APPROVED: support chat only ────────────────────────────────────────────
   if (isLoaded && isVerified) {
     return (
       <div className="vp">
         <Header />
         <main className="vp__main">
-          <button className="vp__back" onClick={() => navigate('/dashboard')}>← Назад</button>
+          <button className="vp__back" onClick={() => navigate('/dashboard')}>← </button>
 
           <div className="vp__verified-header">
-            <span className="vp__verified-badge-big">✅ Верифицированный бизнес</span>
-            <p className="vp__verified-sub">Здесь вы можете связаться с поддержкой по любому вопросу</p>
+            <span className="vp__verified-badge-big">✅ {t('verif_status_approved')}</span>
+            <p className="vp__verified-sub">{t('verif_question')}</p>
           </div>
 
           <div className="vp__layout vp__layout--support">
             <ChatPanel
               {...chatProps}
               chatIcon="🛡️"
-              chatName="Служба поддержки"
-              systemMsg="Здравствуйте! Ваш бизнес верифицирован ✅ Здесь вы можете купить или продлить тариф, сообщить о проблеме или задать любой вопрос."
+              chatName="Support"
+              systemMsg={t('verif_msgTariff')}
               canSend={true}
               showQuickActions={true}
             />
@@ -322,65 +321,65 @@ export default function VerificationPage() {
     )
   }
 
-  // ── НЕТ ЗАЯВКИ: подробная инструкция + кнопка начать ──────────────────────
+  // ── NO REQUEST: start card ─────────────────────────────────────────────────
   if (isLoaded && !verReq) {
     return (
       <div className="vp">
         <Header />
         <main className="vp__main">
-          <button className="vp__back" onClick={() => navigate('/dashboard')}>← Назад</button>
+          <button className="vp__back" onClick={() => navigate('/dashboard')}>← </button>
           <div className="vp__start-card">
             <div className="vp__start-icon">🛡️</div>
-            <h1 className="vp__start-title">Верификация бизнеса</h1>
+            <h1 className="vp__start-title">{t('verif_status_pending')}</h1>
             <p className="vp__start-text">
-              Получите значок <strong>✓ Верифицирован</strong> — клиенты будут доверять вам больше.
+              <strong>✓ {t('verif_status_approved')}</strong>
             </p>
 
             <div className="vp__docs-required">
-              <div className="vp__docs-required__title">📋 Что нужно отправить в чат:</div>
+              <div className="vp__docs-required__title">📋</div>
               <div className="vp__docs-required__list">
                 <div className="vp__doc-req-item">
                   <span className="vp__doc-req-item__num">1</span>
                   <div>
-                    <strong>Фото документа владельца</strong>
-                    <p>Паспорт или удостоверение личности (фото разворота с фотографией)</p>
+                    <strong></strong>
+                    <p></p>
                   </div>
                 </div>
                 <div className="vp__doc-req-item">
                   <span className="vp__doc-req-item__num">2</span>
                   <div>
-                    <strong>Подтверждение реального бизнеса</strong>
-                    <p>Свидетельство о регистрации компании, торговая лицензия или налоговый номер</p>
+                    <strong></strong>
+                    <p></p>
                   </div>
                 </div>
                 <div className="vp__doc-req-item">
                   <span className="vp__doc-req-item__num">3</span>
                   <div>
-                    <strong>Фото точки продаж / офиса</strong>
-                    <p>Фотография магазина, офиса или места ведения деятельности</p>
+                    <strong></strong>
+                    <p></p>
                   </div>
                 </div>
                 <div className="vp__doc-req-item">
                   <span className="vp__doc-req-item__num">4</span>
                   <div>
-                    <strong>Любое дополнительное подтверждение</strong>
-                    <p>Визитки, сайт, ссылки на соцсети, договоры — всё что докажет реальность бизнеса</p>
+                    <strong></strong>
+                    <p></p>
                   </div>
                 </div>
               </div>
             </div>
 
             <div className="vp__steps">
-              <div className="vp__step"><span>1</span><p>Нажмите кнопку ниже</p></div>
+              <div className="vp__step"><span>1</span><p></p></div>
               <div className="vp__step-arrow">→</div>
-              <div className="vp__step"><span>2</span><p>Отправьте документы в чат</p></div>
+              <div className="vp__step"><span>2</span><p></p></div>
               <div className="vp__step-arrow">→</div>
-              <div className="vp__step"><span>3</span><p>Модератор проверит (до 24ч)</p></div>
+              <div className="vp__step"><span>3</span><p></p></div>
             </div>
 
             {error && <div className="vp__error">{error}</div>}
             <button className="vp__create-btn" onClick={handleCreate} disabled={creating}>
-              {creating ? <span className="vp__spinner" /> : '🚀 Начать верификацию'}
+              {creating ? <span className="vp__spinner" /> : '🚀'}
             </button>
           </div>
         </main>
@@ -388,12 +387,12 @@ export default function VerificationPage() {
     )
   }
 
-  // ── PENDING / REJECTED: чат с sidebar документов + напоминание ─────────────
+  // ── PENDING / REJECTED ─────────────────────────────────────────────────────
   return (
     <div className="vp">
       <Header />
       <main className="vp__main">
-        <button className="vp__back" onClick={() => navigate('/dashboard')}>← Назад</button>
+        <button className="vp__back" onClick={() => navigate('/dashboard')}>← </button>
 
         <div className="vp__layout">
           {/* Sidebar */}
@@ -402,27 +401,26 @@ export default function VerificationPage() {
               <div className="vp__status-icon">{status?.icon}</div>
               <div className="vp__status-label" style={{ color: status?.color }}>{status?.label}</div>
               {verReq?.status === 'REJECTED' && verReq.comment && (
-                <div className="vp__reject-reason"><strong>Причина:</strong> {verReq.comment}</div>
+                <div className="vp__reject-reason"><strong></strong> {verReq.comment}</div>
               )}
             </div>
 
-            {/* Инструкция что отправить — только если не верифицирован */}
             {verReq?.status === 'PENDING' && (
               <div className="vp__sidebar-hint">
-                <div className="vp__sidebar-hint__title">📋 Что нужно отправить:</div>
+                <div className="vp__sidebar-hint__title">📋</div>
                 <ul className="vp__sidebar-hint__list">
-                  <li>📄 Паспорт / удостоверение</li>
-                  <li>🏢 Свидетельство о регистрации или лицензия</li>
-                  <li>📸 Фото точки продаж / офиса</li>
-                  <li>🔗 Сайт, соцсети или визитка</li>
+                  <li>📄</li>
+                  <li>🏢</li>
+                  <li>📸</li>
+                  <li>🔗</li>
                 </ul>
               </div>
             )}
 
             <div className="vp__docs-list">
-              <h3 className="vp__sidebar-title">Загруженные документы</h3>
+              <h3 className="vp__sidebar-title"></h3>
               {verReq?.documents?.length === 0
-                ? <p className="vp__no-docs">Документы не загружены</p>
+                ? <p className="vp__no-docs"></p>
                 : verReq?.documents?.map(doc => (
                     <div key={doc.id} className="vp__doc-item">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -441,13 +439,13 @@ export default function VerificationPage() {
                           <polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/>
                           <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
                         </svg>
-                        Загрузить документ
+                        ↑
                       </>
                     )}
                   </button>
                   <input ref={fileRef} type="file" style={{ display: 'none' }} onChange={handleUpload}
                     accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" />
-                  <p className="vp__upload-hint">PDF, JPG, PNG, DOC — до 10 МБ</p>
+                  <p className="vp__upload-hint">PDF, JPG, PNG, DOC</p>
                 </>
               )}
             </div>
@@ -456,11 +454,11 @@ export default function VerificationPage() {
           <ChatPanel
             {...chatProps}
             chatIcon="🛡️"
-            chatName={pricingMessage ? 'Подключение тарифа' : 'Служба верификации'}
+            chatName={pricingMessage ? t('verif_buyTariff') : 'Support'}
             systemMsg={
               pricingMessage
-                ? '💳 Для подключения тарифа напишите сообщение — модератор пришлёт реквизиты и активирует тариф после оплаты.'
-                : '👋 Загрузите документы слева и напишите сообщение — модератор ответит в течение 24 часов.'
+                ? t('verif_msgTariff')
+                : t('verif_msgProblem')
             }
             canSend={verReq?.status === 'PENDING'}
             showQuickActions={false}

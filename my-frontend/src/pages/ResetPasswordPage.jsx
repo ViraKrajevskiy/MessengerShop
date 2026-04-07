@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
+import { useLanguage } from '../context/LanguageContext'
 import './AuthPage.css'
 
 const BASE = 'https://api.101-school.uz/api'
 
 export default function ResetPasswordPage() {
   const navigate = useNavigate()
+  const { t } = useLanguage()
   const [searchParams] = useSearchParams()
   const uid   = searchParams.get('uid')   || ''
   const token = searchParams.get('token') || ''
@@ -22,11 +24,11 @@ export default function ResetPasswordPage() {
         <div className="auth-page__center">
           <div className="auth-card">
             <div className="auth-card__header">
-              <h1 className="auth-card__title">Неверная ссылка</h1>
-              <p className="auth-card__subtitle">Ссылка недействительна или устарела.</p>
+              <h1 className="auth-card__title">{t('pwd_badLink')}</h1>
+              <p className="auth-card__subtitle">{t('pwd_linkExpired')}</p>
             </div>
             <div className="auth-card__footer">
-              <Link to="/forgot-password" className="auth-card__switch-link">Запросить новую ссылку</Link>
+              <Link to="/forgot-password" className="auth-card__switch-link">{t('pwd_requestNew')}</Link>
             </div>
           </div>
         </div>
@@ -36,8 +38,8 @@ export default function ResetPasswordPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (password.length < 6) { setError('Минимум 6 символов'); return }
-    if (password !== password2) { setError('Пароли не совпадают'); return }
+    if (password.length < 6) { setError(t('reg_min6')); return }
+    if (password !== password2) { setError(t('reg_pwdMismatch')); return }
 
     setStatus('loading')
     setError('')
@@ -51,11 +53,11 @@ export default function ResetPasswordPage() {
       if (res.ok) {
         setStatus('done')
       } else {
-        setError(data.error || 'Ошибка. Возможно ссылка устарела.')
+        setError(data.error || t('pwd_error'))
         setStatus('idle')
       }
     } catch {
-      setError('Нет соединения с сервером')
+      setError(t('noConnection'))
       setStatus('idle')
     }
   }
@@ -66,7 +68,7 @@ export default function ResetPasswordPage() {
       <div className="auth-page__blob auth-page__blob--2" />
 
       <div className="auth-page__topbar">
-        <div className="auth-page__logo" onClick={() => navigate('/')}>БизнесТурция</div>
+        <div className="auth-page__logo" onClick={() => navigate('/')}>{t('appName')}</div>
       </div>
 
       <div className="auth-page__center">
@@ -75,27 +77,27 @@ export default function ResetPasswordPage() {
             <div className="auth-card__icon">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             </div>
-            <h1 className="auth-card__title">Новый пароль</h1>
-            <p className="auth-card__subtitle">Придумайте надёжный пароль</p>
+            <h1 className="auth-card__title">{t('pwd_newPwd')}</h1>
+            <p className="auth-card__subtitle">{t('pwd_placeholder')}</p>
           </div>
 
           {status === 'done' ? (
             <div style={{ padding: '24px', textAlign: 'center' }}>
               <div style={{ fontSize: 48, marginBottom: 12 }}>✅</div>
               <p style={{ color: 'var(--text-primary)', fontWeight: 600, marginBottom: 8 }}>
-                Пароль изменён!
+                {t('pwd_changed')}
               </p>
               <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginBottom: 24 }}>
-                Теперь можете войти с новым паролем.
+                {t('pwd_changedSub')}
               </p>
               <button className="auth-card__submit" onClick={() => navigate('/login')}>
-                Войти
+                {t('nav_login')}
               </button>
             </div>
           ) : (
             <form className="auth-card__form" onSubmit={handleSubmit}>
               <div className="auth-field">
-                <label className="auth-field__label">Новый пароль</label>
+                <label className="auth-field__label">{t('pwd_newPwd')}</label>
                 <div className="auth-field__wrap">
                   <span className="auth-field__icon">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
@@ -103,7 +105,7 @@ export default function ResetPasswordPage() {
                   <input
                     className="auth-field__input"
                     type={showPass ? 'text' : 'password'}
-                    placeholder="Минимум 6 символов"
+                    placeholder={t('reg_min6')}
                     value={password}
                     onChange={e => { setPassword(e.target.value); setError('') }}
                   />
@@ -117,7 +119,7 @@ export default function ResetPasswordPage() {
               </div>
 
               <div className="auth-field">
-                <label className="auth-field__label">Повторите пароль</label>
+                <label className="auth-field__label">{t('pwd_repeat')}</label>
                 <div className="auth-field__wrap">
                   <span className="auth-field__icon">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
@@ -125,7 +127,7 @@ export default function ResetPasswordPage() {
                   <input
                     className="auth-field__input"
                     type={showPass ? 'text' : 'password'}
-                    placeholder="Повторите пароль"
+                    placeholder={t('pwd_repeat')}
                     value={password2}
                     onChange={e => { setPassword2(e.target.value); setError('') }}
                   />
@@ -135,13 +137,13 @@ export default function ResetPasswordPage() {
               {error && <div className="auth-card__error">{error}</div>}
 
               <button className="auth-card__submit" type="submit" disabled={status === 'loading'}>
-                {status === 'loading' ? <span className="auth-card__spinner" /> : 'Сохранить пароль'}
+                {status === 'loading' ? <span className="auth-card__spinner" /> : t('pwd_savePwd')}
               </button>
             </form>
           )}
 
           <div className="auth-card__footer">
-            <Link to="/login" className="auth-card__switch-link">← Вернуться ко входу</Link>
+            <Link to="/login" className="auth-card__switch-link">← {t('pwd_backToLogin')}</Link>
           </div>
         </div>
       </div>

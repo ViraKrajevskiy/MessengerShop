@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import { useAuth } from '../context/AuthContext'
+import { useLanguage } from '../context/LanguageContext'
 import { apiGetProducts, apiGetBusinesses, CATEGORY_LABELS } from '../api/businessApi'
 import { makeInitialAvatar } from '../utils/defaults'
 import './CatalogPage.css'
@@ -31,12 +32,13 @@ function TagPills({ tags, onTagClick }) {
 function ProductCard({ product, onTagClick }) {
   const navigate = useNavigate()
   const { user } = useAuth()
+  const { t } = useLanguage()
   const [saved, setSaved] = useState(false)
 
   const img      = product.image_display || PROD_IMGS[product.id % PROD_IMGS.length]
   const priceStr = product.price != null
     ? `${Number(product.price).toLocaleString('ru-RU')} ${product.currency_symbol || product.currency}`
-    : 'Цена по запросу'
+    : t('catalog_priceOnReq')
 
   return (
     <div className="cat-product">
@@ -45,7 +47,7 @@ function ProductCard({ product, onTagClick }) {
         <div
           className={`cat-product__save-btn ${saved ? 'cat-product__save-btn--active' : ''}`}
           onClick={e => { e.stopPropagation(); if (!user) { navigate('/login'); return }; setSaved(s => !s) }}
-          title="В избранное"
+          title={t('catalog_favorite')}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill={saved ? '#f59e0b' : 'none'} stroke={saved ? '#f59e0b' : '#fff'} strokeWidth="2">
             <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
@@ -61,7 +63,7 @@ function ProductCard({ product, onTagClick }) {
         <div className="cat-product__footer">
           <span className="cat-product__price">{priceStr}</span>
           <button className="cat-product__btn" onClick={() => navigate(`/product/${product.id}`)}>
-            Подробнее
+            {t('catalog_details')}
           </button>
         </div>
       </div>
@@ -72,10 +74,11 @@ function ProductCard({ product, onTagClick }) {
 // ── Service row ──────────────────────────────────────────────────────────────
 function ServiceCard({ product, onTagClick }) {
   const navigate = useNavigate()
+  const { t } = useLanguage()
 
   const priceStr = product.price != null
     ? `${Number(product.price).toLocaleString('ru-RU')} ${product.currency_symbol || product.currency}`
-    : 'Цена по запросу'
+    : t('catalog_priceOnReq')
 
   return (
     <div className="cat-service" onClick={() => navigate(`/product/${product.id}`)}>
@@ -137,15 +140,16 @@ function ProductSkeleton() {
 }
 
 // ── Main ─────────────────────────────────────────────────────────────────────
-const TABS = [
-  { key: 'products',  label: '📦 Продукты'  },
-  { key: 'services',  label: '🔧 Услуги'    },
-  { key: 'companies', label: '🏢 Компании'  },
-]
-
 export default function CatalogPage() {
   const navigate  = useNavigate()
   const { user }  = useAuth()
+  const { t }     = useLanguage()
+
+  const TABS = [
+    { key: 'products',  label: `📦 ${t('catalog_products')}` },
+    { key: 'services',  label: `🔧 ${t('catalog_services')}` },
+    { key: 'companies', label: `🏢 ${t('catalog_companies')}` },
+  ]
 
   const [tab, setTab]           = useState('products')
   const [products, setProducts] = useState([])
@@ -180,7 +184,7 @@ export default function CatalogPage() {
   // All unique tags
   const allTags = useMemo(() => {
     const set = new Set()
-    products.forEach(p => (p.tags || []).forEach(t => set.add(t)))
+    products.forEach(p => (p.tags || []).forEach(tg => set.add(tg)))
     return [...set].sort()
   }, [products])
 
@@ -200,7 +204,7 @@ export default function CatalogPage() {
 
   const passesProductFilter = (p) =>
     (!search || p.name?.toLowerCase().includes(search.toLowerCase()) || p.business_name?.toLowerCase().includes(search.toLowerCase())) &&
-    (activeTags.length === 0 || activeTags.some(t => (p.tags || []).includes(t))) &&
+    (activeTags.length === 0 || activeTags.some(tg => (p.tags || []).includes(tg))) &&
     (!filterVip      || vipBizIds.has(p.business_id)) &&
     (!filterVerified || verifiedBizIds.has(p.business_id)) &&
     (!filterNew      || isNew(p)) &&
@@ -233,7 +237,7 @@ export default function CatalogPage() {
     setFilterNew(false); setFilterCity(''); setFilterCat(''); setSortOrder('none'); setSearch('')
   }
 
-  const toggleTag = (tag) => setActiveTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag])
+  const toggleTag = (tag) => setActiveTags(prev => prev.includes(tag) ? prev.filter(tg => tg !== tag) : [...prev, tag])
 
   const GUEST_LIMIT = 6
 
@@ -244,22 +248,22 @@ export default function CatalogPage() {
       <main className="cat-page__main">
         {/* Hero */}
         <div className="cat-page__hero">
-          <h1>Каталог</h1>
-          <p>Товары, услуги и компании на одной странице</p>
+          <h1>{t('catalog_title')}</h1>
+          <p>{t('catalog_sub')}</p>
         </div>
 
         {/* Tabs */}
         <div className="cat-page__tabs">
-          {TABS.map(t => (
+          {TABS.map(tb => (
             <button
-              key={t.key}
-              className={`cat-page__tab ${tab === t.key ? 'cat-page__tab--active' : ''}`}
-              onClick={() => setTab(t.key)}
+              key={tb.key}
+              className={`cat-page__tab ${tab === tb.key ? 'cat-page__tab--active' : ''}`}
+              onClick={() => setTab(tb.key)}
             >
-              {t.label}
+              {tb.label}
               <span className="cat-page__tab-count">
-                {t.key === 'products'  ? fProducts.length
-                 : t.key === 'services'  ? fServices.length
+                {tb.key === 'products'  ? fProducts.length
+                 : tb.key === 'services'  ? fServices.length
                  : fBiz.length}
               </span>
             </button>
@@ -276,7 +280,7 @@ export default function CatalogPage() {
             <input
               className="cat-filters__search"
               type="text"
-              placeholder={tab === 'companies' ? 'Поиск компании...' : 'Поиск...'}
+              placeholder={tab === 'companies' ? t('catalog_searchBiz') : t('catalog_search')}
               value={search}
               onChange={e => setSearch(e.target.value)}
             />
@@ -297,42 +301,42 @@ export default function CatalogPage() {
               className={`cat-filter-chip cat-filter-chip--verified ${filterVerified ? 'cat-filter-chip--on' : ''}`}
               onClick={() => setFilterVerified(v => !v)}
             >
-              <span>✓</span> Проверенные
+              <span>✓</span> {t('catalog_verified')}
             </button>
             <button
               className={`cat-filter-chip cat-filter-chip--new ${filterNew ? 'cat-filter-chip--on' : ''}`}
               onClick={() => setFilterNew(v => !v)}
             >
-              <span>●</span> Новые
+              <span>●</span> {t('catalog_new')}
             </button>
 
             <div className="cat-filters__sep" />
 
             <select className="cat-filters__select" value={sortOrder} onChange={e => setSortOrder(e.target.value)}>
-              <option value="none">Сортировка</option>
-              <option value="date_desc">Сначала новые</option>
-              <option value="date_asc">Сначала старые</option>
-              {tab !== 'companies' && <option value="price_asc">Цена: по возрастанию</option>}
-              {tab !== 'companies' && <option value="price_desc">Цена: по убыванию</option>}
+              <option value="none">{t('catalog_sort')}</option>
+              <option value="date_desc">{t('catalog_newest')}</option>
+              <option value="date_asc">{t('catalog_oldest')}</option>
+              {tab !== 'companies' && <option value="price_asc">{t('catalog_priceAsc')}</option>}
+              {tab !== 'companies' && <option value="price_desc">{t('catalog_priceDesc')}</option>}
             </select>
 
             {allCities.length > 0 && (
               <select className="cat-filters__select" value={filterCity} onChange={e => setFilterCity(e.target.value)}>
-                <option value="">Все города</option>
+                <option value=""></option>
                 {allCities.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             )}
 
             {tab === 'companies' && (
               <select className="cat-filters__select" value={filterCat} onChange={e => setFilterCat(e.target.value)}>
-                <option value="">Все категории</option>
+                <option value=""></option>
                 {Object.entries(CATEGORY_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
               </select>
             )}
 
             {hasFilters && (
               <button className="cat-filter-chip cat-filter-chip--clear" onClick={clearFilters}>
-                ✕ Сбросить
+                ✕
               </button>
             )}
           </div>
@@ -352,7 +356,7 @@ export default function CatalogPage() {
                 ))}
                 {allTags.length > 8 && (
                   <button className="cat-filter-chip cat-filter-chip--more" onClick={() => setShowAllTags(v => !v)}>
-                    {showAllTags ? 'Свернуть' : `+${allTags.length - 8}`}
+                    {showAllTags ? '−' : `+${allTags.length - 8}`}
                   </button>
                 )}
               </div>
@@ -376,18 +380,18 @@ export default function CatalogPage() {
           </div>
         ) : (
           <>
-            {/* ── Продукты ── */}
+            {/* ── Products ── */}
             {tab === 'products' && (
               <>
                 {fProducts.length === 0 ? (
                   <div className="cat-empty">
                     <div className="cat-empty__icon">📦</div>
-                    <p>{hasFilters ? 'По фильтрам ничего не найдено' : 'Продуктов пока нет'}</p>
-                    {hasFilters && <button className="cat-empty__reset" onClick={clearFilters}>Сбросить фильтры</button>}
+                    <p>{t('catalog_products')}</p>
+                    {hasFilters && <button className="cat-empty__reset" onClick={clearFilters}></button>}
                   </div>
                 ) : (
                   <>
-                    <div className="cat-results-count">{fProducts.length} продукт{fProducts.length === 1 ? '' : fProducts.length < 5 ? 'а' : 'ов'}</div>
+                    <div className="cat-results-count">{fProducts.length}</div>
                     <div className="cat-products-grid">
                       {(user ? fProducts : fProducts.slice(0, GUEST_LIMIT)).map(p => (
                         <ProductCard key={p.id} product={p} onTagClick={toggleTag} />
@@ -398,9 +402,8 @@ export default function CatalogPage() {
                         <div className="cat-auth-gate__blur" />
                         <div className="cat-auth-gate__box">
                           <div className="cat-auth-gate__icon">🔒</div>
-                          <p>Войдите, чтобы видеть все товары</p>
-                          <button className="cat-auth-gate__btn" onClick={() => navigate('/login')}>Войти</button>
-                          <button className="cat-auth-gate__reg" onClick={() => navigate('/register')}>Регистрация</button>
+                          <button className="cat-auth-gate__btn" onClick={() => navigate('/login')}></button>
+                          <button className="cat-auth-gate__reg" onClick={() => navigate('/register')}></button>
                         </div>
                       </div>
                     )}
@@ -409,18 +412,18 @@ export default function CatalogPage() {
               </>
             )}
 
-            {/* ── Услуги ── */}
+            {/* ── Services ── */}
             {tab === 'services' && (
               <>
                 {fServices.length === 0 ? (
                   <div className="cat-empty">
                     <div className="cat-empty__icon">🔧</div>
-                    <p>{hasFilters ? 'По фильтрам ничего не найдено' : 'Услуг пока нет'}</p>
-                    {hasFilters && <button className="cat-empty__reset" onClick={clearFilters}>Сбросить фильтры</button>}
+                    <p>{t('catalog_services')}</p>
+                    {hasFilters && <button className="cat-empty__reset" onClick={clearFilters}></button>}
                   </div>
                 ) : (
                   <>
-                    <div className="cat-results-count">{fServices.length} услуг{fServices.length === 1 ? 'а' : fServices.length < 5 ? 'и' : ''}</div>
+                    <div className="cat-results-count">{fServices.length}</div>
                     <div className="cat-services-list">
                       {(user ? fServices : fServices.slice(0, GUEST_LIMIT)).map(s => (
                         <ServiceCard key={s.id} product={s} onTagClick={toggleTag} />
@@ -431,9 +434,8 @@ export default function CatalogPage() {
                         <div className="cat-auth-gate__blur" />
                         <div className="cat-auth-gate__box">
                           <div className="cat-auth-gate__icon">🔒</div>
-                          <p>Войдите, чтобы видеть все услуги</p>
-                          <button className="cat-auth-gate__btn" onClick={() => navigate('/login')}>Войти</button>
-                          <button className="cat-auth-gate__reg" onClick={() => navigate('/register')}>Регистрация</button>
+                          <button className="cat-auth-gate__btn" onClick={() => navigate('/login')}></button>
+                          <button className="cat-auth-gate__reg" onClick={() => navigate('/register')}></button>
                         </div>
                       </div>
                     )}
@@ -442,18 +444,18 @@ export default function CatalogPage() {
               </>
             )}
 
-            {/* ── Компании ── */}
+            {/* ── Companies ── */}
             {tab === 'companies' && (
               <>
                 {fBiz.length === 0 ? (
                   <div className="cat-empty">
                     <div className="cat-empty__icon">🏢</div>
-                    <p>{hasFilters ? 'По фильтрам ничего не найдено' : 'Компаний пока нет'}</p>
-                    {hasFilters && <button className="cat-empty__reset" onClick={clearFilters}>Сбросить фильтры</button>}
+                    <p>{t('catalog_companies')}</p>
+                    {hasFilters && <button className="cat-empty__reset" onClick={clearFilters}></button>}
                   </div>
                 ) : (
                   <>
-                    <div className="cat-results-count">{fBiz.length} компани{fBiz.length === 1 ? 'я' : fBiz.length < 5 ? 'и' : 'й'}</div>
+                    <div className="cat-results-count">{fBiz.length}</div>
                     <div className="cat-biz-grid">
                       {(user ? fBiz : fBiz.slice(0, GUEST_LIMIT)).map(b => (
                         <BizCard key={b.id} biz={b} />
@@ -464,9 +466,8 @@ export default function CatalogPage() {
                         <div className="cat-auth-gate__blur" />
                         <div className="cat-auth-gate__box">
                           <div className="cat-auth-gate__icon">🔒</div>
-                          <p>Войдите, чтобы видеть все компании</p>
-                          <button className="cat-auth-gate__btn" onClick={() => navigate('/login')}>Войти</button>
-                          <button className="cat-auth-gate__reg" onClick={() => navigate('/register')}>Регистрация</button>
+                          <button className="cat-auth-gate__btn" onClick={() => navigate('/login')}></button>
+                          <button className="cat-auth-gate__reg" onClick={() => navigate('/register')}></button>
                         </div>
                       </div>
                     )}

@@ -2,16 +2,17 @@ import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
+import { useLanguage } from '../context/LanguageContext'
 import { DEFAULT_AVATAR } from '../utils/defaults'
 import './Header.css'
 
 export default function Header() {
-  const [lang, setLang] = useState('Русский')
   const [menuOpen, setMenuOpen] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [bizId, setBizId] = useState(null)
   const { theme, toggleTheme } = useTheme()
   const { user, logout, getAccessToken } = useAuth()
+  const { lang, setLang, t, LANG_NAMES } = useLanguage()
   const navigate = useNavigate()
   const menuRef = useRef(null)
 
@@ -100,38 +101,38 @@ export default function Header() {
                   <div className="header__dropdown-divider" />
                   <button className="header__dropdown-item" onClick={() => { navigate('/me'); setMenuOpen(false) }}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                    Мой профиль
+                    {t('nav_profile')}
                   </button>
                   {user?.role === 'BUSINESS' && (
                     <button className="header__dropdown-item" onClick={() => { navigate('/dashboard'); setMenuOpen(false) }}>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                      Панель управления
+                      {t('nav_dashboard')}
                     </button>
                   )}
                   <button className="header__dropdown-item" onClick={() => { navigate('/messenger'); setMenuOpen(false) }}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-                    Сообщения
+                    {t('nav_messages')}
                   </button>
                   {user?.role === 'BUSINESS' && (
                     <button className="header__dropdown-item" onClick={() => { navigate('/verification'); setMenuOpen(false) }}>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                      Поддержка
+                      {t('nav_support')}
                     </button>
                   )}
                   <button className="header__dropdown-item" onClick={() => { navigate('/pricing'); setMenuOpen(false) }}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                    Тарифы
+                    {t('nav_pricing')}
                   </button>
                   {user?.role === 'BUSINESS' && bizId && (
                     <button className="header__dropdown-item" onClick={() => { navigate(`/business/${bizId}`); setMenuOpen(false) }}>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                      Страница магазина
+                      {t('nav_shopPage')}
                     </button>
                   )}
                   <div className="header__dropdown-divider" />
                   <button className="header__dropdown-item header__dropdown-item--danger" onClick={handleLogout}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                    Выйти
+                    {t('nav_logout')}
                   </button>
                 </div>
               )}
@@ -140,34 +141,34 @@ export default function Header() {
             /* ── Guest auth buttons ── */
             <>
               <button className="header__btn header__btn--login" onClick={() => navigate('/login')}>
-                Войти
+                {t('nav_login')}
               </button>
               <button className="header__btn header__btn--register" onClick={() => navigate('/register')}>
-                Регистрация
+                {t('nav_register')}
               </button>
             </>
           )}
 
           {/* Feed */}
-          <button className="header__feed-btn" onClick={() => navigate('/feed')} title="Лента">
+          <button className="header__feed-btn" onClick={() => navigate('/feed')} title={t('nav_feed')}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
               <polyline points="9 22 9 12 15 12 15 22"/>
             </svg>
-            <span className="header__feed-label">Лента</span>
+            <span className="header__feed-label">{t('nav_feed')}</span>
           </button>
 
           {/* Catalog */}
-          <button className="header__feed-btn" onClick={() => navigate('/catalog')} title="Каталог">
+          <button className="header__feed-btn" onClick={() => navigate('/catalog')} title={t('nav_catalog')}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
               <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
             </svg>
-            <span className="header__feed-label">Каталог</span>
+            <span className="header__feed-label">{t('nav_catalog')}</span>
           </button>
 
           {/* Messenger */}
-          <button className="header__messenger-btn" onClick={() => navigate('/messenger')} title="Мессенджер">
+          <button className="header__messenger-btn" onClick={() => navigate('/messenger')} title={t('nav_messenger')}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
             </svg>
@@ -181,9 +182,9 @@ export default function Header() {
           {/* Language */}
           <div className="header__lang">
             <select name="language" value={lang} onChange={(e) => setLang(e.target.value)} className="header__lang-select">
-              <option>Русский</option>
-              <option>English</option>
-              <option>Türkçe</option>
+              <option value="ru">Русский</option>
+              <option value="en">English</option>
+              <option value="tr">Türkçe</option>
             </select>
           </div>
 
@@ -212,8 +213,8 @@ export default function Header() {
             </div>
           ) : (
             <div className="header__mobile-auth">
-              <button className="header__btn header__btn--login" onClick={() => go('/login')}>Войти</button>
-              <button className="header__btn header__btn--register" onClick={() => go('/register')}>Регистрация</button>
+              <button className="header__btn header__btn--login" onClick={() => go('/login')}>{t('nav_login')}</button>
+              <button className="header__btn header__btn--register" onClick={() => go('/register')}>{t('nav_register')}</button>
             </div>
           )}
         </div>
@@ -221,46 +222,46 @@ export default function Header() {
         <nav className="header__mobile-nav">
           <button className="header__mobile-nav-item" onClick={() => go('/')}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-            Главная
+            {t('nav_home')}
           </button>
           <button className="header__mobile-nav-item" onClick={() => go('/feed')}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-            Лента
+            {t('nav_feed')}
           </button>
           <button className="header__mobile-nav-item" onClick={() => go('/catalog')}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-            Каталог
+            {t('nav_catalog')}
           </button>
           <button className="header__mobile-nav-item" onClick={() => go('/messenger')}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-            Сообщения
+            {t('nav_messages')}
           </button>
           {user?.role === 'BUSINESS' && (
             <button className="header__mobile-nav-item" onClick={() => go('/verification')}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-              Поддержка
+              {t('nav_support')}
             </button>
           )}
           <button className="header__mobile-nav-item" onClick={() => go('/pricing')}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            Тарифы
+            {t('nav_pricing')}
           </button>
           {user && (
             <>
               <button className="header__mobile-nav-item" onClick={() => go('/me')}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                Мой профиль
+                {t('nav_profile')}
               </button>
               {user.role === 'BUSINESS' && (
                 <>
                   <button className="header__mobile-nav-item" onClick={() => go('/dashboard')}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                    Панель управления
+                    {t('nav_dashboard')}
                   </button>
                   {bizId && (
                     <button className="header__mobile-nav-item" onClick={() => go(`/business/${bizId}`)}>
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                      Страница магазина
+                      {t('nav_shopPage')}
                     </button>
                   )}
                 </>
@@ -272,17 +273,17 @@ export default function Header() {
         <div className="header__mobile-footer">
           <button className="header__mobile-theme" onClick={() => { toggleTheme(); }}>
             <ThemeIcon />
-            <span>{theme === 'light' ? 'Тёмная тема' : 'Светлая тема'}</span>
+            <span>{theme === 'light' ? t('nav_darkTheme') : t('nav_lightTheme')}</span>
           </button>
           <select name="language" value={lang} onChange={(e) => setLang(e.target.value)} className="header__lang-select">
-            <option>Русский</option>
-            <option>English</option>
-            <option>Türkçe</option>
+            <option value="ru">Русский</option>
+            <option value="en">English</option>
+            <option value="tr">Türkçe</option>
           </select>
           {user && (
             <button className="header__mobile-nav-item header__mobile-logout" onClick={handleLogout}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-              Выйти
+              {t('nav_logout')}
             </button>
           )}
         </div>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useViewed } from '../context/ViewedContext'
+import { useLanguage } from '../context/LanguageContext'
 import { apiGetBusinesses } from '../api/businessApi'
 import { makeInitialAvatar } from '../utils/defaults'
 import './NewUsers.css'
@@ -9,6 +10,7 @@ export default function NewUsers() {
   const [businesses, setBusinesses] = useState([])
   const [showAll, setShowAll] = useState(false)
   const { addViewed } = useViewed()
+  const { t } = useLanguage()
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -29,14 +31,14 @@ export default function NewUsers() {
   return (
     <section className="new-users">
       <div className="new-users__header">
-        <h2 className="section-title">Новые бизнесы</h2>
+        <h2 className="section-title">{t('newBiz_title')}</h2>
         <button className="new-users__show-all" onClick={() => setShowAll(!showAll)}>
-          {showAll ? 'Свернуть' : 'Смотреть все'}
+          {showAll ? t('newBiz_collapse') : t('newBiz_showAll')}
         </button>
       </div>
 
       <div className="new-users__subtitle">
-        Новые компании на платформе — будьте первыми клиентами!
+        {t('newBiz_sub')}
       </div>
 
       <div className={`new-users__grid ${showAll ? 'new-users__grid--expanded' : ''}`}>

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useViewed } from '../context/ViewedContext'
+import { useLanguage } from '../context/LanguageContext'
 import './VipSection.css'
 
 const VIP_PHOTOS = [
@@ -17,6 +18,7 @@ const VIP_PHOTOS = [
 export default function VipSection({ users = [], loading = false }) {
   const [showAll, setShowAll] = useState(false)
   const { addViewed } = useViewed()
+  const { t } = useLanguage()
   const navigate = useNavigate()
 
   // Show first 2 rows (8 cards) on home, or all on "show all" page
@@ -34,23 +36,23 @@ export default function VipSection({ users = [], loading = false }) {
       <div className="vip-section__header">
         <h2 className="vip-section__title">
           <span className="vip-section__crown">&#128081;</span>
-          VIP пользователи
+          {t('vip_title')}
         </h2>
         {hasMore && !showAll && (
           <button className="vip-section__show-all" onClick={() => setShowAll(true)}>
-            Смотреть все
+            {t('newBiz_showAll')}
           </button>
         )}
         {showAll && (
           <button className="vip-section__show-all" onClick={() => setShowAll(false)}>
-            Свернуть
+            {t('newBiz_collapse')}
           </button>
         )}
       </div>
 
       <div className="vip-section__label">
         <span className="vip-section__label-icon">&#9733;</span>
-        Рекламный блок — продвигайте свой профиль
+        {t('vip_promo')}
       </div>
 
       {loading ? (
