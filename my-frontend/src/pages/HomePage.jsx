@@ -10,8 +10,7 @@ import TweetsSidebar from '../components/TweetsSidebar'
 import PostCard from '../components/PostCard'
 import HeroSlider from '../components/HeroSlider'
 import PremiumCarousel from '../components/PremiumCarousel'
-import NewsCard from '../components/NewsCard'
-import { apiGetBusinesses, apiGetPosts, apiGetNews, CATEGORY_LABELS } from '../api/businessApi'
+import { apiGetBusinesses, apiGetPosts, CATEGORY_LABELS } from '../api/businessApi'
 import './HomePage.css'
 
 // ---------- adaptive descriptions ----------
@@ -53,6 +52,7 @@ function bizToCard(b) {
 }
 
 const GUEST_LIMIT = 4
+const GUEST_CARDS_LIMIT = 8
 const CARDS_PER_PAGE = 8
 
 export default function HomePage() {
@@ -69,11 +69,6 @@ export default function HomePage() {
 
   const [posts, setPosts] = useState([])
   const [loadingPosts, setLoadingPosts] = useState(true)
-  const [postsPage, setPostsPage] = useState(0)
-
-  const [news, setNews] = useState([])
-  const [loadingNews, setLoadingNews] = useState(true)
-  const [newsPage, setNewsPage] = useState(0)
 
   useEffect(() => {
     setLoadingBiz(true)
@@ -89,14 +84,6 @@ export default function HomePage() {
       .then(data => setPosts(Array.isArray(data) ? data.slice(0, 6) : []))
       .catch(() => setPosts([]))
       .finally(() => setLoadingPosts(false))
-  }, [])
-
-  useEffect(() => {
-    setLoadingNews(true)
-    apiGetNews()
-      .then(data => setNews(Array.isArray(data) ? data.slice(0, 9) : []))
-      .catch(() => setNews([]))
-      .finally(() => setLoadingNews(false))
   }, [])
 
   const filteredAll = useMemo(() => {
@@ -191,92 +178,13 @@ export default function HomePage() {
                   </div>
                 ))}
               </div>
-            ) : posts.length > 0 ? (() => {
-              const visiblePosts = user ? posts : posts.slice(0, GUEST_LIMIT)
-              const POSTS_PER_PAGE = 3
-              const maxPage = Math.max(0, Math.ceil(visiblePosts.length / POSTS_PER_PAGE) - 1)
-              return (
-                <div className="home-posts-carousel">
-                  <button
-                    className="home-posts-carousel__arrow"
-                    onClick={() => setPostsPage(p => Math.max(0, p - 1))}
-                    disabled={postsPage === 0}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-                  </button>
-                  <div className="home-posts-carousel__track">
-                    {visiblePosts.slice(postsPage * POSTS_PER_PAGE, (postsPage + 1) * POSTS_PER_PAGE).map(p => (
-                      <PostCard key={p.id} post={p} />
-                    ))}
-                  </div>
-                  <button
-                    className="home-posts-carousel__arrow"
-                    onClick={() => setPostsPage(p => Math.min(maxPage, p + 1))}
-                    disabled={postsPage >= maxPage}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                  </button>
-                </div>
-              )
-            })() : null}
-          </section>
-
-          {/* Последние новости */}
-          <section className="home-news-section">
-            <div className="section-header">
-              <h2 className="section-title">Последние новости</h2>
-              <button className="see-all-btn" onClick={() => navigate('/feed?tab=news')}>
-                Смотреть все
-              </button>
-            </div>
-            {loadingNews ? (
-              <div className="home-posts-carousel">
-                <div className="home-posts-carousel__track">
-                  {[1, 2, 3].map(i => (
-                    <div key={i} className="post-card-skeleton">
-                      <div className="post-card-skeleton__header">
-                        <div className="skel-circle" />
-                        <div className="skel-lines">
-                          <div className="skel-line" />
-                          <div className="skel-line skel-line--short" />
-                        </div>
-                      </div>
-                      <div className="skel-img" />
-                      <div className="skel-body">
-                        <div className="skel-line" />
-                        <div className="skel-line skel-line--short" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
+            ) : posts.length > 0 ? (
+              <div className="card-grid card-grid--4">
+                {(user ? posts.slice(0, 8) : posts.slice(0, GUEST_LIMIT)).map(p => (
+                  <PostCard key={p.id} post={p} />
+                ))}
               </div>
-            ) : news.length > 0 ? (() => {
-              const NEWS_PER_PAGE = 3
-              const maxNewsPage = Math.max(0, Math.ceil(news.length / NEWS_PER_PAGE) - 1)
-              return (
-                <div className="home-posts-carousel">
-                  <button
-                    className="home-posts-carousel__arrow"
-                    onClick={() => setNewsPage(p => Math.max(0, p - 1))}
-                    disabled={newsPage === 0}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-                  </button>
-                  <div className="home-posts-carousel__track">
-                    {news.slice(newsPage * NEWS_PER_PAGE, (newsPage + 1) * NEWS_PER_PAGE).map(item => (
-                      <NewsCard key={item.id} item={item} />
-                    ))}
-                  </div>
-                  <button
-                    className="home-posts-carousel__arrow"
-                    onClick={() => setNewsPage(p => Math.min(maxNewsPage, p + 1))}
-                    disabled={newsPage >= maxNewsPage}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                  </button>
-                </div>
-              )
-            })() : null}
+            ) : null}
           </section>
 
           {/* Все карточки */}
@@ -314,7 +222,7 @@ export default function HomePage() {
                   <div className="card-grid card-grid--4">
                     {(user
                       ? filteredAll.slice(cardsPage * CARDS_PER_PAGE, (cardsPage + 1) * CARDS_PER_PAGE)
-                      : filteredAll.slice(0, GUEST_LIMIT)
+                      : filteredAll.slice(0, GUEST_CARDS_LIMIT)
                     ).map(u => (
                       <UserCard key={u.id} id={u.id} name={u.name} city={u.city} logo={u.logo} planType={u.plan_type} type="all" />
                     ))}

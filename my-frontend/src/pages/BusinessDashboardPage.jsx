@@ -14,6 +14,7 @@ import './BusinessDashboardPage.css'
 const BASE = import.meta.env.PROD
   ? 'https://api.101-school.uz/api'
   : 'http://127.0.0.1:8000/api'
+const API_ORIGIN = BASE.replace(/\/api$/, '')
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -583,6 +584,8 @@ export default function BusinessDashboardPage() {
   const [editLogo,    setEditLogo]    = useState(null)
   const [editCover,   setEditCover]   = useState(null)
   const [editAudio,   setEditAudio]   = useState(null)
+  const [removeAudio, setRemoveAudio] = useState(false)
+  const audioInputRef = useRef(null)
   const [savingProfile, setSavingProfile] = useState(false)
 
   // Hashtags
@@ -594,6 +597,13 @@ export default function BusinessDashboardPage() {
 
   const TAG_LIMITS = { FREE: 5, PRO: 15, VIP: null }
   const tagLimit = TAG_LIMITS[bizData?.plan_type] ?? 5
+  const editAudioPreviewUrl = useMemo(() => (editAudio ? URL.createObjectURL(editAudio) : ''), [editAudio])
+
+  useEffect(() => {
+    return () => {
+      if (editAudioPreviewUrl) URL.revokeObjectURL(editAudioPreviewUrl)
+    }
+  }, [editAudioPreviewUrl])
 
   // Social links
   const [editTelegram,  setEditTelegram]  = useState('')
@@ -651,6 +661,9 @@ export default function BusinessDashboardPage() {
     setEditYoutube(bizData.social_youtube || '')
     setEditTiktok(bizData.social_tiktok || '')
     setEditFacebook(bizData.social_facebook || '')
+    setEditAudio(null)
+    setRemoveAudio(false)
+    if (audioInputRef.current) audioInputRef.current.value = ''
   }, [bizData])
 
   // ── Save profile handler ───────────────────────────────────────────────────
@@ -673,6 +686,7 @@ export default function BusinessDashboardPage() {
       if (editLogo)  fd.append('logo',  editLogo)
       if (editCover) fd.append('cover', editCover)
       if (editAudio) fd.append('audio', editAudio)
+      if (removeAudio && !editAudio) fd.append('remove_audio', 'true')
       const res = await fetch(`${BASE}/businesses/me/`, {
         method: 'PATCH',
         headers: { Authorization: `Bearer ${token}` },
@@ -684,6 +698,8 @@ export default function BusinessDashboardPage() {
       setEditLogo(null)
       setEditCover(null)
       setEditAudio(null)
+      setRemoveAudio(false)
+      if (audioInputRef.current) audioInputRef.current.value = ''
       showToast('✅ Профиль сохранён!')
     } catch {
       showToast('❌ Ошибка при сохранении')
@@ -1663,33 +1679,63 @@ export default function BusinessDashboardPage() {
                     <div className="biz-profile-edit__row">
                       <label className="biz-profile-edit__label">🎵 Фоновая музыка</label>
                       <div className="biz-profile-edit__audio-wrap">
-                        {bizData?.audio && !editAudio && (
+                        {bizData?.audio && !editAudio && !removeAudio && (
                           <audio
                             className="biz-profile-edit__audio-player"
-                            src={bizData.audio.startsWith('http') ? bizData.audio : `https://api.101-school.uz${bizData.audio}`}
+                            src={bizData.audio.startsWith('http') ? bizData.audio : `${API_ORIGIN}${bizData.audio}`}
                             controls
                           />
                         )}
                         {editAudio && (
                           <audio
                             className="biz-profile-edit__audio-player"
-                            src={URL.createObjectURL(editAudio)}
+                            src={editAudioPreviewUrl}
                             controls
                           />
                         )}
                         <label className="biz-profile-edit__upload-btn">
                           🎵 {bizData?.audio || editAudio ? 'Сменить музыку' : 'Добавить музыку'}
                           <input
+                            ref={audioInputRef}
                             type="file"
                             accept="audio/*"
                             hidden
-                            onChange={e => setEditAudio(e.target.files[0] || null)}
+                            onClick={e => { e.target.value = '' }}
+                            onChange={e => {
+                              setEditAudio(e.target.files[0] || null)
+                              setRemoveAudio(false)
+                            }}
                           />
                         </label>
+                        {bizData?.audio && !editAudio && !removeAudio && (
+                          <button
+                            className="biz-profile-edit__remove-btn"
+                            onClick={() => setRemoveAudio(true)}
+                          >
+                            🗑 Удалить музыку
+                          </button>
+                        )}
+                        {removeAudio && !editAudio && (
+                          <button
+                            className="biz-profile-edit__remove-btn"
+                            onClick={() => setRemoveAudio(false)}
+                          >
+                            ↩ Отменить удаление
+                          </button>
+                        )}
                         {editAudio && (
-                          <button className="biz-profile-edit__remove-btn" onClick={() => setEditAudio(null)}>
+                          <button
+                            className="biz-profile-edit__remove-btn"
+                            onClick={() => {
+                              setEditAudio(null)
+                              if (audioInputRef.current) audioInputRef.current.value = ''
+                            }}
+                          >
                             ✕ Убрать
                           </button>
+                        )}
+                        {removeAudio && !editAudio && (
+                          <span className="biz-svc-hint">Музыка будет удалена после сохранения профиля</span>
                         )}
                       </div>
                     </div>

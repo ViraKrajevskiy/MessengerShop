@@ -63,6 +63,7 @@ export default function NewUsers() {
           Всего бизнесов: <strong>{businesses.length}</strong>
         </div>
       )}
+
     </section>
   )
 }

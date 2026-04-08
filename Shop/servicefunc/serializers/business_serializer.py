@@ -89,6 +89,7 @@ class BusinessCreateUpdateSerializer(serializers.ModelSerializer):
         child=serializers.CharField(max_length=100),
         required=False, write_only=True,
     )
+    remove_audio = serializers.BooleanField(required=False, write_only=True, default=False)
 
     class Meta:
         model = Business
@@ -97,7 +98,7 @@ class BusinessCreateUpdateSerializer(serializers.ModelSerializer):
             'city', 'address', 'phone', 'website', 'logo', 'cover', 'audio', 'faq', 'services',
             'social_telegram', 'social_whatsapp', 'social_instagram',
             'social_youtube', 'social_tiktok', 'social_facebook',
-            'tags',
+            'tags', 'remove_audio',
         ]
 
     def validate_tags(self, value):
@@ -136,6 +137,12 @@ class BusinessCreateUpdateSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         tag_names = validated_data.pop('tags', None)
+        remove_audio = validated_data.pop('remove_audio', False)
+
+        if remove_audio and instance.audio:
+            instance.audio.delete(save=False)
+            instance.audio = None
+
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()

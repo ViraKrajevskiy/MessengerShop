@@ -45,6 +45,7 @@ export default function NewsCard({ item }) {
           loading="lazy"
           width="400"
           height="300"
+          draggable={false}
         />
         <span className="news-card__badge">
           {isPlatform ? 'Платформа' : 'Бизнес'}

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Header from '../components/Header'
 import ReviewsSection from '../components/ReviewsSection'
-import { apiGetBusiness, apiGetBusinessPosts, apiGetBusinesses, apiGetBusinessProducts, apiToggleSubscription, apiJoinGroup, apiCheckGroupMembership, apiDeletePost } from '../api/businessApi'
+import { apiGetBusiness, apiGetBusinessPosts, apiGetBusinesses, apiToggleSubscription, apiJoinGroup, apiCheckGroupMembership, apiDeletePost } from '../api/businessApi'
 import './BusinessPage.css'
 
 const CATEGORY_ICONS = {
@@ -178,52 +178,7 @@ function VipPromo({ user, navigate }) {
   )
 }
 
-function AuthGate({ navigate }) {
-  return (
-    <div className="bp__auth-gate">
-      <div className="bp__auth-gate-inner">
-        <div className="bp__auth-gate-icon">🔒</div>
-        <h3>Войдите, чтобы видеть больше</h3>
-        <p>Зарегистрируйтесь или войдите в аккаунт, чтобы получить полный доступ.</p>
-        <div className="bp__auth-gate-btns">
-          <button className="bp__auth-gate-btn bp__auth-gate-btn--login" onClick={() => navigate('/login')}>Войти</button>
-          <button className="bp__auth-gate-btn bp__auth-gate-btn--reg"   onClick={() => navigate('/register')}>Регистрация</button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-
 const CURRENCY_SYMBOL = { TRY: '₺', USD: '$', EUR: '€', RUB: '₽' }
-
-function ProductCard({ item, navigate }) {
-  const img = item.image_url || (item.image ? resolveUrl(item.image) : null) || `https://picsum.photos/id/${(item.id % 100) + 10}/400/300`
-  const symbol = CURRENCY_SYMBOL[item.currency] || item.currency
-  return (
-    <div className="bp__feed-item" onClick={() => navigate(`/products/${item.id}`)} style={{ cursor: 'pointer' }}>
-      <div className="bp__feed-media">
-        <img src={img} alt={item.name} loading="lazy" />
-      </div>
-      <div className="bp__feed-body">
-        <p className="bp__feed-text" style={{ fontWeight: 700, color: 'var(--text-primary)', WebkitLineClamp: 2 }}>{item.name}</p>
-        {item.description && <p className="bp__feed-text" style={{ fontSize: 12, marginTop: -2 }}>{item.description}</p>}
-        <div className="bp__feed-footer" style={{ marginTop: 4 }}>
-          {item.price && (
-            <span style={{ fontWeight: 800, fontSize: 14, color: 'var(--accent-1)' }}>
-              {Number(item.price).toLocaleString()} {symbol}
-            </span>
-          )}
-          {!item.is_available && (
-            <span style={{ fontSize: 11, color: 'var(--text-muted)', background: 'var(--bg-tertiary)', padding: '2px 8px', borderRadius: 6 }}>
-              Нет в наличии
-            </span>
-          )}
-        </div>
-      </div>
-    </div>
-  )
-}
 
 function ServiceCard({ item, navigate }) {
   const img = item.image_url || (item.image ? resolveUrl(item.image) : null) || `https://picsum.photos/id/${(item.id % 100) + 50}/400/300`
@@ -358,7 +313,6 @@ export default function BusinessPage() {
   const [deletingPost, setDeletingPost] = useState(null)
   const [toast, setToast]           = useState('')
   const [faq, setFaq]               = useState([])
-  const [products, setProducts]     = useState([])
   const [services, setServices]     = useState([])
 
   const showToast = (msg) => {
@@ -371,13 +325,11 @@ export default function BusinessPage() {
     setError('')
     setBiz(null)
     setSimilar([])
-    Promise.all([apiGetBusiness(id), apiGetBusinessPosts(id), apiGetBusinessProducts(id)])
-      .then(([bizData, postsData, productsData]) => {
+    Promise.all([apiGetBusiness(id), apiGetBusinessPosts(id)])
+      .then(([bizData, postsData]) => {
         setBiz(bizData)
         setPosts(postsData)
         setFaq(Array.isArray(bizData.faq) ? bizData.faq : [])
-        const allProds = Array.isArray(productsData) ? productsData : (productsData.results || [])
-        setProducts(allProds.filter(p => p.product_type === 'PRODUCT' && p.is_available !== false))
         setServices(Array.isArray(bizData.services) ? bizData.services : [])
         setSubscribed(bizData.is_subscribed || false)
         setSubCount(bizData.subscribers_count || 0)
@@ -641,17 +593,6 @@ export default function BusinessPage() {
               navigate={navigate}
             />
 
-            {products.length > 0 && (
-              <section className="bp__card" id="section-products">
-                <h2 className="bp__card-title">Товары <span className="bp__pill">{products.length}</span></h2>
-                <div className="bp__products-grid">
-                  {products.map(p => (
-                    <ProductCard key={p.id} item={p} navigate={navigate} />
-                  ))}
-                </div>
-              </section>
-            )}
-
             <Gallery posts={posts} />
 
             {posts.length > 0 && (
@@ -706,28 +647,6 @@ export default function BusinessPage() {
               <ReviewsSection type="business" targetId={id} horizontal ratingScale={10} />
             </section>
 
-            {biz.address && (
-              <section className="bp__card">
-                <h2 className="bp__card-title">Местоположение</h2>
-                <div className="bp__map-row">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-1)" strokeWidth="2">
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                    <circle cx="12" cy="10" r="3"/>
-                  </svg>
-                  <span>{biz.address}{biz.city ? `, ${biz.city}` : ''}</span>
-                </div>
-                <a
-                  className="bp__map-link"
-                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(biz.address + (biz.city ? ' ' + biz.city : ''))}`}
-                  target="_blank" rel="noopener noreferrer"
-                >
-                  Открыть на карте
-                </a>
-              </section>
-            )}
-
-            {!user && <AuthGate navigate={navigate} />}
-
             {!biz.description && posts.length === 0 && (
               <div className="bp__empty">
                 <div style={{ fontSize: 40, marginBottom: 12 }}>📭</div>
@@ -739,38 +658,6 @@ export default function BusinessPage() {
           {/* Sidebar — хештеги убраны отсюда, они теперь в hero */}
           <aside className="bp__side">
             <VipPromo user={user} navigate={navigate} />
-            <div className="bp__side-card">
-              <h3 className="bp__side-title">Информация</h3>
-              <div className="bp__info-list">
-                {biz.phone && (
-                  <div className="bp__info-row">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2">
-                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.77 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.78a16 16 0 0 0 7.86 7.86l1.06-1.06a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
-                    </svg>
-                    <a href={`tel:${biz.phone}`}>{biz.phone}</a>
-                  </div>
-                )}
-                {biz.website && (
-                  <div className="bp__info-row">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2">
-                      <circle cx="12" cy="12" r="10"/>
-                      <line x1="2" y1="12" x2="22" y2="12"/>
-                      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-                    </svg>
-                    <a href={biz.website} target="_blank" rel="noopener noreferrer">{biz.website.replace(/^https?:\/\//, '')}</a>
-                  </div>
-                )}
-                {biz.owner_email && (
-                  <div className="bp__info-row">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2">
-                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                      <polyline points="22,6 12,13 2,6"/>
-                    </svg>
-                    <a href={`mailto:${biz.owner_email}`}>{biz.owner_email}</a>
-                  </div>
-                )}
-              </div>
-            </div>
           </aside>
         </div>
 

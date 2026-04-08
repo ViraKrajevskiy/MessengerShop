@@ -118,7 +118,7 @@
 
 .post-card__body {
   padding: 10px 14px 0;
-  height: 44px;
+  min-height: 82px;
   overflow: hidden;
   flex-shrink: 0;
 }
@@ -235,7 +235,7 @@
   .post-card__top-row { flex-wrap: wrap; gap: 3px; }
   .post-card__follow { font-size: 10px; padding: 2px 8px; }
   .post-card__text { font-size: 11px; }
-  .post-card__body { padding: 6px 8px 0; }
+  .post-card__body { padding: 6px 8px 0; min-height: 68px; }
   .post-card__footer { padding: 4px 8px 8px; }
 }
 
@@ -249,6 +249,6 @@
   .post-card__name { font-size: 13px; }
   .post-card__time { font-size: 11px; }
   .post-card__follow { font-size: 11px; padding: 4px 10px; }
-  .post-card__body { padding: 8px 12px 0; }
+  .post-card__body { padding: 8px 12px 0; min-height: 72px; }
   .post-card__footer { padding: 6px 12px 10px; }
 }

@@ -94,7 +94,7 @@ export default function PostCard({ post, onDelete }) {
       </div>
 
       <div className="post-card__image">
-        <img src={media} alt="" loading="lazy" width="400" height="300" />
+        <img src={media} alt="" loading="lazy" width="400" height="300" draggable={false} />
       </div>
 
       {post.text && (
