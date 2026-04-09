@@ -34,7 +34,16 @@ const BIZ_CATEGORY_OPTIONS = [
   { value: 'OTHER', label: 'Другое' },
 ]
 
-const SETUP_CITIES = ['Стамбул', 'Анкара', 'Анталья', 'Измир', 'Бурса', 'Алматы', 'Ташкент', 'Другой']
+const CITY_OPTIONS = [
+  { value: 'Стамбул', label: '🇹🇷 Стамбул' },
+  { value: 'Анкара', label: '🇹🇷 Анкара' },
+  { value: 'Анталья', label: '🇹🇷 Анталья' },
+  { value: 'Измир', label: '🇹🇷 Измир' },
+  { value: 'Бурса', label: '🇹🇷 Бурса' },
+  { value: 'Алматы', label: '🇰🇿 Алматы' },
+  { value: 'Ташкент', label: '🇺🇿 Ташкент' },
+  { value: 'Другой', label: '🌍 Другой город' },
+]
 
 function formatDrfErrors(data) {
   if (!data) return 'Не удалось сохранить. Проверьте данные.'
@@ -104,9 +113,7 @@ function ProductRow({ p, rank, onDelete, onToggleStatus, togglingStatus }) {
 
       <div className="biz-prod-row__info">
         <span className="biz-prod-row__name">{p.name}</span>
-        <span className="biz-prod-row__type-badge">
-          {p.product_type === 'SERVICE' ? '🔧 Услуга' : '📦 Продукт'}
-        </span>
+        <span className="biz-prod-row__type-badge">🔧 Услуга</span>
         {p.price && (
           <span className="biz-prod-row__price">{p.price} {p.currency}</span>
         )}
@@ -157,7 +164,7 @@ function ProductRow({ p, rank, onDelete, onToggleStatus, togglingStatus }) {
       <button
         className="biz-row__delete-btn"
         onClick={() => onDelete(p.id)}
-        title="Удалить продукт"
+        title="Удалить услугу"
       >
         <TrashIcon />
       </button>
@@ -443,7 +450,7 @@ function CreatePostModal({ getAccessToken, bizId, onClose, onSuccess }) {
 // ── Create Product Modal ───────────────────────────────────────────────────────
 function CreateProductModal({ getAccessToken, bizId, onClose, onSuccess }) {
   const [form, setForm] = useState({
-    name: '', description: '', product_type: 'PRODUCT',
+    name: '', description: '', product_type: 'SERVICE',
     price: '', currency: 'TRY', image_url: '', is_available: true,
   })
   const [file, setFile]       = useState(null)
@@ -489,7 +496,7 @@ function CreateProductModal({ getAccessToken, bizId, onClose, onSuccess }) {
         setError(body.detail || 'Ошибка')
         return
       }
-      onSuccess('Продукт добавлен!')
+      onSuccess('Услуга добавлена!')
       onClose()
     } catch(e) {
       setError('Ошибка соединения')
@@ -499,23 +506,8 @@ function CreateProductModal({ getAccessToken, bizId, onClose, onSuccess }) {
   }
 
   return (
-    <Modal title="Новый продукт / услуга" onClose={onClose}>
+    <Modal title="Новая услуга" onClose={onClose}>
       <div className="biz-form">
-        <div className="biz-form__type-toggle">
-          <button
-            className={`biz-form__type-btn ${form.product_type === 'PRODUCT' ? 'biz-form__type-btn--active' : ''}`}
-            onClick={() => set('product_type', 'PRODUCT')}
-          >
-            📦 Продукт
-          </button>
-          <button
-            className={`biz-form__type-btn ${form.product_type === 'SERVICE' ? 'biz-form__type-btn--active' : ''}`}
-            onClick={() => set('product_type', 'SERVICE')}
-          >
-            🔧 Услуга
-          </button>
-        </div>
-
         <input
           className="biz-form__input"
           placeholder="Название *"
@@ -589,7 +581,7 @@ function CreateProductModal({ getAccessToken, bizId, onClose, onSuccess }) {
 // ── Main Page ──────────────────────────────────────────────────────────────────
 export default function BusinessDashboardPage() {
   const navigate = useNavigate()
-  const { user, tokens, getAccessToken } = useAuth()
+  const { user, getAccessToken } = useAuth()
 
   // Stats & biz info
   const [stats, setStats]     = useState(null)
@@ -612,7 +604,7 @@ export default function BusinessDashboardPage() {
   const [setupError, setSetupError] = useState('')
 
   // Tab
-  const [activeTab, setActiveTab] = useState('products')
+  const [activeTab, setActiveTab] = useState('services')
 
   // Services management
   const [bizServices, setBizServices]     = useState([])
@@ -854,7 +846,7 @@ export default function BusinessDashboardPage() {
   const filteredProducts = useMemo(() => {
     let list = [...(stats?.products || [])]
     if (prodSearch.trim())    list = list.filter(p => p.name?.toLowerCase().includes(prodSearch.toLowerCase()))
-    if (prodType !== 'all')   list = list.filter(p => p.product_type === prodType)
+    list = list.filter(p => p.product_type === 'SERVICE')
     if (prodStatus === 'active') list = list.filter(p => p.is_available)
     if (prodStatus === 'hidden') list = list.filter(p => !p.is_available)
     if (prodSort === 'views')       list.sort((a, b) => (b.views  || 0) - (a.views  || 0))
@@ -1063,7 +1055,7 @@ export default function BusinessDashboardPage() {
     setStoriesLoading(true)
     try {
       const token = await getAccessToken()
-      const data = await apiGetBusinessStories(id, token)
+      const data = await apiGetBusinessStories(id, token, user?.id)
       setStories(Array.isArray(data) ? data : (data.results || []))
       storiesLoadedRef.current = true
       setStoriesLoaded(true)
@@ -1075,7 +1067,7 @@ export default function BusinessDashboardPage() {
       storiesLoadingRef.current = false
       setStoriesLoading(false)
     }
-  }, [getAccessToken])
+  }, [getAccessToken, user?.id])
 
   // ── Single effect: fires when tab or bizId changes ─────────────────────────
   useEffect(() => {
@@ -1150,7 +1142,7 @@ export default function BusinessDashboardPage() {
           ? { ...prev, products: prev.products.filter(p => p.id !== id), total_products: prev.total_products - 1 }
           : prev
         )
-        showToast('Продукт удалён')
+        showToast('Услуга удалена')
       }
     } catch (e) {
       showToast(e.message || 'Ошибка удаления')
@@ -1174,7 +1166,7 @@ export default function BusinessDashboardPage() {
           p.id === productId ? { ...p, is_available: !currentStatus } : p
         ),
       } : prev)
-      showToast(!currentStatus ? 'Продукт активирован' : 'Продукт скрыт')
+      showToast(!currentStatus ? 'Услуга активирована' : 'Услуга скрыта')
     } catch (e) {
       showToast(e.message || 'Ошибка изменения статуса')
     } finally {
@@ -1194,12 +1186,13 @@ export default function BusinessDashboardPage() {
   }
 
   const handleSaveServices = async () => {
-    if (!tokens?.access) return
     setSavingServices(true)
     try {
+      const token = await getAccessToken()
+      if (!token) throw new Error('auth')
       const res = await fetch(`${BASE}/businesses/me/`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${tokens.access}` },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ services: bizServices }),
       })
       if (!res.ok) throw new Error()
@@ -1217,7 +1210,7 @@ export default function BusinessDashboardPage() {
       ? `Удалить пост${confirmState.label ? ` "${confirmState.label}"` : ''}? Это действие нельзя отменить.`
       : confirmState.type === 'story'
         ? 'Удалить эту историю? Это действие нельзя отменить.'
-        : `Удалить продукт${confirmState.label ? ` "${confirmState.label}"` : ''}? Это действие нельзя отменить.`
+        : `Удалить услугу${confirmState.label ? ` "${confirmState.label}"` : ''}? Это действие нельзя отменить.`
     : ''
 
   // ── Render ─────────────────────────────────────────────────────────────────
@@ -1242,7 +1235,7 @@ export default function BusinessDashboardPage() {
             </h1>
             <p className="biz-dashboard__sub">
               {needsStoreSetup
-                ? 'Без профиля магазина нельзя публиковать сторис, посты и товары'
+                ? 'Без профиля магазина нельзя публиковать сторис, посты и услуги'
                 : 'Статистика вашего бизнеса'}
             </p>
           </div>
@@ -1290,7 +1283,7 @@ export default function BusinessDashboardPage() {
               <line x1="3" y1="6" x2="21" y2="6"/>
               <path d="M16 10a4 4 0 01-8 0"/>
             </svg>
-            Продукт / Услуга
+            Новая услуга
           </button>
         </div>
         )}
@@ -1337,8 +1330,8 @@ export default function BusinessDashboardPage() {
                   onChange={(e) => setSetupCity(e.target.value)}
                 >
                   <option value="">— выберите —</option>
-                  {SETUP_CITIES.map((c) => (
-                    <option key={c} value={c}>{c}</option>
+                  {CITY_OPTIONS.map((c) => (
+                    <option key={c.value} value={c.value}>{c.label}</option>
                   ))}
                 </select>
               </label>
@@ -1401,7 +1394,7 @@ export default function BusinessDashboardPage() {
               <StatCard
                 icon={<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>}
                 value={stats.total_products}
-                label="Товаров"
+                label="Услуг"
                 color="#f59e0b"
               />
               <StatCard
@@ -1488,13 +1481,6 @@ export default function BusinessDashboardPage() {
             <div className="biz-dashboard__section">
               <div className="biz-content-tabs">
                 <button
-                  className={`biz-content-tab ${activeTab === 'products' ? 'biz-content-tab--active' : ''}`}
-                  onClick={() => setActiveTab('products')}
-                >
-                  📦 Товары
-                  <span className="biz-content-tab__count">{stats.products?.length || 0}</span>
-                </button>
-                <button
                   className={`biz-content-tab ${activeTab === 'posts' ? 'biz-content-tab--active' : ''}`}
                   onClick={() => setActiveTab('posts')}
                 >
@@ -1527,7 +1513,7 @@ export default function BusinessDashboardPage() {
               {activeTab === 'products' && (
                 <>
                   <div className="biz-dashboard__section-header">
-                    <h2>Товары и услуги</h2>
+                    <h2>Услуги</h2>
                     <button className="biz-dashboard__add-btn" onClick={() => setShowProduct(true)}>
                       + Добавить
                     </button>
@@ -1551,7 +1537,7 @@ export default function BusinessDashboardPage() {
                       )}
                     </div>
                     <div className="biz-filter-bar__chips">
-                      {[['all','Все'],['PRODUCT','Продукты'],['SERVICE','Услуги']].map(([v, l]) => (
+                      {[['all','Все услуги']].map(([v, l]) => (
                         <button key={v}
                           className={`biz-filter-chip ${prodType === v ? 'biz-filter-chip--active' : ''}`}
                           onClick={() => setProdType(v)}
@@ -1591,7 +1577,7 @@ export default function BusinessDashboardPage() {
                       <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" opacity="0.3">
                         <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
                       </svg>
-                      <p>Нет товаров. Нажмите «Добавить» чтобы создать.</p>
+                      <p>Нет услуг. Нажмите «Добавить» чтобы создать первую услугу.</p>
                     </div>
                   ) : filteredProducts.length === 0 ? (
                     <div className="biz-dashboard__empty">
@@ -1605,7 +1591,7 @@ export default function BusinessDashboardPage() {
                       <div className="biz-prod-list__head">
                         <span></span>
                         <span></span>
-                        <span>Товар</span>
+                        <span>Услуга</span>
                         <span style={{textAlign:'right'}}>Метрики</span>
                         <span>Статус</span>
                         <span></span>
@@ -1793,7 +1779,6 @@ export default function BusinessDashboardPage() {
                     <h2>Услуги</h2>
                   </div>
 
-                  {/* Add service form */}
                   <div className="biz-svc-form">
                     <input
                       className="biz-svc-form__input biz-svc-form__input--name"
@@ -1826,7 +1811,6 @@ export default function BusinessDashboardPage() {
                     </button>
                   </div>
 
-                  {/* Services list */}
                   {bizServices.length === 0 ? (
                     <div className="biz-dashboard__empty">
                       <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" opacity="0.3">
@@ -1853,7 +1837,6 @@ export default function BusinessDashboardPage() {
                     </div>
                   )}
 
-                  {/* Save button */}
                   <div className="biz-svc-save-row">
                     <button className="biz-svc-save-btn" onClick={handleSaveServices} disabled={savingServices}>
                       {savingServices ? <span className="biz-form__spinner" /> : '💾 Сохранить услуги'}
@@ -1921,12 +1904,16 @@ export default function BusinessDashboardPage() {
                     {/* City */}
                     <div className="biz-profile-edit__row">
                       <label className="biz-profile-edit__label">Город</label>
-                      <input
+                      <select
                         className="biz-profile-edit__input"
-                        placeholder="Например: Стамбул"
                         value={editCity}
                         onChange={e => setEditCity(e.target.value)}
-                      />
+                      >
+                        <option value="">Выберите город</option>
+                        {CITY_OPTIONS.map((city) => (
+                          <option key={city.value} value={city.value}>{city.label}</option>
+                        ))}
+                      </select>
                     </div>
 
                     {/* Phone */}

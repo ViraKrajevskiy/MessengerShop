@@ -5,7 +5,9 @@ import { useLanguage } from '../context/LanguageContext'
 import Header from '../components/Header'
 import './VerificationPage.css'
 
-const BASE = 'http://127.0.0.1:8000/api'
+const BASE = import.meta.env.PROD
+  ? 'https://api.101-school.uz/api'
+  : 'http://127.0.0.1:8000/api'
 
 function normalizeVerificationPayload(payload) {
   if (!payload || payload.exists === false) return null
@@ -24,7 +26,7 @@ async function apiFetch(url, token, opts = {}) {
 
 function ChatPanel({ chatName, chatIcon, systemMsg, canSend, showQuickActions,
                      verReq, setVerReq, statusLabel, chatRef,
-                     msgText, setMsgText, sending, onSend, error, token,
+                     msgText, setMsgText, sending, onSend, error, getToken,
                      quickActions }) {
   const [editingId,   setEditingId]   = useState(null)
   const [editingText, setEditingText] = useState('')
@@ -37,6 +39,8 @@ function ChatPanel({ chatName, chatIcon, systemMsg, canSend, showQuickActions,
     if (!editingText.trim()) return
     setSavingEdit(true)
     try {
+      const token = await getToken()
+      if (!token) throw new Error()
       const res = await fetch(`${BASE}/verification/messages/${msgId}/`, {
         method: 'PATCH',
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
@@ -162,7 +166,7 @@ function ChatPanel({ chatName, chatIcon, systemMsg, canSend, showQuickActions,
 }
 
 export default function VerificationPage() {
-  const { user, tokens } = useAuth()
+  const { user, getAccessToken } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const { t } = useLanguage()
@@ -198,17 +202,23 @@ export default function VerificationPage() {
   }, [user, navigate])
 
   useEffect(() => {
-    if (!tokens?.access || user?.role !== 'BUSINESS') return
-    apiFetch('/verification/my/', tokens.access)
-      .then(data => {
+    if (user?.role !== 'BUSINESS') return
+    ;(async () => {
+      const token = await getAccessToken()
+      if (!token) {
+        setVerReq(null)
+        setLoading(false)
+        return
+      }
+      try {
+        const data = await apiFetch('/verification/my/', token)
         const normalized = normalizeVerificationPayload(data)
         setVerReq(normalized)
         if (normalized && pricingMessage) setMsgText(pricingMessage)
-      })
-      .catch(async () => {
+      } catch {
         if (pricingMessage) {
           try {
-            const data = await apiFetch('/verification/my/', tokens.access, { method: 'POST' })
+            const data = await apiFetch('/verification/my/', token, { method: 'POST' })
             setVerReq(data)
             setMsgText(pricingMessage)
           } catch {
@@ -217,9 +227,11 @@ export default function VerificationPage() {
         } else {
           setVerReq(null)
         }
-      })
-      .finally(() => setLoading(false))
-  }, [tokens?.access])
+      } finally {
+        setLoading(false)
+      }
+    })()
+  }, [user?.role, pricingMessage, getAccessToken])
 
   useEffect(() => {
     if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight
@@ -231,7 +243,9 @@ export default function VerificationPage() {
     setCreating(true)
     setError('')
     try {
-      const data = await apiFetch('/verification/my/', tokens.access, { method: 'POST' })
+      const token = await getAccessToken()
+      if (!token) throw new Error('Сессия истекла')
+      const data = await apiFetch('/verification/my/', token, { method: 'POST' })
       setVerReq(data)
     } catch (e) {
       setError(e.message)
@@ -245,7 +259,9 @@ export default function VerificationPage() {
     if (!msgText.trim()) return
     setSending(true)
     try {
-      const msg = await apiFetch('/verification/chat/', tokens.access, {
+      const token = await getAccessToken()
+      if (!token) throw new Error('Сессия истекла')
+      const msg = await apiFetch('/verification/chat/', token, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: msgText }),
@@ -265,9 +281,11 @@ export default function VerificationPage() {
     setUploading(true)
     setError('')
     try {
+      const token = await getAccessToken()
+      if (!token) throw new Error('Сессия истекла')
       const fd = new FormData()
       fd.append('file', file)
-      const doc = await apiFetch('/verification/upload/', tokens.access, { method: 'POST', body: fd })
+      const doc = await apiFetch('/verification/upload/', token, { method: 'POST', body: fd })
       const fakeMsg = {
         id: Date.now(), sender_username: user.username, sender_role: 'BUSINESS',
         text: '', file: doc.name, file_name: doc.name, is_mine: true,
@@ -293,7 +311,7 @@ export default function VerificationPage() {
   const chatProps = {
     verReq, setVerReq, statusLabel: status?.label, chatRef,
     msgText, setMsgText, sending, onSend: handleSend, error,
-    token: tokens?.access,
+    getToken: getAccessToken,
     quickActions: QUICK_ACTIONS,
   }
 

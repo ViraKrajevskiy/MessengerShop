@@ -203,28 +203,48 @@ export async function apiUpdateProduct(bizId, productId, data, token) {
   return res.json()
 }
 
-export async function apiGetBusinessStories(bizId, token) {
+export async function apiGetBusinessStories(bizId, token, authorId = null) {
   const headers = token ? { 'Authorization': `Bearer ${token}` } : {}
-  // Try ?business_id= param; backend may also support ?business=
-  const res = await fetch(`${BASE}/stories/?business_id=${bizId}`, { headers })
-  if (res.ok) {
-    const data = await res.json()
-    // If backend ignores the param and returns all, filter client-side
-    const list = Array.isArray(data) ? data : (data.results || [])
-    return list.filter(s => {
-      const id = s.business_id ?? s.business ?? s.user_id ?? s.user
-      return id == null || String(id) === String(bizId)
-    })
+
+  const normalizeList = (data) => Array.isArray(data) ? data : (data.results || [])
+
+  const matchesBusiness = (story) => {
+    const candidates = [
+      story.business_id,
+      story.business,
+      story.business?.id,
+    ].filter(v => v != null)
+    if (candidates.length > 0) return candidates.some(v => String(v) === String(bizId))
+
+    const authorCandidates = [
+      story.author_id,
+      story.author?.id,
+      story.user_id,
+      story.user,
+    ].filter(v => v != null)
+    if (authorId != null && authorCandidates.length > 0) {
+      return authorCandidates.some(v => String(v) === String(authorId))
+    }
+
+    return true
   }
-  // Fallback: fetch all and filter
-  const res2 = await fetch(`${BASE}/stories/`, { headers })
-  if (!res2.ok) throw new Error('Ошибка загрузки историй')
-  const all = await res2.json()
-  const list = Array.isArray(all) ? all : (all.results || [])
-  return list.filter(s => {
-    const id = s.business_id ?? s.business ?? s.user_id ?? s.user
-    return String(id) === String(bizId)
-  })
+
+  const tryUrls = [
+    `${BASE}/stories/?business_id=${bizId}`,
+    `${BASE}/stories/?business=${bizId}`,
+    `${BASE}/stories/`,
+  ]
+
+  for (const url of tryUrls) {
+    const res = await fetch(url, { headers })
+    if (!res.ok) continue
+    const data = await res.json()
+    const list = normalizeList(data)
+    const filtered = list.filter(matchesBusiness)
+    if (filtered.length > 0 || url.endsWith('/stories/')) return filtered
+  }
+
+  throw new Error('Ошибка загрузки историй')
 }
 
 // ── Inquiry Delete ─────────────────────────────────────────────────────────────

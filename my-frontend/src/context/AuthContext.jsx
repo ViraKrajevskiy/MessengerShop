@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react'
 import { apiLogin, apiRegister, apiVerifyEmail, apiLogout, apiMe, apiRefreshToken } from '../api/authApi'
 
 const AuthContext = createContext(null)
@@ -14,6 +14,7 @@ export function AuthProvider({ children }) {
   const [user, setUser]     = useState(() => LS.get('auth_user'))
   const [tokens, setTokens] = useState(() => LS.get('auth_tokens'))
   const [loading, setLoading] = useState(false)
+  const tokensRef = useRef(tokens)
 
   // Синхронизация с localStorage
   useEffect(() => {
@@ -22,6 +23,10 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     if (tokens) LS.set('auth_tokens', tokens); else LS.del('auth_tokens')
+  }, [tokens])
+
+  useEffect(() => {
+    tokensRef.current = tokens
   }, [tokens])
 
   // Тихое обновление access-токена при старте (если он есть, но протух)
@@ -101,10 +106,11 @@ export function AuthProvider({ children }) {
 
   // ── getAccessToken (с авто-рефрешем) ──────────────────────────────────────
   const getAccessToken = useCallback(async () => {
-    if (!tokens) return null
+    const currentTokens = tokensRef.current
+    if (!currentTokens?.refresh) return currentTokens?.access || null
     try {
       // Пробуем обновить токен (в проде — проверять exp)
-      const data = await apiRefreshToken(tokens.refresh)
+      const data = await apiRefreshToken(currentTokens.refresh)
       setTokens(t => ({ ...t, ...data }))
       return data.access
     } catch {
@@ -112,7 +118,7 @@ export function AuthProvider({ children }) {
       setTokens(null)
       return null
     }
-  }, [tokens])
+  }, [])
 
   return (
     <AuthContext.Provider value={{

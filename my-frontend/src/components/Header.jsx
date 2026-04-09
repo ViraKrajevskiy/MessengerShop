@@ -182,9 +182,9 @@ export default function Header() {
           {/* Language */}
           <div className="header__lang">
             <select name="language" value={lang} onChange={(e) => setLang(e.target.value)} className="header__lang-select">
-              <option value="ru">Русский</option>
-              <option value="en">English</option>
-              <option value="tr">Türkçe</option>
+              <option value="ru">{LANG_NAMES.ru}</option>
+              <option value="en">{LANG_NAMES.en}</option>
+              <option value="tr">{LANG_NAMES.tr}</option>
             </select>
           </div>
 
@@ -276,9 +276,9 @@ export default function Header() {
             <span>{theme === 'light' ? t('nav_darkTheme') : t('nav_lightTheme')}</span>
           </button>
           <select name="language" value={lang} onChange={(e) => setLang(e.target.value)} className="header__lang-select">
-            <option value="ru">Русский</option>
-            <option value="en">English</option>
-            <option value="tr">Türkçe</option>
+            <option value="ru">{LANG_NAMES.ru}</option>
+            <option value="en">{LANG_NAMES.en}</option>
+            <option value="tr">{LANG_NAMES.tr}</option>
           </select>
           {user && (
             <button className="header__mobile-nav-item header__mobile-logout" onClick={handleLogout}>

@@ -203,7 +203,11 @@ function InfoTabs({ biz, categoryIcon, faq, services, navigate }) {
   const [tab, setTab] = useState('props')
   const [openFaq, setOpenFaq] = useState(null)
   const hasFaq = faq && faq.length > 0
-  const serviceList = services || []
+  const profileServices = Array.isArray(services) ? services : []
+  const productServices = Array.isArray(biz?.products)
+    ? biz.products.filter(item => item.product_type === 'SERVICE')
+    : []
+  const serviceList = [...productServices, ...profileServices]
 
   return (
     <section className="bp__card">
