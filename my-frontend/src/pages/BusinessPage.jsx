@@ -475,11 +475,6 @@ export default function BusinessPage() {
               <h1 className="bp__name">{biz.brand_name}</h1>
               {biz.is_vip && <span className="bp__vip-tag">VIP</span>}
             </div>
-            <div className="bp__tags">
-              <span className="bp__tag">{categoryIcon} {biz.category_label}</span>
-              {biz.city && <span className="bp__tag">📍 {biz.city}</span>}
-              <span className="bp__tag bp__tag--rating">⭐ {Number(biz.rating).toFixed(1)} / 5</span>
-            </div>
             <div className="bp__stats">
               <div className="bp__stat">
                 <span className="bp__stat-num">{subCount}</span>
