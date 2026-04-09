@@ -152,6 +152,16 @@ class BusinessAPITest(APITestCase):
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         self.assertEqual(resp.data['brand_name'], 'Студия Лейла')
 
+    def test_create_business_ignores_remove_audio_flag(self):
+        resp = self.biz_client.post('/api/businesses/create/', {
+            'brand_name': 'РЎС‚СѓРґРёСЏ Р‘РµР· РђСѓРґРёРѕ',
+            'category': 'BEAUTY',
+            'remove_audio': True,
+        }, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(resp.data['brand_name'], 'РЎС‚СѓРґРёСЏ Р‘РµР· РђСѓРґРёРѕ')
+        self.assertTrue(Business.objects.filter(owner=self.business).exists())
+
     def test_create_business_by_regular_user_forbidden(self):
         resp = self.reg_client.post('/api/businesses/create/', {
             'brand_name': 'Попытка', 'category': 'OTHER',

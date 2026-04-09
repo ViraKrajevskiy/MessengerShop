@@ -16,6 +16,11 @@ const BASE = import.meta.env.PROD
   : 'http://127.0.0.1:8000/api'
 const API_ORIGIN = BASE.replace(/\/api$/, '')
 
+function getVerificationStatus(payload) {
+  if (!payload || payload.exists === false) return null
+  return payload.status || null
+}
+
 const BIZ_CATEGORY_OPTIONS = [
   { value: 'BEAUTY', label: 'Красота и уход' },
   { value: 'HEALTH', label: 'Здоровье' },
@@ -909,12 +914,8 @@ export default function BusinessDashboardPage() {
         else if (statsRes.ok) setStats(await statsRes.json())
         else throw new Error('stats')
 
-        if (verRes.ok) {
-          const v = await verRes.json()
-          setVerStatus(v.status)
-        } else {
-          setVerStatus(null)
-        }
+        if (verRes.ok) setVerStatus(getVerificationStatus(await verRes.json()))
+        else setVerStatus(null)
       })
       .catch(() => {
         setError('Не удалось загрузить данные')
@@ -994,12 +995,8 @@ export default function BusinessDashboardPage() {
       const verRes = await fetch(`${BASE}/verification/my/`, {
         headers: { Authorization: `Bearer ${token}` },
       })
-      if (verRes.ok) {
-        const v = await verRes.json()
-        setVerStatus(v.status)
-      } else {
-        setVerStatus(null)
-      }
+      if (verRes.ok) setVerStatus(getVerificationStatus(await verRes.json()))
+      else setVerStatus(null)
       showToast('Магазин создан — можно публиковать контент')
     } catch {
       setSetupError('Ошибка сети. Попробуйте ещё раз.')
@@ -1093,16 +1090,18 @@ export default function BusinessDashboardPage() {
   const handleSuccess = msg => {
     showToast(msg)
     refreshStats()
-    // Invalidate loaded flags so lists reload on next tab switch
+    // Invalidate loaded flags and refresh the active list immediately.
     if (msg.includes('Пост')) {
       postsLoadedRef.current = false
       setPostsLoaded(false)
       setPosts([])
+      if (activeTab === 'posts' && bizId) void loadPosts(bizId)
     }
     if (msg.includes('Сторис')) {
       storiesLoadedRef.current = false
       setStoriesLoaded(false)
       setStories([])
+      if (activeTab === 'stories' && bizId) void loadStories(bizId)
     }
   }
 

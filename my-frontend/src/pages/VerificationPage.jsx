@@ -7,6 +7,11 @@ import './VerificationPage.css'
 
 const BASE = 'http://127.0.0.1:8000/api'
 
+function normalizeVerificationPayload(payload) {
+  if (!payload || payload.exists === false) return null
+  return payload
+}
+
 async function apiFetch(url, token, opts = {}) {
   const res = await fetch(BASE + url, {
     ...opts,
@@ -196,8 +201,9 @@ export default function VerificationPage() {
     if (!tokens?.access || user?.role !== 'BUSINESS') return
     apiFetch('/verification/my/', tokens.access)
       .then(data => {
-        setVerReq(data)
-        if (pricingMessage) setMsgText(pricingMessage)
+        const normalized = normalizeVerificationPayload(data)
+        setVerReq(normalized)
+        if (normalized && pricingMessage) setMsgText(pricingMessage)
       })
       .catch(async () => {
         if (pricingMessage) {

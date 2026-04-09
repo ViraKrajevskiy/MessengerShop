@@ -15,7 +15,8 @@ async function fetchVerStatus(token) {
   })
   if (res.status === 404) return null
   if (!res.ok) return null
-  return res.json()
+  const data = await res.json()
+  return data?.exists === false ? null : data
 }
 
 export default function MyProfilePage() {

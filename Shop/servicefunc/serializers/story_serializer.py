@@ -20,6 +20,7 @@ class StoryAuthorSerializer(serializers.Serializer):
 
 class StorySerializer(serializers.ModelSerializer):
     author        = StoryAuthorSerializer(read_only=True)
+    business_id   = serializers.SerializerMethodField()
     is_active     = serializers.BooleanField(read_only=True)
     views_count   = serializers.IntegerField(read_only=True)
     comments_count = serializers.SerializerMethodField()
@@ -28,11 +29,17 @@ class StorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Story
         fields = [
-            'id', 'author', 'media', 'media_url', 'media_display', 'media_type', 'caption',
+            'id', 'author', 'business_id', 'media', 'media_url', 'media_display', 'media_type', 'caption',
             'expires_at', 'is_active', 'views_count', 'comments_count',
             'created_at',
         ]
         read_only_fields = ['expires_at', 'created_at']
+
+    def get_business_id(self, obj):
+        try:
+            return obj.author.business_profile.id
+        except Exception:
+            return None
 
     def get_comments_count(self, obj):
         if hasattr(obj, '_comments_count'):

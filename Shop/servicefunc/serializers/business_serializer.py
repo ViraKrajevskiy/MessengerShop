@@ -170,6 +170,7 @@ class BusinessCreateUpdateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         tag_names = validated_data.pop('tags', [])
+        validated_data.pop('remove_audio', False)
         user = self.context['request'].user
         try:
             with transaction.atomic():

@@ -31,7 +31,6 @@ class MyVerificationView(APIView):
         summary='Моя заявка на верификацию',
         responses={
             200: VerificationRequestSerializer,
-            404: OpenApiResponse(description='Заявка ещё не создана'),
         },
     )
     def get(self, request):
@@ -39,7 +38,12 @@ class MyVerificationView(APIView):
             biz = request.user.business_profile
             req = biz.verification
         except (Business.DoesNotExist, VerificationRequest.DoesNotExist):
-            return Response({'detail': 'Заявка не найдена.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({
+                'exists': False,
+                'status': None,
+                'documents': [],
+                'messages': [],
+            })
         return Response(VerificationRequestSerializer(req, context={'request': request}).data)
 
     @extend_schema(

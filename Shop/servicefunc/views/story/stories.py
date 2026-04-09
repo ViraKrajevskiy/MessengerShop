@@ -36,6 +36,9 @@ class StoryListCreateView(APIView):
                 'comments', filter=Q(comments__is_deleted=False, comments__parent=None)
             ),
         )
+        business_id = request.query_params.get('business_id') or request.query_params.get('business')
+        if business_id:
+            stories = stories.filter(author__business_profile__id=business_id)
         serializer = StorySerializer(stories, many=True, context={'request': request})
         response = Response(serializer.data)
         response['Cache-Control'] = 'public, max-age=60'
