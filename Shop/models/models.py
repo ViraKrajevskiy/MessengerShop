@@ -1,6 +1,8 @@
 import uuid as uuid_lib
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.db.models import Q
+from django.db.models.functions import Lower
 from django.utils import timezone
 from datetime import timedelta
 
@@ -132,6 +134,17 @@ class Business(BaseController):
         ordering = ['-plan_type', '-rating', '-created_at']
         verbose_name = 'Business'
         verbose_name_plural = 'Businesses'
+        constraints = [
+            models.UniqueConstraint(
+                Lower('brand_name'),
+                name='uniq_business_brand_name_ci',
+            ),
+            models.UniqueConstraint(
+                fields=['phone'],
+                condition=~Q(phone=''),
+                name='uniq_business_phone_when_set',
+            ),
+        ]
 
     def __str__(self):
         return f'{self.brand_name} ({self.owner.email})'

@@ -16,6 +16,37 @@ const BASE = import.meta.env.PROD
   : 'http://127.0.0.1:8000/api'
 const API_ORIGIN = BASE.replace(/\/api$/, '')
 
+const BIZ_CATEGORY_OPTIONS = [
+  { value: 'BEAUTY', label: 'Красота и уход' },
+  { value: 'HEALTH', label: 'Здоровье' },
+  { value: 'REALTY', label: 'Недвижимость' },
+  { value: 'EDUCATION', label: 'Образование' },
+  { value: 'FINANCE', label: 'Финансы' },
+  { value: 'LEGAL', label: 'Юридические услуги' },
+  { value: 'TOURISM', label: 'Туризм' },
+  { value: 'FOOD', label: 'Еда и рестораны' },
+  { value: 'TRANSPORT', label: 'Транспорт' },
+  { value: 'OTHER', label: 'Другое' },
+]
+
+const SETUP_CITIES = ['Стамбул', 'Анкара', 'Анталья', 'Измир', 'Бурса', 'Алматы', 'Ташкент', 'Другой']
+
+function formatDrfErrors(data) {
+  if (!data) return 'Не удалось сохранить. Проверьте данные.'
+  if (typeof data === 'string') return data
+  if (data.detail) return typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail)
+  if (Array.isArray(data.non_field_errors) && data.non_field_errors.length) {
+    return data.non_field_errors.join(' ')
+  }
+  const parts = []
+  for (const [k, v] of Object.entries(data)) {
+    if (k === 'non_field_errors') continue
+    const text = Array.isArray(v) ? v.join(', ') : String(v)
+    parts.push(`${k}: ${text}`)
+  }
+  return parts.join(' ') || 'Ошибка сохранения'
+}
+
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
 function timeAgo(dateStr) {
@@ -548,6 +579,17 @@ export default function BusinessDashboardPage() {
   const [bizData, setBizData] = useState(null)
   const [toast, setToast]     = useState('')
   const [verStatus, setVerStatus] = useState(null) // null | 'PENDING' | 'APPROVED' | 'REJECTED'
+  const [profileChecked, setProfileChecked] = useState(false)
+
+  const [setupBrandName, setSetupBrandName] = useState('')
+  const [setupDescription, setSetupDescription] = useState('')
+  const [setupCategory, setSetupCategory] = useState('OTHER')
+  const [setupCity, setSetupCity] = useState('')
+  const [setupPhone, setSetupPhone] = useState('')
+  const [setupAddress, setSetupAddress] = useState('')
+  const [setupLogo, setSetupLogo] = useState(null)
+  const [setupSubmitting, setSetupSubmitting] = useState(false)
+  const [setupError, setSetupError] = useState('')
 
   // Tab
   const [activeTab, setActiveTab] = useState('products')
@@ -820,38 +862,151 @@ export default function BusinessDashboardPage() {
     return list
   }, [stories, storySearch, storyType, storySort])
 
+  const needsStoreSetup = profileChecked && !loading && !error && bizId == null
+
   // ── Load stats + biz data ──────────────────────────────────────────────────
   useEffect(() => {
     if (!user) { navigate('/login'); return }
     if (user.role !== 'BUSINESS') { navigate('/'); return }
     if (!tokens?.access) return
 
+    setLoading(true)
+    setError('')
+    setProfileChecked(false)
+
     fetch(`${BASE}/businesses/me/`, {
       headers: { Authorization: `Bearer ${tokens.access}` },
     })
-      .then(r => r.ok ? r.json() : Promise.reject())
-      .then(data => {
+      .then(async (r) => {
+        if (r.status === 404) {
+          setBizId(null)
+          setBizData(null)
+          setStats(null)
+          setVerStatus(null)
+          setSetupCity(user?.city || '')
+          setProfileChecked(true)
+          setLoading(false)
+          return { missing: true }
+        }
+        if (!r.ok) throw new Error('me')
+        const data = await r.json()
         setBizId(data.id)
         setBizData(data)
         setBizServices(Array.isArray(data.services) ? data.services : [])
+        setProfileChecked(true)
+        return { missing: false }
       })
-      .catch(() => {})
+      .then(async (result) => {
+        if (!result || result.missing) return
 
-    fetch(`${BASE}/businesses/me/stats/`, {
-      headers: { Authorization: `Bearer ${tokens.access}` },
-    })
-      .then(r => r.ok ? r.json() : Promise.reject())
-      .then(data => setStats(data))
-      .catch(() => setError('Не удалось загрузить статистику'))
+        const headers = { Authorization: `Bearer ${tokens.access}` }
+        const [statsRes, verRes] = await Promise.all([
+          fetch(`${BASE}/businesses/me/stats/`, { headers }),
+          fetch(`${BASE}/verification/my/`, { headers }),
+        ])
+
+        if (statsRes.status === 404) setStats(null)
+        else if (statsRes.ok) setStats(await statsRes.json())
+        else throw new Error('stats')
+
+        if (verRes.ok) {
+          const v = await verRes.json()
+          setVerStatus(v.status)
+        } else {
+          setVerStatus(null)
+        }
+      })
+      .catch(() => {
+        setError('Не удалось загрузить данные')
+        setBizId(null)
+        setBizData(null)
+        setStats(null)
+        setVerStatus(null)
+        setProfileChecked(true)
+      })
       .finally(() => setLoading(false))
+  }, [user, tokens?.access, navigate])
 
-    fetch(`${BASE}/verification/my/`, {
-      headers: { Authorization: `Bearer ${tokens.access}` },
-    })
-      .then(r => r.ok ? r.json() : Promise.reject())
-      .then(data => setVerStatus(data.status))
-      .catch(() => setVerStatus(null))
-  }, [tokens?.access])
+  const handleCreateStore = async (e) => {
+    e?.preventDefault?.()
+    setSetupError('')
+    if (!setupBrandName.trim()) {
+      setSetupError('Укажите название магазина или бренда')
+      return
+    }
+    if (setupDescription.trim().length < 20) {
+      setSetupError('Опишите магазин хотя бы в нескольких предложениях (минимум 20 символов)')
+      return
+    }
+    if (!setupCity) {
+      setSetupError('Выберите город')
+      return
+    }
+    setSetupSubmitting(true)
+    try {
+      const token = await getAccessToken()
+      const fd = new FormData()
+      fd.append('brand_name', setupBrandName.trim())
+      fd.append('description', setupDescription.trim())
+      fd.append('category', setupCategory)
+      fd.append('city', setupCity)
+      fd.append('phone', setupPhone.trim())
+      fd.append('address', setupAddress.trim())
+      if (setupLogo) fd.append('logo', setupLogo)
+
+      const res = await fetch(`${BASE}/businesses/create/`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: fd,
+      })
+      const body = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setSetupError(formatDrfErrors(body))
+        return
+      }
+
+      setBizId(body.id)
+      setBizData(body)
+      setBizServices(Array.isArray(body.services) ? body.services : [])
+      setSetupBrandName('')
+      setSetupDescription('')
+      setSetupCategory('OTHER')
+      setSetupLogo(null)
+      setSetupError('')
+
+      const statsRes = await fetch(`${BASE}/businesses/me/stats/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (statsRes.ok) {
+        setStats(await statsRes.json())
+      } else {
+        setStats({
+          profile_views: body.views_count ?? 0,
+          total_products: 0,
+          unread_inquiries: 0,
+          active_stories: 0,
+          rating: String(body.rating ?? '0.0'),
+          is_verified: body.is_verified ?? false,
+          products: [],
+        })
+      }
+
+      const verRes = await fetch(`${BASE}/verification/my/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (verRes.ok) {
+        const v = await verRes.json()
+        setVerStatus(v.status)
+      } else {
+        setVerStatus(null)
+      }
+      showToast('Магазин создан — можно публиковать контент')
+    } catch {
+      setSetupError('Ошибка сети. Попробуйте ещё раз.')
+    } finally {
+      setSetupSubmitting(false)
+    }
+  }
 
   // ── Refs to track load state without triggering re-renders/loops ────────────
   const postsLoadedRef   = useRef(false)
@@ -923,8 +1078,15 @@ export default function BusinessDashboardPage() {
     fetch(`${BASE}/businesses/me/stats/`, {
       headers: { Authorization: `Bearer ${tokens.access}` },
     })
-      .then(r => r.ok ? r.json() : Promise.reject())
-      .then(data => setStats(data))
+      .then(async (r) => {
+        if (r.status === 404) {
+          setStats(null)
+          return null
+        }
+        if (!r.ok) throw new Error('stats')
+        return r.json()
+      })
+      .then((data) => { if (data) setStats(data) })
       .catch(() => {})
   }
 
@@ -1058,17 +1220,28 @@ export default function BusinessDashboardPage() {
             Назад
           </button>
           <div>
-            <h1 className="biz-dashboard__title">Панель управления</h1>
-            <p className="biz-dashboard__sub">Статистика вашего бизнеса</p>
+            <h1 className="biz-dashboard__title">
+              {needsStoreSetup ? 'Создайте страницу магазина' : 'Панель управления'}
+            </h1>
+            <p className="biz-dashboard__sub">
+              {needsStoreSetup
+                ? 'Без профиля магазина нельзя публиковать сторис, посты и товары'
+                : 'Статистика вашего бизнеса'}
+            </p>
           </div>
           <button className="biz-dashboard__profile-btn" onClick={() => navigate('/me')}>
             Мой профиль →
           </button>
         </div>
 
-        {/* Кнопки публикации */}
+        {!needsStoreSetup && (
         <div className="biz-publish-btns">
-          <button className="biz-publish-btn biz-publish-btn--story" onClick={() => setShowStory(true)}>
+          <button
+            type="button"
+            className="biz-publish-btn biz-publish-btn--story"
+            onClick={() => setShowStory(true)}
+            disabled={!bizId}
+          >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="12" cy="12" r="10"/>
               <line x1="12" y1="8" x2="12" y2="16"/>
@@ -1076,7 +1249,12 @@ export default function BusinessDashboardPage() {
             </svg>
             Новый сторис
           </button>
-          <button className="biz-publish-btn biz-publish-btn--post" onClick={() => setShowPost(true)}>
+          <button
+            type="button"
+            className="biz-publish-btn biz-publish-btn--post"
+            onClick={() => setShowPost(true)}
+            disabled={!bizId}
+          >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <rect x="3" y="3" width="18" height="18" rx="2"/>
               <line x1="12" y1="8" x2="12" y2="16"/>
@@ -1084,7 +1262,12 @@ export default function BusinessDashboardPage() {
             </svg>
             Новый пост
           </button>
-          <button className="biz-publish-btn biz-publish-btn--product" onClick={() => setShowProduct(true)}>
+          <button
+            type="button"
+            className="biz-publish-btn biz-publish-btn--product"
+            onClick={() => setShowProduct(true)}
+            disabled={!bizId}
+          >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
               <line x1="3" y1="6" x2="21" y2="6"/>
@@ -1093,14 +1276,101 @@ export default function BusinessDashboardPage() {
             Продукт / Услуга
           </button>
         </div>
+        )}
 
         {loading ? (
           <div className="biz-dashboard__loading">
             <div className="biz-dashboard__spinner" />
-            <p>Загрузка статистики...</p>
+            <p>Загрузка…</p>
           </div>
         ) : error ? (
           <div className="biz-dashboard__error">{error}</div>
+        ) : needsStoreSetup ? (
+          <form className="biz-store-setup" onSubmit={handleCreateStore}>
+            <p className="biz-store-setup__lead">
+              Заполните основные данные — после сохранения откроются сторис, посты и каталог.
+            </p>
+            <div className="biz-store-setup__grid">
+              <label className="biz-store-setup__field">
+                <span>Название магазина / бренда *</span>
+                <input
+                  type="text"
+                  value={setupBrandName}
+                  onChange={(e) => setSetupBrandName(e.target.value)}
+                  placeholder="Как вас видят клиенты"
+                  maxLength={200}
+                  autoComplete="organization"
+                />
+              </label>
+              <label className="biz-store-setup__field">
+                <span>Категория *</span>
+                <select
+                  value={setupCategory}
+                  onChange={(e) => setSetupCategory(e.target.value)}
+                >
+                  {BIZ_CATEGORY_OPTIONS.map((o) => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="biz-store-setup__field">
+                <span>Город *</span>
+                <select
+                  value={setupCity}
+                  onChange={(e) => setSetupCity(e.target.value)}
+                >
+                  <option value="">— выберите —</option>
+                  {SETUP_CITIES.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="biz-store-setup__field">
+                <span>Телефон</span>
+                <input
+                  type="tel"
+                  value={setupPhone}
+                  onChange={(e) => setSetupPhone(e.target.value)}
+                  placeholder="+90 …"
+                  autoComplete="tel"
+                />
+              </label>
+              <label className="biz-store-setup__field biz-store-setup__field--wide">
+                <span>Адрес (необязательно)</span>
+                <input
+                  type="text"
+                  value={setupAddress}
+                  onChange={(e) => setSetupAddress(e.target.value)}
+                  placeholder="Улица, район"
+                />
+              </label>
+              <label className="biz-store-setup__field biz-store-setup__field--wide">
+                <span>Описание магазина * (мин. 20 символов)</span>
+                <textarea
+                  value={setupDescription}
+                  onChange={(e) => setSetupDescription(e.target.value)}
+                  placeholder="Чем вы занимаетесь, что предлагаете клиентам"
+                  rows={4}
+                />
+              </label>
+              <label className="biz-store-setup__field biz-store-setup__field--wide">
+                <span>Логотип (необязательно)</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setSetupLogo(e.target.files?.[0] || null)}
+                />
+              </label>
+            </div>
+            {setupError && <p className="biz-form__error biz-store-setup__error">{setupError}</p>}
+            <button
+              type="submit"
+              className="biz-store-setup__submit"
+              disabled={setupSubmitting}
+            >
+              {setupSubmitting ? <span className="biz-form__spinner" /> : 'Создать магазин и продолжить'}
+            </button>
+          </form>
         ) : stats ? (
           <>
             {/* ── Stat Cards ── */}
@@ -2020,7 +2290,7 @@ export default function BusinessDashboardPage() {
       </main>
 
       {/* ── Create Modals ── */}
-      {showStory && (
+      {showStory && bizId && (
         <CreateStoryModal
           tokens={tokens}
           onClose={() => setShowStory(false)}

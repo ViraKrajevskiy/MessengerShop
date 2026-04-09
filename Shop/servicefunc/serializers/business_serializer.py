@@ -1,6 +1,24 @@
+import re
+
+from django.db import IntegrityError, transaction
 from rest_framework import serializers
 from Shop.models import Business, GroupChat, GroupMember
 from .product_serializer import ProductSerializer
+
+# Одна фраза для дубликата названия/телефона — не раскрываем, что именно занято.
+BUSINESS_IDENTITY_CONFLICT_MSG = 'Не удалось сохранить: укажите другое название и другие контактные данные.'
+
+
+def _norm_brand_name(value):
+    s = (value or '').strip()
+    s = re.sub(r'\s+', ' ', s)
+    return s
+
+
+def _norm_phone(value):
+    if value is None:
+        return ''
+    return re.sub(r'\s+', '', str(value).strip())
 
 
 class BusinessListSerializer(serializers.ModelSerializer):
@@ -111,6 +129,35 @@ class BusinessCreateUpdateSerializer(serializers.ModelSerializer):
             )
         return value
 
+    def validate(self, attrs):
+        instance = self.instance
+        if instance:
+            brand = _norm_brand_name(
+                attrs['brand_name'] if 'brand_name' in attrs else instance.brand_name
+            )
+            phone = _norm_phone(
+                attrs['phone'] if 'phone' in attrs else instance.phone
+            )
+        else:
+            brand = _norm_brand_name(attrs.get('brand_name', ''))
+            phone = _norm_phone(attrs.get('phone', ''))
+
+        if 'brand_name' in attrs:
+            attrs['brand_name'] = brand
+        if 'phone' in attrs:
+            attrs['phone'] = phone
+
+        qs = Business.objects.all()
+        if instance is not None:
+            qs = qs.exclude(pk=instance.pk)
+
+        brand_taken = bool(brand) and qs.filter(brand_name__iexact=brand).exists()
+        phone_taken = bool(phone) and qs.filter(phone=phone).exists()
+        if brand_taken or phone_taken:
+            raise serializers.ValidationError(BUSINESS_IDENTITY_CONFLICT_MSG)
+
+        return attrs
+
     def _set_tags(self, instance, tag_names):
         from Shop.models.models import Tag
         tags = []
@@ -124,13 +171,17 @@ class BusinessCreateUpdateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         tag_names = validated_data.pop('tags', [])
         user = self.context['request'].user
-        group = GroupChat.objects.create(
-            name=validated_data.get('brand_name', 'Группа'),
-            description=f'Группа магазина {validated_data.get("brand_name", "")}',
-            creator=user,
-        )
-        GroupMember.objects.create(group=group, user=user, role=GroupMember.Role.OWNER)
-        instance = Business.objects.create(owner=user, group=group, **validated_data)
+        try:
+            with transaction.atomic():
+                group = GroupChat.objects.create(
+                    name=validated_data.get('brand_name', 'Группа'),
+                    description=f'Группа магазина {validated_data.get("brand_name", "")}',
+                    creator=user,
+                )
+                GroupMember.objects.create(group=group, user=user, role=GroupMember.Role.OWNER)
+                instance = Business.objects.create(owner=user, group=group, **validated_data)
+        except IntegrityError:
+            raise serializers.ValidationError(BUSINESS_IDENTITY_CONFLICT_MSG)
         if tag_names:
             self._set_tags(instance, tag_names)
         return instance
@@ -145,7 +196,10 @@ class BusinessCreateUpdateSerializer(serializers.ModelSerializer):
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
-        instance.save()
+        try:
+            instance.save()
+        except IntegrityError:
+            raise serializers.ValidationError(BUSINESS_IDENTITY_CONFLICT_MSG)
         if tag_names is not None:
             self._set_tags(instance, tag_names)
         return instance

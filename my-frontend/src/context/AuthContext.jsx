@@ -51,7 +51,7 @@ export function AuthProvider({ children }) {
       const data = await apiLogin({ email, password })
       setTokens({ access: data.access, refresh: data.refresh })
       setUser(data.user)
-      return { ok: true }
+      return { ok: true, user: data.user }
     } catch (err) {
       return { ok: false, error: err.message }
     } finally {

@@ -28,7 +28,7 @@ export default function LoginPage() {
         // We send it as credential and backend handles it via tokeninfo
         const data = await apiGoogleAuth({ credential: tokenResponse.access_token })
         loginWithData(data)
-        navigate('/')
+        navigate(data.user?.role === 'BUSINESS' ? '/dashboard' : '/')
       } catch (err) {
         setError(err.message)
       } finally {
@@ -52,8 +52,11 @@ export default function LoginPage() {
     setLoading(true)
     const result = await login(form.email, form.password)
     setLoading(false)
-    if (result.ok) navigate('/')
-    else setError(result.error)
+    if (result.ok) {
+      navigate(result.user?.role === 'BUSINESS' ? '/dashboard' : '/')
+    } else {
+      setError(result.error)
+    }
   }
 
   return (

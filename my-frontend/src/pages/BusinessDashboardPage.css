@@ -833,6 +833,97 @@
 }
 .biz-publish-btn--product:hover { opacity: 0.88; transform: translateY(-1px); }
 
+.biz-publish-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── First-time store setup (business has no profile yet) ──────────────────── */
+.biz-store-setup {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 24px 22px 28px;
+  max-width: 640px;
+}
+
+.biz-store-setup__lead {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 0 0 20px;
+  line-height: 1.5;
+}
+
+.biz-store-setup__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 18px;
+}
+
+.biz-store-setup__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.biz-store-setup__field--wide {
+  grid-column: 1 / -1;
+}
+
+.biz-store-setup__field span {
+  font-weight: 600;
+}
+
+.biz-store-setup__field input,
+.biz-store-setup__field select,
+.biz-store-setup__field textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.biz-store-setup__field textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.biz-store-setup__error {
+  margin: 14px 0 0;
+}
+
+.biz-store-setup__submit {
+  margin-top: 22px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  min-width: 220px;
+}
+
+.biz-store-setup__submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .biz-store-setup__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ── Product type badge ──────────────────────────────────────────────────────── */
 .biz-prod-row__type-badge {
   font-size: 11px;

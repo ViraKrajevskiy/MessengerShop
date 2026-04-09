@@ -36,7 +36,7 @@ export default function RegisterPage() {
       try {
         const data = await apiGoogleAuth({ credential: tokenResponse.access_token, role: googleRole })
         loginWithData(data)
-        navigate('/')
+        navigate(googleRole === 'BUSINESS' ? '/dashboard' : '/')
       } catch (err) {
         setErrors({ general: err.message })
       } finally {
@@ -138,8 +138,11 @@ export default function RegisterPage() {
     setLoading(true)
     const result = await verifyEmail(form.email, codeStr, form.password)
     setLoading(false)
-    if (result.ok) navigate('/')
-    else setCodeError(result.error)
+    if (result.ok) {
+      navigate(form.role === 'BUSINESS' ? '/dashboard' : '/')
+    } else {
+      setCodeError(result.error)
+    }
   }
 
   // ── Рендер шагов ──────────────────────────────────────────────────────────
