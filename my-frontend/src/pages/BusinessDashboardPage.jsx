@@ -281,7 +281,7 @@ function ConfirmModal({ message, onConfirm, onCancel, loading }) {
 }
 
 // ── Create Story Modal ─────────────────────────────────────────────────────────
-function CreateStoryModal({ tokens, onClose, onSuccess }) {
+function CreateStoryModal({ getAccessToken, onClose, onSuccess }) {
   const [file, setFile]       = useState(null)
   const [preview, setPreview] = useState(null)
   const [caption, setCaption] = useState('')
@@ -304,9 +304,14 @@ function CreateStoryModal({ tokens, onClose, onSuccess }) {
     fd.append('media_type', file.type.startsWith('video') ? 'VIDEO' : 'IMAGE')
     fd.append('caption', caption)
     try {
+      const token = await getAccessToken()
+      if (!token) {
+        setError('Сессия истекла')
+        return
+      }
       const r = await fetch(`${BASE}/stories/`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${tokens.access}` },
+        headers: { Authorization: `Bearer ${token}` },
         body: fd,
       })
       if (!r.ok) {
@@ -355,7 +360,7 @@ function CreateStoryModal({ tokens, onClose, onSuccess }) {
 }
 
 // ── Create Post Modal ──────────────────────────────────────────────────────────
-function CreatePostModal({ tokens, bizId, onClose, onSuccess }) {
+function CreatePostModal({ getAccessToken, bizId, onClose, onSuccess }) {
   const [file, setFile]       = useState(null)
   const [preview, setPreview] = useState(null)
   const [text, setText]       = useState('')
@@ -380,9 +385,14 @@ function CreatePostModal({ tokens, bizId, onClose, onSuccess }) {
       fd.append('media_type', file.type.startsWith('video') ? 'VIDEO' : 'IMAGE')
     }
     try {
+      const token = await getAccessToken()
+      if (!token) {
+        setError('Сессия истекла')
+        return
+      }
       const r = await fetch(`${BASE}/businesses/${bizId}/posts/`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${tokens.access}` },
+        headers: { Authorization: `Bearer ${token}` },
         body: fd,
       })
       if (!r.ok) {
@@ -431,7 +441,7 @@ function CreatePostModal({ tokens, bizId, onClose, onSuccess }) {
 }
 
 // ── Create Product Modal ───────────────────────────────────────────────────────
-function CreateProductModal({ tokens, bizId, onClose, onSuccess }) {
+function CreateProductModal({ getAccessToken, bizId, onClose, onSuccess }) {
   const [form, setForm] = useState({
     name: '', description: '', product_type: 'PRODUCT',
     price: '', currency: 'TRY', image_url: '', is_available: true,
@@ -464,9 +474,14 @@ function CreateProductModal({ tokens, bizId, onClose, onSuccess }) {
     if (form.image_url) fd.append('image_url', form.image_url)
     if (file) fd.append('image', file)
     try {
+      const token = await getAccessToken()
+      if (!token) {
+        setError('Сессия истекла')
+        return
+      }
       const r = await fetch(`${BASE}/businesses/${bizId}/products/`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${tokens.access}` },
+        headers: { Authorization: `Bearer ${token}` },
         body: fd,
       })
       if (!r.ok) {
@@ -873,50 +888,50 @@ export default function BusinessDashboardPage() {
   useEffect(() => {
     if (!user) { navigate('/login'); return }
     if (user.role !== 'BUSINESS') { navigate('/'); return }
-    if (!tokens?.access) return
-
     setLoading(true)
     setError('')
     setProfileChecked(false)
 
-    fetch(`${BASE}/businesses/me/`, {
-      headers: { Authorization: `Bearer ${tokens.access}` },
-    })
-      .then(async (r) => {
-        if (r.status === 404) {
-          setBizId(null)
-          setBizData(null)
-          setStats(null)
-          setVerStatus(null)
-          setSetupCity(user?.city || '')
-          setProfileChecked(true)
-          setLoading(false)
-          return { missing: true }
-        }
-        if (!r.ok) throw new Error('me')
-        const data = await r.json()
-        setBizId(data.id)
-        setBizData(data)
-        setBizServices(Array.isArray(data.services) ? data.services : [])
+    ;(async () => {
+      const token = await getAccessToken()
+      if (!token) throw new Error('auth')
+
+      const r = await fetch(`${BASE}/businesses/me/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+
+      if (r.status === 404) {
+        setBizId(null)
+        setBizData(null)
+        setStats(null)
+        setVerStatus(null)
+        setSetupCity(user?.city || '')
         setProfileChecked(true)
-        return { missing: false }
-      })
-      .then(async (result) => {
-        if (!result || result.missing) return
+        setLoading(false)
+        return
+      }
 
-        const headers = { Authorization: `Bearer ${tokens.access}` }
-        const [statsRes, verRes] = await Promise.all([
-          fetch(`${BASE}/businesses/me/stats/`, { headers }),
-          fetch(`${BASE}/verification/my/`, { headers }),
-        ])
+      if (!r.ok) throw new Error('me')
 
-        if (statsRes.status === 404) setStats(null)
-        else if (statsRes.ok) setStats(await statsRes.json())
-        else throw new Error('stats')
+      const data = await r.json()
+      setBizId(data.id)
+      setBizData(data)
+      setBizServices(Array.isArray(data.services) ? data.services : [])
+      setProfileChecked(true)
 
-        if (verRes.ok) setVerStatus(getVerificationStatus(await verRes.json()))
-        else setVerStatus(null)
-      })
+      const headers = { Authorization: `Bearer ${token}` }
+      const [statsRes, verRes] = await Promise.all([
+        fetch(`${BASE}/businesses/me/stats/`, { headers }),
+        fetch(`${BASE}/verification/my/`, { headers }),
+      ])
+
+      if (statsRes.status === 404) setStats(null)
+      else if (statsRes.ok) setStats(await statsRes.json())
+      else throw new Error('stats')
+
+      if (verRes.ok) setVerStatus(getVerificationStatus(await verRes.json()))
+      else setVerStatus(null)
+    })()
       .catch(() => {
         setError('Не удалось загрузить данные')
         setBizId(null)
@@ -926,7 +941,7 @@ export default function BusinessDashboardPage() {
         setProfileChecked(true)
       })
       .finally(() => setLoading(false))
-  }, [user, tokens?.access, navigate])
+  }, [user, navigate, getAccessToken])
 
   const handleCreateStore = async (e) => {
     e?.preventDefault?.()
@@ -1071,11 +1086,14 @@ export default function BusinessDashboardPage() {
 
   // ── Refresh stats after create ─────────────────────────────────────────────
   const refreshStats = () => {
-    if (!tokens?.access) return
-    fetch(`${BASE}/businesses/me/stats/`, {
-      headers: { Authorization: `Bearer ${tokens.access}` },
+    getAccessToken().then(token => {
+      if (!token) return null
+      return fetch(`${BASE}/businesses/me/stats/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
     })
       .then(async (r) => {
+        if (!r) return null
         if (r.status === 404) {
           setStats(null)
           return null
@@ -2291,14 +2309,14 @@ export default function BusinessDashboardPage() {
       {/* ── Create Modals ── */}
       {showStory && bizId && (
         <CreateStoryModal
-          tokens={tokens}
+          getAccessToken={getAccessToken}
           onClose={() => setShowStory(false)}
           onSuccess={handleSuccess}
         />
       )}
       {showPost && bizId && (
         <CreatePostModal
-          tokens={tokens}
+          getAccessToken={getAccessToken}
           bizId={bizId}
           onClose={() => setShowPost(false)}
           onSuccess={handleSuccess}
@@ -2306,7 +2324,7 @@ export default function BusinessDashboardPage() {
       )}
       {showProduct && bizId && (
         <CreateProductModal
-          tokens={tokens}
+          getAccessToken={getAccessToken}
           bizId={bizId}
           onClose={() => setShowProduct(false)}
           onSuccess={handleSuccess}

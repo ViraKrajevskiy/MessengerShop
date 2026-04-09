@@ -20,7 +20,7 @@ async function fetchVerStatus(token) {
 }
 
 export default function MyProfilePage() {
-  const { user, tokens, logout } = useAuth()
+  const { user, tokens, logout, getAccessToken } = useAuth()
   const { t } = useLanguage()
   const navigate = useNavigate()
   const fileRef = useRef(null)
@@ -51,9 +51,19 @@ export default function MyProfilePage() {
   }, [user])
 
   useEffect(() => {
-    if (!tokens?.access || user?.role !== 'BUSINESS') return
-    fetchVerStatus(tokens.access).then(setVerStatus)
-  }, [tokens?.access, user?.role])
+    if (user?.role !== 'BUSINESS') return
+    let cancelled = false
+    ;(async () => {
+      const token = await getAccessToken()
+      if (!token || cancelled) {
+        if (!cancelled) setVerStatus(null)
+        return
+      }
+      const status = await fetchVerStatus(token)
+      if (!cancelled) setVerStatus(status)
+    })()
+    return () => { cancelled = true }
+  }, [user?.role, getAccessToken])
 
   useEffect(() => {
     if (!user) navigate('/login')
@@ -85,11 +95,13 @@ export default function MyProfilePage() {
     setSaving(true)
     setSaveError('')
     try {
+      const token = await getAccessToken()
+      if (!token) throw new Error('Сессия истекла')
       const fd = new FormData()
       fd.append('username', form.username)
       fd.append('city', form.city)
       if (avatarFile) fd.append('avatar', avatarFile)
-      await apiPatchMe(tokens.access, fd)
+      await apiPatchMe(token, fd)
       setEditing(false)
       setAvatarFile(null)
       setAvatarPreview(null)
