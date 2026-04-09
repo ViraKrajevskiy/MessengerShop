@@ -6,94 +6,84 @@ import { useAuth } from '../context/AuthContext'
 import { useLanguage } from '../context/LanguageContext'
 import { apiGetProducts, apiGetBusinesses, CATEGORY_LABELS } from '../api/businessApi'
 import { makeInitialAvatar } from '../utils/defaults'
+import '../components/UserCard.css'
 import './CatalogPage.css'
-
-const PROD_IMGS = [
-  'https://picsum.photos/id/119/400/300',
-  'https://picsum.photos/id/137/400/300',
-  'https://picsum.photos/id/145/400/300',
-  'https://picsum.photos/id/177/400/300',
-  'https://picsum.photos/id/200/400/300',
-]
 
 // ── Tag pills ────────────────────────────────────────────────────────────────
 function TagPills({ tags, onTagClick }) {
   if (!tags || tags.length === 0) return null
   return (
     <div className="cat-tags">
-      {tags.map(t => (
-        <span key={t} className="cat-tag" onClick={e => { e.stopPropagation(); onTagClick?.(t) }}>#{t}</span>
+      {tags.map(tag => (
+        <span key={tag} className="cat-tag" onClick={e => { e.stopPropagation(); onTagClick?.(tag) }}>#{tag}</span>
       ))}
     </div>
   )
 }
 
-// ── Product card ─────────────────────────────────────────────────────────────
-function ProductCard({ product, onTagClick }) {
+// ── Service card — идентичная структура PostCard ──────────────────────────────
+function ServiceCard({ product, onTagClick }) {
   const navigate = useNavigate()
   const { user } = useAuth()
   const { t } = useLanguage()
-  const [saved, setSaved] = useState(false)
+  const [fav, setFav] = useState(false)
 
-  const img      = product.image_display || PROD_IMGS[product.id % PROD_IMGS.length]
+  const image = product.image_display
+    ? (product.image_display.startsWith('http') ? product.image_display : `https://api.101-school.uz${product.image_display}`)
+    : product.business_logo
+      ? (product.business_logo.startsWith('http') ? product.business_logo : `https://api.101-school.uz${product.business_logo}`)
+      : makeInitialAvatar(product.name || product.business_name)
+
   const priceStr = product.price != null
     ? `${Number(product.price).toLocaleString('ru-RU')} ${product.currency_symbol || product.currency}`
     : t('catalog_priceOnReq')
 
+  const toggleFav = e => {
+    e.stopPropagation()
+    if (!user) { navigate('/login'); return }
+    setFav(v => !v)
+  }
+
   return (
-    <div className="cat-product">
-      <div className="cat-product__img-wrap" onClick={() => navigate(`/product/${product.id}`)}>
-        <img src={img} alt={product.name} loading="lazy" />
-        <div
-          className={`cat-product__save-btn ${saved ? 'cat-product__save-btn--active' : ''}`}
-          onClick={e => { e.stopPropagation(); if (!user) { navigate('/login'); return }; setSaved(s => !s) }}
-          title={t('catalog_favorite')}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill={saved ? '#f59e0b' : 'none'} stroke={saved ? '#f59e0b' : '#fff'} strokeWidth="2">
-            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
-          </svg>
-        </div>
-      </div>
-      <div className="cat-product__body">
-        <p className="cat-product__biz" onClick={e => { e.stopPropagation(); navigate(`/business/${product.business_id}`) }}>
-          {product.business_name}
-        </p>
-        <h3 className="cat-product__name" onClick={() => navigate(`/product/${product.id}`)}>{product.name}</h3>
-        <TagPills tags={product.tags} onTagClick={onTagClick} />
-        <div className="cat-product__footer">
-          <span className="cat-product__price">{priceStr}</span>
-          <button className="cat-product__btn" onClick={() => navigate(`/product/${product.id}`)}>
-            {t('catalog_details')}
+    <div className="user-card" onClick={() => navigate(`/product/${product.id}`)}>
+      <div className="user-card__image">
+        <img className="user-card__photo" src={image} alt={product.name} loading="lazy" width="400" height="530" />
+        <span className="user-card__badge">{priceStr}</span>
+
+        <div className="user-card__actions">
+          <button
+            className={`user-card__action-btn${fav ? ' user-card__action-btn--liked' : ''}`}
+            onClick={toggleFav}
+            title={fav ? 'Убрать из избранного' : 'В избранное'}
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill={fav ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
+            </svg>
+          </button>
+          <button
+            className="user-card__action-btn user-card__action-btn--msg"
+            onClick={e => {
+              e.stopPropagation()
+              navigate(`/business/${product.business_id}`)
+            }}
+            title="Открыть бизнес"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
           </button>
         </div>
       </div>
-    </div>
-  )
-}
 
-// ── Service row ──────────────────────────────────────────────────────────────
-function ServiceCard({ product, onTagClick }) {
-  const navigate = useNavigate()
-  const { t } = useLanguage()
-
-  const priceStr = product.price != null
-    ? `${Number(product.price).toLocaleString('ru-RU')} ${product.currency_symbol || product.currency}`
-    : t('catalog_priceOnReq')
-
-  return (
-    <div className="cat-service" onClick={() => navigate(`/product/${product.id}`)}>
-      <div className="cat-service__icon">🔧</div>
-      <div className="cat-service__info">
-        <div className="cat-service__name">{product.name}</div>
-        <div
-          className="cat-service__biz"
-          onClick={e => { e.stopPropagation(); navigate(`/business/${product.business_id}`) }}
-        >
+      <div className="user-card__info">
+        <span className="user-card__name">{product.name}</span>
+        <span className="user-card__city">
           {product.business_name}
-        </div>
+          {product.business_city ? ` · ${product.business_city}` : ''}
+        </span>
         <TagPills tags={product.tags} onTagClick={onTagClick} />
       </div>
-      <div className="cat-service__price">{priceStr}</div>
     </div>
   )
 }
@@ -128,12 +118,13 @@ function BizCard({ biz }) {
 // ── Skeleton ──────────────────────────────────────────────────────────────────
 function ProductSkeleton() {
   return (
-    <div className="cat-product cat-skeleton">
-      <div className="cat-skel-img" />
-      <div className="cat-product__body">
-        <div className="cat-skel-line" style={{width:'40%', height:10}} />
-        <div className="cat-skel-line" style={{width:'70%', height:13, marginTop:6}} />
-        <div className="cat-skel-line" style={{width:'30%', height:10, marginTop:8}} />
+    <div className="user-card">
+      <div className="user-card__image">
+        <div className="cat-skel-img" />
+      </div>
+      <div className="user-card__info">
+        <div className="cat-skel-line" style={{ width: '70%', height: 13 }} />
+        <div className="cat-skel-line" style={{ width: '40%', height: 10, marginTop: 6 }} />
       </div>
     </div>
   )
@@ -146,12 +137,11 @@ export default function CatalogPage() {
   const { t }     = useLanguage()
 
   const TABS = [
-    { key: 'products',  label: `📦 ${t('catalog_products')}` },
     { key: 'services',  label: `🔧 ${t('catalog_services')}` },
     { key: 'companies', label: `🏢 ${t('catalog_companies')}` },
   ]
 
-  const [tab, setTab]           = useState('products')
+  const [tab, setTab]           = useState('services')
   const [products, setProducts] = useState([])
   const [businesses, setBiz]    = useState([])
   const [loading, setLoading]   = useState(true)
@@ -262,9 +252,7 @@ export default function CatalogPage() {
             >
               {tb.label}
               <span className="cat-page__tab-count">
-                {tb.key === 'products'  ? fProducts.length
-                 : tb.key === 'services'  ? fServices.length
-                 : fBiz.length}
+                {tb.key === 'services' ? fServices.length : fBiz.length}
               </span>
             </button>
           ))}
@@ -375,56 +363,24 @@ export default function CatalogPage() {
 
         {/* Content */}
         {loading ? (
-          <div className="cat-products-grid">
-            {[0,1,2,3,4,5].map(i => <ProductSkeleton key={i} />)}
+          <div className="card-grid card-grid--4">
+            {[0,1,2,3,4,5,6,7].map(i => <ProductSkeleton key={i} />)}
           </div>
         ) : (
           <>
-            {/* ── Products ── */}
-            {tab === 'products' && (
-              <>
-                {fProducts.length === 0 ? (
-                  <div className="cat-empty">
-                    <div className="cat-empty__icon">📦</div>
-                    <p>{t('catalog_products')}</p>
-                    {hasFilters && <button className="cat-empty__reset" onClick={clearFilters}></button>}
-                  </div>
-                ) : (
-                  <>
-                    <div className="cat-results-count">{fProducts.length}</div>
-                    <div className="cat-products-grid">
-                      {(user ? fProducts : fProducts.slice(0, GUEST_LIMIT)).map(p => (
-                        <ProductCard key={p.id} product={p} onTagClick={toggleTag} />
-                      ))}
-                    </div>
-                    {!user && fProducts.length > GUEST_LIMIT && (
-                      <div className="cat-auth-gate">
-                        <div className="cat-auth-gate__blur" />
-                        <div className="cat-auth-gate__box">
-                          <div className="cat-auth-gate__icon">🔒</div>
-                          <button className="cat-auth-gate__btn" onClick={() => navigate('/login')}></button>
-                          <button className="cat-auth-gate__reg" onClick={() => navigate('/register')}></button>
-                        </div>
-                      </div>
-                    )}
-                  </>
-                )}
-              </>
-            )}
-
             {/* ── Services ── */}
             {tab === 'services' && (
               <>
                 {fServices.length === 0 ? (
                   <div className="cat-empty">
                     <div className="cat-empty__icon">🔧</div>
-                    <p>{t('catalog_services')}</p>
-                    {hasFilters && <button className="cat-empty__reset" onClick={clearFilters}></button>}
+                    <p>{hasFilters ? 'Ничего не найдено' : t('catalog_services')}</p>
+                    {hasFilters && <button className="cat-empty__reset" onClick={clearFilters}>Сбросить фильтры</button>}
                   </div>
                 ) : (
                   <>
                     <div className="cat-results-count">{fServices.length}</div>
-                    <div className="cat-services-list">
+                    <div className="card-grid card-grid--4">
                       {(user ? fServices : fServices.slice(0, GUEST_LIMIT)).map(s => (
                         <ServiceCard key={s.id} product={s} onTagClick={toggleTag} />
                       ))}
@@ -434,8 +390,9 @@ export default function CatalogPage() {
                         <div className="cat-auth-gate__blur" />
                         <div className="cat-auth-gate__box">
                           <div className="cat-auth-gate__icon">🔒</div>
-                          <button className="cat-auth-gate__btn" onClick={() => navigate('/login')}></button>
-                          <button className="cat-auth-gate__reg" onClick={() => navigate('/register')}></button>
+                          <p style={{margin:'0 0 10px',fontSize:14,color:'var(--text-secondary)'}}>Войдите, чтобы видеть все услуги</p>
+                          <button className="cat-auth-gate__btn" onClick={() => navigate('/login')}>Войти</button>
+                          <button className="cat-auth-gate__reg" onClick={() => navigate('/register')}>Регистрация</button>
                         </div>
                       </div>
                     )}

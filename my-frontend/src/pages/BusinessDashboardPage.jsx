@@ -97,17 +97,18 @@ function StatCard({ icon, value, label, color }) {
 }
 
 // ── Product Row ────────────────────────────────────────────────────────────────
-function ProductRow({ p, rank, onDelete, onToggleStatus, togglingStatus }) {
+function ProductRow({ p, rank, onDelete, onEdit, onToggleStatus, togglingStatus }) {
   const isToggling = togglingStatus === p.id
+  const imgSrc = p.image_display || p.image || null
 
   return (
     <div className="biz-prod-row">
       <div className="biz-prod-row__rank">#{rank}</div>
 
       <div className="biz-prod-row__img">
-        {p.image
-          ? <img src={p.image} alt={p.name} />
-          : <div className="biz-prod-row__img-placeholder">📦</div>
+        {imgSrc
+          ? <img src={imgSrc} alt={p.name} />
+          : <div className="biz-prod-row__img-placeholder">🔧</div>
         }
       </div>
 
@@ -161,6 +162,18 @@ function ProductRow({ p, rank, onDelete, onToggleStatus, togglingStatus }) {
         )}
       </button>
 
+      {/* Edit button */}
+      <button
+        className="biz-row__edit-btn"
+        onClick={() => onEdit(p)}
+        title="Редактировать услугу"
+      >
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+      </button>
+
       <button
         className="biz-row__delete-btn"
         onClick={() => onDelete(p.id)}
@@ -169,6 +182,144 @@ function ProductRow({ p, rank, onDelete, onToggleStatus, togglingStatus }) {
         <TrashIcon />
       </button>
     </div>
+  )
+}
+
+// ── Edit Service Modal ─────────────────────────────────────────────────────────
+function EditServiceModal({ service, getAccessToken, bizId, onClose, onSuccess }) {
+  const [form, setForm] = useState({
+    name:        service.name        || '',
+    description: service.description || '',
+    price:       service.price       || '',
+    currency:    service.currency    || 'TRY',
+    image_url:   service.image_url   || '',
+    is_available: service.is_available !== false,
+  })
+  const [file, setFile]       = useState(null)
+  const [preview, setPreview] = useState(service.image_display || service.image || null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError]     = useState('')
+  const inputRef = useRef()
+
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
+
+  const handleFile = e => {
+    const f = e.target.files[0]
+    if (!f) return
+    setFile(f)
+    setPreview(URL.createObjectURL(f))
+  }
+
+  const handleSubmit = async () => {
+    if (!form.name.trim()) { setError('Введите название'); return }
+    setLoading(true); setError('')
+    const fd = new FormData()
+    fd.append('name',        form.name)
+    fd.append('description', form.description)
+    fd.append('currency',    form.currency)
+    fd.append('is_available', form.is_available)
+    fd.append('product_type', 'SERVICE')
+    if (form.price)     fd.append('price',     form.price)
+    if (form.image_url) fd.append('image_url', form.image_url)
+    if (file)           fd.append('image',     file)
+    try {
+      const token = await getAccessToken()
+      if (!token) { setError('Сессия истекла'); return }
+      const r = await fetch(`${BASE}/businesses/${bizId}/products/${service.id}/`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${token}` },
+        body: fd,
+      })
+      if (!r.ok) {
+        const body = await r.json().catch(() => ({}))
+        setError(body.detail || JSON.stringify(body) || 'Ошибка')
+        return
+      }
+      onSuccess('Услуга обновлена!')
+      onClose()
+    } catch {
+      setError('Ошибка соединения')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <Modal title="Редактировать услугу" onClose={onClose}>
+      <div className="biz-form">
+        <input
+          className="biz-form__input"
+          placeholder="Название *"
+          value={form.name}
+          onChange={e => set('name', e.target.value)}
+        />
+        <textarea
+          className="biz-form__textarea"
+          placeholder="Описание"
+          value={form.description}
+          onChange={e => set('description', e.target.value)}
+          rows={3}
+        />
+
+        <div className="biz-form__row">
+          <input
+            className="biz-form__input"
+            placeholder="Цена (необязательно)"
+            type="number"
+            value={form.price}
+            onChange={e => set('price', e.target.value)}
+          />
+          <select
+            className="biz-form__select"
+            value={form.currency}
+            onChange={e => set('currency', e.target.value)}
+          >
+            <option value="TRY">₺ TRY</option>
+            <option value="USD">$ USD</option>
+            <option value="EUR">€ EUR</option>
+            <option value="RUB">₽ RUB</option>
+          </select>
+        </div>
+
+        {/* Photo upload */}
+        <div className="biz-form__upload biz-form__upload--sm" onClick={() => inputRef.current.click()}>
+          {preview ? (
+            <div className="biz-form__preview-wrap">
+              <img src={preview} className="biz-form__preview" alt="preview" />
+              <div className="biz-form__preview-hint">Нажмите чтобы сменить фото</div>
+            </div>
+          ) : (
+            <div className="biz-form__upload-placeholder">
+              <span>🖼</span>
+              <p>Добавить фото услуги</p>
+              <span className="biz-form__upload-hint">Нажмите для выбора файла</span>
+            </div>
+          )}
+          <input ref={inputRef} type="file" accept="image/*" onChange={handleFile} hidden />
+        </div>
+
+        <input
+          className="biz-form__input"
+          placeholder="Или вставьте ссылку на фото"
+          value={form.image_url}
+          onChange={e => set('image_url', e.target.value)}
+        />
+
+        <label className="biz-form__checkbox">
+          <input
+            type="checkbox"
+            checked={form.is_available}
+            onChange={e => set('is_available', e.target.checked)}
+          />
+          Доступен для заказа
+        </label>
+
+        {error && <p className="biz-form__error">{error}</p>}
+        <button className="biz-form__submit" onClick={handleSubmit} disabled={loading}>
+          {loading ? <span className="biz-form__spinner" /> : 'Сохранить изменения'}
+        </button>
+      </div>
+    </Modal>
   )
 }
 
@@ -674,9 +825,10 @@ export default function BusinessDashboardPage() {
   const [savingFaq,   setSavingFaq]   = useState(false)
 
   // Modals
-  const [showStory,   setShowStory]   = useState(false)
-  const [showPost,    setShowPost]    = useState(false)
-  const [showProduct, setShowProduct] = useState(false)
+  const [showStory,    setShowStory]    = useState(false)
+  const [showPost,     setShowPost]     = useState(false)
+  const [showProduct,  setShowProduct]  = useState(false)
+  const [editingService, setEditingService] = useState(null) // service object being edited
 
   // ── Filters: Products ──────────────────────────────────────────────────────
   const [prodSearch, setProdSearch]   = useState('')
@@ -1595,6 +1747,7 @@ export default function BusinessDashboardPage() {
                         <span style={{textAlign:'right'}}>Метрики</span>
                         <span>Статус</span>
                         <span></span>
+                        <span></span>
                       </div>
                       {filteredProducts.map((p, i) => (
                         <ProductRow
@@ -1602,6 +1755,7 @@ export default function BusinessDashboardPage() {
                           p={p}
                           rank={i + 1}
                           onDelete={id => requestDelete('product', id, p.name)}
+                          onEdit={svc => setEditingService(svc)}
                           onToggleStatus={handleToggleStatus}
                           togglingStatus={togglingStatus}
                         />
@@ -2315,6 +2469,27 @@ export default function BusinessDashboardPage() {
           bizId={bizId}
           onClose={() => setShowProduct(false)}
           onSuccess={handleSuccess}
+        />
+      )}
+      {editingService && bizId && (
+        <EditServiceModal
+          service={editingService}
+          getAccessToken={getAccessToken}
+          bizId={bizId}
+          onClose={() => setEditingService(null)}
+          onSuccess={(msg) => {
+            // Refresh the products list
+            getAccessToken().then(token => {
+              if (!token) return
+              fetch(`${BASE}/businesses/${bizId}/products/`, { headers: { Authorization: `Bearer ${token}` } })
+                .then(r => r.ok ? r.json() : null)
+                .then(data => {
+                  if (data) setStats(prev => ({ ...prev, products: Array.isArray(data) ? data : (data.results || []) }))
+                })
+                .catch(() => {})
+            })
+            handleSuccess(msg)
+          }}
         />
       )}
 
