@@ -2,18 +2,20 @@
   min-height: 100vh;
   background: var(--bg-primary);
   transition: background 0.3s;
+  /* Ширина контента под шапкой — шире прежнего 1100px, хедер не трогаем */
+  --home-content-max: min(1420px, calc(100vw - 40px));
 }
 
 /* Hero + слайдер — на всю ширину */
 .home-page__hero-full {
-  max-width: 1100px;
+  max-width: var(--home-content-max);
   margin: 0 auto;
   padding: 0 20px;
 }
 
 /* Two-column layout: main content + tweets sidebar */
 .home-page__layout {
-  max-width: 1100px;
+  max-width: var(--home-content-max);
   margin: 0 auto;
   padding: 0 20px;
   display: flex;
@@ -88,7 +90,7 @@
   position: sticky;
   top: 62px;
   z-index: 40;
-  max-width: 1100px;
+  max-width: var(--home-content-max);
   margin: 0 auto;
   padding: 0 20px;
 }
@@ -302,82 +304,59 @@
   color: var(--accent-1);
 }
 
-/* Posts section */
+/* Posts section — без отдельного «контейнера», фон как у страницы */
 .home-posts-section {
   margin: 32px 0;
   min-height: 0;
-  background: var(--bg-primary);
+  background: transparent;
   border: none;
   box-shadow: none;
 }
 
-
-/* Posts carousel */
-.home-posts-carousel {
-  display: block;
-  background: var(--bg-primary);
-  border: none;
-  box-shadow: none;
-}
-
-.home-posts-carousel__track {
-  display: flex;
-  gap: 18px;
-  overflow-x: auto;
-  padding: 0 0 2px;
-  scrollbar-width: none;
-  scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
-  touch-action: pan-x;
-  background: var(--bg-primary) !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-
-.home-posts-carousel__track::-webkit-scrollbar {
-  display: none;
-}
-
-.home-posts-carousel__track img {
-  -webkit-user-drag: none;
-  user-select: none;
-}
-
-.home-posts-carousel__track > * {
-  flex: 0 0 calc((100% - 36px) / 3);
-  max-width: calc((100% - 36px) / 3);
-  scroll-snap-align: none;
-}
-
-.home-posts-carousel__track > *:nth-child(3n + 1) {
-  scroll-snap-align: start;
-}
-
-.home-posts-section .post-card__image {
-  aspect-ratio: 4/3;
+/* Три карточки публикаций: только вертикальное превью фото */
+.home-posts-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  align-items: stretch;
 }
 
 .home-posts-section .post-card {
   border: none;
+  height: 100%;
+  box-shadow: var(--card-shadow);
+}
+
+.home-posts-section .post-card__image {
+  aspect-ratio: 3 / 4;
+  max-height: 300px;
+}
+
+.home-posts-grid .post-card-skeleton .skel-img--portrait {
+  aspect-ratio: 3 / 4;
+  max-height: 300px;
+}
+
+.home-posts-section .post-card__body {
+  min-height: 56px;
+}
+
+.home-posts-section .post-card__footer {
+  padding-top: 6px;
+  padding-bottom: 10px;
 }
 
 @media (max-width: 768px) {
-  .home-posts-carousel__track {
-    gap: 12px;
-    padding: 0 0 2px;
-  }
-  .home-posts-carousel__track > * {
-    flex: 0 0 100%;
-    max-width: 100%;
-    scroll-snap-align: start;
+  .home-posts-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    max-width: 420px;
+    margin: 0 auto;
   }
 }
 
 @media (max-width: 640px) {
   .all-cards__arrow { width: 28px; height: 28px; font-size: 14px; }
-  .home-posts-carousel__track {
-    gap: 10px;
-  }
 }
 
 /* ── Skeleton placeholders ── */

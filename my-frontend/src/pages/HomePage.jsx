@@ -54,6 +54,8 @@ function bizToCard(b) {
 const GUEST_LIMIT = 4
 const GUEST_CARDS_LIMIT = 8
 const CARDS_PER_PAGE = 8
+/** Сколько постов показываем на главной в блоке «Публикации» */
+const HOME_POSTS_VISIBLE = 3
 
 export default function HomePage() {
   const navigate = useNavigate()
@@ -81,7 +83,7 @@ export default function HomePage() {
   useEffect(() => {
     setLoadingPosts(true)
     apiGetPosts()
-      .then(data => setPosts(Array.isArray(data) ? data.slice(0, 6) : []))
+      .then(data => setPosts(Array.isArray(data) ? data.slice(0, Math.max(HOME_POSTS_VISIBLE, 6)) : []))
       .catch(() => setPosts([]))
       .finally(() => setLoadingPosts(false))
   }, [])
@@ -118,6 +120,11 @@ export default function HomePage() {
   }, [posts, allBiz])
 
   const desc = getDescription(filters)
+
+  const homePosts = useMemo(
+    () => posts.slice(0, HOME_POSTS_VISIBLE),
+    [posts]
+  )
 
   return (
     <div className="home-page">
@@ -160,7 +167,7 @@ export default function HomePage() {
 
             {/* Post cards */}
             {loadingPosts ? (
-              <div className="home-posts-carousel__track">
+              <div className="home-posts-grid">
                 {[1, 2, 3].map(i => (
                   <div key={i} className="post-card-skeleton">
                     <div className="post-card-skeleton__header">
@@ -170,7 +177,7 @@ export default function HomePage() {
                         <div className="skel-line skel-line--short" />
                       </div>
                     </div>
-                    <div className="skel-img" />
+                    <div className="skel-img skel-img--portrait" />
                     <div className="skel-body">
                       <div className="skel-line" />
                       <div className="skel-line skel-line--short" />
@@ -178,9 +185,9 @@ export default function HomePage() {
                   </div>
                 ))}
               </div>
-            ) : posts.length > 0 ? (
-              <div className="card-grid card-grid--4">
-                {(user ? posts.slice(0, 8) : posts.slice(0, GUEST_LIMIT)).map(p => (
+            ) : homePosts.length > 0 ? (
+              <div className="home-posts-grid">
+                {homePosts.map(p => (
                   <PostCard key={p.id} post={p} />
                 ))}
               </div>
