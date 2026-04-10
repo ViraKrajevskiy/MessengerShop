@@ -75,7 +75,7 @@ export default function HomePage() {
   useEffect(() => {
     setLoadingBiz(true)
     apiGetBusinesses()
-      .then(data => setAllBiz(data))
+      .then(data => setAllBiz(Array.isArray(data) ? data : []))
       .catch(() => {})
       .finally(() => setLoadingBiz(false))
   }, [])
