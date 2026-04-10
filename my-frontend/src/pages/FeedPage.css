@@ -52,10 +52,10 @@
   box-shadow: 0 4px 14px rgba(229, 57, 53, 0.28);
 }
 
-/* Two-column layout */
+/* Layout */
 .feed-page__layout {
   display: grid;
-  grid-template-columns: 1fr 320px;
+  grid-template-columns: 1fr;
   gap: 24px;
   align-items: start;
 }

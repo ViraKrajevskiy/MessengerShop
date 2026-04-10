@@ -2,7 +2,6 @@ import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
-import TweetsSidebar from '../components/TweetsSidebar'
 import { useAuth } from '../context/AuthContext'
 import { useLanguage } from '../context/LanguageContext'
 import { apiGetProducts, apiGetBusinesses, CATEGORY_LABELS } from '../api/businessApi'
@@ -483,11 +482,6 @@ export default function CatalogPage() {
               </>
             )}
           </div>
-
-          {/* Sidebar with Tweets */}
-          <aside className="cat-page__sidebar">
-            <TweetsSidebar />
-          </aside>
         </div>
       </main>
 
