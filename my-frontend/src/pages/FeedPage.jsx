@@ -134,6 +134,7 @@ export default function FeedPage() {
   const [filterCity, setFilterCity] = useState('')
   const [sortOrder, setSortOrder] = useState('none') // none | date_desc | date_asc | price_desc | price_asc
   const [showAllTags, setShowAllTags] = useState(false)
+  const [columns, setColumns] = useState(3)
   const navigate = useNavigate()
   const { getAccessToken, user } = useAuth()
   const GUEST_LIMIT = 4
@@ -258,6 +259,21 @@ export default function FeedPage() {
           ))}
         </div>
 
+        {/* Grid columns selector */}
+        <div className="feed-grid-selector">
+          <span className="feed-grid-selector__label">Столбцы:</span>
+          {[2, 3, 4, 5, 6].map(col => (
+            <button
+              key={col}
+              className={`feed-grid-selector__btn ${columns === col ? 'feed-grid-selector__btn--active' : ''}`}
+              onClick={() => setColumns(col)}
+              title={`${col} карточек в строке`}
+            >
+              {col}
+            </button>
+          ))}
+        </div>
+
         {/* Filters */}
         <div className="feed-filters">
           {/* Status filters + sort */}
@@ -368,7 +384,7 @@ export default function FeedPage() {
                       const hasMore = !user && fPosts.length > GUEST_LIMIT
                       return (
                         <>
-                          <div className="post-cards-grid">
+                          <div className="post-cards-grid" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
                             {visiblePosts.map(post => (
                               <PostCard key={`post-${post.id}`} post={post} />
                             ))}
@@ -393,7 +409,7 @@ export default function FeedPage() {
                 {/* ── Фото ── */}
                 {tab === 'photos' && (
                   <>
-                    <div className="post-cards-grid">
+                    <div className="post-cards-grid" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
                       {(user ? fPhotos : fPhotos.slice(0, GUEST_LIMIT)).map(post => (
                         <PostCard key={`photo-${post.id}`} post={post} />
                       ))}
@@ -416,7 +432,7 @@ export default function FeedPage() {
                 {/* ── Видео ── */}
                 {tab === 'videos' && (
                   <>
-                    <div className="post-cards-grid">
+                    <div className="post-cards-grid" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
                       {(user ? fVideos : fVideos.slice(0, GUEST_LIMIT)).map(post => (
                         <PostCard key={`video-${post.id}`} post={post} />
                       ))}

@@ -157,6 +157,7 @@ export default function CatalogPage() {
   const [sortOrder, setSortOrder]         = useState('none')
   const [showAllTags, setShowAllTags]     = useState(false)
   const [search, setSearch]               = useState('')
+  const [columns, setColumns]             = useState(4)
 
   useEffect(() => {
     Promise.all([apiGetProducts(), apiGetBusinesses()])
@@ -255,6 +256,21 @@ export default function CatalogPage() {
               <span className="cat-page__tab-count">
                 {tb.key === 'services' ? fServices.length : fBiz.length}
               </span>
+            </button>
+          ))}
+        </div>
+
+        {/* Grid columns selector */}
+        <div className="cat-grid-selector">
+          <span className="cat-grid-selector__label">Столбцы:</span>
+          {[2, 3, 4, 5, 6].map(col => (
+            <button
+              key={col}
+              className={`cat-grid-selector__btn ${columns === col ? 'cat-grid-selector__btn--active' : ''}`}
+              onClick={() => setColumns(col)}
+              title={`${col} карточек в строке`}
+            >
+              {col}
             </button>
           ))}
         </div>
@@ -383,7 +399,7 @@ export default function CatalogPage() {
                     ) : (
                       <>
                         <div className="cat-results-count">{fServices.length}</div>
-                        <div className="card-grid card-grid--4">
+                        <div className="card-grid" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
                           {(user ? fServices : fServices.slice(0, GUEST_LIMIT)).map(s => (
                             <ServiceCard key={s.id} product={s} onTagClick={toggleTag} />
                           ))}

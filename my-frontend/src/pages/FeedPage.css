@@ -931,6 +931,53 @@
   color: var(--accent-1);
 }
 
+/* ── Grid columns selector ────────────────────────────────────────── */
+.feed-grid-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.feed-grid-selector__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.feed-grid-selector__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+  font-family: inherit;
+  flex-shrink: 0;
+}
+
+.feed-grid-selector__btn:hover {
+  border-color: var(--accent-1);
+  color: var(--text-primary);
+}
+
+.feed-grid-selector__btn--active {
+  background: var(--accent-gradient);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 3px 10px rgba(229, 57, 53, 0.3);
+}
+
 /* ── Filters panel ────────────────────────────────────────────────── */
 .feed-filters {
   margin-bottom: 18px;
