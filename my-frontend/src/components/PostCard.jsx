@@ -7,16 +7,6 @@ import './PostCard.css'
 
 const FALLBACK_IMG = 'https://picsum.photos/id/342/800/600'
 
-function timeAgo(dateStr) {
-  const diff = Date.now() - new Date(dateStr).getTime()
-  const mins = Math.floor(diff / 60000)
-  if (mins < 1) return 'только что'
-  if (mins < 60) return `${mins} мин. назад`
-  const hours = Math.floor(mins / 60)
-  if (hours < 24) return `${hours} ч. назад`
-  return `${Math.floor(hours / 24)} дн. назад`
-}
-
 export default function PostCard({ post, onDelete }) {
   const navigate = useNavigate()
   const { user, getAccessToken } = useAuth()

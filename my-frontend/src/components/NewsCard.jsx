@@ -20,8 +20,6 @@ export default function NewsCard({ item }) {
   const img    = item.media_display || FALLBACK_IMG
   const source = item.business_name || item.author_name || 'MessengerShop'
   const isPlatform = item.news_type === 'PLATFORM'
-  const SHORT  = 90
-  const isLong = item.text && item.text.length > SHORT
 
   return (
     <div className="news-card" onClick={() => navigate(`/news/${item.id}`)}>
