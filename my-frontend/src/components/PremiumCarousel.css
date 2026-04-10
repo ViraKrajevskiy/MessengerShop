@@ -2,10 +2,10 @@
   margin: 4px 0 24px;
 }
 
-/* ── Mosaic: big + 2x2 grid ── */
+/* ── Mosaic: big | 2x2 grid | big ── */
 .premium-carousel__mosaic {
   display: grid;
-  grid-template-columns: 1.5fr 1fr;
+  grid-template-columns: 2fr 2fr 2fr;
   grid-template-rows: 1fr;
   gap: 4px;
   height: 500px;
