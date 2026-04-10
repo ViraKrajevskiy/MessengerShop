@@ -17,7 +17,30 @@ function getPhoto(biz) {
   if (biz.logo) {
     return biz.logo.startsWith('http') ? biz.logo : `https://api.101-school.uz${biz.logo}`
   }
-  return `https://picsum.photos/id/${(biz.id % 80) + 10}/800/600`
+  return `https://picsum.photos/id/${(biz.id % 80) + 10}/500/400`
+}
+
+function Card({ biz, big, handleCardClick }) {
+  return (
+    <div
+      className={`pc-card${big ? ' pc-card--big' : ' pc-card--small'}`}
+      onClick={() => handleCardClick(biz.id)}
+    >
+      <img
+        src={getPhoto(biz)}
+        alt={biz.brand_name || biz.name}
+        loading="lazy"
+        sizes={big ? "(max-width: 480px) 100vw, (max-width: 768px) 33vw, 33vw" : "(max-width: 480px) 100vw, (max-width: 768px) 25vw, 17vw"}
+      />
+      <div className="pc-card__overlay">
+        <span className={`pc-card__badge${biz.plan_type === 'PRO' || biz.is_pro ? ' pc-card__badge--pro' : ''}`}>
+          {biz.plan_type === 'PRO' || biz.is_pro ? 'PRO' : 'VIP'}
+        </span>
+        <span className="pc-card__name">{biz.brand_name || biz.name}</span>
+        {biz.city && <span className="pc-card__city">{biz.city}</span>}
+      </div>
+    </div>
+  )
 }
 
 export default function PremiumCarousel({ businesses = [] }) {
@@ -68,22 +91,6 @@ export default function PremiumCarousel({ businesses = [] }) {
 
   const slide = slides[page]
 
-  const Card = ({ biz, big }) => (
-    <div
-      className={`pc-card${big ? ' pc-card--big' : ' pc-card--small'}`}
-      onClick={() => handleCardClick(biz.id)}
-    >
-      <img src={getPhoto(biz)} alt={biz.brand_name || biz.name} loading="lazy" />
-      <div className="pc-card__overlay">
-        <span className={`pc-card__badge${biz.plan_type === 'PRO' || biz.is_pro ? ' pc-card__badge--pro' : ''}`}>
-          {biz.plan_type === 'PRO' || biz.is_pro ? 'PRO' : 'VIP'}
-        </span>
-        <span className="pc-card__name">{biz.brand_name || biz.name}</span>
-        {biz.city && <span className="pc-card__city">{biz.city}</span>}
-      </div>
-    </div>
-  )
-
   return (
     <section className="premium-carousel">
       <div
@@ -94,14 +101,14 @@ export default function PremiumCarousel({ businesses = [] }) {
         onTouchStart={e => onDragStart(e.touches[0].clientX)}
         onTouchEnd={e => onDragEnd(e.changedTouches[0].clientX)}
       >
-        <Card biz={slide[0]} big />
+        <Card biz={slide[0]} big handleCardClick={handleCardClick} />
         <div className="premium-carousel__grid">
-          <Card biz={slide[1]} />
-          <Card biz={slide[2]} />
-          <Card biz={slide[3]} />
-          <Card biz={slide[4]} />
+          <Card biz={slide[1]} handleCardClick={handleCardClick} />
+          <Card biz={slide[2]} handleCardClick={handleCardClick} />
+          <Card biz={slide[3]} handleCardClick={handleCardClick} />
+          <Card biz={slide[4]} handleCardClick={handleCardClick} />
         </div>
-        <Card biz={slide[5]} big />
+        <Card biz={slide[5]} big handleCardClick={handleCardClick} />
       </div>
 
       {total > 1 && (

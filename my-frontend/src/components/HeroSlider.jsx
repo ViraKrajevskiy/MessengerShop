@@ -2,12 +2,12 @@ import { useState, useEffect, useCallback } from 'react'
 import './HeroSlider.css'
 
 const FALLBACK = [
-  { src: 'https://picsum.photos/id/342/800/600', alt: '' },
-  { src: 'https://picsum.photos/id/177/800/600', alt: '' },
-  { src: 'https://picsum.photos/id/239/800/600', alt: '' },
-  { src: 'https://picsum.photos/id/306/800/600', alt: '' },
-  { src: 'https://picsum.photos/id/338/800/600', alt: '' },
-  { src: 'https://picsum.photos/id/349/800/600', alt: '' },
+  { src: 'https://picsum.photos/id/342/600/500', alt: '' },
+  { src: 'https://picsum.photos/id/177/600/500', alt: '' },
+  { src: 'https://picsum.photos/id/239/600/500', alt: '' },
+  { src: 'https://picsum.photos/id/306/600/500', alt: '' },
+  { src: 'https://picsum.photos/id/338/600/500', alt: '' },
+  { src: 'https://picsum.photos/id/349/600/500', alt: '' },
 ]
 
 export default function HeroSlider({ images = [] }) {
@@ -31,15 +31,31 @@ export default function HeroSlider({ images = [] }) {
       <div className="hero-slider__mosaic">
         {/* left big */}
         <div className="hero-slider__big">
-          <img src={pageImgs[0].src} alt={pageImgs[0].alt || ''} loading="eager" />
+          <img
+            src={pageImgs[0].src}
+            alt={pageImgs[0].alt || ''}
+            loading="eager"
+            fetchPriority="high"
+            sizes="(max-width: 480px) 100vw, (max-width: 768px) 33vw, 33vw"
+          />
         </div>
         {/* center — one photo spanning both rows */}
         <div className="hero-slider__center">
-          <img src={pageImgs[1].src} alt={pageImgs[1].alt || ''} loading="lazy" />
+          <img
+            src={pageImgs[1].src}
+            alt={pageImgs[1].alt || ''}
+            loading="lazy"
+            sizes="(max-width: 480px) 100vw, (max-width: 768px) 33vw, 33vw"
+          />
         </div>
         {/* right big */}
         <div className="hero-slider__big">
-          <img src={pageImgs[2].src} alt={pageImgs[2].alt || ''} loading="lazy" />
+          <img
+            src={pageImgs[2].src}
+            alt={pageImgs[2].alt || ''}
+            loading="lazy"
+            sizes="(max-width: 480px) 0vw, (max-width: 768px) 33vw, 33vw"
+          />
         </div>
       </div>
       <div className="hero-slider__dots">
