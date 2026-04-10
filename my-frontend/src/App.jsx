@@ -61,9 +61,8 @@ function PrivateRoute({ children }) {
   return (user && tokens?.access) ? children : <Navigate to="/login" replace />
 }
 
-function App() {
+function AppContent() {
   return (
-    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
     <BrowserRouter>
       <ThemeProvider>
         <LanguageProvider>
@@ -75,8 +74,8 @@ function App() {
                 <Route path="/feed"           element={<FeedPage />} />
                 <Route path="/profile/:id"    element={<ProfilePage />} />
                 <Route path="/business/:id"   element={<BusinessPage />} />
-                <Route path="/login"          element={<LoginPage />} />
-                <Route path="/register"       element={<RegisterPage />} />
+                <Route path="/login"          element={<GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}><LoginPage /></GoogleOAuthProvider>} />
+                <Route path="/register"       element={<GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}><RegisterPage /></GoogleOAuthProvider>} />
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
                 <Route path="/verification"   element={<VerificationPage />} />
@@ -97,8 +96,11 @@ function App() {
         </LanguageProvider>
       </ThemeProvider>
     </BrowserRouter>
-    </GoogleOAuthProvider>
   )
+}
+
+function App() {
+  return <AppContent />
 }
 
 export default App
