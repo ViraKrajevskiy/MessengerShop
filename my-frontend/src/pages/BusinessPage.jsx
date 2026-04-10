@@ -119,35 +119,6 @@ function BusinessAudioPlayer({ audioUrl }) {
   )
 }
 
-function Gallery({ posts }) {
-  const [tab, setTab] = useState('all')
-  const images = posts.filter(p => p.media_display && p.media_type !== 'VIDEO')
-  const videos = posts.filter(p => p.media_display && p.media_type === 'VIDEO')
-  const all    = posts.filter(p => p.media_display)
-  const items  = tab === 'video' ? videos : tab === 'photo' ? images : all
-  if (all.length === 0) return null
-  return (
-    <section className="bp__card" id="section-gallery">
-      <div className="bp__card-head">
-        <h2 className="bp__card-title">Фото и видео</h2>
-        <div className="bp__gallery-tabs">
-          <button className={`bp__tab ${tab === 'all'   ? 'bp__tab--on' : ''}`} onClick={() => setTab('all')}>Все</button>
-          {images.length > 0 && <button className={`bp__tab ${tab === 'photo' ? 'bp__tab--on' : ''}`} onClick={() => setTab('photo')}>Фото</button>}
-          {videos.length > 0 && <button className={`bp__tab ${tab === 'video' ? 'bp__tab--on' : ''}`} onClick={() => setTab('video')}>Видео</button>}
-        </div>
-      </div>
-      <div className="bp__gallery">
-        {items.map(p => (
-          <div key={p.id} className="bp__gallery-cell">
-            <img src={p.media_display} alt="" loading="lazy" />
-            {p.media_type === 'VIDEO' && <div className="bp__play">▶</div>}
-          </div>
-        ))}
-      </div>
-    </section>
-  )
-}
-
 function SimilarCard({ biz, onClick }) {
   const logo  = resolveUrl(biz.logo)  || `https://picsum.photos/id/${biz.id + 10}/200/200`
   const cover = resolveUrl(biz.cover) || `https://picsum.photos/id/${biz.id + 20}/400/200`
@@ -591,8 +562,6 @@ export default function BusinessPage() {
               services={services}
               navigate={navigate}
             />
-
-            <Gallery posts={posts} />
 
             {posts.length > 0 && (
               <section className="bp__card" id="section-posts">
