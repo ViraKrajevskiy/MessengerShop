@@ -15,6 +15,32 @@
   flex: 1;
 }
 
+/* Layout with sidebar */
+.cat-page__layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 24px;
+}
+
+.cat-page__content {
+  min-width: 0;
+}
+
+.cat-page__sidebar {
+  position: sticky;
+  top: 84px;
+  height: fit-content;
+}
+
+@media (max-width: 1024px) {
+  .cat-page__layout {
+    grid-template-columns: 1fr;
+  }
+  .cat-page__sidebar {
+    position: static;
+  }
+}
+
 .card-grid {
   display: grid;
   gap: 18px;

@@ -4,6 +4,7 @@ import Header from '../components/Header'
 import Footer from '../components/Footer'
 import Stories from '../components/Stories'
 import PostCard from '../components/PostCard'
+import TweetsSidebar from '../components/TweetsSidebar'
 import { useAuth } from '../context/AuthContext'
 import { apiGetPosts, apiGetBusinesses, apiGetNews, CATEGORY_LABELS } from '../api/businessApi'
 import { makeInitialAvatar } from '../utils/defaults'
@@ -497,15 +498,7 @@ export default function FeedPage() {
 
           {/* ── Sidebar ── */}
           <aside className="feed-page__sidebar">
-            <div className="feed-sidebar-card">
-              <h3 className="feed-sidebar-card__title">Компании</h3>
-              {businesses.slice(0, 6).map(b => (
-                <FeedBizCard key={b.id} biz={b} />
-              ))}
-              <button className="feed-sidebar-card__more" onClick={() => navigate('/')}>
-                Все компании →
-              </button>
-            </div>
+            <TweetsSidebar />
           </aside>
         </div>
       </main>

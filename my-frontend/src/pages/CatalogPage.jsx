@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
+import TweetsSidebar from '../components/TweetsSidebar'
 import { useAuth } from '../context/AuthContext'
 import { useLanguage } from '../context/LanguageContext'
 import { apiGetProducts, apiGetBusinesses, CATEGORY_LABELS } from '../api/businessApi'
@@ -362,78 +363,87 @@ export default function CatalogPage() {
         </div>
 
         {/* Content */}
-        {loading ? (
-          <div className="card-grid card-grid--4">
-            {[0,1,2,3,4,5,6,7].map(i => <ProductSkeleton key={i} />)}
-          </div>
-        ) : (
-          <>
-            {/* ── Services ── */}
-            {tab === 'services' && (
+        <div className="cat-page__layout">
+          <div className="cat-page__content">
+            {loading ? (
+              <div className="card-grid card-grid--4">
+                {[0,1,2,3,4,5,6,7].map(i => <ProductSkeleton key={i} />)}
+              </div>
+            ) : (
               <>
-                {fServices.length === 0 ? (
-                  <div className="cat-empty">
-                    <div className="cat-empty__icon">🔧</div>
-                    <p>{hasFilters ? 'Ничего не найдено' : t('catalog_services')}</p>
-                    {hasFilters && <button className="cat-empty__reset" onClick={clearFilters}>Сбросить фильтры</button>}
-                  </div>
-                ) : (
+                {/* ── Services ── */}
+                {tab === 'services' && (
                   <>
-                    <div className="cat-results-count">{fServices.length}</div>
-                    <div className="card-grid card-grid--4">
-                      {(user ? fServices : fServices.slice(0, GUEST_LIMIT)).map(s => (
-                        <ServiceCard key={s.id} product={s} onTagClick={toggleTag} />
-                      ))}
-                    </div>
-                    {!user && fServices.length > GUEST_LIMIT && (
-                      <div className="cat-auth-gate">
-                        <div className="cat-auth-gate__blur" />
-                        <div className="cat-auth-gate__box">
-                          <div className="cat-auth-gate__icon">🔒</div>
-                          <p style={{margin:'0 0 10px',fontSize:14,color:'var(--text-secondary)'}}>Войдите, чтобы видеть все услуги</p>
-                          <button className="cat-auth-gate__btn" onClick={() => navigate('/login')}>Войти</button>
-                          <button className="cat-auth-gate__reg" onClick={() => navigate('/register')}>Регистрация</button>
-                        </div>
+                    {fServices.length === 0 ? (
+                      <div className="cat-empty">
+                        <div className="cat-empty__icon">🔧</div>
+                        <p>{hasFilters ? 'Ничего не найдено' : t('catalog_services')}</p>
+                        {hasFilters && <button className="cat-empty__reset" onClick={clearFilters}>Сбросить фильтры</button>}
                       </div>
+                    ) : (
+                      <>
+                        <div className="cat-results-count">{fServices.length}</div>
+                        <div className="card-grid card-grid--4">
+                          {(user ? fServices : fServices.slice(0, GUEST_LIMIT)).map(s => (
+                            <ServiceCard key={s.id} product={s} onTagClick={toggleTag} />
+                          ))}
+                        </div>
+                        {!user && fServices.length > GUEST_LIMIT && (
+                          <div className="cat-auth-gate">
+                            <div className="cat-auth-gate__blur" />
+                            <div className="cat-auth-gate__box">
+                              <div className="cat-auth-gate__icon">🔒</div>
+                              <p style={{margin:'0 0 10px',fontSize:14,color:'var(--text-secondary)'}}>Войдите, чтобы видеть все услуги</p>
+                              <button className="cat-auth-gate__btn" onClick={() => navigate('/login')}>Войти</button>
+                              <button className="cat-auth-gate__reg" onClick={() => navigate('/register')}>Регистрация</button>
+                            </div>
+                          </div>
+                        )}
+                      </>
                     )}
                   </>
                 )}
-              </>
-            )}
 
-            {/* ── Companies ── */}
-            {tab === 'companies' && (
-              <>
-                {fBiz.length === 0 ? (
-                  <div className="cat-empty">
-                    <div className="cat-empty__icon">🏢</div>
-                    <p>{t('catalog_companies')}</p>
-                    {hasFilters && <button className="cat-empty__reset" onClick={clearFilters}></button>}
-                  </div>
-                ) : (
+                {/* ── Companies ── */}
+                {tab === 'companies' && (
                   <>
-                    <div className="cat-results-count">{fBiz.length}</div>
-                    <div className="cat-biz-grid">
-                      {(user ? fBiz : fBiz.slice(0, GUEST_LIMIT)).map(b => (
-                        <BizCard key={b.id} biz={b} />
-                      ))}
-                    </div>
-                    {!user && fBiz.length > GUEST_LIMIT && (
-                      <div className="cat-auth-gate">
-                        <div className="cat-auth-gate__blur" />
-                        <div className="cat-auth-gate__box">
-                          <div className="cat-auth-gate__icon">🔒</div>
-                          <button className="cat-auth-gate__btn" onClick={() => navigate('/login')}></button>
-                          <button className="cat-auth-gate__reg" onClick={() => navigate('/register')}></button>
-                        </div>
+                    {fBiz.length === 0 ? (
+                      <div className="cat-empty">
+                        <div className="cat-empty__icon">🏢</div>
+                        <p>{t('catalog_companies')}</p>
+                        {hasFilters && <button className="cat-empty__reset" onClick={clearFilters}></button>}
                       </div>
+                    ) : (
+                      <>
+                        <div className="cat-results-count">{fBiz.length}</div>
+                        <div className="cat-biz-grid">
+                          {(user ? fBiz : fBiz.slice(0, GUEST_LIMIT)).map(b => (
+                            <BizCard key={b.id} biz={b} />
+                          ))}
+                        </div>
+                        {!user && fBiz.length > GUEST_LIMIT && (
+                          <div className="cat-auth-gate">
+                            <div className="cat-auth-gate__blur" />
+                            <div className="cat-auth-gate__box">
+                              <div className="cat-auth-gate__icon">🔒</div>
+                              <button className="cat-auth-gate__btn" onClick={() => navigate('/login')}></button>
+                              <button className="cat-auth-gate__reg" onClick={() => navigate('/register')}></button>
+                            </div>
+                          </div>
+                        )}
+                      </>
                     )}
                   </>
                 )}
               </>
             )}
-          </>
-        )}
+          </div>
+
+          {/* Sidebar with Tweets */}
+          <aside className="cat-page__sidebar">
+            <TweetsSidebar />
+          </aside>
+        </div>
       </main>
 
       <Footer />
