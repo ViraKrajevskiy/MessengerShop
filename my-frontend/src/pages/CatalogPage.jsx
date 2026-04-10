@@ -263,7 +263,7 @@ export default function CatalogPage() {
         {/* Grid columns selector */}
         <div className="cat-grid-selector">
           <span className="cat-grid-selector__label">Столбцы:</span>
-          {[2, 3, 4, 5, 6].map(col => (
+          {[2, 3, 4, 5].map(col => (
             <button
               key={col}
               className={`cat-grid-selector__btn ${columns === col ? 'cat-grid-selector__btn--active' : ''}`}

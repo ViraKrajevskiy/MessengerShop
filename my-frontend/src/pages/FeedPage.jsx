@@ -262,7 +262,7 @@ export default function FeedPage() {
         {/* Grid columns selector */}
         <div className="feed-grid-selector">
           <span className="feed-grid-selector__label">Столбцы:</span>
-          {[2, 3, 4, 5, 6].map(col => (
+          {[2, 3, 4, 5].map(col => (
             <button
               key={col}
               className={`feed-grid-selector__btn ${columns === col ? 'feed-grid-selector__btn--active' : ''}`}
