@@ -7,7 +7,7 @@
 }
 
 .feed-page__main {
-  max-width: 1100px;
+  max-width: min(1420px, calc(100vw - 40px));
   margin: 0 auto;
   padding: 24px 20px 60px;
   width: 100%;

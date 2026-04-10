@@ -9,7 +9,7 @@
 .cat-page__main {
   max-width: min(1420px, calc(100vw - 40px));
   margin: 0 auto;
-  padding: 28px 20px 80px;
+  padding: 24px 20px 60px;
   width: 100%;
   box-sizing: border-box;
   flex: 1;
