@@ -1208,6 +1208,47 @@
   background: rgba(229, 57, 53, 0.18);
 }
 
+/* ── Pagination ────────────────────────────────────────────────────── */
+.feed-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+
+.feed-pagination__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+  font-family: inherit;
+  flex-shrink: 0;
+}
+
+.feed-pagination__btn:hover {
+  border-color: var(--accent-1);
+  color: var(--text-primary);
+}
+
+.feed-pagination__btn--active {
+  background: var(--accent-gradient);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 3px 10px rgba(229, 57, 53, 0.3);
+}
+
 /* Adjust tag placement inside cards */
 .feed-post .feed-tags {
   padding: 2px 16px 6px;

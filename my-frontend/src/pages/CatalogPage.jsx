@@ -158,6 +158,8 @@ export default function CatalogPage() {
   const [showAllTags, setShowAllTags]     = useState(false)
   const [search, setSearch]               = useState('')
   const [columns, setColumns]             = useState(4)
+  const [page, setPage]                   = useState(0)
+  const CARDS_PER_PAGE = columns * 5
 
   useEffect(() => {
     Promise.all([apiGetProducts(), apiGetBusinesses()])
@@ -231,6 +233,11 @@ export default function CatalogPage() {
 
   const toggleTag = (tag) => setActiveTags(prev => prev.includes(tag) ? prev.filter(tg => tg !== tag) : [...prev, tag])
 
+  const handleColumnsChange = (col) => {
+    setColumns(col)
+    setPage(0)
+  }
+
   const GUEST_LIMIT = 6
 
   return (
@@ -267,7 +274,7 @@ export default function CatalogPage() {
             <button
               key={col}
               className={`cat-grid-selector__btn ${columns === col ? 'cat-grid-selector__btn--active' : ''}`}
-              onClick={() => setColumns(col)}
+              onClick={() => handleColumnsChange(col)}
               title={`${col} карточек в строке`}
             >
               {col}
@@ -399,11 +406,33 @@ export default function CatalogPage() {
                     ) : (
                       <>
                         <div className="cat-results-count">{fServices.length}</div>
-                        <div className="card-grid" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
-                          {(user ? fServices : fServices.slice(0, GUEST_LIMIT)).map(s => (
-                            <ServiceCard key={s.id} product={s} onTagClick={toggleTag} />
-                          ))}
-                        </div>
+                        {(() => {
+                          const allServices = user ? fServices : fServices.slice(0, GUEST_LIMIT)
+                          const totalPages = Math.ceil(allServices.length / CARDS_PER_PAGE)
+                          const paginatedServices = allServices.slice(page * CARDS_PER_PAGE, (page + 1) * CARDS_PER_PAGE)
+                          return (
+                            <>
+                              <div className="card-grid" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
+                                {paginatedServices.map(s => (
+                                  <ServiceCard key={s.id} product={s} onTagClick={toggleTag} />
+                                ))}
+                              </div>
+                              {totalPages > 1 && (
+                                <div className="cat-pagination">
+                                  {Array.from({ length: totalPages }).map((_, i) => (
+                                    <button
+                                      key={i}
+                                      className={`cat-pagination__btn ${i === page ? 'cat-pagination__btn--active' : ''}`}
+                                      onClick={() => { setPage(i); window.scrollTo(0, 0) }}
+                                    >
+                                      {i + 1}
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+                            </>
+                          )
+                        })()}
                         {!user && fServices.length > GUEST_LIMIT && (
                           <div className="cat-auth-gate">
                             <div className="cat-auth-gate__blur" />

@@ -134,9 +134,11 @@ export default function FeedPage() {
   const [filterCity, setFilterCity] = useState('')
   const [sortOrder, setSortOrder] = useState('none') // none | date_desc | date_asc | price_desc | price_asc
   const [showAllTags, setShowAllTags] = useState(false)
-  const [columns, setColumns] = useState(3)
+  const [columns, setColumns] = useState(4)
+  const [page, setPage] = useState(0)
   const navigate = useNavigate()
   const { getAccessToken, user } = useAuth()
+  const CARDS_PER_PAGE = columns * 5
   const GUEST_LIMIT = 4
 
   useEffect(() => {
@@ -164,6 +166,11 @@ export default function FeedPage() {
     setActiveTags(prev =>
       prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
     )
+  }
+
+  const handleColumnsChange = (col) => {
+    setColumns(col)
+    setPage(0)
   }
 
   const clearFilters = () => {
@@ -266,7 +273,7 @@ export default function FeedPage() {
             <button
               key={col}
               className={`feed-grid-selector__btn ${columns === col ? 'feed-grid-selector__btn--active' : ''}`}
-              onClick={() => setColumns(col)}
+              onClick={() => handleColumnsChange(col)}
               title={`${col} карточек в строке`}
             >
               {col}
@@ -380,15 +387,30 @@ export default function FeedPage() {
                   <>
                     <Stories />
                     {(() => {
-                      const visiblePosts = user ? fPosts : fPosts.slice(0, GUEST_LIMIT)
+                      const allPosts = user ? fPosts : fPosts.slice(0, GUEST_LIMIT)
                       const hasMore = !user && fPosts.length > GUEST_LIMIT
+                      const totalPages = Math.ceil(allPosts.length / CARDS_PER_PAGE)
+                      const paginatedPosts = allPosts.slice(page * CARDS_PER_PAGE, (page + 1) * CARDS_PER_PAGE)
                       return (
                         <>
                           <div className="post-cards-grid" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
-                            {visiblePosts.map(post => (
+                            {paginatedPosts.map(post => (
                               <PostCard key={`post-${post.id}`} post={post} />
                             ))}
                           </div>
+                          {totalPages > 1 && (
+                            <div className="feed-pagination">
+                              {Array.from({ length: totalPages }).map((_, i) => (
+                                <button
+                                  key={i}
+                                  className={`feed-pagination__btn ${i === page ? 'feed-pagination__btn--active' : ''}`}
+                                  onClick={() => { setPage(i); window.scrollTo(0, 0) }}
+                                >
+                                  {i + 1}
+                                </button>
+                              ))}
+                            </div>
+                          )}
                           {hasMore && (
                             <div className="feed-auth-gate">
                               <div className="feed-auth-gate__blur" />
@@ -409,11 +431,33 @@ export default function FeedPage() {
                 {/* ── Фото ── */}
                 {tab === 'photos' && (
                   <>
-                    <div className="post-cards-grid" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
-                      {(user ? fPhotos : fPhotos.slice(0, GUEST_LIMIT)).map(post => (
-                        <PostCard key={`photo-${post.id}`} post={post} />
-                      ))}
-                    </div>
+                    {(() => {
+                      const allPhotos = user ? fPhotos : fPhotos.slice(0, GUEST_LIMIT)
+                      const totalPages = Math.ceil(allPhotos.length / CARDS_PER_PAGE)
+                      const paginatedPhotos = allPhotos.slice(page * CARDS_PER_PAGE, (page + 1) * CARDS_PER_PAGE)
+                      return (
+                        <>
+                          <div className="post-cards-grid" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
+                            {paginatedPhotos.map(post => (
+                              <PostCard key={`photo-${post.id}`} post={post} />
+                            ))}
+                          </div>
+                          {totalPages > 1 && (
+                            <div className="feed-pagination">
+                              {Array.from({ length: totalPages }).map((_, i) => (
+                                <button
+                                  key={i}
+                                  className={`feed-pagination__btn ${i === page ? 'feed-pagination__btn--active' : ''}`}
+                                  onClick={() => { setPage(i); window.scrollTo(0, 0) }}
+                                >
+                                  {i + 1}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </>
+                      )
+                    })()}
                     {!user && fPhotos.length > GUEST_LIMIT && (
                       <div className="feed-auth-gate">
                         <div className="feed-auth-gate__blur" />
@@ -432,11 +476,33 @@ export default function FeedPage() {
                 {/* ── Видео ── */}
                 {tab === 'videos' && (
                   <>
-                    <div className="post-cards-grid" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
-                      {(user ? fVideos : fVideos.slice(0, GUEST_LIMIT)).map(post => (
-                        <PostCard key={`video-${post.id}`} post={post} />
-                      ))}
-                    </div>
+                    {(() => {
+                      const allVideos = user ? fVideos : fVideos.slice(0, GUEST_LIMIT)
+                      const totalPages = Math.ceil(allVideos.length / CARDS_PER_PAGE)
+                      const paginatedVideos = allVideos.slice(page * CARDS_PER_PAGE, (page + 1) * CARDS_PER_PAGE)
+                      return (
+                        <>
+                          <div className="post-cards-grid" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
+                            {paginatedVideos.map(post => (
+                              <PostCard key={`video-${post.id}`} post={post} />
+                            ))}
+                          </div>
+                          {totalPages > 1 && (
+                            <div className="feed-pagination">
+                              {Array.from({ length: totalPages }).map((_, i) => (
+                                <button
+                                  key={i}
+                                  className={`feed-pagination__btn ${i === page ? 'feed-pagination__btn--active' : ''}`}
+                                  onClick={() => { setPage(i); window.scrollTo(0, 0) }}
+                                >
+                                  {i + 1}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </>
+                      )
+                    })()}
                     {!user && fVideos.length > GUEST_LIMIT && (
                       <div className="feed-auth-gate">
                         <div className="feed-auth-gate__blur" />
