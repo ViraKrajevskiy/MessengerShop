@@ -88,12 +88,15 @@ export default function HomePage() {
       .finally(() => setLoadingPosts(false))
   }, [])
 
-  const filteredAll = useMemo(() => {
-    setCardsPage(0)
-    return allBiz.filter(b =>
+  const filteredAll = useMemo(() =>
+    allBiz.filter(b =>
       (!filters.city || !b.city || b.city.toLowerCase().includes(filters.city.toLowerCase())) &&
       (!filters.category || b.category === filters.category)
     ).map(bizToCard)
+  , [allBiz, filters])
+
+  useEffect(() => {
+    setCardsPage(0)
   }, [allBiz, filters])
 
   // Premium (VIP/PRO) businesses for carousel
