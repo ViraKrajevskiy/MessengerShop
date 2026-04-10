@@ -410,17 +410,6 @@ export default function FeedPage() {
                               ))}
                             </div>
                           )}
-                          {hasMore && (
-                            <div className="feed-auth-gate">
-                              <div className="feed-auth-gate__blur" />
-                              <div className="feed-auth-gate__box">
-                                <div className="feed-auth-gate__icon">🔒</div>
-                                <p className="feed-auth-gate__text">Войдите, чтобы видеть все публикации</p>
-                                <button className="feed-auth-gate__btn" onClick={() => navigate('/login')}>Войти</button>
-                                <button className="feed-auth-gate__reg" onClick={() => navigate('/register')}>Регистрация</button>
-                              </div>
-                            </div>
-                          )}
                         </>
                       )
                     })()}
@@ -457,17 +446,6 @@ export default function FeedPage() {
                         </>
                       )
                     })()}
-                    {!user && fPhotos.length > GUEST_LIMIT && (
-                      <div className="feed-auth-gate">
-                        <div className="feed-auth-gate__blur" />
-                        <div className="feed-auth-gate__box">
-                          <div className="feed-auth-gate__icon">🔒</div>
-                          <p className="feed-auth-gate__text">Войдите, чтобы видеть все фото</p>
-                          <button className="feed-auth-gate__btn" onClick={() => navigate('/login')}>Войти</button>
-                          <button className="feed-auth-gate__reg" onClick={() => navigate('/register')}>Регистрация</button>
-                        </div>
-                      </div>
-                    )}
                     {fPhotos.length === 0 && <div className="feed-page__empty">Фото пока нет</div>}
                   </>
                 )}
@@ -502,17 +480,6 @@ export default function FeedPage() {
                         </>
                       )
                     })()}
-                    {!user && fVideos.length > GUEST_LIMIT && (
-                      <div className="feed-auth-gate">
-                        <div className="feed-auth-gate__blur" />
-                        <div className="feed-auth-gate__box">
-                          <div className="feed-auth-gate__icon">🔒</div>
-                          <p className="feed-auth-gate__text">Войдите, чтобы видеть все видео</p>
-                          <button className="feed-auth-gate__btn" onClick={() => navigate('/login')}>Войти</button>
-                          <button className="feed-auth-gate__reg" onClick={() => navigate('/register')}>Регистрация</button>
-                        </div>
-                      </div>
-                    )}
                     {fVideos.length === 0 && <div className="feed-page__empty">Видео пока нет</div>}
                   </>
                 )}
@@ -525,17 +492,6 @@ export default function FeedPage() {
                         <FeedNewsCard key={`news-${item.id}`} item={item} onTagClick={handleTagClick} />
                       ))}
                     </div>
-                    {!user && fNews.length > GUEST_LIMIT && (
-                      <div className="feed-auth-gate">
-                        <div className="feed-auth-gate__blur" />
-                        <div className="feed-auth-gate__box">
-                          <div className="feed-auth-gate__icon">&#128274;</div>
-                          <p className="feed-auth-gate__text">Войдите, чтобы видеть все новости</p>
-                          <button className="feed-auth-gate__btn" onClick={() => navigate('/login')}>Войти</button>
-                          <button className="feed-auth-gate__reg" onClick={() => navigate('/register')}>Регистрация</button>
-                        </div>
-                      </div>
-                    )}
                     {fNews.length === 0 && <div className="feed-page__empty">Новостей пока нет</div>}
                   </>
                 )}
@@ -548,17 +504,6 @@ export default function FeedPage() {
                         <TweetCard key={`tweet-${post.id}`} post={post} onTagClick={handleTagClick} />
                       ))}
                     </div>
-                    {!user && fPosts.length > GUEST_LIMIT && (
-                      <div className="feed-auth-gate">
-                        <div className="feed-auth-gate__blur" />
-                        <div className="feed-auth-gate__box">
-                          <div className="feed-auth-gate__icon">&#128274;</div>
-                          <p className="feed-auth-gate__text">Войдите, чтобы видеть все твиты</p>
-                          <button className="feed-auth-gate__btn" onClick={() => navigate('/login')}>Войти</button>
-                          <button className="feed-auth-gate__reg" onClick={() => navigate('/register')}>Регистрация</button>
-                        </div>
-                      </div>
-                    )}
                     {fPosts.length === 0 && <div className="feed-page__empty">Твитов пока нет</div>}
                   </>
                 )}

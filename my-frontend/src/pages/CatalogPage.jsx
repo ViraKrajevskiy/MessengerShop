@@ -432,17 +432,6 @@ export default function CatalogPage() {
                             </>
                           )
                         })()}
-                        {!user && fServices.length > GUEST_LIMIT && (
-                          <div className="cat-auth-gate">
-                            <div className="cat-auth-gate__blur" />
-                            <div className="cat-auth-gate__box">
-                              <div className="cat-auth-gate__icon">🔒</div>
-                              <p style={{margin:'0 0 10px',fontSize:14,color:'var(--text-secondary)'}}>Войдите, чтобы видеть все услуги</p>
-                              <button className="cat-auth-gate__btn" onClick={() => navigate('/login')}>Войти</button>
-                              <button className="cat-auth-gate__reg" onClick={() => navigate('/register')}>Регистрация</button>
-                            </div>
-                          </div>
-                        )}
                       </>
                     )}
                   </>
@@ -465,16 +454,6 @@ export default function CatalogPage() {
                             <BizCard key={b.id} biz={b} />
                           ))}
                         </div>
-                        {!user && fBiz.length > GUEST_LIMIT && (
-                          <div className="cat-auth-gate">
-                            <div className="cat-auth-gate__blur" />
-                            <div className="cat-auth-gate__box">
-                              <div className="cat-auth-gate__icon">🔒</div>
-                              <button className="cat-auth-gate__btn" onClick={() => navigate('/login')}></button>
-                              <button className="cat-auth-gate__reg" onClick={() => navigate('/register')}></button>
-                            </div>
-                          </div>
-                        )}
                       </>
                     )}
                   </>

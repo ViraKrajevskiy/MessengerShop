@@ -591,51 +591,6 @@
   cursor: pointer; font-family: inherit;
 }
 
-/* ── Auth gate ─────────────────────────────────────────────────────────────── */
-.cat-auth-gate {
-  position: relative;
-  margin: 16px 0 32px;
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-}
-.cat-auth-gate__blur {
-  height: 100px;
-  background: linear-gradient(to bottom, transparent, var(--bg-primary) 80%);
-  margin-top: -60px;
-  pointer-events: none;
-}
-.cat-auth-gate__box {
-  display: flex; flex-direction: column;
-  align-items: center; gap: 12px;
-  padding: 32px 24px;
-  background: var(--bg-secondary);
-  border: 1.5px solid var(--border-light);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--card-shadow);
-  text-align: center;
-}
-.cat-auth-gate__icon { font-size: 36px; }
-.cat-auth-gate__box p { font-size: 15px; font-weight: 600; color: var(--text-primary); margin: 0; }
-.cat-auth-gate__btn {
-  padding: 10px 32px;
-  background: var(--accent-gradient);
-  color: #fff; border: none;
-  border-radius: var(--radius-lg);
-  font-size: 14px; font-weight: 700;
-  cursor: pointer; transition: opacity 0.2s;
-}
-.cat-auth-gate__btn:hover { opacity: 0.88; }
-.cat-auth-gate__reg {
-  background: none;
-  border: 1.5px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  padding: 8px 24px;
-  font-size: 13px; font-weight: 600;
-  color: var(--text-secondary);
-  cursor: pointer; transition: all 0.2s;
-}
-.cat-auth-gate__reg:hover { border-color: var(--accent-1); color: var(--accent-1); }
-
 /* ── Responsive ────────────────────────────────────────────────────────────── */
 @media (max-width: 600px) {
   .cat-page__main { padding: 16px 12px 80px; }
