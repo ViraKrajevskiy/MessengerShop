@@ -116,8 +116,10 @@ export default function ReviewsSection({ type, targetId, horizontal }) {
   const [showForm, setShowForm] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState('')
+  const [page, setPage] = useState(0)
 
   const isBusiness = type === 'business'
+  const CARDS_PER_PAGE = horizontal ? 20 : undefined
 
   useEffect(() => {
     const fetcher = isBusiness ? apiGetBusinessReviews : apiGetProductReviews
@@ -158,8 +160,24 @@ export default function ReviewsSection({ type, targetId, horizontal }) {
   if (!data) return null
 
   const { summary, reviews } = data
-  const visible = showAll ? reviews : reviews.slice(0, 3)
+
+  // Pagination logic for horizontal layout
+  let visible = reviews
+  let totalPages = 1
+  if (horizontal && CARDS_PER_PAGE) {
+    totalPages = Math.ceil(reviews.length / CARDS_PER_PAGE)
+    visible = reviews.slice(page * CARDS_PER_PAGE, (page + 1) * CARDS_PER_PAGE)
+  } else if (!horizontal) {
+    // Vertical layout: show all or first 3
+    visible = showAll ? reviews : reviews.slice(0, 3)
+  }
+
   const canReview = user && !showForm
+
+  const handlePageChange = (newPage) => {
+    setPage(newPage)
+    window.scrollTo(0, 0)
+  }
 
   return (
     <section className="rv-section">
@@ -202,7 +220,21 @@ export default function ReviewsSection({ type, targetId, horizontal }) {
         </div>
       )}
 
-      {reviews.length > 3 && (
+      {horizontal && reviews.length > CARDS_PER_PAGE && (
+        <div className="rv-pagination">
+          {Array.from({ length: totalPages }, (_, i) => (
+            <button
+              key={i}
+              className={`rv-pagination__btn ${page === i ? 'rv-pagination__btn--active' : ''}`}
+              onClick={() => handlePageChange(i)}
+            >
+              {i + 1}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {!horizontal && reviews.length > 3 && (
         <button className="rv-show-all" onClick={() => setShowAll(s => !s)}>
           {showAll ? 'Скрыть' : `Смотреть все отзывы (${reviews.length})`}
         </button>
