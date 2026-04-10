@@ -2,17 +2,24 @@
   margin: 4px 0 24px;
 }
 
-/* ── Mosaic: 2x2 grid — 4 equal cards ── */
+/* ── Mosaic: big + 2x2 grid ── */
 .premium-carousel__mosaic {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
+  grid-template-columns: 1.5fr 1fr;
+  grid-template-rows: 1fr;
   gap: 4px;
-  height: 400px;
+  height: 500px;
   border-radius: var(--radius-lg);
   overflow: hidden;
   cursor: grab;
   user-select: none;
+}
+
+.premium-carousel__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 4px;
 }
 
 .premium-carousel__mosaic:active {
@@ -153,19 +160,25 @@
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .premium-carousel__mosaic {
-    height: 320px;
+    height: 400px;
   }
-  .pc-card__overlay { padding: 8px; }
+  .pc-card__overlay { padding: 10px; }
   .pc-card__name { font-size: 12px; }
 }
 
 @media (max-width: 480px) {
   .premium-carousel__mosaic {
     grid-template-columns: 1fr;
-    grid-template-rows: 1fr 1fr 1fr 1fr;
-    height: 480px;
-    gap: 4px;
+    grid-template-rows: auto auto;
+    height: auto;
   }
+  .pc-card:first-child {
+    height: 250px;
+  }
+  .premium-carousel__grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .pc-card { height: 120px; }
   .pc-card__badge { font-size: 9px; padding: 2px 7px; }
   .pc-card__name { font-size: 12px; }
   .pc-card__city { font-size: 10px; }
