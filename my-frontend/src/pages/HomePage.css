@@ -337,6 +337,11 @@
   /* exactly 3 per view: (100% - 2 gaps) / 3 */
   flex: 0 0 calc((100% - 2 * 20px) / 3);
   height: 420px;
+  scroll-snap-align: none;
+}
+
+/* snap only on the first card of each group of 3 */
+.home-posts-grid .post-card:nth-child(3n+1) {
   scroll-snap-align: start;
 }
 
