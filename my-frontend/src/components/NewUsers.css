@@ -39,12 +39,12 @@
 
 .new-users__grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 14px;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 25px;
 }
 
 .new-users__grid--expanded {
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(6, 1fr);
 }
 
 .new-users__item {
@@ -68,8 +68,8 @@
 
 .new-users__avatar {
   position: relative;
-  width: 120px;
-  height: 120px;
+  width: 134px;
+  height: 134px;
   border-radius: 50%;
   flex-shrink: 0;
 }
