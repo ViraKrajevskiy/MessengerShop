@@ -352,27 +352,41 @@
   color: #ef4444;
 }
 
-/* ── Language select ── */
-.header__lang {
-  margin-left: 2px;
+/* ── Mobile language buttons ── */
+.header__mobile-lang {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 4px 0;
 }
 
-.header__lang-select {
-  border: 1.5px solid var(--border-color);
+.header__mobile-lang-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
   background: var(--bg-tertiary);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-sm);
   color: var(--text-secondary);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  outline: none;
-  padding: 7px 10px;
-  border-radius: var(--radius-sm);
+  font-family: inherit;
   transition: all 0.2s;
+  flex: 1;
+  justify-content: center;
 }
 
-.header__lang-select:hover {
+.header__mobile-lang-btn:hover {
   border-color: var(--accent-1);
   color: var(--text-primary);
+}
+
+.header__mobile-lang-btn--active {
+  border-color: var(--accent-1);
+  color: var(--accent-1);
+  background: rgba(255, 80, 50, 0.07);
 }
 
 /* Language globe picker */

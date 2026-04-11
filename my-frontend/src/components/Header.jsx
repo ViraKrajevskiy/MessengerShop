@@ -388,11 +388,22 @@ export default function Header() {
             <ThemeIcon theme={theme} />
             <span>{theme === 'light' ? t('nav_darkTheme') : t('nav_lightTheme')}</span>
           </button>
-          <select name="language" value={lang} onChange={(e) => setLang(e.target.value)} className="header__lang-select">
-            <option value="ru">Русский</option>
-            <option value="en">English</option>
-            <option value="tr">Türkçe</option>
-          </select>
+          <div className="header__mobile-lang">
+            {[
+              { code: 'ru', country: 'ru', label: 'Русский' },
+              { code: 'en', country: 'us', label: 'English' },
+              { code: 'tr', country: 'tr', label: 'Türkçe' },
+            ].map(({ code, country, label }) => (
+              <button
+                key={code}
+                className={`header__mobile-lang-btn ${lang === code ? 'header__mobile-lang-btn--active' : ''}`}
+                onClick={() => setLang(code)}
+              >
+                <img src={`https://flagcdn.com/20x15/${country}.png`} width="20" height="15" alt={label} />
+                <span>{label}</span>
+              </button>
+            ))}
+          </div>
           {user && (
             <button className="header__mobile-nav-item header__mobile-logout" onClick={handleLogout}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
