@@ -375,6 +375,49 @@
   color: var(--text-primary);
 }
 
+/* Flag language buttons */
+.header__flags {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.header__flag-btn {
+  width: 32px;
+  height: 24px;
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.18s;
+  opacity: 0.5;
+  padding: 0;
+  overflow: hidden;
+}
+
+.header__flag-btn img {
+  width: 20px;
+  height: 14px;
+  object-fit: cover;
+  border-radius: 2px;
+  display: block;
+}
+
+.header__flag-btn:hover {
+  opacity: 1;
+  transform: scale(1.15);
+}
+
+.header__flag-btn--active {
+  opacity: 1;
+  border-color: var(--accent-1);
+  background: var(--bg-tertiary);
+  box-shadow: 0 2px 8px rgba(229, 57, 53, 0.25);
+}
+
 /* ── Burger button ── */
 .header__burger {
   display: none;

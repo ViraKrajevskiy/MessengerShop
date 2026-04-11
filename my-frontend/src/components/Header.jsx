@@ -110,13 +110,27 @@ export default function Header() {
 
           <div className="header__top-right">
 
-            {/* Language */}
-            <div className="header__lang">
-              <select name="language" value={lang} onChange={(e) => setLang(e.target.value)} className="header__lang-select">
-                <option value="ru">Русский</option>
-                <option value="en">English</option>
-                <option value="tr">Türkçe</option>
-              </select>
+            {/* Language flags */}
+            <div className="header__flags">
+              {[
+                { code: 'ru', country: 'ru', label: 'Русский' },
+                { code: 'en', country: 'us', label: 'English' },
+                { code: 'tr', country: 'tr', label: 'Türkçe' },
+              ].map(({ code, country, label }) => (
+                <button
+                  key={code}
+                  className={`header__flag-btn ${lang === code ? 'header__flag-btn--active' : ''}`}
+                  onClick={() => setLang(code)}
+                  title={label}
+                >
+                  <img
+                    src={`https://flagcdn.com/20x15/${country}.png`}
+                    width="20"
+                    height="15"
+                    alt={label}
+                  />
+                </button>
+              ))}
             </div>
 
             {/* Theme */}
