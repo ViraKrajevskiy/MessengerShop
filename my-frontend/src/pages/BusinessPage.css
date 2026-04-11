@@ -52,7 +52,7 @@
   z-index: 1;
   background: var(--bg-secondary);
   border: 1.5px solid var(--border-color);
-  border-radius: 20px;
+  border-radius: 0;
   padding: 24px 28px;
   box-shadow: 0 4px 24px rgba(0,0,0,0.08);
   flex-wrap: wrap;
@@ -61,7 +61,7 @@
   width: 180px;
   min-height: 180px;
   align-self: stretch;
-  border-radius: 20px;
+  border-radius: 0;
   object-fit: cover;
   border: 3px solid var(--bg-primary);
   box-shadow: 0 4px 16px rgba(0,0,0,0.14);
@@ -93,7 +93,7 @@
   font-size: 11px;
   font-weight: 800;
   padding: 2px 8px;
-  border-radius: 6px;
+  border-radius: 0;
   letter-spacing: 0.5px;
 }
 
@@ -254,7 +254,7 @@
 .bp__card {
   background: var(--bg-secondary);
   border: 1.5px solid var(--border-color);
-  border-radius: 18px;
+  border-radius: 0;
   padding: 22px 24px;
 }
 .bp__card-head {
@@ -281,7 +281,7 @@
   font-size: 11px;
   font-weight: 700;
   padding: 1px 8px;
-  border-radius: 20px;
+  border-radius: 0;
 }
 
 /* ── About ── */
@@ -305,7 +305,7 @@
   align-items: center;
   gap: 8px;
   padding: 10px 16px;
-  border-radius: 12px;
+  border-radius: 0;
   font-size: 13px;
   font-weight: 600;
   text-decoration: none;
@@ -326,7 +326,7 @@
   padding: 8px 14px;
   background: rgba(16,185,129,0.08);
   border: 1px solid rgba(16,185,129,0.25);
-  border-radius: 10px;
+  border-radius: 0;
   font-size: 13px;
   font-weight: 700;
   color: #10b981;
@@ -357,7 +357,7 @@
 }
 .bp__tab {
   padding: 4px 12px;
-  border-radius: 20px;
+  border-radius: 0;
   border: 1.5px solid var(--border-color);
   background: transparent;
   color: var(--text-secondary);
@@ -381,7 +381,7 @@
 .bp__gallery-cell {
   position: relative;
   aspect-ratio: 1;
-  border-radius: 10px;
+  border-radius: 0;
   overflow: hidden;
   cursor: pointer;
   background: var(--bg-tertiary);
