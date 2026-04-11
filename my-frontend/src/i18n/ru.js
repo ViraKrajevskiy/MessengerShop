@@ -39,6 +39,8 @@ const ru = {
   nav_register:    'Регистрация',
   nav_darkTheme:   'Тёмная тема',
   nav_lightTheme:  'Светлая тема',
+  nav_changeTheme: 'Сменить тему',
+  nav_breadcrumbHome: 'Дом',
 
   // ── Footer ─────────────────────────────────────────────────────────────────
   footer_tagline:  'Ваш личный бизнес-партнёр в Турции и СНГ',
@@ -289,6 +291,12 @@ const ru = {
   feed_filter_posts:  'Посты',
   feed_filter_news:   'Новости',
   feed_filter_stories:'Истории',
+
+  // ── HomePage ───────────────────────────────────────────────────────────────
+  home_publications:    'Публикации',
+  home_allPublications: 'Все публикации',
+  home_allCards:        'Все карточки',
+  home_noCards:         'Нет карточек по выбранным фильтрам',
 }
 
 export default ru

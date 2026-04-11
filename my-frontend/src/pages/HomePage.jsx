@@ -11,29 +11,30 @@ import PostCard from '../components/PostCard'
 import HeroSlider from '../components/HeroSlider'
 import PremiumCarousel from '../components/PremiumCarousel'
 import { apiGetBusinesses, apiGetPosts, CATEGORY_LABELS } from '../api/businessApi'
+import { useLanguage } from '../context/LanguageContext'
 import './HomePage.css'
 
-// ---------- adaptive descriptions ----------
-const DESCRIPTIONS = {
-  default:      { title: 'Бизнес в Турции', text: 'Ваш личный бизнес партнер по компаниям и частному бизнесу в Турции!\nОтсортируйте и выберите вашего будущего бизнес партнера:' },
-  'Турция':     { title: 'Бизнес в Турции', text: 'Найдите лучших специалистов и бизнес партнёров по всей Турции.\nОтсортируйте карточки по городу, категории или хештегам.' },
-  'Россия':     { title: 'Бизнес в России', text: 'Ваши бизнес партнёры из России. Частные и корпоративные предложения.\nИспользуйте фильтры для поиска нужного специалиста.' },
-  'Казахстан':  { title: 'Бизнес в Казахстане', text: 'Партнёры и услуги в Казахстане.\nВыберите город и категорию для поиска.' },
-  'Узбекистан': { title: 'Бизнес в Узбекистане', text: 'Бизнес услуги и специалисты из Узбекистана.\nВыберите нужную категорию и начните сотрудничество.' },
-  'Стамбул':    { title: 'Бизнес в Стамбуле', text: 'Лучшие специалисты и бизнес партнёры в Стамбуле.\nОт красоты до недвижимости — все категории в одном месте.' },
-  'Анкара':     { title: 'Бизнес в Анкаре', text: 'Бизнес партнёры столицы Турции.\nНайдите специалистов в Анкаре по любой категории.' },
-  'Анталья':    { title: 'Бизнес в Анталье', text: 'Туризм, недвижимость и другие услуги в Анталье.\nВыберите категорию и начните поиск.' },
-  'Красота и уход': { title: 'Красота и уход', text: 'Салоны красоты, стилисты и косметологи.\nНайдите лучших мастеров в вашем городе.' },
-  'Здоровье':   { title: 'Здоровье и медицина', text: 'Клиники, врачи и медицинские специалисты.\nЗапишитесь на консультацию онлайн или лично.' },
-  'Недвижимость': { title: 'Недвижимость', text: 'Агенты и компании по недвижимости.\nПокупка, продажа и аренда — все предложения здесь.' },
+// ---------- adaptive descriptions (keys resolved via t() inside component) ----------
+const DESC_KEYS = {
+  default:        { title: 'home_turkey',   text: 'home_turkey_sub' },
+  'Турция':       { title: 'home_turkey',   text: 'home_turkey_sub' },
+  'Россия':       { title: 'home_russia',   text: 'home_russia_sub' },
+  'Казахстан':    { title: 'home_kz',       text: 'home_kz_sub' },
+  'Узбекистан':   { title: 'home_uz',       text: 'home_uz_sub' },
+  'Стамбул':      { title: 'home_istanbul', text: 'home_istanbul_sub' },
+  'Анкара':       { title: 'home_ankara',   text: 'home_ankara_sub' },
+  'Анталья':      { title: 'home_antalya',  text: 'home_antalya_sub' },
+  'Красота и уход': { title: 'home_beauty', text: 'home_beauty_sub' },
+  'Здоровье':     { title: 'home_health',   text: 'home_health_sub' },
+  'Недвижимость': { title: 'home_realty',   text: 'home_realty_sub' },
 }
 
-function getDescription(filters) {
+function getDescKeys(filters) {
   const cat = filters.category && CATEGORY_LABELS[filters.category]
-  if (cat && DESCRIPTIONS[cat]) return DESCRIPTIONS[cat]
-  if (filters.city && DESCRIPTIONS[filters.city]) return DESCRIPTIONS[filters.city]
-  if (filters.country && DESCRIPTIONS[filters.country]) return DESCRIPTIONS[filters.country]
-  return DESCRIPTIONS.default
+  if (cat && DESC_KEYS[cat]) return DESC_KEYS[cat]
+  if (filters.city && DESC_KEYS[filters.city]) return DESC_KEYS[filters.city]
+  if (filters.country && DESC_KEYS[filters.country]) return DESC_KEYS[filters.country]
+  return DESC_KEYS.default
 }
 
 function bizToCard(b) {
@@ -60,6 +61,7 @@ const HOME_POSTS_VISIBLE = 20
 export default function HomePage() {
   const navigate = useNavigate()
   const { user, tokens } = useAuth()
+  const { t } = useLanguage()
 
   const [filters] = useState({
     country: '', city: '', category: '', service: '', activeTags: [],
@@ -122,7 +124,8 @@ export default function HomePage() {
     return [...postImgs, ...bizImgs].slice(0, 50)
   }, [posts, allBiz])
 
-  const desc = getDescription(filters)
+  const descKeys = getDescKeys(filters)
+  const desc = { title: t(descKeys.title), text: t(descKeys.text) }
 
   const homePosts = useMemo(
     () => posts.slice(0, HOME_POSTS_VISIBLE),
@@ -189,9 +192,9 @@ export default function HomePage() {
           {/* Публикации */}
           <section className="home-posts-section">
             <div className="section-header">
-              <h2 className="section-title">Публикации</h2>
+              <h2 className="section-title">{t('home_publications')}</h2>
               <button className="see-all-btn" onClick={() => navigate('/feed')}>
-                Все публикации
+                {t('home_allPublications')}
               </button>
             </div>
 
@@ -240,9 +243,9 @@ export default function HomePage() {
           {/* Все карточки */}
           <section className="all-cards-section">
             <div className="section-header">
-              <h2 className="section-title">Все карточки</h2>
+              <h2 className="section-title">{t('home_allCards')}</h2>
               <button className="see-all-btn" onClick={() => navigate('/feed')}>
-                Все публикации
+                {t('home_allPublications')}
               </button>
             </div>
             <div className="all-cards__carousel">
@@ -278,7 +281,7 @@ export default function HomePage() {
                     ))}
                   </div>
                 ) : (
-                  <div className="no-results">Нет карточек по выбранным фильтрам</div>
+                  <div className="no-results">{t('home_noCards')}</div>
                 )}
               </div>
               {tokens?.access && (

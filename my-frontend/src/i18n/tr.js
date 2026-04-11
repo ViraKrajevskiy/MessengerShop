@@ -289,6 +289,12 @@ const tr = {
   feed_filter_posts:  'Gönderiler',
   feed_filter_news:   'Haberler',
   feed_filter_stories:'Hikayeler',
+
+  // ── HomePage ───────────────────────────────────────────────────────────────
+  home_publications:    'Yayınlar',
+  home_allPublications: 'Tüm yayınlar',
+  home_allCards:        'Tüm kartlar',
+  home_noCards:         'Seçili filtrelere göre kart bulunamadı',
 }
 
 export default tr
