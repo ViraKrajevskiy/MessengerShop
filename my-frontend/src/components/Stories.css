@@ -55,6 +55,7 @@
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
   padding: 6px 2px;
+  scroll-snap-type: x mandatory;
 }
 
 .stories__list::-webkit-scrollbar {
@@ -66,17 +67,19 @@
 }
 
 .stories__item {
-  flex-shrink: 0;
+  /* exactly 6 per row: (100% - 5 gaps) / 6 */
+  flex: 0 0 calc((100% - 5 * 18px) / 6);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
   cursor: pointer;
+  scroll-snap-align: start;
 }
 
 .stories__avatar {
-  width: 96px;
-  height: 96px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   background: var(--story-ring);
   padding: 3px;
@@ -107,7 +110,7 @@
   font-size: 12px;
   font-weight: 600;
   color: var(--text-secondary);
-  max-width: 96px;
+  max-width: 100%;
   text-align: center;
   overflow: hidden;
   text-overflow: ellipsis;
