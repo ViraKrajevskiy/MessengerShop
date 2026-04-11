@@ -130,12 +130,12 @@ export default function HomePage() {
   )
 
   const postsGridRef = useRef(null)
-  const dragState = useRef({ isDown: false, startX: 0, scrollLeft: 0 })
+  const dragState = useRef({ isDown: false, startX: 0, scrollLeft: 0, moved: false })
 
   const onDragStart = (clientX) => {
     const el = postsGridRef.current
     if (!el) return
-    dragState.current = { isDown: true, startX: clientX, scrollLeft: el.scrollLeft }
+    dragState.current = { isDown: true, startX: clientX, scrollLeft: el.scrollLeft, moved: false }
     el.style.cursor = 'grabbing'
     el.style.userSelect = 'none'
   }
@@ -143,7 +143,9 @@ export default function HomePage() {
     if (!dragState.current.isDown) return
     const el = postsGridRef.current
     if (!el) return
-    el.scrollLeft = dragState.current.scrollLeft - (clientX - dragState.current.startX)
+    const dx = clientX - dragState.current.startX
+    if (Math.abs(dx) > 5) dragState.current.moved = true
+    el.scrollLeft = dragState.current.scrollLeft - dx
   }
   const onDragEnd = () => {
     dragState.current.isDown = false
@@ -151,6 +153,10 @@ export default function HomePage() {
     if (!el) return
     el.style.cursor = 'grab'
     el.style.userSelect = ''
+    // block the next click if user was dragging
+    if (dragState.current.moved) {
+      el.addEventListener('click', e => e.stopPropagation(), { capture: true, once: true })
+    }
   }
 
   return (

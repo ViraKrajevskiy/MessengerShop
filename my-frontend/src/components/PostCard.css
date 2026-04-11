@@ -9,6 +9,8 @@
   display: flex;
   flex-direction: column;
   box-shadow: var(--card-shadow);
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 .post-card:hover {
