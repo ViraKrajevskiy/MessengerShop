@@ -4,7 +4,6 @@
 .idea
 __pycache__/
 *.pyc
-dist.zip
 node_modules/
 db.sqlite3
 Shop/migrations/
