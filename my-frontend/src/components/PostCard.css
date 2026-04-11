@@ -69,9 +69,17 @@
   margin-left: 2px;
 }
 
+.post-card__bottom-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
 .post-card__time {
   font-size: 11px;
   color: var(--text-muted);
+  white-space: nowrap;
 }
 
 .post-card__follow {
