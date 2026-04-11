@@ -333,16 +333,20 @@
 
 .home-posts-section .post-card {
   border: none;
-  height: 100%;
   box-shadow: var(--card-shadow);
-  flex-shrink: 0;
-  width: 240px;
-  min-width: 240px;
+  flex: 0 0 260px;
+  height: 420px;
 }
 
 .home-posts-section .post-card__image {
-  aspect-ratio: 3 / 4;
-  max-height: 300px;
+  flex: 1;
+  overflow: hidden;
+}
+
+.home-posts-section .post-card__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .home-posts-grid .post-card-skeleton .skel-img--portrait {
