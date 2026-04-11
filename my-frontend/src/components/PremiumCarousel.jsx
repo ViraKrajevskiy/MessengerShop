@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './PremiumCarousel.css'
 
-const PAGE_SIZE = 6
+const PAGE_SIZE = 8
 
 function buildSlides(businesses) {
   if (businesses.length === 0) return []
@@ -101,14 +101,9 @@ export default function PremiumCarousel({ businesses = [] }) {
         onTouchStart={e => onDragStart(e.touches[0].clientX)}
         onTouchEnd={e => onDragEnd(e.changedTouches[0].clientX)}
       >
-        <Card biz={slide[0]} big handleCardClick={handleCardClick} />
-        <div className="premium-carousel__grid">
-          <Card biz={slide[1]} handleCardClick={handleCardClick} />
-          <Card biz={slide[2]} handleCardClick={handleCardClick} />
-          <Card biz={slide[3]} handleCardClick={handleCardClick} />
-          <Card biz={slide[4]} handleCardClick={handleCardClick} />
-        </div>
-        <Card biz={slide[5]} big handleCardClick={handleCardClick} />
+        {slide.map((biz, i) => (
+          <Card key={i} biz={biz} handleCardClick={handleCardClick} />
+        ))}
       </div>
 
       {total > 1 && (
