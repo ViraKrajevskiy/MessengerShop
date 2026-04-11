@@ -31,6 +31,8 @@ const PATH_NAMES = {
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [langOpen, setLangOpen] = useState(false)
+  const langRef = useRef(null)
   const [bizId, setBizId] = useState(null)
   const [bizName, setBizName] = useState(null)
   const [pageTitle, setPageTitle] = useState(null)   // for news/product pages
@@ -84,10 +86,11 @@ export default function Header() {
     return '...'
   }, [location.pathname, bizName, pageTitle])
 
-  // Close dropdown on outside click
+  // Close dropdowns on outside click
   useEffect(() => {
     const handle = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false)
+      if (langRef.current && !langRef.current.contains(e.target)) setLangOpen(false)
     }
     document.addEventListener('mousedown', handle)
     return () => document.removeEventListener('mousedown', handle)
@@ -131,27 +134,42 @@ export default function Header() {
 
           <div className="header__top-right">
 
-            {/* Language flags */}
-            <div className="header__flags">
-              {[
-                { code: 'ru', country: 'ru', label: 'Русский' },
-                { code: 'en', country: 'us', label: 'English' },
-                { code: 'tr', country: 'tr', label: 'Türkçe' },
-              ].map(({ code, country, label }) => (
-                <button
-                  key={code}
-                  className={`header__flag-btn ${lang === code ? 'header__flag-btn--active' : ''}`}
-                  onClick={() => setLang(code)}
-                  title={label}
-                >
-                  <img
-                    src={`https://flagcdn.com/20x15/${country}.png`}
-                    width="20"
-                    height="15"
-                    alt={label}
-                  />
-                </button>
-              ))}
+            {/* Language picker */}
+            <div className="header__lang-picker" ref={langRef}>
+              <button
+                className="header__lang-globe"
+                onClick={() => setLangOpen(o => !o)}
+                title="Язык / Language"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="2" y1="12" x2="22" y2="12"/>
+                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                </svg>
+                <img
+                  src={`https://flagcdn.com/20x15/${lang === 'en' ? 'us' : lang}.png`}
+                  width="16" height="12" alt={lang}
+                  className="header__lang-globe-flag"
+                />
+              </button>
+              {langOpen && (
+                <div className="header__lang-dropdown">
+                  {[
+                    { code: 'ru', country: 'ru', label: 'Русский' },
+                    { code: 'en', country: 'us', label: 'English' },
+                    { code: 'tr', country: 'tr', label: 'Türkçe' },
+                  ].map(({ code, country, label }) => (
+                    <button
+                      key={code}
+                      className={`header__lang-option ${lang === code ? 'header__lang-option--active' : ''}`}
+                      onClick={() => { setLang(code); setLangOpen(false) }}
+                    >
+                      <img src={`https://flagcdn.com/20x15/${country}.png`} width="20" height="15" alt={label} />
+                      <span>{label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Theme */}

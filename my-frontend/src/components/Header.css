@@ -375,47 +375,87 @@
   color: var(--text-primary);
 }
 
-/* Flag language buttons */
-.header__flags {
+/* Language globe picker */
+.header__lang-picker {
+  position: relative;
+}
+
+.header__lang-globe {
   display: flex;
   align-items: center;
-  gap: 4px;
-}
-
-.header__flag-btn {
-  width: 32px;
-  height: 24px;
-  border-radius: 4px;
-  border: 2px solid transparent;
-  background: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.18s;
-  opacity: 0.5;
-  padding: 0;
-  overflow: hidden;
-}
-
-.header__flag-btn img {
-  width: 20px;
-  height: 14px;
-  object-fit: cover;
-  border-radius: 2px;
-  display: block;
-}
-
-.header__flag-btn:hover {
-  opacity: 1;
-  transform: scale(1.15);
-}
-
-.header__flag-btn--active {
-  opacity: 1;
-  border-color: var(--accent-1);
+  gap: 5px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-color);
   background: var(--bg-tertiary);
-  box-shadow: 0 2px 8px rgba(229, 57, 53, 0.25);
+  color: var(--text-secondary);
+  cursor: pointer;
+  justify-content: center;
+  transition: all 0.22s;
+  padding: 0;
+  position: relative;
+}
+
+.header__lang-globe:hover {
+  border-color: var(--accent-1);
+  color: var(--accent-1);
+  box-shadow: 0 2px 10px rgba(229,57,53,0.15);
+}
+
+.header__lang-globe-flag {
+  position: absolute;
+  bottom: 4px;
+  right: 3px;
+  border-radius: 2px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.header__lang-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--bg-secondary);
+  border: 1.5px solid var(--border-color);
+  border-radius: 14px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+  overflow: hidden;
+  z-index: 200;
+  min-width: 140px;
+  animation: dropdownIn 0.18s cubic-bezier(0.34,1.2,0.64,1);
+}
+
+.header__lang-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  font-family: inherit;
+  transition: background 0.15s, color 0.15s;
+  text-align: left;
+}
+
+.header__lang-option:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.header__lang-option--active {
+  color: var(--accent-1);
+  font-weight: 700;
+  background: var(--bg-tertiary);
+}
+
+.header__lang-option img {
+  border-radius: 2px;
+  flex-shrink: 0;
 }
 
 /* ── Burger button ── */
