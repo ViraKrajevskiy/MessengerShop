@@ -55,7 +55,7 @@ const GUEST_LIMIT = 4
 const GUEST_CARDS_LIMIT = 8
 const CARDS_PER_PAGE = 8
 /** Сколько постов показываем на главной в блоке «Публикации» */
-const HOME_POSTS_VISIBLE = 3
+const HOME_POSTS_VISIBLE = 20
 
 export default function HomePage() {
   const navigate = useNavigate()
@@ -83,7 +83,7 @@ export default function HomePage() {
   useEffect(() => {
     setLoadingPosts(true)
     apiGetPosts()
-      .then(data => setPosts(Array.isArray(data) ? data.slice(0, Math.max(HOME_POSTS_VISIBLE, 6)) : []))
+      .then(data => setPosts(Array.isArray(data) ? data : []))
       .catch(() => setPosts([]))
       .finally(() => setLoadingPosts(false))
   }, [])
