@@ -329,7 +329,7 @@ export default function Stories({ noTitle = false }) {
           return (
             <div key={s.id} className="stories__item" onClick={() => openStory(i)}>
               <div className={`stories__avatar ${isSeen ? 'stories__avatar--seen' : ''}`}>
-                <img className="stories__avatar-img" src={s.avatar} alt={s.userName} />
+                <img className="stories__avatar-img" src={s.avatar} alt={s.userName} draggable={false} />
               </div>
               <span className="stories__name">{s.userName}</span>
             </div>

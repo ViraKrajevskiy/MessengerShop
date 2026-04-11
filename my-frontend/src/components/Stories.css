@@ -75,6 +75,8 @@
   gap: 8px;
   cursor: pointer;
   scroll-snap-align: start;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 .stories__avatar {
@@ -104,6 +106,9 @@
   object-fit: cover;
   border: 3px solid var(--bg-secondary);
   display: block;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 .stories__name {
