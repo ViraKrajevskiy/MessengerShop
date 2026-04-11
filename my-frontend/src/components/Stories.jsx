@@ -225,18 +225,12 @@ export default function Stories({ noTitle = false }) {
       .finally(() => setLoadingStories(false))
   }, [])
 
-  const [offset, setOffset] = useState(0)
   const [viewerOpen, setViewerOpen] = useState(false)
   const [viewerStart, setViewerStart] = useState(0)
   const [seenIds, setSeenIds] = useState(new Set())
   const listRef = useRef(null)
-  const touchStartX = useRef(0)
-  const visible = 6
+  const drag = useRef({ isDown: false, startX: 0, scrollLeft: 0, moved: false })
 
-  const prev = () => setOffset((o) => Math.max(0, o - 1))
-  const next = () => setOffset((o) => Math.min(Math.max(0, storiesData.length - visible), o + 1))
-
-  // Записать просмотр всех медиа автора (только для залогиненных, 1 раз за сессию)
   const trackViews = useCallback((storyGroup) => {
     if (!tokens?.access) return
     for (const m of storyGroup.media) {
@@ -247,6 +241,7 @@ export default function Stories({ noTitle = false }) {
   }, [tokens])
 
   const openStory = (index) => {
+    if (drag.current.moved) return
     if (!storiesData[index]) return
     setViewerStart(index)
     setViewerOpen(true)
@@ -260,11 +255,39 @@ export default function Stories({ noTitle = false }) {
     document.body.style.overflow = ''
   }
 
-  const handleTouchStart = (e) => { touchStartX.current = e.touches[0].clientX }
-  const handleTouchEnd = (e) => {
-    const dx = e.changedTouches[0].clientX - touchStartX.current
-    if (Math.abs(dx) > 50) { dx < 0 ? next() : prev() }
+  const onMouseDown = (e) => {
+    const el = listRef.current
+    if (!el) return
+    drag.current = { isDown: true, startX: e.clientX, scrollLeft: el.scrollLeft, moved: false }
+    el.style.cursor = 'grabbing'
   }
+  const onMouseMove = (e) => {
+    if (!drag.current.isDown) return
+    const el = listRef.current
+    if (!el) return
+    const dx = e.clientX - drag.current.startX
+    if (Math.abs(dx) > 5) drag.current.moved = true
+    el.scrollLeft = drag.current.scrollLeft - dx
+  }
+  const onMouseUp = () => {
+    drag.current.isDown = false
+    if (listRef.current) listRef.current.style.cursor = 'grab'
+  }
+
+  const onTouchStart = (e) => {
+    const el = listRef.current
+    if (!el) return
+    drag.current = { isDown: true, startX: e.touches[0].clientX, scrollLeft: el.scrollLeft, moved: false }
+  }
+  const onTouchMove = (e) => {
+    if (!drag.current.isDown) return
+    const el = listRef.current
+    if (!el) return
+    const dx = e.touches[0].clientX - drag.current.startX
+    if (Math.abs(dx) > 5) drag.current.moved = true
+    el.scrollLeft = drag.current.scrollLeft - dx
+  }
+  const onTouchEnd = () => { drag.current.isDown = false }
 
   if (loadingStories) return (
     <section className="stories">
@@ -290,27 +313,28 @@ export default function Stories({ noTitle = false }) {
   return (
     <section className="stories">
       {!noTitle && <h2 className="section-title">Истории</h2>}
-      <div className="stories__carousel">
-        <button className="stories__arrow stories__arrow--left" onClick={prev} disabled={offset === 0}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-        </button>
-        <div className="stories__list" ref={listRef} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
-          {storiesData.slice(offset, offset + visible).map((s, i) => {
-            const realIndex = offset + i
-            const isSeen = seenIds.has(s.id)
-            return (
-              <div key={s.id} className="stories__item" onClick={() => openStory(realIndex)}>
-                <div className={`stories__avatar ${isSeen ? 'stories__avatar--seen' : ''}`}>
-                  <img className="stories__avatar-img" src={s.avatar} alt={s.userName} />
-                </div>
-                <span className="stories__name">{s.userName}</span>
+      <div
+        className="stories__list"
+        ref={listRef}
+        onMouseDown={onMouseDown}
+        onMouseMove={onMouseMove}
+        onMouseUp={onMouseUp}
+        onMouseLeave={onMouseUp}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+      >
+        {storiesData.map((s, i) => {
+          const isSeen = seenIds.has(s.id)
+          return (
+            <div key={s.id} className="stories__item" onClick={() => openStory(i)}>
+              <div className={`stories__avatar ${isSeen ? 'stories__avatar--seen' : ''}`}>
+                <img className="stories__avatar-img" src={s.avatar} alt={s.userName} />
               </div>
-            )
-          })}
-        </div>
-        <button className="stories__arrow stories__arrow--right" onClick={next} disabled={offset >= storiesData.length - visible}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-        </button>
+              <span className="stories__name">{s.userName}</span>
+            </div>
+          )
+        })}
       </div>
 
       {viewerOpen && (

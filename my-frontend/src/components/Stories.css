@@ -49,15 +49,20 @@
 .stories__list {
   display: flex;
   gap: 18px;
-  overflow: visible;
+  overflow-x: auto;
   touch-action: pan-y;
-  flex: 1;
-  justify-content: space-evenly;
+  cursor: grab;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  padding: 6px 0;
+}
+
+.stories__list::-webkit-scrollbar {
+  display: none;
 }
 
 .stories__item {
-  flex: 1;
-  min-width: 0;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
