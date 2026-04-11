@@ -8,7 +8,6 @@ import './NewUsers.css'
 
 export default function NewUsers() {
   const [businesses, setBusinesses] = useState([])
-  const [showAll, setShowAll] = useState(false)
   const { addViewed } = useViewed()
   const { t } = useLanguage()
   const navigate = useNavigate()
@@ -19,7 +18,7 @@ export default function NewUsers() {
       .catch(() => {})
   }, [])
 
-  const displayed = showAll ? businesses : businesses.slice(0, 10)
+  const displayed = businesses.slice(0, 10)
 
   const handleClick = (biz) => {
     addViewed({ id: biz.id, name: biz.brand_name, city: biz.city, badge: null, type: 'business' })
@@ -32,8 +31,8 @@ export default function NewUsers() {
     <section className="new-users">
       <div className="new-users__header">
         <h2 className="section-title">{t('newBiz_title')}</h2>
-        <button className="new-users__show-all" onClick={() => setShowAll(!showAll)}>
-          {showAll ? t('newBiz_collapse') : t('newBiz_showAll')}
+        <button className="new-users__show-all" onClick={() => navigate('/catalog')}>
+          {t('newBiz_showAll')}
         </button>
       </div>
 
@@ -41,7 +40,7 @@ export default function NewUsers() {
         {t('newBiz_sub')}
       </div>
 
-      <div className={`new-users__grid ${showAll ? 'new-users__grid--expanded' : ''}`}>
+      <div className="new-users__grid">
         {displayed.map(biz => {
           const logo = biz.logo
             ? (biz.logo.startsWith('http') ? biz.logo : `https://api.101-school.uz${biz.logo}`)
@@ -58,11 +57,6 @@ export default function NewUsers() {
         })}
       </div>
 
-      {showAll && businesses.length > 10 && (
-        <div className="new-users__count">
-          Всего бизнесов: <strong>{businesses.length}</strong>
-        </div>
-      )}
 
     </section>
   )
