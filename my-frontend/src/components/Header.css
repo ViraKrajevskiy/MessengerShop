@@ -526,7 +526,8 @@
   display: flex;
   flex-direction: column;
   transform: translateY(-110%);
-  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  visibility: hidden;
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0.28s;
   box-shadow: 0 8px 32px rgba(0,0,0,0.16);
   max-height: calc(100dvh - 90px);
   overflow-y: auto;
@@ -534,6 +535,8 @@
 
 .header__mobile-drawer--open {
   transform: translateY(0);
+  visibility: visible;
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0s;
 }
 
 .header__mobile-drawer-top {
