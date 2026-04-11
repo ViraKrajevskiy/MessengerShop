@@ -1,9 +1,8 @@
+/* ── Two-row header shell ── */
 .header {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
   padding: 0 28px;
-  height: 62px;
   background: var(--bg-glass);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
@@ -15,6 +14,88 @@
   box-shadow: 0 1px 0 rgba(0,0,0,0.04), 0 4px 20px rgba(0,0,0,0.04);
 }
 
+/* ── Row 1 ── */
+.header__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 52px;
+}
+
+.header__top-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ── Row 2 ── */
+.header__bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 38px;
+  border-top: 1px solid var(--border-light);
+}
+
+/* ── Breadcrumb ── */
+.header__breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.header__breadcrumb-home {
+  color: var(--accent-1);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.header__breadcrumb-home:hover {
+  text-decoration: underline;
+}
+
+.header__breadcrumb-sep {
+  color: var(--text-muted);
+}
+
+.header__breadcrumb-current {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* ── Bottom nav buttons ── */
+.header__nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header__nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.22s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.header__nav-btn:hover {
+  background: var(--accent-gradient);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 4px 14px rgba(229, 57, 53, 0.28);
+}
+
+/* ── Logo ── */
 .header__logo {
   font-size: 26px;
   font-weight: 900;
@@ -30,37 +111,7 @@
   user-select: none;
 }
 
-.header__actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.header__input {
-  padding: 8px 18px;
-  border: 1.5px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  font-size: 13.5px;
-  outline: none;
-  width: 126px;
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-  transition: all 0.2s;
-  font-weight: 500;
-}
-
-.header__input::placeholder {
-  color: var(--text-muted);
-  font-weight: 400;
-}
-
-.header__input:focus {
-  border-color: var(--accent-1);
-  background: var(--bg-secondary);
-  box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.10);
-  width: 140px;
-}
-
+/* ── Auth buttons ── */
 .header__btn {
   padding: 8px 22px;
   border: none;
@@ -95,47 +146,11 @@
   transform: translateY(-1px);
 }
 
-/* Feed button */
-.header__feed-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 16px;
-  border-radius: 20px;
-  border: 1.5px solid var(--border-color);
-  background: var(--bg-tertiary);
-  color: var(--text-secondary);
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.22s;
-  font-family: inherit;
-  white-space: nowrap;
-}
-
-.header__feed-btn:hover {
-  background: var(--accent-gradient);
-  color: #fff;
-  border-color: transparent;
-  box-shadow: 0 4px 14px rgba(229, 57, 53, 0.28);
-  transform: translateY(-1px);
-}
-
-.header__feed-label {
-  font-size: 13px;
-  font-weight: 700;
-}
-
-@media (max-width: 640px) {
-  .header__feed-label { display: none; }
-  .header__feed-btn { padding: 7px; width: 40px; height: 40px; border-radius: 50%; justify-content: center; }
-}
-
-/* Messenger button */
+/* ── Messenger button ── */
 .header__messenger-btn {
   position: relative;
-  width: 40px;
-  height: 40px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   border: 1.5px solid var(--border-color);
   background: var(--bg-tertiary);
@@ -180,9 +195,10 @@
   50% { transform: scale(1.18); }
 }
 
+/* ── Theme toggle ── */
 .header__theme-toggle {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   border: 1.5px solid var(--border-color);
   background: var(--bg-tertiary);
@@ -225,8 +241,8 @@
 }
 
 .header__user-avatar {
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
@@ -252,6 +268,7 @@
   transform: rotate(180deg);
 }
 
+/* ── Dropdown ── */
 .header__dropdown {
   position: absolute;
   top: calc(100% + 8px);
@@ -335,6 +352,7 @@
   color: #ef4444;
 }
 
+/* ── Language select ── */
 .header__lang {
   margin-left: 2px;
 }
@@ -399,10 +417,10 @@
 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* ── Mobile drawer ── */
+/* ── Mobile drawer — top offset updated to 90px for 2-row header ── */
 .header__mobile-drawer {
   position: fixed;
-  top: 62px;
+  top: 90px;
   left: 0;
   right: 0;
   background: var(--bg-secondary);
@@ -413,7 +431,7 @@
   transform: translateY(-110%);
   transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 8px 32px rgba(0,0,0,0.16);
-  max-height: calc(100dvh - 62px);
+  max-height: calc(100dvh - 90px);
   overflow-y: auto;
 }
 
@@ -530,16 +548,12 @@
   .header__lang { display: none; }
   .header__btn--register { display: none; }
   .header__user-name { display: none; }
-  .header__feed-btn { display: none; }
-  .header__messenger-btn { display: none; }
   .header__theme-toggle { display: none; }
-  .header__input { width: 100px; }
-  .header__input:focus { width: 110px; }
+  .header__bottom { display: none; }
   .header__user-btn { padding: 4px 8px 4px 4px; }
   .header__user-avatar { width: 28px; height: 28px; }
 }
 
 @media (max-width: 380px) {
-  .header__input { display: none; }
   .header__btn--login { padding: 7px 14px; font-size: 12px; }
 }
