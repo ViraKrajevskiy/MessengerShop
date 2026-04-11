@@ -31,7 +31,7 @@ export default function NewUsers() {
     <section className="new-users">
       <div className="new-users__header">
         <h2 className="section-title">{t('newBiz_title')}</h2>
-        <button className="new-users__show-all" onClick={() => navigate('/catalog')}>
+        <button className="new-users__show-all" onClick={() => navigate('/catalog?tab=companies')}>
           {t('newBiz_showAll')}
         </button>
       </div>

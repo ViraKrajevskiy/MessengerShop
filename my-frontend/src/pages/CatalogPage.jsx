@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import { useAuth } from '../context/AuthContext'
@@ -141,7 +141,8 @@ export default function CatalogPage() {
     { key: 'companies', label: `🏢 ${t('catalog_companies')}` },
   ]
 
-  const [tab, setTab]           = useState('services')
+  const [searchParams] = useSearchParams()
+  const [tab, setTab]           = useState(() => searchParams.get('tab') || 'services')
   const [products, setProducts] = useState([])
   const [businesses, setBiz]    = useState([])
   const [loading, setLoading]   = useState(true)
