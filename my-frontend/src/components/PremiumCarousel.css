@@ -7,7 +7,7 @@
   display: grid;
   grid-template-columns: 2fr 2fr 2fr;
   grid-template-rows: 1fr;
-  gap: 4px;
+  gap: 20px;
   height: 500px;
   border-radius: 0;
   overflow: hidden;
@@ -19,7 +19,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
-  gap: 4px;
+  gap: 20px;
 }
 
 .premium-carousel__mosaic:active {
