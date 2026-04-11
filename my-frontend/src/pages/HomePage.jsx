@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Header from '../components/Header'
@@ -129,6 +129,30 @@ export default function HomePage() {
     [posts]
   )
 
+  const postsGridRef = useRef(null)
+  const dragState = useRef({ isDown: false, startX: 0, scrollLeft: 0 })
+
+  const onDragStart = (clientX) => {
+    const el = postsGridRef.current
+    if (!el) return
+    dragState.current = { isDown: true, startX: clientX, scrollLeft: el.scrollLeft }
+    el.style.cursor = 'grabbing'
+    el.style.userSelect = 'none'
+  }
+  const onDragMove = (clientX) => {
+    if (!dragState.current.isDown) return
+    const el = postsGridRef.current
+    if (!el) return
+    el.scrollLeft = dragState.current.scrollLeft - (clientX - dragState.current.startX)
+  }
+  const onDragEnd = () => {
+    dragState.current.isDown = false
+    const el = postsGridRef.current
+    if (!el) return
+    el.style.cursor = 'grab'
+    el.style.userSelect = ''
+  }
+
   return (
     <div className="home-page">
       <Header />
@@ -189,7 +213,17 @@ export default function HomePage() {
                 ))}
               </div>
             ) : homePosts.length > 0 ? (
-              <div className="home-posts-grid">
+              <div
+                className="home-posts-grid"
+                ref={postsGridRef}
+                onMouseDown={e => onDragStart(e.clientX)}
+                onMouseMove={e => onDragMove(e.clientX)}
+                onMouseUp={onDragEnd}
+                onMouseLeave={onDragEnd}
+                onTouchStart={e => onDragStart(e.touches[0].clientX)}
+                onTouchMove={e => onDragMove(e.touches[0].clientX)}
+                onTouchEnd={onDragEnd}
+              >
                 {homePosts.map(p => (
                   <PostCard key={p.id} post={p} />
                 ))}
