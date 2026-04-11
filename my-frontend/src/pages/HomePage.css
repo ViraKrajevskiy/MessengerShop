@@ -319,10 +319,29 @@
   gap: 20px;
   overflow-x: auto;
   scroll-behavior: smooth;
-  scrollbar-width: none;
+  padding: 0 0 12px 0;
+  margin: 0 auto;
+  justify-content: center;
+  scrollbar-color: var(--border-color) transparent;
+  scrollbar-width: thin;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: 4px;
-  margin-bottom: -4px;
+}
+
+.home-posts-grid::-webkit-scrollbar {
+  height: 6px;
+}
+
+.home-posts-grid::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.home-posts-grid::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+
+.home-posts-grid::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
 }
 
 .home-posts-section .post-card {
@@ -361,11 +380,6 @@
     width: 200px;
     min-width: 200px;
   }
-}
-
-/* Hide scrollbar */
-.home-posts-grid::-webkit-scrollbar {
-  display: none;
 }
 
 @media (max-width: 640px) {
