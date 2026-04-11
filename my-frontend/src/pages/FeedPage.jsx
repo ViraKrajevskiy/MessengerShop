@@ -386,8 +386,8 @@ export default function FeedPage() {
                   <>
                     <Stories />
                     {(() => {
-                      const allPosts = user ? fPosts : fPosts.slice(0, GUEST_LIMIT)
-                      const hasMore = !user && fPosts.length > GUEST_LIMIT
+                      const allPosts = fPosts
+                      const hasMore = false
                       const totalPages = Math.ceil(allPosts.length / CARDS_PER_PAGE)
                       const paginatedPosts = allPosts.slice(page * CARDS_PER_PAGE, (page + 1) * CARDS_PER_PAGE)
                       return (
@@ -420,7 +420,7 @@ export default function FeedPage() {
                 {tab === 'photos' && (
                   <>
                     {(() => {
-                      const allPhotos = user ? fPhotos : fPhotos.slice(0, GUEST_LIMIT)
+                      const allPhotos = fPhotos
                       const totalPages = Math.ceil(allPhotos.length / CARDS_PER_PAGE)
                       const paginatedPhotos = allPhotos.slice(page * CARDS_PER_PAGE, (page + 1) * CARDS_PER_PAGE)
                       return (
@@ -454,7 +454,7 @@ export default function FeedPage() {
                 {tab === 'videos' && (
                   <>
                     {(() => {
-                      const allVideos = user ? fVideos : fVideos.slice(0, GUEST_LIMIT)
+                      const allVideos = fVideos
                       const totalPages = Math.ceil(allVideos.length / CARDS_PER_PAGE)
                       const paginatedVideos = allVideos.slice(page * CARDS_PER_PAGE, (page + 1) * CARDS_PER_PAGE)
                       return (
@@ -488,7 +488,7 @@ export default function FeedPage() {
                 {tab === 'news' && (
                   <>
                     <div className="feed-news-list">
-                      {(user ? fNews : fNews.slice(0, GUEST_LIMIT)).map(item => (
+                      {fNews.map(item => (
                         <FeedNewsCard key={`news-${item.id}`} item={item} onTagClick={handleTagClick} />
                       ))}
                     </div>
@@ -500,7 +500,7 @@ export default function FeedPage() {
                 {tab === 'tweets' && (
                   <>
                     <div className="feed-tweets-list">
-                      {(user ? fPosts : fPosts.slice(0, GUEST_LIMIT)).map(post => (
+                      {fPosts.map(post => (
                         <TweetCard key={`tweet-${post.id}`} post={post} onTagClick={handleTagClick} />
                       ))}
                     </div>
