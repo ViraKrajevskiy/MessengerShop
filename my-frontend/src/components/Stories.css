@@ -54,11 +54,18 @@
   cursor: grab;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
-  padding: 6px 0;
+  padding: 6px 2px;
+  /* show ~6 circles: 6×96px + 5×18px gap = 666px */
+  max-width: 670px;
+  clip-path: inset(0 0 0 0);
 }
 
 .stories__list::-webkit-scrollbar {
   display: none;
+}
+
+.stories__list:active {
+  cursor: grabbing;
 }
 
 .stories__item {
