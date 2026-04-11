@@ -32,6 +32,7 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [bizId, setBizId] = useState(null)
+  const [bizName, setBizName] = useState(null)
   const { theme, toggleTheme } = useTheme()
   const { user, logout, getAccessToken } = useAuth()
   const { lang, setLang, t, LANG_NAMES } = useLanguage()
@@ -39,13 +40,28 @@ export default function Header() {
   const location = useLocation()
   const menuRef = useRef(null)
 
+  // Load business name when on a business profile page
+  useEffect(() => {
+    const match = location.pathname.match(/^\/business\/(\d+)$/)
+    if (match) {
+      const id = match[1]
+      const base = import.meta.env.PROD ? 'https://api.101-school.uz/api' : 'http://127.0.0.1:8000/api'
+      fetch(`${base}/businesses/${id}/`)
+        .then(r => r.ok ? r.json() : null)
+        .then(b => setBizName(b?.brand_name || 'Профиль'))
+        .catch(() => setBizName('Профиль'))
+    } else {
+      setBizName(null)
+    }
+  }, [location.pathname])
+
   // Derive breadcrumb current page name from path
   const currentPageName = useMemo(() => {
     const p = location.pathname
     if (p in PATH_NAMES) return PATH_NAMES[p]
-    if (p.startsWith('/business/')) return 'Профиль'
+    if (p.startsWith('/business/')) return bizName || 'Профиль'
     return '...'
-  }, [location.pathname])
+  }, [location.pathname, bizName])
 
   // Close dropdown on outside click
   useEffect(() => {
