@@ -33,6 +33,8 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [bizId, setBizId] = useState(null)
   const [bizName, setBizName] = useState(null)
+  const [pageTitle, setPageTitle] = useState(null)   // for news/product pages
+  const [pageParent, setPageParent] = useState(null) // e.g. { label: 'Лента', path: '/feed' }
   const { theme, toggleTheme } = useTheme()
   const { user, logout, getAccessToken } = useAuth()
   const { lang, setLang, t, LANG_NAMES } = useLanguage()
@@ -40,18 +42,36 @@ export default function Header() {
   const location = useLocation()
   const menuRef = useRef(null)
 
-  // Load business name when on a business profile page
+  // Load dynamic breadcrumb data based on current path
   useEffect(() => {
-    const match = location.pathname.match(/^\/business\/(\d+)$/)
-    if (match) {
-      const id = match[1]
-      const base = import.meta.env.PROD ? 'https://api.101-school.uz/api' : 'http://127.0.0.1:8000/api'
-      fetch(`${base}/businesses/${id}/`)
+    const base = import.meta.env.PROD ? 'https://api.101-school.uz/api' : 'http://127.0.0.1:8000/api'
+    const p = location.pathname
+
+    setBizName(null)
+    setPageTitle(null)
+    setPageParent(null)
+
+    const bizMatch = p.match(/^\/business\/(\d+)$/)
+    const newsMatch = p.match(/^\/news\/(\d+)$/)
+    const productMatch = p.match(/^\/product\/(\d+)$/)
+
+    if (bizMatch) {
+      fetch(`${base}/businesses/${bizMatch[1]}/`)
         .then(r => r.ok ? r.json() : null)
         .then(b => setBizName(b?.brand_name || 'Профиль'))
         .catch(() => setBizName('Профиль'))
-    } else {
-      setBizName(null)
+    } else if (newsMatch) {
+      setPageParent({ label: 'Лента', path: '/feed' })
+      fetch(`${base}/posts/${newsMatch[1]}/`)
+        .then(r => r.ok ? r.json() : null)
+        .then(d => setPageTitle(d?.text?.slice(0, 40) || 'Публикация'))
+        .catch(() => setPageTitle('Публикация'))
+    } else if (productMatch) {
+      setPageParent({ label: 'Каталог', path: '/catalog' })
+      fetch(`${base}/products/${productMatch[1]}/`)
+        .then(r => r.ok ? r.json() : null)
+        .then(d => setPageTitle(d?.name?.slice(0, 40) || 'Товар'))
+        .catch(() => setPageTitle('Товар'))
     }
   }, [location.pathname])
 
@@ -60,8 +80,9 @@ export default function Header() {
     const p = location.pathname
     if (p in PATH_NAMES) return PATH_NAMES[p]
     if (p.startsWith('/business/')) return bizName || 'Профиль'
+    if (p.startsWith('/news/') || p.startsWith('/product/')) return pageTitle
     return '...'
-  }, [location.pathname, bizName])
+  }, [location.pathname, bizName, pageTitle])
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -229,6 +250,12 @@ export default function Header() {
         <div className="header__bottom">
           <div className="header__breadcrumb">
             <span className="header__breadcrumb-home" onClick={() => go('/')}>Дом</span>
+            {pageParent && (
+              <>
+                <span className="header__breadcrumb-sep">›</span>
+                <span className="header__breadcrumb-home" onClick={() => go(pageParent.path)}>{pageParent.label}</span>
+              </>
+            )}
             {currentPageName && (
               <>
                 <span className="header__breadcrumb-sep">›</span>
