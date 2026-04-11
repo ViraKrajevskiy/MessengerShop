@@ -319,11 +319,11 @@
   gap: 20px;
   overflow-x: auto;
   padding: 0 0 8px 0;
-  margin: 0 auto;
   cursor: grab;
   user-select: none;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
 }
 
 .home-posts-grid::-webkit-scrollbar {
@@ -334,8 +334,10 @@
 .home-posts-section .post-card {
   border: none;
   box-shadow: var(--card-shadow);
-  flex: 0 0 260px;
+  /* exactly 3 per view: (100% - 2 gaps) / 3 */
+  flex: 0 0 calc((100% - 2 * 20px) / 3);
   height: 420px;
+  scroll-snap-align: start;
 }
 
 .home-posts-section .post-card__image {
