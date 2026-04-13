@@ -18,27 +18,30 @@ function groupStoriesByAuthor(apiStories) {
   let skipped = 0
 
   for (const s of apiStories) {
+    console.log('📖 Story ID:', s.id, 'is_active:', s.is_active, 'author_id:', s.author?.id, 'author:', s.author?.brand_name || s.author?.username)
+
     // Check is_active status
     if (s.is_active === false) {
-      console.log('Skipped inactive story:', s.id)
+      console.log('  ❌ Skipped: inactive story')
       skipped++
       continue
     }
 
     const aId = s.author?.id
     if (!aId) {
-      console.warn('Story missing author.id:', s)
+      console.warn('  ❌ Skipped: missing author.id')
       skipped++
       continue
     }
 
     // Ensure author object is valid
     if (!s.author || typeof s.author !== 'object') {
-      console.warn('Story has invalid author object:', s)
+      console.warn('  ❌ Skipped: invalid author object')
       skipped++
       continue
     }
 
+    console.log('  ✅ Added to group:', aId)
     if (!map[aId]) {
       map[aId] = {
         id:       aId,
@@ -61,8 +64,8 @@ function groupStoriesByAuthor(apiStories) {
   }
 
   const grouped = Object.values(map)
-  console.log(`Grouped ${grouped.length} stories from ${apiStories.length} total (skipped: ${skipped})`)
-  console.log('Final grouped data:', grouped)
+  console.log(`✅ Grouped ${grouped.length} stories from ${apiStories.length} total (skipped: ${skipped})`)
+  console.table(grouped.map(g => ({ author: g.userName, media_count: g.media.length })))
   return grouped
 }
 
