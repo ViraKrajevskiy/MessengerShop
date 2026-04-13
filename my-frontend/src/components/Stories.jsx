@@ -2,7 +2,7 @@ import { useState, useRef, useCallback, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { apiGetStories, apiViewStory } from '../api/businessApi'
+import { apiGetStories, apiViewStory, invalidateCache } from '../api/businessApi'
 import { makeInitialAvatar } from '../utils/defaults'
 import './Stories.css'
 
@@ -11,7 +11,10 @@ function groupStoriesByAuthor(apiStories) {
   for (const s of apiStories) {
     if (s.is_active === false) continue
     const aId = s.author?.id
-    if (!aId) continue
+    if (!aId) {
+      console.warn('Story missing author.id:', s)
+      continue
+    }
     if (!map[aId]) {
       map[aId] = {
         id:       aId,
@@ -32,6 +35,7 @@ function groupStoriesByAuthor(apiStories) {
       createdAt: s.created_at || null,
     })
   }
+  console.log('Grouped stories:', Object.values(map))
   return Object.values(map)
 }
 
@@ -286,17 +290,30 @@ export default function Stories({ noTitle = false }) {
 
   const loadStories = () => {
     setLoadingStories(true)
+    invalidateCache('stories')
     apiGetStories()
-      .then(data => setStoriesData(groupStoriesByAuthor(data)))
-      .catch(() => setStoriesData([]))
+      .then(data => {
+        console.log('Raw API stories:', data)
+        setStoriesData(groupStoriesByAuthor(data))
+      })
+      .catch((err) => {
+        console.error('Error loading stories:', err)
+        setStoriesData([])
+      })
       .finally(() => setLoadingStories(false))
   }
 
   const refreshStories = () => {
     setRefreshing(true)
+    invalidateCache('stories')
     apiGetStories()
-      .then(data => setStoriesData(groupStoriesByAuthor(data)))
-      .catch(() => {})
+      .then(data => {
+        console.log('Raw API stories (refresh):', data)
+        setStoriesData(groupStoriesByAuthor(data))
+      })
+      .catch((err) => {
+        console.error('Error refreshing stories:', err)
+      })
       .finally(() => setRefreshing(false))
   }
 
