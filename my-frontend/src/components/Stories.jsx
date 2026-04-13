@@ -7,41 +7,28 @@ import { makeInitialAvatar } from '../utils/defaults'
 import './Stories.css'
 
 function groupStoriesByAuthor(apiStories) {
-  console.log('Processing stories, total count:', apiStories?.length || 0)
-
   if (!Array.isArray(apiStories)) {
-    console.warn('apiStories is not an array:', apiStories)
     return []
   }
 
   const result = []
-  let skipped = 0
 
   for (const s of apiStories) {
-    console.log('📖 Story ID:', s.id, 'is_active:', s.is_active, 'author_id:', s.author?.id, 'author:', s.author?.brand_name || s.author?.username)
-
     // Check is_active status
     if (s.is_active === false) {
-      console.log('  ❌ Skipped: inactive story')
-      skipped++
       continue
     }
 
     const aId = s.author?.id
     if (!aId) {
-      console.warn('  ❌ Skipped: missing author.id')
-      skipped++
       continue
     }
 
     // Ensure author object is valid
     if (!s.author || typeof s.author !== 'object') {
-      console.warn('  ❌ Skipped: invalid author object')
-      skipped++
       continue
     }
 
-    console.log('  ✅ Adding story:', s.id)
     // Each story is its own group with 1 media item
     result.push({
       id:       s.id,
@@ -61,8 +48,6 @@ function groupStoriesByAuthor(apiStories) {
     })
   }
 
-  console.log(`✅ Created ${result.length} story items from ${apiStories.length} total (skipped: ${skipped})`)
-  console.table(result.map(g => ({ id: g.id, author: g.userName })))
   return result
 }
 
@@ -307,14 +292,8 @@ export default function Stories({ noTitle = false }) {
     setLoadingStories(true)
     invalidateCache('stories')
     apiGetStories()
-      .then(data => {
-        console.log('Raw API stories:', data)
-        setStoriesData(groupStoriesByAuthor(data))
-      })
-      .catch((err) => {
-        console.error('Error loading stories:', err)
-        setStoriesData([])
-      })
+      .then(data => setStoriesData(groupStoriesByAuthor(data)))
+      .catch(() => setStoriesData([]))
       .finally(() => setLoadingStories(false))
   }
 
@@ -322,24 +301,17 @@ export default function Stories({ noTitle = false }) {
     setRefreshing(true)
     invalidateCache('stories')
     apiGetStories()
-      .then(data => {
-        console.log('Raw API stories (refresh):', data)
-        setStoriesData(groupStoriesByAuthor(data))
-      })
-      .catch((err) => {
-        console.error('Error refreshing stories:', err)
-      })
+      .then(data => setStoriesData(groupStoriesByAuthor(data)))
+      .catch(() => {})
       .finally(() => setRefreshing(false))
   }
 
   useEffect(() => {
-    console.log('Stories component mounted, loading initial data')
     loadStories()
 
     // Обновить истории когда пользователь вернулся на вкладку
     const handleVisibility = () => {
       if (document.visibilityState === 'visible') {
-        console.log('Page became visible, refreshing stories...')
         refreshStories()
       }
     }
@@ -349,15 +321,8 @@ export default function Stories({ noTitle = false }) {
 
   // Обновлять истории каждые 10 секунд
   useEffect(() => {
-    console.log('Setting up auto-refresh interval (10s)')
-    const interval = setInterval(() => {
-      console.log('Auto-refreshing stories...')
-      refreshStories()
-    }, 10000)
-    return () => {
-      console.log('Clearing auto-refresh interval')
-      clearInterval(interval)
-    }
+    const interval = setInterval(refreshStories, 10000)
+    return () => clearInterval(interval)
   }, [])
 
   const [viewerOpen, setViewerOpen] = useState(false)
@@ -424,10 +389,7 @@ export default function Stories({ noTitle = false }) {
   }
   const onTouchEnd = () => { drag.current.isDown = false }
 
-  console.log('🎬 RENDER CHECK - loadingStories:', loadingStories, 'storiesData.length:', storiesData.length)
-
   if (loadingStories) {
-    console.log('🎬 RENDERING: Loading skeleton')
     return (
       <section className="stories">
         {!noTitle && <h2 className="section-title">Истории</h2>}
@@ -444,7 +406,6 @@ export default function Stories({ noTitle = false }) {
   }
 
   if (storiesData.length === 0) {
-    console.log('🎬 RENDERING: Empty state')
     return (
       <section className="stories">
         {!noTitle && <h2 className="section-title">Истории</h2>}
@@ -453,7 +414,6 @@ export default function Stories({ noTitle = false }) {
     )
   }
 
-  console.log('🎬 RENDERING: Stories carousel with', storiesData.length, 'groups')
   return (
     <section className="stories">
       {!noTitle && <h2 className="section-title">Истории</h2>}
@@ -469,7 +429,6 @@ export default function Stories({ noTitle = false }) {
         onTouchEnd={onTouchEnd}
       >
         {storiesData.map((s, i) => {
-          console.log('🎬 Rendering story group:', s.userName, 'with', s.media.length, 'media')
           const isSeen = seenIds.has(s.id)
           return (
             <div key={s.id} className="stories__item" onClick={() => openStory(i)}>
