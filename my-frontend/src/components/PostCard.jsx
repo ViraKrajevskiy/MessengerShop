@@ -115,7 +115,12 @@ export default function PostCard({ post, onDelete }) {
 
       <div
         className={`post-card__image${post.media_type === 'VIDEO' ? ' post-card__image--video' : ''}`}
-        onClick={() => post.media_type === 'VIDEO' && setSelectedVideo({ url: post.media_display, title: post.text })}
+        onClick={(e) => {
+          if (post.media_type === 'VIDEO') {
+            e.stopPropagation()
+            setSelectedVideo({ url: post.media_display, title: post.text })
+          }
+        }}
       >
         <img src={media} alt="" loading="lazy" width="400" height="300" draggable={false} />
         {post.media_type === 'VIDEO' && <div className="post-card__play">▶</div>}
