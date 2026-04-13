@@ -408,7 +408,7 @@
 /* ── Feed (posts) ── */
 .bp__feed {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 14px;
 }
 .bp__feed-item {
@@ -505,6 +505,38 @@
   display: inline-block;
 }
 @keyframes bp-del-spin { to { transform: rotate(360deg); } }
+
+/* ── Pagination ── */
+.bp__pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+.bp__pagination-btn {
+  min-width: 40px;
+  height: 40px;
+  padding: 8px 12px;
+  border: 1.5px solid var(--border-color);
+  background: transparent;
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+  font-family: inherit;
+}
+.bp__pagination-btn:hover {
+  border-color: var(--accent-1);
+  color: var(--accent-1);
+}
+.bp__pagination-btn--active {
+  background: var(--accent-gradient);
+  border-color: transparent;
+  color: #fff;
+}
 
 /* ── Products grid ── */
 .bp__products-grid {
@@ -1053,6 +1085,7 @@
   .bp__avatar { width: 120px; min-height: 120px; }
   .bp__actions { justify-content: flex-start; }
   .bp__cover { height: 180px; }
+  .bp__feed { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 600px) {

@@ -318,6 +318,8 @@ export default function BusinessPage() {
   const [toast, setToast]           = useState('')
   const [faq, setFaq]               = useState([])
   const [services, setServices]     = useState([])
+  const [postsPage, setPostsPage]   = useState(0)
+  const POSTS_PER_PAGE = 8
 
   const showToast = (msg) => {
     setToast(msg)
@@ -381,6 +383,12 @@ export default function BusinessPage() {
     } finally {
       setDeletingPost(null)
     }
+  }
+
+  const handlePostsPageChange = (page) => {
+    setPostsPage(page)
+    const element = document.getElementById('section-posts')
+    if (element) element.scrollIntoView({ behavior: 'smooth' })
   }
 
 
@@ -598,47 +606,69 @@ export default function BusinessPage() {
               <section className="bp__card" id="section-posts">
                 <h2 className="bp__card-title">Публикации <span className="bp__pill">{posts.length}</span></h2>
                 <div className="bp__feed">
-                  {posts.map(post => (
-                    <div key={post.id} className="bp__feed-item">
-                      {post.media_display && (
-                        <div className="bp__feed-media">
-                          <img src={post.media_display} alt="" loading="lazy" />
-                          {post.media_type === 'VIDEO' && <div className="bp__play">▶</div>}
-                        </div>
-                      )}
-                      <div className="bp__feed-body">
-                        <p className="bp__feed-text">{post.text}</p>
-                        <div className="bp__feed-hashtags">
-                          {bizHashtags.slice(0, 3).map((h, i) => <span key={i} className="bp__feed-hashtag">{h}</span>)}
-                        </div>
-                        <div className="bp__feed-footer">
-                          <span className="bp__feed-date">
-                            {new Date(post.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}
-                          </span>
-                          {isOwner && (
-                            <button
-                              className="bp__feed-delete"
-                              onClick={() => handleDeletePost(post.id)}
-                              disabled={deletingPost === post.id}
-                              title="Удалить пост"
-                            >
-                              {deletingPost === post.id ? (
-                                <span className="bp__feed-delete-spinner" />
-                              ) : (
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                                  <polyline points="3 6 5 6 21 6"/>
-                                  <path d="M19 6l-1 14H6L5 6"/>
-                                  <path d="M10 11v6M14 11v6"/>
-                                  <path d="M9 6V4h6v2"/>
-                                </svg>
-                              )}
-                            </button>
-                          )}
+                  {(() => {
+                    const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE)
+                    const start = postsPage * POSTS_PER_PAGE
+                    const end = start + POSTS_PER_PAGE
+                    const visiblePosts = posts.slice(start, end)
+                    return visiblePosts.map(post => (
+                      <div key={post.id} className="bp__feed-item">
+                        {post.media_display && (
+                          <div className="bp__feed-media">
+                            <img src={post.media_display} alt="" loading="lazy" />
+                            {post.media_type === 'VIDEO' && <div className="bp__play">▶</div>}
+                          </div>
+                        )}
+                        <div className="bp__feed-body">
+                          <p className="bp__feed-text">{post.text}</p>
+                          <div className="bp__feed-hashtags">
+                            {bizHashtags.slice(0, 3).map((h, i) => <span key={i} className="bp__feed-hashtag">{h}</span>)}
+                          </div>
+                          <div className="bp__feed-footer">
+                            <span className="bp__feed-date">
+                              {new Date(post.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}
+                            </span>
+                            {isOwner && (
+                              <button
+                                className="bp__feed-delete"
+                                onClick={() => handleDeletePost(post.id)}
+                                disabled={deletingPost === post.id}
+                                title="Удалить пост"
+                              >
+                                {deletingPost === post.id ? (
+                                  <span className="bp__feed-delete-spinner" />
+                                ) : (
+                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                                    <polyline points="3 6 5 6 21 6"/>
+                                    <path d="M19 6l-1 14H6L5 6"/>
+                                    <path d="M10 11v6M14 11v6"/>
+                                    <path d="M9 6V4h6v2"/>
+                                  </svg>
+                                )}
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))
+                  })()}
                 </div>
+                {(() => {
+                  const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE)
+                  return totalPages > 1 && (
+                    <div className="bp__pagination">
+                      {Array.from({ length: totalPages }, (_, i) => (
+                        <button
+                          key={i}
+                          className={`bp__pagination-btn ${postsPage === i ? 'bp__pagination-btn--active' : ''}`}
+                          onClick={() => handlePostsPageChange(i)}
+                        >
+                          {i + 1}
+                        </button>
+                      ))}
+                    </div>
+                  )
+                })()}
               </section>
             )}
 
