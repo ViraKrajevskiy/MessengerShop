@@ -347,15 +347,25 @@ export default function Stories({ noTitle = false }) {
   useEffect(() => {
     console.log('Stories component mounted, loading initial data')
     loadStories()
+
+    // Обновить истории когда пользователь вернулся на вкладку
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        console.log('Page became visible, refreshing stories...')
+        refreshStories()
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibility)
+    return () => document.removeEventListener('visibilitychange', handleVisibility)
   }, [])
 
-  // Обновлять истории каждые 30 секунд
+  // Обновлять истории каждые 10 секунд
   useEffect(() => {
-    console.log('Setting up auto-refresh interval')
+    console.log('Setting up auto-refresh interval (10s)')
     const interval = setInterval(() => {
       console.log('Auto-refreshing stories...')
       refreshStories()
-    }, 30000)
+    }, 10000)
     return () => {
       console.log('Clearing auto-refresh interval')
       clearInterval(interval)
