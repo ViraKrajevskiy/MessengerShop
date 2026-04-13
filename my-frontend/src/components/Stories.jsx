@@ -179,7 +179,17 @@ function StoryViewer({ stories, startIndex, onClose, onTrackViews }) {
           className="story-viewer__media"
           onClick={handleMediaClick}
         >
-          <img className="story-viewer__media-img" src={slide.img} alt={slide.caption} />
+          {slide.type === 'video' ? (
+            <video
+              className="story-viewer__media-video"
+              src={slide.img}
+              controls
+              autoPlay
+              onEnded={goNext}
+            />
+          ) : (
+            <img className="story-viewer__media-img" src={slide.img} alt={slide.caption} />
+          )}
           {slide.type === 'video' && (
             <div className="story-viewer__play-icon">&#9654;</div>
           )}
@@ -215,14 +225,34 @@ function StoryViewer({ stories, startIndex, onClose, onTrackViews }) {
 export default function Stories({ noTitle = false }) {
   const [storiesData, setStoriesData] = useState([])
   const [loadingStories, setLoadingStories] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
   const { tokens } = useAuth()
   const viewedStoryIds = useRef(new Set())
 
-  useEffect(() => {
+  const loadStories = () => {
+    setLoadingStories(true)
     apiGetStories()
       .then(data => setStoriesData(groupStoriesByAuthor(data)))
       .catch(() => setStoriesData([]))
       .finally(() => setLoadingStories(false))
+  }
+
+  const refreshStories = () => {
+    setRefreshing(true)
+    apiGetStories()
+      .then(data => setStoriesData(groupStoriesByAuthor(data)))
+      .catch(() => {})
+      .finally(() => setRefreshing(false))
+  }
+
+  useEffect(() => {
+    loadStories()
+  }, [])
+
+  // Обновлять истории каждые 30 секунд
+  useEffect(() => {
+    const interval = setInterval(refreshStories, 30000)
+    return () => clearInterval(interval)
   }, [])
 
   const [viewerOpen, setViewerOpen] = useState(false)
@@ -312,7 +342,21 @@ export default function Stories({ noTitle = false }) {
 
   return (
     <section className="stories">
-      {!noTitle && <h2 className="section-title">Истории</h2>}
+      <div className="stories__header">
+        {!noTitle && <h2 className="section-title">Истории</h2>}
+        <button
+          className={`stories__refresh${refreshing ? ' stories__refresh--loading' : ''}`}
+          onClick={refreshStories}
+          disabled={refreshing}
+          title="Обновить истории"
+          aria-label="Обновить истории"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5c.5-5 4-9 8.5-9 4 0 7.5 3 8.5 7.5"/>
+            <path d="M22 12.5c-.5 5-4 9-8.5 9-4 0-7.5-3-8.5-7.5"/>
+          </svg>
+        </button>
+      </div>
       <div
         className="stories__list"
         ref={listRef}
