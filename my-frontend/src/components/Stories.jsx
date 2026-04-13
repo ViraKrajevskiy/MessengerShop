@@ -345,13 +345,21 @@ export default function Stories({ noTitle = false }) {
   }
 
   useEffect(() => {
+    console.log('Stories component mounted, loading initial data')
     loadStories()
   }, [])
 
   // Обновлять истории каждые 30 секунд
   useEffect(() => {
-    const interval = setInterval(refreshStories, 30000)
-    return () => clearInterval(interval)
+    console.log('Setting up auto-refresh interval')
+    const interval = setInterval(() => {
+      console.log('Auto-refreshing stories...')
+      refreshStories()
+    }, 30000)
+    return () => {
+      console.log('Clearing auto-refresh interval')
+      clearInterval(interval)
+    }
   }, [])
 
   const [viewerOpen, setViewerOpen] = useState(false)
