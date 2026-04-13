@@ -7,14 +7,38 @@ import { makeInitialAvatar } from '../utils/defaults'
 import './Stories.css'
 
 function groupStoriesByAuthor(apiStories) {
+  console.log('Processing stories, total count:', apiStories?.length || 0)
+
+  if (!Array.isArray(apiStories)) {
+    console.warn('apiStories is not an array:', apiStories)
+    return []
+  }
+
   const map = {}
+  let skipped = 0
+
   for (const s of apiStories) {
-    if (s.is_active === false) continue
+    // Check is_active status
+    if (s.is_active === false) {
+      console.log('Skipped inactive story:', s.id)
+      skipped++
+      continue
+    }
+
     const aId = s.author?.id
     if (!aId) {
       console.warn('Story missing author.id:', s)
+      skipped++
       continue
     }
+
+    // Ensure author object is valid
+    if (!s.author || typeof s.author !== 'object') {
+      console.warn('Story has invalid author object:', s)
+      skipped++
+      continue
+    }
+
     if (!map[aId]) {
       map[aId] = {
         id:       aId,
@@ -35,8 +59,11 @@ function groupStoriesByAuthor(apiStories) {
       createdAt: s.created_at || null,
     })
   }
-  console.log('Grouped stories:', Object.values(map))
-  return Object.values(map)
+
+  const grouped = Object.values(map)
+  console.log(`Grouped ${grouped.length} stories from ${apiStories.length} total (skipped: ${skipped})`)
+  console.log('Final grouped data:', grouped)
+  return grouped
 }
 
 function StoryViewer({ stories, startIndex, onClose, onTrackViews }) {
