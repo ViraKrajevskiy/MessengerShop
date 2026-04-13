@@ -39,9 +39,11 @@ function StoryViewer({ stories, startIndex, onClose, onTrackViews }) {
   const [storyIdx, setStoryIdx] = useState(startIndex)
   const [mediaIdx, setMediaIdx] = useState(0)
   const [progress, setProgress] = useState(0)
+  const [posterUrl, setPosterUrl] = useState(null)
   const timerRef = useRef(null)
   const touchStartX = useRef(0)
   const touchStartY = useRef(0)
+  const videoRef = useRef(null)
   const navigate = useNavigate()
 
   const story = stories[storyIdx]
@@ -58,6 +60,47 @@ function StoryViewer({ stories, startIndex, onClose, onTrackViews }) {
     if (hours < 24) return `${hours} ч. назад`
     return `${Math.floor(hours / 24)} дн. назад`
   }
+
+  // Generate poster image from first frame of video
+  useEffect(() => {
+    if (slide.type !== 'video') {
+      setPosterUrl(null)
+      return
+    }
+
+    const video = document.createElement('video')
+    video.src = slide.img
+    video.crossOrigin = 'anonymous'
+
+    const handleLoadedMetadata = () => {
+      video.currentTime = 0.5 // Get frame at 0.5 seconds
+    }
+
+    const handleSeeked = () => {
+      try {
+        const canvas = document.createElement('canvas')
+        canvas.width = video.videoWidth
+        canvas.height = video.videoHeight
+        const ctx = canvas.getContext('2d')
+        if (ctx) {
+          ctx.drawImage(video, 0, 0)
+          const poster = canvas.toDataURL('image/jpeg')
+          setPosterUrl(poster)
+        }
+      } catch (e) {
+        // CORS or other issues - use placeholder
+        setPosterUrl(null)
+      }
+    }
+
+    video.addEventListener('loadedmetadata', handleLoadedMetadata)
+    video.addEventListener('seeked', handleSeeked)
+
+    return () => {
+      video.removeEventListener('loadedmetadata', handleLoadedMetadata)
+      video.removeEventListener('seeked', handleSeeked)
+    }
+  }, [storyIdx, mediaIdx])
 
   // Записать просмотр при переключении на другого автора
   useEffect(() => {
@@ -181,8 +224,10 @@ function StoryViewer({ stories, startIndex, onClose, onTrackViews }) {
         >
           {slide.type === 'video' ? (
             <video
+              ref={videoRef}
               className="story-viewer__media-video"
               src={slide.img}
+              poster={posterUrl || undefined}
               controls
               autoPlay
               onEnded={goNext}
