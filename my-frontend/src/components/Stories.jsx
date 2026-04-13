@@ -223,19 +223,29 @@ function StoryViewer({ stories, startIndex, onClose, onTrackViews }) {
           onClick={handleMediaClick}
         >
           {slide.type === 'video' ? (
-            <video
-              ref={videoRef}
-              className="story-viewer__media-video"
-              src={slide.img}
-              poster={posterUrl || undefined}
-              controls
-              autoPlay
-              onEnded={goNext}
-            />
+            <>
+              <video
+                ref={videoRef}
+                className="story-viewer__media-video"
+                src={slide.img}
+                poster={posterUrl || undefined}
+                controls
+                autoPlay
+                onEnded={goNext}
+              />
+              {!posterUrl && (
+                <div className="story-viewer__video-overlay">
+                  <div className="story-viewer__video-info">
+                    <div className="story-viewer__video-play">▶</div>
+                    <span className="story-viewer__video-label">Видео</span>
+                  </div>
+                </div>
+              )}
+            </>
           ) : (
             <img className="story-viewer__media-img" src={slide.img} alt={slide.caption} />
           )}
-          {slide.type === 'video' && (
+          {slide.type === 'video' && posterUrl && (
             <div className="story-viewer__play-icon">&#9654;</div>
           )}
         </div>
