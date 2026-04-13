@@ -84,19 +84,17 @@ export default function PostCard({ post, onDelete }) {
               </svg>
             )}
           </span>
-          <div className="post-card__bottom-row">
-            {post.created_at && (
-              <span className="post-card__time">{timeAgo(post.created_at)}</span>
-            )}
-            <button
-              className={`post-card__follow ${followed ? 'post-card__follow--active' : ''}`}
-              onClick={handleFollow}
-              disabled={subLoading}
-            >
-              {followed ? '✓ Подписан' : 'Подписаться'}
-            </button>
-          </div>
+          {post.created_at && (
+            <span className="post-card__time">{timeAgo(post.created_at)}</span>
+          )}
         </div>
+        <button
+          className={`post-card__follow ${followed ? 'post-card__follow--active' : ''}`}
+          onClick={handleFollow}
+          disabled={subLoading}
+        >
+          {followed ? '✓ Подписан' : 'Подписаться'}
+        </button>
       </div>
 
       <div className="post-card__image">

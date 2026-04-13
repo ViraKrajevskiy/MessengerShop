@@ -83,23 +83,24 @@
 }
 
 .post-card__follow {
-  align-self: flex-start;
-  padding: 4px 12px;
+  flex-shrink: 0;
+  align-self: center;
+  padding: 4px 10px;
   border-radius: 20px;
   font-size: 11px;
   font-weight: 700;
   font-family: inherit;
   cursor: pointer;
   transition: all 0.2s;
-  border: none;
+  border: 1.5px solid #2196f3;
   background: transparent;
   color: #2196f3;
   white-space: nowrap;
 }
 
 .post-card__follow:hover {
-  background: #2196f3;
-  color: #fff;
+  background: rgba(33, 150, 243, 0.1);
+  color: #2196f3;
 }
 
 .post-card__follow--active {

@@ -641,6 +641,14 @@
   color: #ef4444 !important;
 }
 
+/* ── Hide mobile drawer completely on desktop ── */
+@media (min-width: 641px) {
+  .header__mobile-drawer,
+  .header__mobile-overlay {
+    display: none !important;
+  }
+}
+
 /* ── Mobile breakpoints ── */
 @media (max-width: 640px) {
   .header { padding: 0 14px; }
