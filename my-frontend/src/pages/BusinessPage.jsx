@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Header from '../components/Header'
 import ReviewsSection from '../components/ReviewsSection'
+import VideoModal from '../components/VideoModal'
 import { apiGetBusiness, apiGetBusinessPosts, apiGetBusinesses, apiToggleSubscription, apiJoinGroup, apiCheckGroupMembership, apiDeletePost } from '../api/businessApi'
 import './BusinessPage.css'
 
@@ -119,7 +120,7 @@ function BusinessAudioPlayer({ audioUrl }) {
   )
 }
 
-function Gallery({ posts }) {
+function Gallery({ posts, onVideoSelect }) {
   const [tab, setTab] = useState('all')
   const images = posts.filter(p => p.media_display && p.media_type !== 'VIDEO')
   const videos = posts.filter(p => p.media_display && p.media_type === 'VIDEO')
@@ -138,7 +139,11 @@ function Gallery({ posts }) {
       </div>
       <div className="bp__gallery">
         {items.map(p => (
-          <div key={p.id} className="bp__gallery-cell">
+          <div
+            key={p.id}
+            className={`bp__gallery-cell${p.media_type === 'VIDEO' ? ' bp__gallery-cell--video' : ''}`}
+            onClick={() => p.media_type === 'VIDEO' && onVideoSelect({ url: p.media_display, title: '' })}
+          >
             <img src={p.media_display} alt="" loading="lazy" />
             {p.media_type === 'VIDEO' && <div className="bp__play">▶</div>}
           </div>
@@ -320,6 +325,7 @@ export default function BusinessPage() {
   const [services, setServices]     = useState([])
   const [postsPage, setPostsPage]   = useState(0)
   const POSTS_PER_PAGE = 8
+  const [selectedVideo, setSelectedVideo] = useState(null)
 
   const showToast = (msg) => {
     setToast(msg)
@@ -453,6 +459,15 @@ export default function BusinessPage() {
   return (
     <div className="bp">
       <Header />
+
+      {/* Video Modal */}
+      {selectedVideo && (
+        <VideoModal
+          videoUrl={selectedVideo.url}
+          title={selectedVideo.title}
+          onClose={() => setSelectedVideo(null)}
+        />
+      )}
 
       {/* Toast */}
       {toast && (
@@ -600,7 +615,7 @@ export default function BusinessPage() {
               navigate={navigate}
             />
 
-            <Gallery posts={posts} />
+            <Gallery posts={posts} onVideoSelect={setSelectedVideo} />
 
             {posts.length > 0 && (
               <section className="bp__card" id="section-posts">
@@ -614,7 +629,10 @@ export default function BusinessPage() {
                     return visiblePosts.map(post => (
                       <div key={post.id} className="bp__feed-item">
                         {post.media_display && (
-                          <div className="bp__feed-media">
+                          <div
+                            className={`bp__feed-media${post.media_type === 'VIDEO' ? ' bp__feed-media--video' : ''}`}
+                            onClick={() => post.media_type === 'VIDEO' && setSelectedVideo({ url: post.media_display, title: post.text })}
+                          >
                             <img src={post.media_display} alt="" loading="lazy" />
                             {post.media_type === 'VIDEO' && <div className="bp__play">▶</div>}
                           </div>

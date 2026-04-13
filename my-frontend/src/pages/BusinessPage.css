@@ -394,6 +394,12 @@
   transition: transform 0.3s;
 }
 .bp__gallery-cell:hover img { transform: scale(1.05); }
+.bp__gallery-cell--video {
+  cursor: pointer;
+}
+.bp__gallery-cell--video:hover {
+  filter: brightness(0.85);
+}
 .bp__play {
   position: absolute;
   inset: 0;
@@ -436,6 +442,12 @@
   transition: transform 0.3s;
 }
 .bp__feed-item:hover .bp__feed-media img { transform: scale(1.04); }
+.bp__feed-media--video {
+  cursor: pointer;
+}
+.bp__feed-media--video:hover {
+  filter: brightness(0.85);
+}
 .bp__feed-body {
   padding: 10px 12px 12px;
   display: flex;

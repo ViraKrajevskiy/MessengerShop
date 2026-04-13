@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { apiToggleSubscription } from '../api/businessApi'
 import { makeInitialAvatar } from '../utils/defaults'
+import VideoModal from './VideoModal'
 import './PostCard.css'
 
 const FALLBACK_IMG = 'https://picsum.photos/id/342/800/600'
@@ -26,6 +27,7 @@ export default function PostCard({ post, onDelete }) {
   const [subLoading, setSubLoading] = useState(false)
   const [fav, setFav] = useState(false)
   const [expanded, setExpanded] = useState(false)
+  const [selectedVideo, setSelectedVideo] = useState(null)
 
   const FAVS_KEY = 'post_favorites'
 
@@ -71,7 +73,15 @@ export default function PostCard({ post, onDelete }) {
   }
 
   return (
-    <div className="post-card" onClick={() => navigate(`/business/${post.business_id}`)}>
+    <>
+      {selectedVideo && (
+        <VideoModal
+          videoUrl={selectedVideo.url}
+          title={selectedVideo.title}
+          onClose={() => setSelectedVideo(null)}
+        />
+      )}
+      <div className="post-card" onClick={() => navigate(`/business/${post.business_id}`)}>
       <div className="post-card__header">
         <img className="post-card__avatar" src={logo} alt={post.business_name}
           onClick={(e) => { e.stopPropagation(); navigate(`/business/${post.business_id}`) }} />
@@ -97,8 +107,12 @@ export default function PostCard({ post, onDelete }) {
         </button>
       </div>
 
-      <div className="post-card__image">
+      <div
+        className={`post-card__image${post.media_type === 'VIDEO' ? ' post-card__image--video' : ''}`}
+        onClick={() => post.media_type === 'VIDEO' && setSelectedVideo({ url: post.media_display, title: post.text })}
+      >
         <img src={media} alt="" loading="lazy" width="400" height="300" draggable={false} />
+        {post.media_type === 'VIDEO' && <div className="post-card__play">▶</div>}
       </div>
 
       {post.text && (
@@ -156,5 +170,6 @@ export default function PostCard({ post, onDelete }) {
         )}
       </div>
     </div>
+    </>
   )
 }
