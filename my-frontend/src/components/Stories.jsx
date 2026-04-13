@@ -439,27 +439,36 @@ export default function Stories({ noTitle = false }) {
   }
   const onTouchEnd = () => { drag.current.isDown = false }
 
-  if (loadingStories) return (
-    <section className="stories">
-      {!noTitle && <h2 className="section-title">Истории</h2>}
-      <div className="stories__loading">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="stories__skeleton">
-            <div className="stories__skeleton-avatar" />
-            <div className="stories__skeleton-name" />
-          </div>
-        ))}
-      </div>
-    </section>
-  )
+  console.log('🎬 RENDER CHECK - loadingStories:', loadingStories, 'storiesData.length:', storiesData.length)
 
-  if (storiesData.length === 0) return (
-    <section className="stories">
-      {!noTitle && <h2 className="section-title">Истории</h2>}
-      <p className="stories__empty">Пока нет активных историй</p>
-    </section>
-  )
+  if (loadingStories) {
+    console.log('🎬 RENDERING: Loading skeleton')
+    return (
+      <section className="stories">
+        {!noTitle && <h2 className="section-title">Истории</h2>}
+        <div className="stories__loading">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="stories__skeleton">
+              <div className="stories__skeleton-avatar" />
+              <div className="stories__skeleton-name" />
+            </div>
+          ))}
+        </div>
+      </section>
+    )
+  }
 
+  if (storiesData.length === 0) {
+    console.log('🎬 RENDERING: Empty state')
+    return (
+      <section className="stories">
+        {!noTitle && <h2 className="section-title">Истории</h2>}
+        <p className="stories__empty">Пока нет активных историй</p>
+      </section>
+    )
+  }
+
+  console.log('🎬 RENDERING: Stories carousel with', storiesData.length, 'groups')
   return (
     <section className="stories">
       {!noTitle && <h2 className="section-title">Истории</h2>}
@@ -475,6 +484,7 @@ export default function Stories({ noTitle = false }) {
         onTouchEnd={onTouchEnd}
       >
         {storiesData.map((s, i) => {
+          console.log('🎬 Rendering story group:', s.userName, 'with', s.media.length, 'media')
           const isSeen = seenIds.has(s.id)
           return (
             <div key={s.id} className="stories__item" onClick={() => openStory(i)}>
