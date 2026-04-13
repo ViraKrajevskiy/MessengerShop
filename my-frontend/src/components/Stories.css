@@ -112,8 +112,7 @@
 }
 
 .stories__item {
-  /* exactly 6 per row: (100% - 5 gaps) / 6 */
-  flex: 0 0 calc((100% - 5 * 18px) / 6);
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -122,6 +121,7 @@
   scroll-snap-align: start;
   user-select: none;
   -webkit-user-drag: none;
+  min-width: 100px;
 }
 
 .stories__avatar {
