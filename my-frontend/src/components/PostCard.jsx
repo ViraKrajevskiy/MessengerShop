@@ -28,6 +28,7 @@ export default function PostCard({ post, onDelete }) {
   const [fav, setFav] = useState(false)
   const [expanded, setExpanded] = useState(false)
   const [selectedVideo, setSelectedVideo] = useState(null)
+  const [posterUrl, setPosterUrl] = useState(null)
 
   const FAVS_KEY = 'post_favorites'
 
@@ -36,6 +37,45 @@ export default function PostCard({ post, onDelete }) {
     const stored = JSON.parse(localStorage.getItem(FAVS_KEY) || '[]')
     setFav(stored.includes(post.id))
   }, [user, post.id])
+
+  // Extract video poster from first frame
+  useEffect(() => {
+    if (post.media_type !== 'VIDEO') {
+      setPosterUrl(null)
+      return
+    }
+
+    const video = document.createElement('video')
+    video.src = post.media_display
+    video.crossOrigin = 'anonymous'
+
+    const handleLoadedMetadata = () => {
+      video.currentTime = 0.5
+    }
+
+    const handleSeeked = () => {
+      try {
+        const canvas = document.createElement('canvas')
+        canvas.width = video.videoWidth
+        canvas.height = video.videoHeight
+        const ctx = canvas.getContext('2d')
+        if (ctx) {
+          ctx.drawImage(video, 0, 0)
+          setPosterUrl(canvas.toDataURL('image/jpeg'))
+        }
+      } catch (e) {
+        setPosterUrl(null)
+      }
+    }
+
+    video.addEventListener('loadedmetadata', handleLoadedMetadata)
+    video.addEventListener('seeked', handleSeeked)
+
+    return () => {
+      video.removeEventListener('loadedmetadata', handleLoadedMetadata)
+      video.removeEventListener('seeked', handleSeeked)
+    }
+  }, [post.media_type, post.media_display])
 
   const toggleFav = (e) => {
     e.stopPropagation()
@@ -55,11 +95,13 @@ export default function PostCard({ post, onDelete }) {
     ? (post.business_logo.startsWith('http') ? post.business_logo : `https://api.101-school.uz${post.business_logo}`)
     : makeInitialAvatar(post.business_name)
 
-  // For videos, use a dark gradient placeholder with video icon since media_display contains the video file itself, not a thumbnail
+  // For videos, use extracted poster or dark placeholder
   const getVideoPlaceholder = () => {
     return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23222;stop-opacity:1'/%3E%3Cstop offset='100%25' style='stop-color:%23111;stop-opacity:1'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='400' height='300' fill='url(%23g)'/%3E%3Ctext x='200' y='150' font-size='64' fill='%23fff' text-anchor='middle' dominant-baseline='middle' opacity='0.6'%3E&#9654;%3C/text%3E%3C/svg%3E`
   }
-  const media = post.media_type === 'VIDEO' ? getVideoPlaceholder() : (post.media_display || FALLBACK_IMG)
+  const media = post.media_type === 'VIDEO'
+    ? (posterUrl || getVideoPlaceholder())
+    : (post.media_display || FALLBACK_IMG)
 
   const SHORT = 100
   const isLong = post.text && post.text.length > SHORT
