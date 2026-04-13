@@ -260,6 +260,7 @@ function StoryViewer({ stories, startIndex, onClose, onTrackViews }) {
               src={slide.img}
               poster={posterUrl || undefined}
               controls
+              controlsList="nodownload"
               autoPlay
               onEnded={goNext}
             />
