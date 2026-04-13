@@ -321,7 +321,14 @@ export default function Stories({ noTitle = false }) {
 
   // Обновлять истории каждые 10 секунд
   useEffect(() => {
-    const interval = setInterval(refreshStories, 10000)
+    const interval = setInterval(() => {
+      setRefreshing(true)
+      invalidateCache('stories')
+      apiGetStories()
+        .then(data => setStoriesData(groupStoriesByAuthor(data)))
+        .catch(() => {})
+        .finally(() => setRefreshing(false))
+    }, 10000)
     return () => clearInterval(interval)
   }, [])
 
