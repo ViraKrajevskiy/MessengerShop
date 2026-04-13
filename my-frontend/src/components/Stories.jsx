@@ -14,7 +14,7 @@ function groupStoriesByAuthor(apiStories) {
     return []
   }
 
-  const map = {}
+  const result = []
   let skipped = 0
 
   for (const s of apiStories) {
@@ -41,32 +41,29 @@ function groupStoriesByAuthor(apiStories) {
       continue
     }
 
-    console.log('  ✅ Added to group:', aId)
-    if (!map[aId]) {
-      map[aId] = {
-        id:       aId,
-        bizId:    aId,
-        userName: s.author.brand_name || s.author.username || 'Бизнес',
-        city:     s.author.city || '',
-        avatar:   s.author.avatar
-          ? (s.author.avatar.startsWith('http') ? s.author.avatar : `https://api.101-school.uz${s.author.avatar}`)
-          : makeInitialAvatar(s.author.brand_name || s.author.username || '?'),
-        media:    [],
-      }
-    }
-    map[aId].media.push({
-      type:      s.media_type === 'VIDEO' ? 'video' : 'image',
-      img:       s.media_display || `https://picsum.photos/seed/${s.id}/600/900`,
-      caption:   s.caption || '',
-      storyId:   s.id,
-      createdAt: s.created_at || null,
+    console.log('  ✅ Adding story:', s.id)
+    // Each story is its own group with 1 media item
+    result.push({
+      id:       s.id,
+      bizId:    aId,
+      userName: s.author.brand_name || s.author.username || 'Бизнес',
+      city:     s.author.city || '',
+      avatar:   s.author.avatar
+        ? (s.author.avatar.startsWith('http') ? s.author.avatar : `https://api.101-school.uz${s.author.avatar}`)
+        : makeInitialAvatar(s.author.brand_name || s.author.username || '?'),
+      media:    [{
+        type:      s.media_type === 'VIDEO' ? 'video' : 'image',
+        img:       s.media_display || `https://picsum.photos/seed/${s.id}/600/900`,
+        caption:   s.caption || '',
+        storyId:   s.id,
+        createdAt: s.created_at || null,
+      }],
     })
   }
 
-  const grouped = Object.values(map)
-  console.log(`✅ Grouped ${grouped.length} stories from ${apiStories.length} total (skipped: ${skipped})`)
-  console.table(grouped.map(g => ({ author: g.userName, media_count: g.media.length })))
-  return grouped
+  console.log(`✅ Created ${result.length} story items from ${apiStories.length} total (skipped: ${skipped})`)
+  console.table(result.map(g => ({ id: g.id, author: g.userName })))
+  return result
 }
 
 function StoryViewer({ stories, startIndex, onClose, onTrackViews }) {
