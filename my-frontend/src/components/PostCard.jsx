@@ -54,7 +54,13 @@ export default function PostCard({ post, onDelete }) {
   const logo = post.business_logo
     ? (post.business_logo.startsWith('http') ? post.business_logo : `https://api.101-school.uz${post.business_logo}`)
     : makeInitialAvatar(post.business_name)
-  const media = post.media_display || FALLBACK_IMG
+
+  // For videos, use a dark gradient placeholder with video icon since media_display contains the video file itself, not a thumbnail
+  const getVideoPlaceholder = () => {
+    return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23222;stop-opacity:1'/%3E%3Cstop offset='100%25' style='stop-color:%23111;stop-opacity:1'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='400' height='300' fill='url(%23g)'/%3E%3Ctext x='200' y='150' font-size='64' fill='%23fff' text-anchor='middle' dominant-baseline='middle' opacity='0.6'%3E&#9654;%3C/text%3E%3C/svg%3E`
+  }
+  const media = post.media_type === 'VIDEO' ? getVideoPlaceholder() : (post.media_display || FALLBACK_IMG)
+
   const SHORT = 100
   const isLong = post.text && post.text.length > SHORT
 

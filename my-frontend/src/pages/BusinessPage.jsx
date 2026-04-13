@@ -144,7 +144,13 @@ function Gallery({ posts, onVideoSelect }) {
             className={`bp__gallery-cell${p.media_type === 'VIDEO' ? ' bp__gallery-cell--video' : ''}`}
             onClick={() => p.media_type === 'VIDEO' && onVideoSelect({ url: p.media_display, title: '' })}
           >
-            <img src={p.media_display} alt="" loading="lazy" />
+            {p.media_type === 'VIDEO' ? (
+              <div className="bp__gallery-video-placeholder">
+                <div className="bp__gallery-video-icon">▶</div>
+              </div>
+            ) : (
+              <img src={p.media_display} alt="" loading="lazy" />
+            )}
             {p.media_type === 'VIDEO' && <div className="bp__play">▶</div>}
           </div>
         ))}
@@ -633,7 +639,13 @@ export default function BusinessPage() {
                             className={`bp__feed-media${post.media_type === 'VIDEO' ? ' bp__feed-media--video' : ''}`}
                             onClick={() => post.media_type === 'VIDEO' && setSelectedVideo({ url: post.media_display, title: post.text })}
                           >
-                            <img src={post.media_display} alt="" loading="lazy" />
+                            {post.media_type === 'VIDEO' ? (
+                              <div className="bp__feed-video-placeholder">
+                                <div className="bp__feed-video-icon">▶</div>
+                              </div>
+                            ) : (
+                              <img src={post.media_display} alt="" loading="lazy" />
+                            )}
                             {post.media_type === 'VIDEO' && <div className="bp__play">▶</div>}
                           </div>
                         )}
