@@ -100,6 +100,7 @@
   -webkit-overflow-scrolling: touch;
   padding: 6px 2px;
   scroll-snap-type: x mandatory;
+  min-height: 120px;
 }
 
 .stories__list::-webkit-scrollbar {
