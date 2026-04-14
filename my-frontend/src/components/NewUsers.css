@@ -60,7 +60,7 @@
   align-items: center;
   gap: 0;
   cursor: pointer;
-  padding: 8px 22px;
+  padding: 0 22px 24px;
   border-radius: var(--radius-lg);
   transition: all 0.22s;
   max-width: 174px;
