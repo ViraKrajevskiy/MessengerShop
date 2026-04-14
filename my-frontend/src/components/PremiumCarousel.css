@@ -1,14 +1,22 @@
 .premium-carousel {
   margin: 4px 0 24px;
+  min-height: 420px; /* Prevent layout shift during load */
 }
 
-/* ── 4×2 uniform grid ── */
+/* ── 5×2 uniform grid ── */
 .premium-carousel__mosaic {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 20px;
   cursor: grab;
   user-select: none;
+  min-height: 420px; /* Prevent layout shift during load */
+}
+
+/* ── 7×2 grid for premium users ── */
+.premium-carousel__mosaic--7 {
+  grid-template-columns: repeat(7, 1fr);
+  min-height: 420px; /* Prevent layout shift during load */
 }
 
 .premium-carousel__mosaic:active {
