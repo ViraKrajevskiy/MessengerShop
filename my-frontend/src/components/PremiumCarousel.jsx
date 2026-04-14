@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './PremiumCarousel.css'
 
-const PAGE_SIZE = 8
+const PAGE_SIZE = 10
 
 function buildSlides(businesses) {
   if (businesses.length === 0) return []
