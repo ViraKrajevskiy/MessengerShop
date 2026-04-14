@@ -162,16 +162,33 @@
 }
 
 @media (max-width: 480px) {
+  .new-users {
+    padding: 20px 0;
+  }
   .new-users__grid,
   .new-users__grid--expanded {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    max-width: 100%;
+    padding: 0 12px;
+  }
+  .new-users__item {
+    padding: 0 8px 16px;
+    max-width: none;
+    min-height: auto;
   }
   .new-users__avatar {
-    width: 80px;
-    height: 80px;
-    margin-bottom: 8px;
+    width: 90px;
+    height: 90px;
+    margin-bottom: 10px;
   }
-  .new-users__name { font-size: 12px; }
-  .new-users__city { font-size: 11px; }
+  .new-users__name {
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+  .new-users__city { font-size: 12px; }
+  .new-users__real-btn {
+    padding: 4px 14px;
+    font-size: 12px;
+  }
 }
