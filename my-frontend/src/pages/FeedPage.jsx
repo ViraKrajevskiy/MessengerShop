@@ -235,9 +235,9 @@ export default function FeedPage() {
     (!filterCity || !n.business_id || bizCityMap.get(n.business_id) === filterCity)
   ))
 
-  // Фото / Видео — фильтрация постов по типу медиа
-  const fPhotos = fPosts.filter(p => p.media_display && p.media_type !== 'VIDEO')
-  const fVideos = fPosts.filter(p => p.media_display && p.media_type === 'VIDEO')
+  // Фото / Видео — фильтрация постов по типу медиа (только без текста)
+  const fPhotos = fPosts.filter(p => p.media_display && p.media_type !== 'VIDEO' && !p.text?.trim())
+  const fVideos = fPosts.filter(p => p.media_display && p.media_type === 'VIDEO' && !p.text?.trim())
 
   const TABS = [
     { key: 'posts',  label: 'Посты'   },
