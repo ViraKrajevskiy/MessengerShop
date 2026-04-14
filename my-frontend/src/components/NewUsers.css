@@ -63,6 +63,7 @@
   padding: 8px 22px;
   border-radius: var(--radius-lg);
   transition: all 0.22s;
+  max-width: 174px;
 }
 
 .new-users__item:hover {
