@@ -22,10 +22,10 @@ const ThemeIcon = ({ theme }) => theme === 'light' ? (
 
 const PATH_NAMES = {
   '/':          null,
-  '/catalog':   'Каталог',
-  '/feed':      'Лента',
-  '/messenger': 'Мессенджер',
-  '/pricing':   'Цены',
+  '/catalog':   'nav_catalog',
+  '/feed':      'nav_feed',
+  '/messenger': 'nav_messenger',
+  '/pricing':   'nav_pricing',
 }
 
 export default function Header() {
@@ -60,31 +60,32 @@ export default function Header() {
     if (bizMatch) {
       fetch(`${base}/businesses/${bizMatch[1]}/`)
         .then(r => r.ok ? r.json() : null)
-        .then(b => setBizName(b?.brand_name || 'Профиль'))
-        .catch(() => setBizName('Профиль'))
+        .then(b => setBizName(b?.brand_name || t('nav_profile')))
+        .catch(() => setBizName(t('nav_profile')))
     } else if (newsMatch) {
-      setPageParent({ label: 'Лента', path: '/feed' })
+      setPageParent({ label: t('nav_feed'), path: '/feed' })
       fetch(`${base}/posts/${newsMatch[1]}/`)
         .then(r => r.ok ? r.json() : null)
-        .then(d => setPageTitle(d?.text?.slice(0, 40) || 'Публикация'))
-        .catch(() => setPageTitle('Публикация'))
+        .then(d => setPageTitle(d?.text?.slice(0, 40) || t('home_publications')))
+        .catch(() => setPageTitle(t('home_publications')))
     } else if (productMatch) {
-      setPageParent({ label: 'Каталог', path: '/catalog' })
+      setPageParent({ label: t('nav_catalog'), path: '/catalog' })
       fetch(`${base}/products/${productMatch[1]}/`)
         .then(r => r.ok ? r.json() : null)
-        .then(d => setPageTitle(d?.name?.slice(0, 40) || 'Товар'))
-        .catch(() => setPageTitle('Товар'))
+        .then(d => setPageTitle(d?.name?.slice(0, 40) || t('catalog_products')))
+        .catch(() => setPageTitle(t('catalog_products')))
     }
-  }, [location.pathname])
+  }, [location.pathname, t])
 
   // Derive breadcrumb current page name from path
   const currentPageName = useMemo(() => {
     const p = location.pathname
-    if (p in PATH_NAMES) return PATH_NAMES[p]
-    if (p.startsWith('/business/')) return bizName || 'Профиль'
+    const key = PATH_NAMES[p]
+    if (key) return t(key)
+    if (p.startsWith('/business/')) return bizName || t('nav_profile')
     if (p.startsWith('/news/') || p.startsWith('/product/')) return pageTitle
     return '...'
-  }, [location.pathname, bizName, pageTitle])
+  }, [location.pathname, bizName, pageTitle, t])
 
   // Close dropdowns on outside click
   useEffect(() => {
