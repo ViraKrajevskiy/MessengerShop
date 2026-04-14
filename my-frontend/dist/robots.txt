@@ -1,9 +1,0 @@
-User-agent: *
-Allow: /
-Disallow: /api/
-Disallow: /admin/
-Disallow: /messenger
-Disallow: /dashboard
-Disallow: /me
-
-Sitemap: https://101-school.uz/sitemap.xml
