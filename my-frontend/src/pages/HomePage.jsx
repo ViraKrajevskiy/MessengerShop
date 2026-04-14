@@ -8,7 +8,6 @@ import UserCard from '../components/UserCard'
 import Footer from '../components/Footer'
 import TweetsSidebar from '../components/TweetsSidebar'
 import PostCard from '../components/PostCard'
-import HeroSlider from '../components/HeroSlider'
 import PremiumCarousel from '../components/PremiumCarousel'
 import { apiGetBusinesses, apiGetPosts, CATEGORY_LABELS } from '../api/businessApi'
 import { useLanguage } from '../context/LanguageContext'
@@ -177,10 +176,7 @@ export default function HomePage() {
           </p>
         </div>
 
-        {premiumBiz.length >= 4
-          ? <PremiumCarousel businesses={premiumBiz} />
-          : <HeroSlider images={sliderImages} />
-        }
+        <PremiumCarousel businesses={premiumBiz} isUserPremium={user?.role === 'BUSINESS'} />
       </div>
 
       <div className="home-page__layout">
