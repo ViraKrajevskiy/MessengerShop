@@ -11,6 +11,7 @@
   max-width: var(--home-content-max);
   margin: 0 auto;
   padding: 0 20px;
+  contain: layout style; /* Prevent layout shift */
 }
 
 /* Two-column layout: main content + tweets sidebar */
