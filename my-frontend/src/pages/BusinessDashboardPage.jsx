@@ -540,7 +540,9 @@ function CreatePostModal({ getAccessToken, bizId, onClose, onSuccess }) {
     fd.append('text', text)
     if (file) {
       fd.append('media', file)
-      fd.append('media_type', file.type.startsWith('video') ? 'VIDEO' : 'IMAGE')
+      // Определяем тип медиа по MIME type или расширению файла
+      const isVideo = file.type.startsWith('video/') || /\.(mp4|webm|mov|avi|mkv)$/i.test(file.name)
+      fd.append('media_type', isVideo ? 'VIDEO' : 'IMAGE')
     }
     try {
       const token = await getAccessToken()
@@ -579,7 +581,7 @@ function CreatePostModal({ getAccessToken, bizId, onClose, onSuccess }) {
         />
         <div className="biz-form__upload biz-form__upload--sm" onClick={() => inputRef.current.click()}>
           {preview
-            ? file?.type.startsWith('video')
+            ? (file?.type.startsWith('video/') || /\.(mp4|webm|mov|avi|mkv)$/i.test(file?.name))
               ? <video src={preview} className="biz-form__preview" controls />
               : <img src={preview} className="biz-form__preview" alt="preview" />
             : <div className="biz-form__upload-placeholder">

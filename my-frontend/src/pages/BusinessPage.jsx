@@ -120,7 +120,7 @@ function BusinessAudioPlayer({ audioUrl }) {
   )
 }
 
-function Gallery({ posts, onVideoSelect }) {
+function Gallery({ posts, onVideoSelect, isPremium }) {
   const [tab, setTab] = useState('all')
   const images = posts.filter(p => p.media_display && p.media_type !== 'VIDEO')
   const videos = posts.filter(p => p.media_display && p.media_type === 'VIDEO')
@@ -137,7 +137,7 @@ function Gallery({ posts, onVideoSelect }) {
           {videos.length > 0 && <button className={`bp__tab ${tab === 'video' ? 'bp__tab--on' : ''}`} onClick={() => setTab('video')}>Видео</button>}
         </div>
       </div>
-      <div className="bp__gallery">
+      <div className={`bp__gallery${isPremium ? ' bp__gallery--premium' : ''}`}>
         {items.map(p => (
           <div
             key={p.id}
@@ -160,15 +160,16 @@ function Gallery({ posts, onVideoSelect }) {
 }
 
 function SimilarCard({ biz, onClick }) {
-  const logo  = resolveUrl(biz.logo)  || `https://picsum.photos/id/${biz.id + 10}/200/200`
-  const cover = resolveUrl(biz.cover) || `https://picsum.photos/id/${biz.id + 20}/400/200`
+  const photo = resolveUrl(biz.logo) || resolveUrl(biz.cover) || `https://picsum.photos/id/${(biz.id % 80) + 10}/500/500`
   return (
     <div className="bp__sim-card" onClick={onClick}>
-      <div className="bp__sim-cover" style={{ backgroundImage: `url(${cover})` }}>
-        {biz.is_vip && <span className="bp__sim-badge bp__sim-badge--vip">VIP</span>}
-      </div>
-      <img src={logo} alt={biz.brand_name} className="bp__sim-logo" />
-      <div className="bp__sim-body">
+      <img src={photo} alt={biz.brand_name} loading="lazy" />
+      <div className="bp__sim-overlay">
+        {(biz.is_vip || biz.is_pro) && (
+          <span className={`bp__sim-badge${biz.is_pro ? ' bp__sim-badge--pro' : ''}`}>
+            {biz.is_pro ? 'PRO' : 'VIP'}
+          </span>
+        )}
         <p className="bp__sim-name">{biz.brand_name}</p>
         {biz.city && <p className="bp__sim-city">{biz.city}</p>}
       </div>
@@ -621,7 +622,7 @@ export default function BusinessPage() {
               navigate={navigate}
             />
 
-            <Gallery posts={posts} onVideoSelect={setSelectedVideo} />
+            <Gallery posts={posts} onVideoSelect={setSelectedVideo} isPremium={biz.is_vip} />
 
             {posts.length > 0 && (
               <section className="bp__card" id="section-posts">
