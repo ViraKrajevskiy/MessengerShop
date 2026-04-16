@@ -2,8 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './PremiumCarousel.css'
 
-// Слайд = 1 большой + 4 маленьких + 1 большой = 6 карточек
-const PAGE_SIZE = 6
+const PAGE_SIZE = 10
 
 function buildSlides(businesses) {
   if (businesses.length === 0) return []
@@ -21,18 +20,14 @@ function getPhoto(biz) {
   return `https://picsum.photos/id/${(biz.id % 80) + 10}/500/400`
 }
 
-function Card({ biz, big, handleCardClick }) {
+function Card({ biz, handleCardClick }) {
   return (
-    <div
-      className={`pc-card${big ? ' pc-card--big' : ' pc-card--small'}`}
-      onClick={() => handleCardClick(biz.id)}
-    >
+    <div className="pc-card" onClick={() => handleCardClick(biz.id)}>
       <img
         src={getPhoto(biz)}
         alt={biz.brand_name || biz.name}
         loading="lazy"
         draggable={false}
-        sizes={big ? '(max-width: 768px) 50vw, 33vw' : '(max-width: 768px) 25vw, 17vw'}
       />
       <div className="pc-card__overlay">
         <span className={`pc-card__badge${biz.plan_type === 'PRO' || biz.is_pro ? ' pc-card__badge--pro' : ''}`}>
@@ -50,9 +45,9 @@ export default function PremiumCarousel({ businesses = [] }) {
   const slides   = buildSlides(businesses)
   const total    = slides.length
 
-  const [page, setPage]   = useState(0)
-  const startX   = useRef(null)
-  const wasDrag  = useRef(false)
+  const [page, setPage] = useState(0)
+  const startX  = useRef(null)
+  const wasDrag = useRef(false)
   const timerRef = useRef(null)
 
   const goNext = useCallback(() => setPage(p => (p + 1) % total), [total])
@@ -92,7 +87,6 @@ export default function PremiumCarousel({ businesses = [] }) {
 
   return (
     <section className="premium-carousel">
-      {/* Мозаика: [большой | 2×2 сетка | большой] */}
       <div
         className="premium-carousel__mosaic"
         onMouseDown={e => onDragStart(e.clientX)}
@@ -101,19 +95,9 @@ export default function PremiumCarousel({ businesses = [] }) {
         onTouchStart={e => onDragStart(e.touches[0].clientX)}
         onTouchEnd={e => onDragEnd(e.changedTouches[0].clientX)}
       >
-        {/* Левый большой */}
-        <Card biz={slide[0]} big handleCardClick={handleCardClick} />
-
-        {/* Центр — 2×2 */}
-        <div className="premium-carousel__grid">
-          <Card biz={slide[1]} handleCardClick={handleCardClick} />
-          <Card biz={slide[2]} handleCardClick={handleCardClick} />
-          <Card biz={slide[3]} handleCardClick={handleCardClick} />
-          <Card biz={slide[4]} handleCardClick={handleCardClick} />
-        </div>
-
-        {/* Правый большой */}
-        <Card biz={slide[5]} big handleCardClick={handleCardClick} />
+        {slide.map((biz, i) => (
+          <Card key={i} biz={biz} handleCardClick={handleCardClick} />
+        ))}
       </div>
 
       {total > 1 && (
