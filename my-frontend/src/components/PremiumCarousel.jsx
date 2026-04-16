@@ -4,7 +4,7 @@ import './PremiumCarousel.css'
 
 const COLS = 5
 const ROWS = 2
-const PAGE_SIZE = COLS * ROWS // 10 карточек на страницу
+const PAGE_SIZE = COLS * ROWS
 
 function getPhoto(biz) {
   if (biz.logo) {
@@ -18,7 +18,6 @@ export default function PremiumCarousel({ businesses = [] }) {
   const trackRef  = useRef(null)
   const timerRef  = useRef(null)
 
-  // Строим слайды по PAGE_SIZE
   const slides = useRef([])
   if (businesses.length > 0) {
     const len = businesses.length
@@ -29,35 +28,26 @@ export default function PremiumCarousel({ businesses = [] }) {
   }
   const total = slides.current.length
 
-  const [page, setPage]         = useState(0)
-  const [offset, setOffset]     = useState(0)   // текущий сдвиг в px (для анимации)
+  const [page, setPage]     = useState(0)
+  const [offset, setOffset] = useState(0)
   const [dragging, setDragging] = useState(false)
 
   const dragRef = useRef({ active: false, startX: 0, startOffset: 0, moved: false })
   const pageRef = useRef(0)
 
-  // Синхронизируем pageRef
   useEffect(() => { pageRef.current = page }, [page])
 
-  // Получаем ширину трека
   const getW = () => trackRef.current?.offsetWidth ?? 0
 
-  const goToPage = useCallback((idx, animated = true) => {
+  const goToPage = useCallback((idx) => {
     const w = getW()
     const target = -idx * w
+    if (trackRef.current) trackRef.current.style.transition = ''
     setOffset(target)
     setPage(idx)
     pageRef.current = idx
-    if (!animated) {
-      // мгновенно (без transition)
-      if (trackRef.current) trackRef.current.style.transition = 'none'
-      setTimeout(() => {
-        if (trackRef.current) trackRef.current.style.transition = ''
-      }, 0)
-    }
   }, [])
 
-  // Автослайд
   const resetTimer = useCallback(() => {
     clearInterval(timerRef.current)
     if (total > 1) {
@@ -73,39 +63,30 @@ export default function PremiumCarousel({ businesses = [] }) {
     return () => clearInterval(timerRef.current)
   }, [resetTimer])
 
-  // Обновляем offset при смене размера окна
-  useEffect(() => {
-    const onResize = () => {
-      const w = getW()
-      setOffset(-pageRef.current * w)
-    }
-    window.addEventListener('resize', onResize)
-    return () => window.removeEventListener('resize', onResize)
-  }, [])
-
-  // ── Drag handlers ──
-  const startDrag = (clientX) => {
+  // ── Drag handlers на окне ──
+  const startDrag = useCallback((e) => {
+    if (total < 2) return
     clearInterval(timerRef.current)
-    dragRef.current = { active: true, startX: clientX, startOffset: offset, moved: false }
+    dragRef.current = { active: true, startX: e.clientX, startOffset: offset, moved: false }
     setDragging(true)
     if (trackRef.current) trackRef.current.style.transition = 'none'
-  }
+  }, [offset, total])
 
-  const moveDrag = (clientX) => {
+  const moveDrag = useCallback((e) => {
     if (!dragRef.current.active) return
-    const dx = clientX - dragRef.current.startX
+    const dx = e.clientX - dragRef.current.startX
     if (Math.abs(dx) > 5) dragRef.current.moved = true
     setOffset(dragRef.current.startOffset + dx)
-  }
+  }, [])
 
-  const endDrag = (clientX) => {
+  const endDrag = useCallback((e) => {
     if (!dragRef.current.active) return
     dragRef.current.active = false
     setDragging(false)
     if (trackRef.current) trackRef.current.style.transition = ''
 
-    const dx = clientX - dragRef.current.startX
-    const w  = getW()
+    const dx = e.clientX - dragRef.current.startX
+    const w = getW()
     let next = pageRef.current
 
     if (Math.abs(dx) > w * 0.15) {
@@ -115,7 +96,19 @@ export default function PremiumCarousel({ businesses = [] }) {
     }
     goToPage(next)
     resetTimer()
-  }
+  }, [total, goToPage, resetTimer])
+
+  // Добавляем слушатели на window
+  useEffect(() => {
+    window.addEventListener('mousemove', moveDrag)
+    window.addEventListener('mouseup', endDrag)
+    window.addEventListener('mouseleave', endDrag)
+    return () => {
+      window.removeEventListener('mousemove', moveDrag)
+      window.removeEventListener('mouseup', endDrag)
+      window.removeEventListener('mouseleave', endDrag)
+    }
+  }, [moveDrag, endDrag])
 
   const handleCardClick = (id) => {
     if (!dragRef.current.moved) navigate(`/business/${id}`)
@@ -123,12 +116,22 @@ export default function PremiumCarousel({ businesses = [] }) {
 
   if (total === 0) return null
 
-  // Все слайды рядом — трек шириной 100% * total
   const allSlides = slides.current
 
   return (
     <section className="premium-carousel">
-      <div className="premium-carousel__viewport">
+      <div
+        className="premium-carousel__viewport"
+        onMouseDown={startDrag}
+        onTouchStart={e => {
+          if (total < 2) return
+          clearInterval(timerRef.current)
+          const touch = e.touches[0]
+          dragRef.current = { active: true, startX: touch.clientX, startOffset: offset, moved: false }
+          setDragging(true)
+          if (trackRef.current) trackRef.current.style.transition = 'none'
+        }}
+      >
         <div
           ref={trackRef}
           className={`premium-carousel__track${dragging ? ' premium-carousel__track--dragging' : ''}`}
@@ -136,13 +139,32 @@ export default function PremiumCarousel({ businesses = [] }) {
             transform: `translateX(${offset}px)`,
             width: `${total * 100}%`,
           }}
-          onMouseDown={e => startDrag(e.clientX)}
-          onMouseMove={e => moveDrag(e.clientX)}
-          onMouseUp={e => endDrag(e.clientX)}
-          onMouseLeave={e => endDrag(e.clientX)}
-          onTouchStart={e => startDrag(e.touches[0].clientX)}
-          onTouchMove={e => { e.preventDefault(); moveDrag(e.touches[0].clientX) }}
-          onTouchEnd={e => endDrag(e.changedTouches[0].clientX)}
+          onTouchMove={e => {
+            if (!dragRef.current.active) return
+            const touch = e.touches[0]
+            const dx = touch.clientX - dragRef.current.startX
+            if (Math.abs(dx) > 5) dragRef.current.moved = true
+            setOffset(dragRef.current.startOffset + dx)
+          }}
+          onTouchEnd={e => {
+            if (!dragRef.current.active) return
+            dragRef.current.active = false
+            setDragging(false)
+            if (trackRef.current) trackRef.current.style.transition = ''
+
+            const touch = e.changedTouches[0]
+            const dx = touch.clientX - dragRef.current.startX
+            const w = getW()
+            let next = pageRef.current
+
+            if (Math.abs(dx) > w * 0.15) {
+              next = dx < 0
+                ? Math.min(total - 1, pageRef.current + 1)
+                : Math.max(0, pageRef.current - 1)
+            }
+            goToPage(next)
+            resetTimer()
+          }}
         >
           {allSlides.map((slide, si) => (
             <div
