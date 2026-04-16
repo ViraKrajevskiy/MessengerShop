@@ -165,17 +165,40 @@
   .new-users {
     padding: 20px 0;
   }
+  .new-users__header {
+    padding: 0 8px;
+    margin-bottom: 16px;
+  }
+  .new-users__subtitle {
+    padding: 0 8px;
+    margin-bottom: 14px;
+  }
   .new-users__grid,
   .new-users__grid--expanded {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-    max-width: 100%;
-    padding: 0 12px;
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    padding: 0 8px 8px 8px;
+    cursor: grab;
+    user-select: none;
+    scrollbar-width: none;
+    max-width: none;
   }
+
+  .new-users__grid::-webkit-scrollbar,
+  .new-users__grid--expanded::-webkit-scrollbar {
+    display: none;
+  }
+
   .new-users__item {
-    padding: 0 8px 16px;
+    flex: 0 0 calc(50vw - 14px);
+    min-width: calc(50vw - 14px);
+    padding: 0 8px 14px;
     max-width: none;
     min-height: auto;
+    scroll-snap-align: start;
   }
   .new-users__avatar {
     width: 90px;
@@ -186,9 +209,11 @@
     font-size: 13px;
     margin-bottom: 6px;
   }
-  .new-users__city { font-size: 12px; }
-  .new-users__real-btn {
-    padding: 4px 14px;
+  .new-users__city {
     font-size: 12px;
+  }
+  .new-users__real-btn {
+    padding: 5px 14px;
+    font-size: 11px;
   }
 }
