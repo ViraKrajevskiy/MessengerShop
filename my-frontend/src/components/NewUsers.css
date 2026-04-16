@@ -146,55 +146,49 @@
   color: var(--text-muted);
 }
 
-/* Планшет */
-@media (max-width: 900px) {
-  .new-users__grid,
-  .new-users__grid--expanded {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 14px;
-    max-width: 100%;
-  }
-  .new-users__avatar { width: 110px; height: 110px; }
-  .new-users__name { font-size: 15px; }
-}
-
-/* Планшет вертикальный */
 @media (max-width: 768px) {
-  .new-users { padding: 20px 0; }
-  .new-users__header .section-title { font-size: 18px; }
   .new-users__grid,
   .new-users__grid--expanded {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    max-width: 100%;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
   }
-  .new-users__item { padding: 0 10px 16px; max-width: none; }
-  .new-users__avatar { width: 90px; height: 90px; margin-bottom: 10px; }
-  .new-users__name { font-size: 13px; }
+  .new-users__avatar {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 12px;
+  }
+  .new-users__name { font-size: 14px; }
   .new-users__city { font-size: 12px; }
 }
 
-/* Мобильный */
 @media (max-width: 480px) {
-  .new-users { padding: 16px 0; }
-  .new-users__header { margin-bottom: 14px; }
-  .new-users__header .section-title { font-size: 15px; }
-  .new-users__show-all { padding: 5px 14px; font-size: 12px; }
-  .new-users__subtitle { font-size: 12px; margin-bottom: 12px; }
+  .new-users {
+    padding: 20px 0;
+  }
   .new-users__grid,
   .new-users__grid--expanded {
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: 16px;
     max-width: 100%;
-    padding: 0;
+    padding: 0 12px;
   }
   .new-users__item {
-    padding: 0 6px 14px;
+    padding: 0 8px 16px;
     max-width: none;
     min-height: auto;
   }
-  .new-users__avatar { width: 80px; height: 80px; margin-bottom: 8px; }
-  .new-users__name { font-size: 13px; margin-bottom: 4px; }
-  .new-users__city { font-size: 11px; }
-  .new-users__real-btn { padding: 3px 10px; font-size: 11px; }
+  .new-users__avatar {
+    width: 90px;
+    height: 90px;
+    margin-bottom: 10px;
+  }
+  .new-users__name {
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+  .new-users__city { font-size: 12px; }
+  .new-users__real-btn {
+    padding: 4px 14px;
+    font-size: 12px;
+  }
 }

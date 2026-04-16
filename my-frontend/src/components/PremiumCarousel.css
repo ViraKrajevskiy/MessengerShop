@@ -115,47 +115,13 @@
   text-shadow: 0 1px 3px rgba(0,0,0,0.5);
 }
 
-/* ── Nav bar (arrows + dots) ── */
-.premium-carousel__nav {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 14px;
-}
-
-/* ── Arrow buttons ── */
-.premium-carousel__arrow {
-  background: var(--bg-secondary);
-  border: 1.5px solid var(--border-color);
-  border-radius: 50%;
-  width: 34px;
-  height: 34px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-secondary);
-  cursor: pointer;
-  padding: 0;
-  flex-shrink: 0;
-  transition: all 0.2s;
-  box-shadow: var(--card-shadow);
-}
-
-.premium-carousel__arrow:hover {
-  background: var(--accent-gradient);
-  color: #fff;
-  border-color: transparent;
-  box-shadow: 0 4px 14px rgba(229,57,53,0.25);
-  transform: scale(1.08);
-}
-
 /* ── Dots ── */
 .premium-carousel__dots {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 5px;
+  margin-top: 12px;
   flex-wrap: wrap;
 }
 
@@ -178,34 +144,27 @@
 }
 
 /* ── Responsive ── */
-@media (max-width: 1024px) {
-  .premium-carousel__mosaic,
-  .premium-carousel__mosaic--7 {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 14px;
-  }
-}
-
 @media (max-width: 768px) {
-  .premium-carousel__mosaic,
+  .premium-carousel__mosaic {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
   .premium-carousel__mosaic--7 {
     grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
   }
 }
 
 @media (max-width: 500px) {
   .premium-carousel {
     margin: 2px 0 16px;
-    padding: 0 4px;
+    padding: 0 8px;
   }
-  .premium-carousel__arrow {
-    display: none; /* свайп работает на тач */
-  }
-  .premium-carousel__mosaic,
-  .premium-carousel__mosaic--7 {
+  .premium-carousel__mosaic {
     grid-template-columns: repeat(2, 1fr);
     gap: 8px;
+  }
+  .premium-carousel__mosaic--7 {
+    grid-template-columns: repeat(2, 1fr);
   }
   .pc-card {
     box-shadow: 0 0 0 1.5px rgba(180, 140, 255, 0.25), 0 2px 12px rgba(160, 120, 255, 0.12);
