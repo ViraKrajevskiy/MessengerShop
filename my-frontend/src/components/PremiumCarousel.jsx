@@ -2,16 +2,9 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './PremiumCarousel.css'
 
-const PAGE_SIZE = 10
-
-function buildSlides(businesses) {
-  if (businesses.length === 0) return []
-  const len = businesses.length
-  const maxSlides = Math.min(12, Math.ceil(len / PAGE_SIZE))
-  return Array.from({ length: maxSlides }, (_, i) =>
-    Array.from({ length: PAGE_SIZE }, (_, j) => businesses[(i * PAGE_SIZE + j) % len])
-  )
-}
+const COLS = 5
+const ROWS = 2
+const PAGE_SIZE = COLS * ROWS // 10 карточек на страницу
 
 function getPhoto(biz) {
   if (biz.logo) {
@@ -20,93 +13,176 @@ function getPhoto(biz) {
   return `https://picsum.photos/id/${(biz.id % 80) + 10}/500/400`
 }
 
-function Card({ biz, handleCardClick }) {
-  return (
-    <div className="pc-card" onClick={() => handleCardClick(biz.id)}>
-      <img
-        src={getPhoto(biz)}
-        alt={biz.brand_name || biz.name}
-        loading="lazy"
-        draggable={false}
-      />
-      <div className="pc-card__overlay">
-        <span className={`pc-card__badge${biz.plan_type === 'PRO' || biz.is_pro ? ' pc-card__badge--pro' : ''}`}>
-          {biz.plan_type === 'PRO' || biz.is_pro ? 'PRO' : 'VIP'}
-        </span>
-        <span className="pc-card__name">{biz.brand_name || biz.name}</span>
-        {biz.city && <span className="pc-card__city">{biz.city}</span>}
-      </div>
-    </div>
-  )
-}
-
 export default function PremiumCarousel({ businesses = [] }) {
-  const navigate = useNavigate()
-  const slides   = buildSlides(businesses)
-  const total    = slides.length
+  const navigate  = useNavigate()
+  const trackRef  = useRef(null)
+  const timerRef  = useRef(null)
 
-  const [page, setPage] = useState(0)
-  const startX  = useRef(null)
-  const wasDrag = useRef(false)
-  const timerRef = useRef(null)
+  // Строим слайды по PAGE_SIZE
+  const slides = useRef([])
+  if (businesses.length > 0) {
+    const len = businesses.length
+    const count = Math.min(12, Math.ceil(len / PAGE_SIZE))
+    slides.current = Array.from({ length: count }, (_, i) =>
+      Array.from({ length: PAGE_SIZE }, (_, j) => businesses[(i * PAGE_SIZE + j) % len])
+    )
+  }
+  const total = slides.current.length
 
-  const goNext = useCallback(() => setPage(p => (p + 1) % total), [total])
-  const goPrev = useCallback(() => setPage(p => (p - 1 + total) % total), [total])
+  const [page, setPage]         = useState(0)
+  const [offset, setOffset]     = useState(0)   // текущий сдвиг в px (для анимации)
+  const [dragging, setDragging] = useState(false)
 
+  const dragRef = useRef({ active: false, startX: 0, startOffset: 0, moved: false })
+  const pageRef = useRef(0)
+
+  // Синхронизируем pageRef
+  useEffect(() => { pageRef.current = page }, [page])
+
+  // Получаем ширину трека
+  const getW = () => trackRef.current?.offsetWidth ?? 0
+
+  const goToPage = useCallback((idx, animated = true) => {
+    const w = getW()
+    const target = -idx * w
+    setOffset(target)
+    setPage(idx)
+    pageRef.current = idx
+    if (!animated) {
+      // мгновенно (без transition)
+      if (trackRef.current) trackRef.current.style.transition = 'none'
+      setTimeout(() => {
+        if (trackRef.current) trackRef.current.style.transition = ''
+      }, 0)
+    }
+  }, [])
+
+  // Автослайд
   const resetTimer = useCallback(() => {
     clearInterval(timerRef.current)
-    if (total > 1) timerRef.current = setInterval(goNext, 5000)
-  }, [goNext, total])
+    if (total > 1) {
+      timerRef.current = setInterval(() => {
+        const next = (pageRef.current + 1) % total
+        goToPage(next)
+      }, 5000)
+    }
+  }, [total, goToPage])
 
   useEffect(() => {
     resetTimer()
     return () => clearInterval(timerRef.current)
   }, [resetTimer])
 
-  const onDragStart = (clientX) => {
-    startX.current = clientX
-    wasDrag.current = false
-  }
-  const onDragEnd = (clientX) => {
-    if (startX.current === null) return
-    const dx = clientX - startX.current
-    if (Math.abs(dx) > 40) {
-      wasDrag.current = true
-      dx < 0 ? goNext() : goPrev()
-      resetTimer()
+  // Обновляем offset при смене размера окна
+  useEffect(() => {
+    const onResize = () => {
+      const w = getW()
+      setOffset(-pageRef.current * w)
     }
-    startX.current = null
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
+
+  // ── Drag handlers ──
+  const startDrag = (clientX) => {
+    clearInterval(timerRef.current)
+    dragRef.current = { active: true, startX: clientX, startOffset: offset, moved: false }
+    setDragging(true)
+    if (trackRef.current) trackRef.current.style.transition = 'none'
   }
 
-  const handleDotClick = (i) => { setPage(i); resetTimer() }
-  const handleCardClick = (id) => { if (!wasDrag.current) navigate(`/business/${id}`) }
+  const moveDrag = (clientX) => {
+    if (!dragRef.current.active) return
+    const dx = clientX - dragRef.current.startX
+    if (Math.abs(dx) > 5) dragRef.current.moved = true
+    setOffset(dragRef.current.startOffset + dx)
+  }
 
-  if (slides.length === 0) return null
+  const endDrag = (clientX) => {
+    if (!dragRef.current.active) return
+    dragRef.current.active = false
+    setDragging(false)
+    if (trackRef.current) trackRef.current.style.transition = ''
 
-  const slide = slides[page]
+    const dx = clientX - dragRef.current.startX
+    const w  = getW()
+    let next = pageRef.current
+
+    if (Math.abs(dx) > w * 0.15) {
+      next = dx < 0
+        ? Math.min(total - 1, pageRef.current + 1)
+        : Math.max(0, pageRef.current - 1)
+    }
+    goToPage(next)
+    resetTimer()
+  }
+
+  const handleCardClick = (id) => {
+    if (!dragRef.current.moved) navigate(`/business/${id}`)
+  }
+
+  if (total === 0) return null
+
+  // Все слайды рядом — трек шириной 100% * total
+  const allSlides = slides.current
 
   return (
     <section className="premium-carousel">
-      <div
-        className="premium-carousel__mosaic"
-        onMouseDown={e => onDragStart(e.clientX)}
-        onMouseUp={e => onDragEnd(e.clientX)}
-        onMouseLeave={() => { startX.current = null }}
-        onTouchStart={e => onDragStart(e.touches[0].clientX)}
-        onTouchEnd={e => onDragEnd(e.changedTouches[0].clientX)}
-      >
-        {slide.map((biz, i) => (
-          <Card key={i} biz={biz} handleCardClick={handleCardClick} />
-        ))}
+      <div className="premium-carousel__viewport">
+        <div
+          ref={trackRef}
+          className={`premium-carousel__track${dragging ? ' premium-carousel__track--dragging' : ''}`}
+          style={{
+            transform: `translateX(${offset}px)`,
+            width: `${total * 100}%`,
+          }}
+          onMouseDown={e => startDrag(e.clientX)}
+          onMouseMove={e => moveDrag(e.clientX)}
+          onMouseUp={e => endDrag(e.clientX)}
+          onMouseLeave={e => endDrag(e.clientX)}
+          onTouchStart={e => startDrag(e.touches[0].clientX)}
+          onTouchMove={e => { e.preventDefault(); moveDrag(e.touches[0].clientX) }}
+          onTouchEnd={e => endDrag(e.changedTouches[0].clientX)}
+        >
+          {allSlides.map((slide, si) => (
+            <div
+              key={si}
+              className="premium-carousel__slide"
+              style={{ width: `${100 / total}%` }}
+            >
+              {slide.map((biz, i) => (
+                <div
+                  key={i}
+                  className="pc-card"
+                  onClick={() => handleCardClick(biz.id)}
+                >
+                  <img
+                    src={getPhoto(biz)}
+                    alt={biz.brand_name || biz.name}
+                    loading={si === 0 ? 'eager' : 'lazy'}
+                    draggable={false}
+                  />
+                  <div className="pc-card__overlay">
+                    <span className={`pc-card__badge${biz.plan_type === 'PRO' || biz.is_pro ? ' pc-card__badge--pro' : ''}`}>
+                      {biz.plan_type === 'PRO' || biz.is_pro ? 'PRO' : 'VIP'}
+                    </span>
+                    <span className="pc-card__name">{biz.brand_name || biz.name}</span>
+                    {biz.city && <span className="pc-card__city">{biz.city}</span>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
 
       {total > 1 && (
         <div className="premium-carousel__dots">
-          {slides.map((_, i) => (
+          {allSlides.map((_, i) => (
             <button
               key={i}
               className={`premium-carousel__dot${i === page ? ' premium-carousel__dot--active' : ''}`}
-              onClick={() => handleDotClick(i)}
+              onClick={() => { goToPage(i); resetTimer() }}
             />
           ))}
         </div>

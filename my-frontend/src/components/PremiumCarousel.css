@@ -2,19 +2,34 @@
   margin: 4px 0 24px;
 }
 
-/* ── 5×2 равная сетка ── */
-.premium-carousel__mosaic {
+/* ── Viewport — обрезает всё что выходит за пределы ── */
+.premium-carousel__viewport {
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+/* ── Track — все слайды в ряд, двигается translateX ── */
+.premium-carousel__track {
+  display: flex;
+  transition: transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform;
+  cursor: grab;
+  user-select: none;
+}
+
+.premium-carousel__track--dragging {
+  cursor: grabbing;
+}
+
+/* ── Слайд — 5×2 сетка ── */
+.premium-carousel__slide {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   grid-template-rows: repeat(2, 1fr);
   gap: 20px;
   height: 500px;
-  cursor: grab;
-  user-select: none;
-}
-
-.premium-carousel__mosaic:active {
-  cursor: grabbing;
+  flex-shrink: 0;
+  padding: 0;
 }
 
 /* ── Card ── */
@@ -23,8 +38,8 @@
   overflow: hidden;
   cursor: pointer;
   background: var(--bg-tertiary);
-  border-radius: 16px;
-  transition: transform 0.25s, box-shadow 0.25s;
+  border-radius: 14px;
+  transition: transform 0.25s;
 }
 
 .pc-card:hover {
@@ -38,18 +53,17 @@
   display: block;
   transition: transform 0.45s ease;
   pointer-events: none;
-  border-radius: 14px;
 }
 
 .pc-card:hover img {
   transform: scale(1.06);
 }
 
-/* ── Hover overlay ── */
+/* ── Overlay ── */
 .pc-card__overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.05) 55%, transparent 100%);
+  background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 55%);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -57,12 +71,9 @@
   gap: 3px;
   opacity: 0;
   transition: opacity 0.28s ease;
-  border-radius: 14px;
 }
 
-.pc-card:hover .pc-card__overlay {
-  opacity: 1;
-}
+.pc-card:hover .pc-card__overlay { opacity: 1; }
 
 @media (hover: none) {
   .pc-card__overlay {
@@ -89,7 +100,6 @@
   background: linear-gradient(135deg, #42a5f5, #1e88e5);
 }
 
-/* ── Text ── */
 .pc-card__name {
   font-size: 12px;
   font-weight: 700;
@@ -136,7 +146,7 @@
 
 /* ── Responsive ── */
 @media (max-width: 1024px) {
-  .premium-carousel__mosaic {
+  .premium-carousel__slide {
     grid-template-columns: repeat(4, 1fr);
     height: 420px;
     gap: 14px;
@@ -144,7 +154,7 @@
 }
 
 @media (max-width: 768px) {
-  .premium-carousel__mosaic {
+  .premium-carousel__slide {
     grid-template-columns: repeat(3, 1fr);
     height: 340px;
     gap: 10px;
@@ -152,10 +162,7 @@
 }
 
 @media (max-width: 500px) {
-  .premium-carousel {
-    margin: 2px 0 16px;
-  }
-  .premium-carousel__mosaic {
+  .premium-carousel__slide {
     grid-template-columns: repeat(2, 1fr);
     height: 260px;
     gap: 8px;
