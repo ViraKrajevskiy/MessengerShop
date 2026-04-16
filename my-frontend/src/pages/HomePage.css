@@ -241,15 +241,41 @@
 
 @media (max-width: 480px) {
   .home-page__content {
-    padding: 0 10px 80px;
+    padding: 0 6px 80px;
+  }
+  .home-page__hero {
+    padding: 18px 0 18px;
   }
   .home-page__hero h1 {
-    font-size: 20px;
+    font-size: 24px;
+    margin-bottom: 10px;
+    line-height: 1.25;
+  }
+  .home-page__hero p {
+    font-size: 13.5px;
+    line-height: 1.6;
+  }
+  .section-title {
+    font-size: 17px;
+    margin-bottom: 14px;
+  }
+  .section-header {
+    margin-bottom: 14px;
+  }
+  .see-all-btn {
+    font-size: 12px;
+    padding: 7px 13px;
   }
   .card-grid--4,
   .card-grid--5 {
     grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
+    gap: 10px;
+  }
+  .all-cards-section {
+    margin-top: 24px;
+  }
+  .home-posts-section {
+    margin: 24px 0;
   }
 }
 

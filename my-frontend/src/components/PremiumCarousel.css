@@ -150,11 +150,30 @@
 
 @media (max-width: 500px) {
   .premium-carousel {
-    margin: 2px 0 16px;
+    margin: 8px 0 20px;
+    gap: 10px;
   }
   .premium-carousel__mosaic {
     grid-template-columns: repeat(2, 1fr);
-    height: 260px;
-    gap: 8px;
+    height: 300px;
+    gap: 12px;
+  }
+  .premium-carousel__arrow {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+  .pc-card {
+    border-radius: 12px;
+  }
+  .pc-card__name {
+    font-size: 13px;
+  }
+  .pc-card__city {
+    font-size: 11px;
+  }
+  .pc-card__badge {
+    font-size: 10px;
+    padding: 3px 9px;
   }
 }

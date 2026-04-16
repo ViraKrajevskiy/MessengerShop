@@ -315,11 +315,47 @@
     grid-template-columns: 1fr;
     gap: 14px;
   }
-  .post-card__header { padding: 10px 12px 8px; gap: 8px; }
-  .post-card__avatar { width: 32px; height: 32px; }
-  .post-card__name { font-size: 13px; }
-  .post-card__time { font-size: 11px; }
-  .post-card__follow { font-size: 11px; padding: 4px 10px; }
-  .post-card__body { padding: 8px 12px 0; min-height: 72px; }
-  .post-card__footer { padding: 6px 12px 10px; }
+  .post-card {
+    border-radius: 12px;
+  }
+  .post-card__header {
+    padding: 11px 13px 9px;
+    gap: 9px;
+  }
+  .post-card__avatar {
+    width: 36px;
+    height: 36px;
+  }
+  .post-card__name {
+    font-size: 13.5px;
+    font-weight: 700;
+  }
+  .post-card__time {
+    font-size: 11px;
+  }
+  .post-card__follow {
+    font-size: 11.5px;
+    padding: 5px 11px;
+    border-radius: 16px;
+  }
+  .post-card__image {
+    aspect-ratio: 4/3;
+    min-height: 150px;
+  }
+  .post-card__body {
+    padding: 10px 13px 0;
+    min-height: 75px;
+  }
+  .post-card__text {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .post-card__footer {
+    padding: 8px 13px 12px;
+    gap: 8px;
+  }
+  .post-card__fav {
+    font-size: 13px;
+    padding: 6px 0;
+  }
 }
