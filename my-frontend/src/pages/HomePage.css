@@ -3,7 +3,7 @@
   background: var(--bg-primary);
   transition: background 0.3s;
   /* Ширина контента под шапкой — шире прежнего 1100px, хедер не трогаем */
-  --home-content-max: min(1420px, calc(100vw - 40px));
+  --home-content-max: min(1280px, calc(100vw - 40px));
 }
 
 /* Hero + слайдер — на всю ширину */
