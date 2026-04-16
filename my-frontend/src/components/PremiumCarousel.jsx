@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './PremiumCarousel.css'
 
-const PAGE_SIZE = 10
+const PAGE_SIZE = 3
 
 function buildSlides(businesses) {
   if (businesses.length === 0) return []
@@ -17,38 +17,18 @@ function getPhoto(biz) {
   if (biz.logo) {
     return biz.logo.startsWith('http') ? biz.logo : `https://api.101-school.uz${biz.logo}`
   }
-  return `https://picsum.photos/id/${(biz.id % 80) + 10}/500/400`
-}
-
-function Card({ biz, handleCardClick }) {
-  return (
-    <div className="pc-card" onClick={() => handleCardClick(biz.id)}>
-      <img
-        src={getPhoto(biz)}
-        alt={biz.brand_name || biz.name}
-        loading="lazy"
-        draggable={false}
-      />
-      <div className="pc-card__overlay">
-        <span className={`pc-card__badge${biz.plan_type === 'PRO' || biz.is_pro ? ' pc-card__badge--pro' : ''}`}>
-          {biz.plan_type === 'PRO' || biz.is_pro ? 'PRO' : 'VIP'}
-        </span>
-        <span className="pc-card__name">{biz.brand_name || biz.name}</span>
-        {biz.city && <span className="pc-card__city">{biz.city}</span>}
-      </div>
-    </div>
-  )
+  return `https://picsum.photos/id/${(biz.id % 80) + 10}/800/600`
 }
 
 export default function PremiumCarousel({ businesses = [] }) {
-  const navigate = useNavigate()
-  const slides   = buildSlides(businesses)
-  const total    = slides.length
+  const navigate  = useNavigate()
+  const slides    = buildSlides(businesses)
+  const total     = slides.length
 
   const [page, setPage] = useState(0)
-  const startX  = useRef(null)
-  const wasDrag = useRef(false)
-  const timerRef = useRef(null)
+  const startX    = useRef(null)
+  const wasDrag   = useRef(false)
+  const timerRef  = useRef(null)
 
   const goNext = useCallback(() => setPage(p => (p + 1) % total), [total])
   const goPrev = useCallback(() => setPage(p => (p - 1 + total) % total), [total])
@@ -79,11 +59,30 @@ export default function PremiumCarousel({ businesses = [] }) {
   }
 
   const handleDotClick = (i) => { setPage(i); resetTimer() }
-  const handleCardClick = (id) => { if (!wasDrag.current) navigate(`/business/${id}`) }
+
+  const handleCardClick = (id) => {
+    if (!wasDrag.current) navigate(`/business/${id}`)
+  }
 
   if (slides.length === 0) return null
 
   const slide = slides[page]
+
+  const Card = ({ biz, big }) => (
+    <div
+      className={`pc-card${big ? ' pc-card--big' : ' pc-card--small'}`}
+      onClick={() => handleCardClick(biz.id)}
+    >
+      <img src={getPhoto(biz)} alt={biz.brand_name || biz.name} loading="lazy" />
+      <div className="pc-card__overlay">
+        <span className={`pc-card__badge${biz.plan_type === 'PRO' || biz.is_pro ? ' pc-card__badge--pro' : ''}`}>
+          {biz.plan_type === 'PRO' || biz.is_pro ? 'PRO' : 'VIP'}
+        </span>
+        <span className="pc-card__name">{biz.brand_name || biz.name}</span>
+        {biz.city && <span className="pc-card__city">{biz.city}</span>}
+      </div>
+    </div>
+  )
 
   return (
     <section className="premium-carousel">
@@ -95,9 +94,9 @@ export default function PremiumCarousel({ businesses = [] }) {
         onTouchStart={e => onDragStart(e.touches[0].clientX)}
         onTouchEnd={e => onDragEnd(e.changedTouches[0].clientX)}
       >
-        {slide.map((biz, i) => (
-          <Card key={i} biz={biz} handleCardClick={handleCardClick} />
-        ))}
+        <Card biz={slide[0]} big />
+        <Card biz={slide[1]} />
+        <Card biz={slide[2]} big />
       </div>
 
       {total > 1 && (
