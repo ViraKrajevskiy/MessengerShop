@@ -49,9 +49,8 @@ export default function UserCard({ id, name = 'Имя', city = 'Город', bad
     })
   }
 
-  const photo = logo
-    ? resolveUrl(logo)
-    : CARD_PHOTOS[id % CARD_PHOTOS.length]
+  const rawPhoto = logo ? resolveUrl(logo) : CARD_PHOTOS[id % CARD_PHOTOS.length]
+  const isVideo = logo && /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(logo)
 
   const handleClick = () => {
     addViewed({ id, name, city, badge, type })
@@ -67,7 +66,10 @@ export default function UserCard({ id, name = 'Имя', city = 'Город', bad
     <>
       <div className={`user-card${planType === 'VIP' ? ' user-card--vip-plan' : planType === 'PRO' ? ' user-card--pro-plan' : ''}`} onClick={handleClick}>
         <div className="user-card__image">
-          <img className="user-card__photo" src={photo} alt={name} loading="lazy" width="400" height="530" />
+          {isVideo
+            ? <video className="user-card__photo" src={rawPhoto} autoPlay muted loop playsInline />
+            : <img className="user-card__photo" src={rawPhoto} alt={name} loading="lazy" width="400" height="530" />
+          }
           {planType === 'VIP' ? (
             <span className="user-card__badge user-card__badge--vip">VIP</span>
           ) : planType === 'PRO' ? (
