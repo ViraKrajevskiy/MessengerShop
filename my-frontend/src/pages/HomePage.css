@@ -3,7 +3,7 @@
   background: var(--bg-primary);
   transition: background 0.3s;
   /* Ширина контента под шапкой — шире прежнего 1100px, хедер не трогаем */
-  --home-content-max: min(1280px, calc(100vw - 40px));
+  --home-content-max: min(1420px, calc(100vw - 40px));
 }
 
 /* Hero + слайдер — на всю ширину */
@@ -314,73 +314,70 @@
   box-shadow: none;
 }
 
-/* ── Публикации: карусель со стрелками ── */
-.home-posts-carousel {
+/* Три карточки публикаций: только вертикальное превью фото */
+.home-posts-grid {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  gap: 20px;
+  overflow-x: auto;
+  padding: 0 0 8px 0;
+  cursor: grab;
+  user-select: none;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
 }
 
-.home-posts-carousel__track {
-  flex: 1;
-  min-width: 0;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
+.home-posts-grid::-webkit-scrollbar {
+  display: none;
 }
 
-.home-posts-carousel__arrow {
-  background: var(--bg-secondary);
-  border: 1.5px solid var(--border-color);
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-secondary);
-  cursor: pointer;
-  padding: 0;
-  flex-shrink: 0;
-  transition: all 0.2s;
+
+.home-posts-section .post-card {
+  border: none;
   box-shadow: var(--card-shadow);
+  /* exactly 3 per view: (100% - 2 gaps) / 3 */
+  flex: 0 0 calc((100% - 2 * 20px) / 3);
+  height: 420px;
+  scroll-snap-align: none;
 }
 
-.home-posts-carousel__arrow:hover:not(:disabled) {
-  background: var(--accent-gradient);
-  color: #fff;
-  border-color: transparent;
-  box-shadow: 0 4px 14px rgba(229,57,53,0.25);
-  transform: scale(1.08);
+/* snap only on the first card of each group of 3 */
+.home-posts-grid .post-card:nth-child(3n+1) {
+  scroll-snap-align: start;
 }
 
-.home-posts-carousel__arrow:disabled {
-  color: var(--text-muted);
-  opacity: 0.45;
-  cursor: default;
-  box-shadow: none;
+.home-posts-section .post-card__image {
+  flex: 1;
+  overflow: hidden;
+}
+
+.home-posts-section .post-card__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.home-posts-grid .post-card-skeleton .skel-img--portrait {
+  aspect-ratio: 3 / 4;
+  max-height: 300px;
+}
+
+.home-posts-section .post-card__body {
+  min-height: 56px;
+}
+
+.home-posts-section .post-card__footer {
+  padding-top: 6px;
+  padding-bottom: 10px;
 }
 
 @media (max-width: 768px) {
-  .home-posts-carousel {
-    gap: 0;
+  .home-posts-grid {
+    gap: 20px;
   }
-  .home-posts-carousel__arrow {
-    display: none;
-  }
-  .home-posts-carousel__track {
-    display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    gap: 12px;
-    padding: 4px 4px 10px;
-    scrollbar-width: none;
-  }
-  .home-posts-carousel__track::-webkit-scrollbar { display: none; }
-  .home-posts-carousel__track > * {
-    flex: 0 0 min(260px, 80%);
-    scroll-snap-align: start;
+  .home-posts-section .post-card {
+    width: 200px;
+    min-width: 200px;
   }
 }
 
