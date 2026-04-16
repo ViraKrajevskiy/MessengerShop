@@ -91,8 +91,31 @@ export default function PremiumCarousel({ businesses = [] }) {
 
   const slide = slides[page]
 
+  const handlePrev = () => { goPrev(); resetTimer() }
+  const handleNext = () => { goNext(); resetTimer() }
+
   return (
     <section className="premium-carousel">
+      {total > 1 && (
+        <div className="premium-carousel__nav">
+          <button className="premium-carousel__arrow" onClick={handlePrev} aria-label="Назад">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <div className="premium-carousel__dots">
+            {slides.map((_, i) => (
+              <button
+                key={i}
+                className={`premium-carousel__dot${i === page ? ' premium-carousel__dot--active' : ''}`}
+                onClick={() => handleDotClick(i)}
+              />
+            ))}
+          </div>
+          <button className="premium-carousel__arrow" onClick={handleNext} aria-label="Вперёд">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+      )}
+
       <div
         className="premium-carousel__mosaic"
         onMouseDown={e => onDragStart(e.clientX)}
@@ -105,18 +128,6 @@ export default function PremiumCarousel({ businesses = [] }) {
           <Card key={i} biz={biz} handleCardClick={handleCardClick} />
         ))}
       </div>
-
-      {total > 1 && (
-        <div className="premium-carousel__dots">
-          {slides.map((_, i) => (
-            <button
-              key={i}
-              className={`premium-carousel__dot${i === page ? ' premium-carousel__dot--active' : ''}`}
-              onClick={() => handleDotClick(i)}
-            />
-          ))}
-        </div>
-      )}
     </section>
   )
 }
