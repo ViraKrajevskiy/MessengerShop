@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useLanguage } from '../context/LanguageContext';
+import { API_URL } from '../config/api';
 import './NewsDetailPage.css';
 
 export default function NewsDetailPage() {
@@ -15,13 +16,11 @@ export default function NewsDetailPage() {
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        const BASE = import.meta.env.PROD ? 'https://api.101-school.uz/api' : 'http://127.0.0.1:8000/api';
-        const res = await fetch(`${BASE}/news/${id}/`);
+        const res = await fetch(`${API_URL}/news/${id}/`);
         if (!res.ok) throw new Error('Error');
         const data = await res.json();
         setItem(data);
-      } catch (err) {
-        console.error(err);
+      } catch {
       } finally {
         setLoading(false);
       }

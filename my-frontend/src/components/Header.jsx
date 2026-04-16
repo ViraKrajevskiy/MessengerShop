@@ -4,6 +4,7 @@ import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 import { useLanguage } from '../context/LanguageContext'
 import { DEFAULT_AVATAR } from '../utils/defaults'
+import { API_URL } from '../config/api'
 import './Header.css'
 
 const ThemeIcon = ({ theme }) => theme === 'light' ? (
@@ -46,7 +47,7 @@ export default function Header() {
 
   // Load dynamic breadcrumb data based on current path
   useEffect(() => {
-    const base = import.meta.env.PROD ? 'https://api.101-school.uz/api' : 'http://127.0.0.1:8000/api'
+    const base = API_URL
     const p = location.pathname
 
     setBizName(null)
@@ -109,7 +110,7 @@ export default function Header() {
     if (user?.role === 'BUSINESS') {
       getAccessToken().then(token => {
         if (!token) return
-        fetch(`${import.meta.env.PROD ? 'https://api.101-school.uz/api' : 'http://127.0.0.1:8000/api'}/businesses/me/`, {
+        fetch(`${API_URL}/businesses/me/`, {
           headers: { 'Authorization': `Bearer ${token}` }
         }).then(r => r.ok ? r.json() : null).then(b => setBizId(b?.id || null)).catch(() => {})
       })

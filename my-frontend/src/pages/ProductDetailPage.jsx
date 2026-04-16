@@ -5,11 +5,9 @@ import Footer from '../components/Footer'
 import { useAuth } from '../context/AuthContext'
 import { apiSendProductInquiry } from '../api/businessApi'
 import { DEFAULT_AVATAR } from '../utils/defaults'
+import { resolveUrl } from '../utils/urlUtils'
+import { API_URL as BASE } from '../config/api'
 import './ProductDetailPage.css'
-
-const BASE = import.meta.env.PROD
-  ? 'https://api.101-school.uz/api'
-  : 'http://127.0.0.1:8000/api'
 
 const FALLBACK_IMG = 'https://picsum.photos/id/342/800/600'
 
@@ -47,8 +45,7 @@ export default function ProductDetailPage() {
       await apiSendProductInquiry(product.id, msg, token)
       setSent(true)
       setInquiryMsg('')
-    } catch (e) {
-      console.error(e)
+    } catch {
     } finally {
       setSending(false)
     }
@@ -149,7 +146,7 @@ export default function ProductDetailPage() {
               <div className="pdp__biz" onClick={() => navigate(`/business/${business.id}`)}>
                 <img
                   className="pdp__biz-logo"
-                  src={business.logo ? (business.logo.startsWith('http') ? business.logo : `https://api.101-school.uz${business.logo}`) : DEFAULT_AVATAR}
+                  src={resolveUrl(business.logo) || DEFAULT_AVATAR}
                   alt={business.brand_name}
                 />
                 <div className="pdp__biz-info">

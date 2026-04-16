@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useViewed } from '../context/ViewedContext'
 import { useAuth } from '../context/AuthContext'
 import { useAuthGate } from './AuthGate'
+import { resolveUrl } from '../utils/urlUtils'
 import './UserCard.css'
 
 const CARD_PHOTOS = [
@@ -49,7 +50,7 @@ export default function UserCard({ id, name = 'Имя', city = 'Город', bad
   }
 
   const photo = logo
-    ? (logo.startsWith('http') ? logo : `https://api.101-school.uz${logo}`)
+    ? resolveUrl(logo)
     : CARD_PHOTOS[id % CARD_PHOTOS.length]
 
   const handleClick = () => {

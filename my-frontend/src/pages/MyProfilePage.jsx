@@ -5,9 +5,9 @@ import { useLanguage } from '../context/LanguageContext'
 import { apiPatchMe } from '../api/profileApi'
 import Header from '../components/Header'
 import { DEFAULT_AVATAR } from '../utils/defaults'
+import { resolveUrl } from '../utils/urlUtils'
+import { API_URL as BASE } from '../config/api'
 import './MyProfilePage.css'
-
-const BASE = 'https://api.101-school.uz/api'
 
 async function fetchVerStatus(token) {
   const res = await fetch(`${BASE}/verification/my/`, {
@@ -73,7 +73,7 @@ export default function MyProfilePage() {
 
   const avatarSrc = avatarPreview
     || (user.avatar
-        ? (user.avatar.startsWith('http') ? user.avatar : `https://api.101-school.uz${user.avatar}`)
+        ? resolveUrl(user.avatar)
         : DEFAULT_AVATAR)
 
   const role = ROLE_LABELS[user.role] || { label: user.role, color: '#64748b' }

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { API_URL } from '../config/api'
 import { useNavigate } from 'react-router-dom'
 import {
   apiModeratorGetVerifications, apiModeratorReviewVerification,
@@ -685,8 +686,7 @@ function FeedTab({ token }) {
     try {
       const endpointMap = { post: 'posts', story: 'stories', product: 'products' }
       const endpoint = endpointMap[item.content_type]
-      const BASE = import.meta.env.PROD ? 'https://api.101-school.uz/api' : 'http://127.0.0.1:8000/api'
-      await fetch(`${BASE}/moderator/${endpoint}/${item.id}/block/`, {
+      await fetch(`${API_URL}/moderator/${endpoint}/${item.id}/block/`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ blocked: !item.is_blocked }),

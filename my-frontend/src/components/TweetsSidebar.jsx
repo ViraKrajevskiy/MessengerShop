@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { apiGetPosts } from '../api/businessApi'
+import { resolveUrl } from '../utils/urlUtils'
 import './TweetsSidebar.css'
 
 const FALLBACK_IMGS = [
@@ -50,12 +51,7 @@ export default function TweetsSidebar() {
           ))
         ) : (
           visible.map(post => {
-            const fixUrl = (url) => {
-              if (!url) return null
-              if (url.startsWith('http')) return url
-              return 'https://api.101-school.uz' + url
-            }
-            const img = fixUrl(post.media_display) || FALLBACK_IMGS[post.id % FALLBACK_IMGS.length]
+            const img = resolveUrl(post.media_display) || FALLBACK_IMGS[post.id % FALLBACK_IMGS.length]
             return (
               <div
                 key={post.id}

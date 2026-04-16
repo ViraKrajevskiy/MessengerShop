@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext'
 import { useLanguage } from '../context/LanguageContext'
 import { apiGetProducts, apiGetBusinesses, CATEGORY_LABELS } from '../api/businessApi'
 import { makeInitialAvatar } from '../utils/defaults'
+import { resolveUrl } from '../utils/urlUtils'
 import '../components/UserCard.css'
 import './CatalogPage.css'
 
@@ -29,9 +30,9 @@ function ServiceCard({ product, onTagClick }) {
   const [fav, setFav] = useState(false)
 
   const image = product.image_display
-    ? (product.image_display.startsWith('http') ? product.image_display : `https://api.101-school.uz${product.image_display}`)
+    ? resolveUrl(product.image_display)
     : product.business_logo
-      ? (product.business_logo.startsWith('http') ? product.business_logo : `https://api.101-school.uz${product.business_logo}`)
+      ? resolveUrl(product.business_logo)
       : makeInitialAvatar(product.name || product.business_name)
 
   const priceStr = product.price != null
@@ -92,7 +93,7 @@ function ServiceCard({ product, onTagClick }) {
 function BizCard({ biz }) {
   const navigate = useNavigate()
   const logo = biz.logo
-    ? (biz.logo.startsWith('http') ? biz.logo : `https://api.101-school.uz${biz.logo}`)
+    ? resolveUrl(biz.logo)
     : makeInitialAvatar(biz.brand_name)
 
   return (

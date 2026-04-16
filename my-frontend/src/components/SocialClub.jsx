@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { apiGetPosts } from '../api/businessApi'
+import { timeAgo } from '../utils/timeUtils'
+import { resolveUrl } from '../utils/urlUtils'
 import './SocialClub.css'
 
 const FALLBACK_IMGS = [
@@ -14,25 +16,10 @@ const FALLBACK_IMGS = [
   'https://picsum.photos/id/338/800/600',
 ]
 
-function timeAgo(dateStr) {
-  const diff = Date.now() - new Date(dateStr).getTime()
-  const mins = Math.floor(diff / 60000)
-  if (mins < 1) return 'только что'
-  if (mins < 60) return `${mins} мин. назад`
-  const hours = Math.floor(mins / 60)
-  if (hours < 24) return `${hours} ч. назад`
-  return `${Math.floor(hours / 24)} дн. назад`
-}
-
 function PostCard({ post, onClick }) {
   const [saved, setSaved] = useState(post.is_favorited || false)
 
-  const fixUrl = (url) => {
-    if (!url) return null
-    if (url.startsWith('http')) return url
-    return 'https://api.101-school.uz' + url
-  }
-  const media = fixUrl(post.media_display) || FALLBACK_IMGS[post.id % FALLBACK_IMGS.length]
+  const media = resolveUrl(post.media_display) || FALLBACK_IMGS[post.id % FALLBACK_IMGS.length]
   const caption = post.text?.length > 55 ? post.text.slice(0, 55) + '...' : post.text
 
   return (
