@@ -37,16 +37,19 @@ export default function PremiumCarousel({ businesses = [] }) {
 
   useEffect(() => { pageRef.current = page }, [page])
 
-  const getW = () => trackRef.current?.offsetWidth ?? 0
+  const getPageW = () => {
+    const trackW = trackRef.current?.offsetWidth ?? 0
+    return trackW / (total || 1)
+  }
 
   const goToPage = useCallback((idx) => {
-    const w = getW()
-    const target = -idx * w
+    const pageW = getPageW()
+    const target = -idx * pageW
     if (trackRef.current) trackRef.current.style.transition = ''
     setOffset(target)
     setPage(idx)
     pageRef.current = idx
-  }, [])
+  }, [total])
 
   const resetTimer = useCallback(() => {
     clearInterval(timerRef.current)
@@ -86,10 +89,10 @@ export default function PremiumCarousel({ businesses = [] }) {
     if (trackRef.current) trackRef.current.style.transition = ''
 
     const dx = e.clientX - dragRef.current.startX
-    const w = getW()
+    const pageW = getPageW()
     let next = pageRef.current
 
-    if (Math.abs(dx) > w * 0.15) {
+    if (Math.abs(dx) > pageW * 0.15) {
       next = dx < 0
         ? Math.min(total - 1, pageRef.current + 1)
         : Math.max(0, pageRef.current - 1)
