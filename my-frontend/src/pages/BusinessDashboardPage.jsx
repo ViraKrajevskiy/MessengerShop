@@ -2003,14 +2003,18 @@ export default function BusinessDashboardPage() {
                       <label className="biz-profile-edit__label">Аватар / Логотип</label>
                       <div className="biz-profile-edit__avatar-wrap">
                         {(editLogo
-                          ? <img src={URL.createObjectURL(editLogo)} className="biz-profile-edit__avatar-preview" alt="preview" />
+                          ? editLogo.type.startsWith('video/')
+                            ? <video src={URL.createObjectURL(editLogo)} className="biz-profile-edit__avatar-preview" autoPlay muted loop playsInline />
+                            : <img src={URL.createObjectURL(editLogo)} className="biz-profile-edit__avatar-preview" alt="preview" />
                           : bizData?.logo
-                            ? <img src={resolveUrl(bizData.logo)} className="biz-profile-edit__avatar-preview" alt="logo" />
+                            ? /\.(mp4|webm|mov)(\?|$)/i.test(bizData.logo)
+                              ? <video src={resolveUrl(bizData.logo)} className="biz-profile-edit__avatar-preview" autoPlay muted loop playsInline />
+                              : <img src={resolveUrl(bizData.logo)} className="biz-profile-edit__avatar-preview" alt="logo" />
                             : <div className="biz-profile-edit__avatar-placeholder">{bizData?.brand_name?.[0] || '?'}</div>
                         )}
                         <label className="biz-profile-edit__upload-btn">
-                          📷 Сменить фото
-                          <input type="file" accept="image/*" hidden onChange={e => setEditLogo(e.target.files[0] || null)} />
+                          📷 Сменить фото / видео
+                          <input type="file" accept="image/*,video/*" hidden onChange={e => setEditLogo(e.target.files[0] || null)} />
                         </label>
                       </div>
                     </div>
