@@ -7,6 +7,8 @@ import PostCard from '../components/PostCard'
 import { useAuth } from '../context/AuthContext'
 import { apiGetPosts, apiGetBusinesses, apiGetNews, CATEGORY_LABELS } from '../api/businessApi'
 import { makeInitialAvatar } from '../utils/defaults'
+import { timeAgo } from '../utils/timeUtils'
+import { resolveUrl } from '../utils/urlUtils'
 import './FeedPage.css'
 
 // ── Tag pills ────────────────────────────────────────────────────────────────
@@ -21,21 +23,11 @@ function TagPills({ tags, onTagClick }) {
   )
 }
 
-function timeAgo(dateStr) {
-  const diff = Date.now() - new Date(dateStr).getTime()
-  const mins = Math.floor(diff / 60000)
-  if (mins < 1) return 'только что'
-  if (mins < 60) return `${mins} мин. назад`
-  const hours = Math.floor(mins / 60)
-  if (hours < 24) return `${hours} ч. назад`
-  return `${Math.floor(hours / 24)} дн. назад`
-}
-
 // ── Tweet card (compact post) ────────────────────────────────────────────────
 function TweetCard({ post, onTagClick }) {
   const navigate = useNavigate()
   const logo = post.business_logo
-    ? (post.business_logo.startsWith('http') ? post.business_logo : `https://api.101-school.uz${post.business_logo}`)
+    ? resolveUrl(post.business_logo)
     : makeInitialAvatar(post.business_name)
   const media = post.media_display || null
 
@@ -89,7 +81,7 @@ function FeedNewsCard({ item, onTagClick }) {
 function FeedBizCard({ biz }) {
   const navigate = useNavigate()
   const logo = biz.logo
-    ? (biz.logo.startsWith('http') ? biz.logo : `https://api.101-school.uz${biz.logo}`)
+    ? resolveUrl(biz.logo)
     : makeInitialAvatar(biz.brand_name)
   return (
     <div className="feed-biz-card" onClick={() => navigate(`/business/${biz.id}`)}>

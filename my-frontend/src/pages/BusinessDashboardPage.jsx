@@ -9,12 +9,10 @@ import {
   apiUpdateProduct,
   apiGetBusinessStories,
 } from '../api/businessApi'
+import { timeAgo } from '../utils/timeUtils'
+import { resolveUrl } from '../utils/urlUtils'
+import { API_URL as BASE, API_ORIGIN } from '../config/api'
 import './BusinessDashboardPage.css'
-
-const BASE = import.meta.env.PROD
-  ? 'https://api.101-school.uz/api'
-  : 'http://127.0.0.1:8000/api'
-const API_ORIGIN = BASE.replace(/\/api$/, '')
 
 function getVerificationStatus(payload) {
   if (!payload || payload.exists === false) return null
@@ -62,17 +60,6 @@ function formatDrfErrors(data) {
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
-
-function timeAgo(dateStr) {
-  if (!dateStr) return ''
-  const diff = Date.now() - new Date(dateStr).getTime()
-  const mins = Math.floor(diff / 60000)
-  if (mins < 1) return 'только что'
-  if (mins < 60) return `${mins} мин. назад`
-  const hours = Math.floor(mins / 60)
-  if (hours < 24) return `${hours} ч. назад`
-  return `${Math.floor(hours / 24)} дн. назад`
-}
 
 const TrashIcon = () => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -2018,7 +2005,7 @@ export default function BusinessDashboardPage() {
                         {(editLogo
                           ? <img src={URL.createObjectURL(editLogo)} className="biz-profile-edit__avatar-preview" alt="preview" />
                           : bizData?.logo
-                            ? <img src={bizData.logo.startsWith('http') ? bizData.logo : `https://api.101-school.uz${bizData.logo}`} className="biz-profile-edit__avatar-preview" alt="logo" />
+                            ? <img src={resolveUrl(bizData.logo)} className="biz-profile-edit__avatar-preview" alt="logo" />
                             : <div className="biz-profile-edit__avatar-placeholder">{bizData?.brand_name?.[0] || '?'}</div>
                         )}
                         <label className="biz-profile-edit__upload-btn">
@@ -2035,7 +2022,7 @@ export default function BusinessDashboardPage() {
                         {editCover
                           ? <img src={URL.createObjectURL(editCover)} className="biz-profile-edit__cover-preview" alt="cover preview" />
                           : bizData?.cover
-                            ? <img src={bizData.cover.startsWith('http') ? bizData.cover : `https://api.101-school.uz${bizData.cover}`} className="biz-profile-edit__cover-preview" alt="cover" />
+                            ? <img src={resolveUrl(bizData.cover)} className="biz-profile-edit__cover-preview" alt="cover" />
                             : <div className="biz-profile-edit__cover-placeholder">Нет обложки</div>
                         }
                         <label className="biz-profile-edit__upload-btn">

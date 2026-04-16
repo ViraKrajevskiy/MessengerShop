@@ -1,6 +1,4 @@
-const BASE = import.meta.env.PROD
-  ? 'https://api.101-school.uz/api'
-  : 'http://127.0.0.1:8000/api'
+import { API_URL as BASE } from '../config/api'
 
 const cache = new Map()
 const TTL = 60_000
@@ -482,8 +480,7 @@ export const apiGetProducts = async () => {
     const response = await fetch(`${BASE}/products/`);
     if (!response.ok) return [];
     return await response.json();
-  } catch (error) {
-    console.error("Ошибка в apiGetProducts:", error);
+  } catch {
     return [];
   }
 };
@@ -493,8 +490,7 @@ export const apiGetNews = async () => {
     const response = await fetch(`${BASE}/news/`);
     if (!response.ok) return [];
     return await response.json();
-  } catch (error) {
-    console.error("Ошибка в apiGetNews:", error);
+  } catch {
     return [];
   }
 };

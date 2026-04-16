@@ -12,6 +12,7 @@ import {
   apiSearchProducts,
 } from '../api/businessApi'
 import { DEFAULT_AVATAR } from '../utils/defaults'
+import { timeAgoShort as timeAgo } from '../utils/timeUtils'
 import './MessengerPage.css'
 
 const FALLBACK_AVATAR = DEFAULT_AVATAR
@@ -77,19 +78,6 @@ function MentionDropdown({ items, onSelect }) {
       ))}
     </div>
   )
-}
-
-function timeAgo(dateStr) {
-  if (!dateStr) return ''
-  const diff = Date.now() - new Date(dateStr).getTime()
-  const mins = Math.floor(diff / 60000)
-  if (mins < 1) return 'сейчас'
-  if (mins < 60) return `${mins} мин.`
-  const hours = Math.floor(mins / 60)
-  if (hours < 24) return `${hours} ч.`
-  const days = Math.floor(hours / 24)
-  if (days === 1) return 'вчера'
-  return `${days} дн.`
 }
 
 /* ─── Inquiry contact item (existing) ─── */

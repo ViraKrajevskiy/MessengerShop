@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { apiGetStories, apiViewStory, invalidateCache } from '../api/businessApi'
 import { makeInitialAvatar } from '../utils/defaults'
+import { resolveUrl } from '../utils/urlUtils'
 import './Stories.css'
 
 function groupStoriesByAuthor(apiStories) {
@@ -36,7 +37,7 @@ function groupStoriesByAuthor(apiStories) {
       userName: s.author.brand_name || s.author.username || 'Бизнес',
       city:     s.author.city || '',
       avatar:   s.author.avatar
-        ? (s.author.avatar.startsWith('http') ? s.author.avatar : `https://api.101-school.uz${s.author.avatar}`)
+        ? resolveUrl(s.author.avatar)
         : makeInitialAvatar(s.author.brand_name || s.author.username || '?'),
       media:    [{
         type:      s.media_type === 'VIDEO' ? 'video' : 'image',

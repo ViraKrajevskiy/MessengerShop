@@ -5,6 +5,7 @@ import Header from '../components/Header'
 import ReviewsSection from '../components/ReviewsSection'
 import VideoModal from '../components/VideoModal'
 import { apiGetBusiness, apiGetBusinessPosts, apiGetBusinesses, apiToggleSubscription, apiJoinGroup, apiCheckGroupMembership, apiDeletePost } from '../api/businessApi'
+import { resolveUrl } from '../utils/urlUtils'
 import './BusinessPage.css'
 
 const CATEGORY_ICONS = {
@@ -15,18 +16,6 @@ const CATEGORY_ICONS = {
 
 const FALLBACK_LOGO  = 'https://picsum.photos/id/1027/200/200'
 const FALLBACK_COVER = 'https://picsum.photos/id/1074/1200/400'
-
-const API_BASE = import.meta.env.PROD
-  ? 'https://api.101-school.uz'
-  : 'http://127.0.0.1:8000'
-
-function resolveUrl(url) {
-  if (!url) return null
-  if (url.startsWith('http')) return url
-  return `${API_BASE}${url}`
-}
-
-
 
 /* ── Аудио-плеер (голосовое сообщение) ── */
 const WAVE_BARS = [4,7,12,9,14,10,6,13,8,11,5,10,13,7,9,12,6,11,8,14,5,9,12,7,10,13,6,11,8,4]

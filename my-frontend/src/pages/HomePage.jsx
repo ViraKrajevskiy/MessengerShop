@@ -11,6 +11,7 @@ import PostCard from '../components/PostCard'
 import PremiumCarousel from '../components/PremiumCarousel'
 import { apiGetBusinesses, apiGetPosts, CATEGORY_LABELS } from '../api/businessApi'
 import { useLanguage } from '../context/LanguageContext'
+import { resolveUrl } from '../utils/urlUtils'
 import './HomePage.css'
 
 // ---------- adaptive descriptions (keys resolved via t() inside component) ----------
@@ -111,13 +112,13 @@ export default function HomePage() {
     const postImgs = posts
       .filter(p => p.media_display)
       .map(p => ({
-        src: p.media_display.startsWith('http') ? p.media_display : `https://api.101-school.uz${p.media_display}`,
+        src: resolveUrl(p.media_display),
         alt: p.text || '',
       }))
     const bizImgs = allBiz
       .filter(b => b.logo)
       .map(b => ({
-        src: b.logo.startsWith('http') ? b.logo : `https://api.101-school.uz${b.logo}`,
+        src: resolveUrl(b.logo),
         alt: b.brand_name,
       }))
     return [...postImgs, ...bizImgs].slice(0, 50)

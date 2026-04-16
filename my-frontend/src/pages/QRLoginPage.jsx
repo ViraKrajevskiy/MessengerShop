@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { useLanguage } from '../context/LanguageContext'
 import './AuthPage.css'
 
-const BASE = 'https://api.101-school.uz/api'
+import { API_URL as BASE } from '../config/api'
 
 export default function QRLoginPage() {
   const navigate = useNavigate()

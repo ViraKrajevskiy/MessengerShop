@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { resolveUrl } from '../utils/urlUtils'
 import './PremiumCarousel.css'
 
 const PAGE_SIZE = 10
@@ -15,7 +16,7 @@ function buildSlides(businesses) {
 
 function getPhoto(biz) {
   if (biz.logo) {
-    return biz.logo.startsWith('http') ? biz.logo : `https://api.101-school.uz${biz.logo}`
+    return resolveUrl(biz.logo)
   }
   return `https://picsum.photos/id/${(biz.id % 80) + 10}/500/400`
 }

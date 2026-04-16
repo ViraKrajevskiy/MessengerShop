@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useLanguage } from '../context/LanguageContext'
 import './AuthPage.css'
 
-const BASE = 'https://api.101-school.uz/api'
+import { API_URL as BASE } from '../config/api'
 
 export default function ForgotPasswordPage() {
   const navigate = useNavigate()

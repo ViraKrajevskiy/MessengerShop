@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useViewed } from '../context/ViewedContext'
 import { useLanguage } from '../context/LanguageContext'
+import { resolveUrl } from '../utils/urlUtils'
 import './VipSection.css'
 
 const VIP_PHOTOS = [
@@ -81,7 +82,7 @@ export default function VipSection({ users = [], loading = false }) {
                 <img
                 className="vip-card__photo"
                 src={user.logo
-                  ? (user.logo.startsWith('http') ? user.logo : `https://api.101-school.uz${user.logo}`)
+                  ? resolveUrl(user.logo)
                   : VIP_PHOTOS[user.id % VIP_PHOTOS.length]}
                 alt={user.name}
                 loading={idx < 4 ? 'eager' : 'lazy'}

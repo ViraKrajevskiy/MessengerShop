@@ -4,6 +4,7 @@ import { useViewed } from '../context/ViewedContext'
 import { useLanguage } from '../context/LanguageContext'
 import { apiGetBusinesses } from '../api/businessApi'
 import { makeInitialAvatar } from '../utils/defaults'
+import { resolveUrl } from '../utils/urlUtils'
 import './NewUsers.css'
 
 export default function NewUsers() {
@@ -43,7 +44,7 @@ export default function NewUsers() {
       <div className="new-users__grid">
         {displayed.map(biz => {
           const logo = biz.logo
-            ? (biz.logo.startsWith('http') ? biz.logo : `https://api.101-school.uz${biz.logo}`)
+            ? (resolveUrl(biz.logo) || makeInitialAvatar(biz.brand_name))
             : makeInitialAvatar(biz.brand_name)
           return (
             <div key={biz.id} className="new-users__item" onClick={() => handleClick(biz)}>

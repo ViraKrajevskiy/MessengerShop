@@ -5,9 +5,7 @@ import { useLanguage } from '../context/LanguageContext'
 import Header from '../components/Header'
 import './VerificationPage.css'
 
-const BASE = import.meta.env.PROD
-  ? 'https://api.101-school.uz/api'
-  : 'http://127.0.0.1:8000/api'
+import { API_URL as BASE } from '../config/api'
 
 function normalizeVerificationPayload(payload) {
   if (!payload || payload.exists === false) return null
