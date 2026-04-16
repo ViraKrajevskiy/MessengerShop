@@ -1,26 +1,27 @@
 .premium-carousel {
   margin: 4px 0 24px;
-  min-height: 420px; /* Prevent layout shift during load */
 }
 
-/* ── 5×2 uniform grid ── */
+/* ── Мозаика: [большой | 2×2 | большой] — 3 колонки ── */
 .premium-carousel__mosaic {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: 2fr 2fr 2fr;
   gap: 20px;
+  height: 500px;
   cursor: grab;
   user-select: none;
-  min-height: 420px; /* Prevent layout shift during load */
-}
-
-/* ── 7×2 grid for premium users ── */
-.premium-carousel__mosaic--7 {
-  grid-template-columns: repeat(7, 1fr);
-  min-height: 420px; /* Prevent layout shift during load */
 }
 
 .premium-carousel__mosaic:active {
   cursor: grabbing;
+}
+
+/* Центральная 2×2 сетка */
+.premium-carousel__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 20px;
 }
 
 /* ── Card ── */
@@ -30,14 +31,15 @@
   cursor: pointer;
   background: var(--bg-tertiary);
   border-radius: 16px;
-  aspect-ratio: 1 / 1;
-  box-shadow: 0 0 0 2px rgba(180, 140, 255, 0.35), 0 4px 18px rgba(160, 120, 255, 0.18);
   transition: transform 0.25s, box-shadow 0.25s;
 }
 
+.pc-card--big {
+  /* занимает всю высоту через grid */
+}
+
 .pc-card:hover {
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 0 0 2.5px rgba(180, 140, 255, 0.7), 0 8px 28px rgba(160, 120, 255, 0.35);
+  transform: translateY(-2px) scale(1.01);
 }
 
 .pc-card img {
@@ -51,7 +53,7 @@
 }
 
 .pc-card:hover img {
-  transform: scale(1.06);
+  transform: scale(1.05);
 }
 
 /* ── Hover overlay ── */
@@ -62,8 +64,8 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 12px 10px;
-  gap: 3px;
+  padding: 14px 12px;
+  gap: 4px;
   opacity: 0;
   transition: opacity 0.28s ease;
   border-radius: 14px;
@@ -85,9 +87,9 @@
   display: inline-block;
   background: linear-gradient(135deg, #f5a623, #ff8f00);
   color: #fff;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 800;
-  padding: 2px 8px;
+  padding: 2px 9px;
   border-radius: 8px;
   align-self: flex-start;
   letter-spacing: 0.5px;
@@ -100,7 +102,7 @@
 
 /* ── Text ── */
 .pc-card__name {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   color: #fff;
   white-space: nowrap;
@@ -110,44 +112,15 @@
 }
 
 .pc-card__city {
-  font-size: 10px;
+  font-size: 11px;
   color: rgba(255,255,255,0.85);
   text-shadow: 0 1px 3px rgba(0,0,0,0.5);
 }
 
-/* ── Nav bar (arrows + dots) ── */
-.premium-carousel__nav {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 14px;
-}
-
-.premium-carousel__arrow {
-  background: var(--bg-secondary);
-  border: 1.5px solid var(--border-color);
-  border-radius: 50%;
-  width: 34px;
-  height: 34px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-secondary);
-  cursor: pointer;
-  padding: 0;
-  flex-shrink: 0;
-  transition: all 0.2s;
-  box-shadow: var(--card-shadow);
-}
-
-.premium-carousel__arrow:hover {
-  background: var(--accent-gradient);
-  color: #fff;
-  border-color: transparent;
-  box-shadow: 0 4px 14px rgba(229,57,53,0.25);
-  transform: scale(1.08);
-}
+.pc-card--small .pc-card__overlay { padding: 8px 10px; gap: 2px; }
+.pc-card--small .pc-card__badge   { font-size: 9px; padding: 1px 6px; }
+.pc-card--small .pc-card__name    { font-size: 11.5px; }
+.pc-card--small .pc-card__city    { font-size: 10px; }
 
 /* ── Dots ── */
 .premium-carousel__dots {
@@ -155,6 +128,7 @@
   justify-content: center;
   align-items: center;
   gap: 5px;
+  margin-top: 12px;
   flex-wrap: wrap;
 }
 
@@ -179,34 +153,30 @@
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .premium-carousel__mosaic {
-    grid-template-columns: repeat(3, 1fr);
+    height: 280px;
     gap: 12px;
   }
-  .premium-carousel__mosaic--7 {
-    grid-template-columns: repeat(3, 1fr);
+  .premium-carousel__grid {
+    gap: 12px;
   }
 }
 
-@media (max-width: 500px) {
+@media (max-width: 480px) {
   .premium-carousel {
     margin: 2px 0 16px;
-    padding: 0 8px;
-  }
-  .premium-carousel__arrow {
-    display: none;
   }
   .premium-carousel__mosaic {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
+    grid-template-columns: 1fr;
+    height: auto;
+    gap: 0;
   }
-  .premium-carousel__mosaic--7 {
-    grid-template-columns: repeat(2, 1fr);
+  /* На мобилке показываем только левый большой */
+  .premium-carousel__grid,
+  .pc-card--big:last-child {
+    display: none;
   }
-  .pc-card {
-    box-shadow: 0 0 0 1.5px rgba(180, 140, 255, 0.25), 0 2px 12px rgba(160, 120, 255, 0.12);
-  }
-  .pc-card:hover {
-    box-shadow: 0 0 0 2px rgba(180, 140, 255, 0.5), 0 4px 16px rgba(160, 120, 255, 0.25);
-    transform: translateY(-2px) scale(1.01);
+  .pc-card--big:first-child {
+    height: 220px;
+    border-radius: 14px;
   }
 }

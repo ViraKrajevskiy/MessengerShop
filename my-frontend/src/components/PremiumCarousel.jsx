@@ -2,7 +2,8 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './PremiumCarousel.css'
 
-const PAGE_SIZE = 10
+// Слайд = 1 большой + 4 маленьких + 1 большой = 6 карточек
+const PAGE_SIZE = 6
 
 function buildSlides(businesses) {
   if (businesses.length === 0) return []
@@ -30,7 +31,8 @@ function Card({ biz, big, handleCardClick }) {
         src={getPhoto(biz)}
         alt={biz.brand_name || biz.name}
         loading="lazy"
-        sizes={big ? "(max-width: 480px) 100vw, (max-width: 768px) 33vw, 33vw" : "(max-width: 480px) 100vw, (max-width: 768px) 25vw, 17vw"}
+        draggable={false}
+        sizes={big ? '(max-width: 768px) 50vw, 33vw' : '(max-width: 768px) 25vw, 17vw'}
       />
       <div className="pc-card__overlay">
         <span className={`pc-card__badge${biz.plan_type === 'PRO' || biz.is_pro ? ' pc-card__badge--pro' : ''}`}>
@@ -44,14 +46,14 @@ function Card({ biz, big, handleCardClick }) {
 }
 
 export default function PremiumCarousel({ businesses = [] }) {
-  const navigate  = useNavigate()
-  const slides    = buildSlides(businesses)
-  const total     = slides.length
+  const navigate = useNavigate()
+  const slides   = buildSlides(businesses)
+  const total    = slides.length
 
-  const [page, setPage] = useState(0)
-  const startX    = useRef(null)
-  const wasDrag   = useRef(false)
-  const timerRef  = useRef(null)
+  const [page, setPage]   = useState(0)
+  const startX   = useRef(null)
+  const wasDrag  = useRef(false)
+  const timerRef = useRef(null)
 
   const goNext = useCallback(() => setPage(p => (p + 1) % total), [total])
   const goPrev = useCallback(() => setPage(p => (p - 1 + total) % total), [total])
@@ -82,40 +84,15 @@ export default function PremiumCarousel({ businesses = [] }) {
   }
 
   const handleDotClick = (i) => { setPage(i); resetTimer() }
-
-  const handleCardClick = (id) => {
-    if (!wasDrag.current) navigate(`/business/${id}`)
-  }
+  const handleCardClick = (id) => { if (!wasDrag.current) navigate(`/business/${id}`) }
 
   if (slides.length === 0) return null
 
   const slide = slides[page]
 
-  const handlePrev = () => { goPrev(); resetTimer() }
-  const handleNext = () => { goNext(); resetTimer() }
-
   return (
     <section className="premium-carousel">
-      {total > 1 && (
-        <div className="premium-carousel__nav">
-          <button className="premium-carousel__arrow" onClick={handlePrev} aria-label="Назад">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-          </button>
-          <div className="premium-carousel__dots">
-            {slides.map((_, i) => (
-              <button
-                key={i}
-                className={`premium-carousel__dot${i === page ? ' premium-carousel__dot--active' : ''}`}
-                onClick={() => handleDotClick(i)}
-              />
-            ))}
-          </div>
-          <button className="premium-carousel__arrow" onClick={handleNext} aria-label="Вперёд">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-          </button>
-        </div>
-      )}
-
+      {/* Мозаика: [большой | 2×2 сетка | большой] */}
       <div
         className="premium-carousel__mosaic"
         onMouseDown={e => onDragStart(e.clientX)}
@@ -124,10 +101,32 @@ export default function PremiumCarousel({ businesses = [] }) {
         onTouchStart={e => onDragStart(e.touches[0].clientX)}
         onTouchEnd={e => onDragEnd(e.changedTouches[0].clientX)}
       >
-        {slide.map((biz, i) => (
-          <Card key={i} biz={biz} handleCardClick={handleCardClick} />
-        ))}
+        {/* Левый большой */}
+        <Card biz={slide[0]} big handleCardClick={handleCardClick} />
+
+        {/* Центр — 2×2 */}
+        <div className="premium-carousel__grid">
+          <Card biz={slide[1]} handleCardClick={handleCardClick} />
+          <Card biz={slide[2]} handleCardClick={handleCardClick} />
+          <Card biz={slide[3]} handleCardClick={handleCardClick} />
+          <Card biz={slide[4]} handleCardClick={handleCardClick} />
+        </div>
+
+        {/* Правый большой */}
+        <Card biz={slide[5]} big handleCardClick={handleCardClick} />
       </div>
+
+      {total > 1 && (
+        <div className="premium-carousel__dots">
+          {slides.map((_, i) => (
+            <button
+              key={i}
+              className={`premium-carousel__dot${i === page ? ' premium-carousel__dot--active' : ''}`}
+              onClick={() => handleDotClick(i)}
+            />
+          ))}
+        </div>
+      )}
     </section>
   )
 }
