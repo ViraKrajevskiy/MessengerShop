@@ -43,20 +43,40 @@ export default function PremiumCarousel({ businesses = [] }) {
     return () => clearInterval(timerRef.current)
   }, [resetTimer])
 
-  const onDragStart = (clientX) => {
+  const onDragStart = useCallback((clientX) => {
     startX.current = clientX
     wasDrag.current = false
-  }
-  const onDragEnd = (clientX) => {
+  }, [])
+
+  const onDragMove = useCallback((clientX) => {
+    if (startX.current === null) return
+    const dx = clientX - startX.current
+    if (Math.abs(dx) > 5) wasDrag.current = true
+  }, [])
+
+  const onDragEnd = useCallback((clientX) => {
     if (startX.current === null) return
     const dx = clientX - startX.current
     if (Math.abs(dx) > 40) {
-      wasDrag.current = true
       dx < 0 ? goNext() : goPrev()
       resetTimer()
     }
     startX.current = null
-  }
+    wasDrag.current = false
+  }, [goNext, goPrev, resetTimer])
+
+  useEffect(() => {
+    const handleMouseMove = (e) => onDragMove(e.clientX)
+    const handleMouseUp = (e) => onDragEnd(e.clientX)
+
+    window.addEventListener('mousemove', handleMouseMove)
+    window.addEventListener('mouseup', handleMouseUp)
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove)
+      window.removeEventListener('mouseup', handleMouseUp)
+    }
+  }, [onDragMove, onDragEnd])
 
   const handleDotClick = (i) => { setPage(i); resetTimer() }
   const handleCardClick = (id) => { if (!wasDrag.current) navigate(`/business/${id}`) }
@@ -70,9 +90,8 @@ export default function PremiumCarousel({ businesses = [] }) {
       <div
         className="premium-carousel__mosaic"
         onMouseDown={e => onDragStart(e.clientX)}
-        onMouseUp={e => onDragEnd(e.clientX)}
-        onMouseLeave={() => { startX.current = null }}
         onTouchStart={e => onDragStart(e.touches[0].clientX)}
+        onTouchMove={e => onDragMove(e.touches[0].clientX)}
         onTouchEnd={e => onDragEnd(e.changedTouches[0].clientX)}
       >
         {slide.map((biz, i) => (
