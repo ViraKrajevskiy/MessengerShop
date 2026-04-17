@@ -1,0 +1,1 @@
+import{i as e}from"./index-BerPG5h8.js";function t(t){return t?t.startsWith(`http`)?t:`${e}${t}`:null}export{t};
