@@ -320,16 +320,17 @@ export default function Stories({ noTitle = false }) {
     return () => document.removeEventListener('visibilitychange', handleVisibility)
   }, [])
 
-  // Обновлять истории каждые 10 секунд
+  // Обновлять истории в фоне реже — 60s (раньше было 10s → 6 запросов/мин)
   useEffect(() => {
     const interval = setInterval(() => {
+      if (document.visibilityState !== 'visible') return
       setRefreshing(true)
       invalidateCache('stories')
       apiGetStories()
         .then(data => setStoriesData(groupStoriesByAuthor(data)))
         .catch(() => {})
         .finally(() => setRefreshing(false))
-    }, 10000)
+    }, 60000)
     return () => clearInterval(interval)
   }, [])
 

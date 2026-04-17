@@ -7,17 +7,23 @@ import { makeInitialAvatar } from '../utils/defaults'
 import { resolveUrl } from '../utils/urlUtils'
 import './NewUsers.css'
 
-export default function NewUsers() {
-  const [businesses, setBusinesses] = useState([])
+export default function NewUsers({ businesses: businessesProp }) {
+  const [businesses, setBusinesses] = useState(
+    Array.isArray(businessesProp) ? businessesProp.slice(0, 20) : []
+  )
   const { addViewed } = useViewed()
   const { t } = useLanguage()
   const navigate = useNavigate()
 
   useEffect(() => {
+    if (Array.isArray(businessesProp)) {
+      setBusinesses(businessesProp.slice(0, 20))
+      return
+    }
     apiGetBusinesses()
       .then(data => setBusinesses(data.slice(0, 20)))
       .catch(() => {})
-  }, [])
+  }, [businessesProp])
 
   const displayed = businesses.slice(0, 10)
 
@@ -49,7 +55,7 @@ export default function NewUsers() {
           return (
             <div key={biz.id} className="new-users__item" onClick={() => handleClick(biz)}>
               <div className="new-users__avatar">
-                <img className="new-users__avatar-img" src={logo} alt={biz.brand_name} loading="lazy" />
+                <img className="new-users__avatar-img" src={logo} alt={biz.brand_name} loading="lazy" decoding="async" />
               </div>
               <span className="new-users__name">{biz.brand_name}</span>
               <span className="new-users__city">{biz.city || '—'}</span>

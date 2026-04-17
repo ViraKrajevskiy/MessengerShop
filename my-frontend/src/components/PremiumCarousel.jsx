@@ -104,7 +104,9 @@ export default function PremiumCarousel({ businesses = [] }) {
             <img
               src={getPhoto(biz)}
               alt={biz.brand_name || biz.name}
-              loading="lazy"
+              loading={i < 5 ? 'eager' : 'lazy'}
+              fetchPriority={i < 5 ? 'high' : 'auto'}
+              decoding="async"
               draggable={false}
             />
             <div className="pc-card__overlay">

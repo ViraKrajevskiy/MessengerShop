@@ -4,6 +4,8 @@ import { apiGetPosts } from '../api/businessApi'
 import { resolveUrl } from '../utils/urlUtils'
 import './TweetsSidebar.css'
 
+
+
 const FALLBACK_IMGS = [
   'https://picsum.photos/id/342/80/80',
   'https://picsum.photos/id/1025/80/80',
@@ -17,16 +19,20 @@ const FALLBACK_IMGS = [
 
 const PAGE_SIZE = 8
 
-export default function TweetsSidebar() {
-  const [posts, setPosts] = useState([])
+export default function TweetsSidebar({ posts: postsProp }) {
+  const [posts, setPosts] = useState(postsProp || [])
   const [page, setPage] = useState(0)
   const navigate = useNavigate()
 
   useEffect(() => {
+    if (Array.isArray(postsProp)) {
+      setPosts(postsProp)
+      return
+    }
     apiGetPosts()
       .then(data => setPosts(Array.isArray(data) ? data : []))
       .catch(() => setPosts([]))
-  }, [])
+  }, [postsProp])
 
   const totalPages = Math.max(1, Math.ceil(posts.length / PAGE_SIZE))
   const visible = posts.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE)
@@ -58,7 +64,7 @@ export default function TweetsSidebar() {
                 className="tweet-item"
                 onClick={() => navigate(`/business/${post.business_id}`)}
               >
-                <img className="tweet-item__img" src={img} alt={post.business_name} loading="lazy" />
+                <img className="tweet-item__img" src={img} alt={post.business_name} loading="lazy" decoding="async" />
                 <div className="tweet-item__body">
                   <p className="tweet-item__text">
                     {post.text?.length > 60 ? post.text.slice(0, 60) + '...' : post.text}

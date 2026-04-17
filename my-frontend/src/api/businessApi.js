@@ -1,18 +1,27 @@
 import { API_URL as BASE } from '../config/api'
 
 const cache = new Map()
+const inflight = new Map()
 const TTL = 60_000
 
 function cached(key, fetcher) {
   const hit = cache.get(key)
   if (hit && Date.now() - hit.ts < TTL) return Promise.resolve(hit.data)
-  return fetcher().then(data => { cache.set(key, { data, ts: Date.now() }); return data })
+  // Dedup concurrent requests for the same key — the first caller fires the fetch,
+  // later callers await the same promise instead of issuing a new network request.
+  const pending = inflight.get(key)
+  if (pending) return pending
+  const p = fetcher()
+    .then(data => { cache.set(key, { data, ts: Date.now() }); return data })
+    .finally(() => inflight.delete(key))
+  inflight.set(key, p)
+  return p
 }
 
 
 export function invalidateCache(key) {
-  if (key) cache.delete(key)
-  else cache.clear()
+  if (key) { cache.delete(key); inflight.delete(key) }
+  else { cache.clear(); inflight.clear() }
 }
 
 export async function apiGetBusinesses(params = {}) {
