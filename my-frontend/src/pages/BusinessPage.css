@@ -1291,6 +1291,7 @@
   .bp__hero-stamp { display: none; }
   .bp__voice-icon { display: none; }
   .bp__voice { padding: 10px 12px; gap: 10px; }
+  .bp__feed-video-icon { font-size: 32px; }
 }
 
 @media (max-width: 480px) {

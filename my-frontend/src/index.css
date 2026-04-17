@@ -115,6 +115,18 @@ body {
   font-size: 15px;
   line-height: 1.6;
   overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Prevent iOS zoom on input focus (requires font-size >= 16px on mobile) */
+@media (max-width: 768px) {
+  input:not([type="checkbox"]):not([type="radio"]),
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
 }
 
 #root {
@@ -154,4 +166,9 @@ button { font-family: inherit; }
   .my-profile-page {
     overflow-x: hidden;
   }
+}
+
+/* Ensure images/videos never force horizontal scrolling */
+img, video, iframe, svg {
+  max-width: 100%;
 }
