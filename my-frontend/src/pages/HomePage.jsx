@@ -76,18 +76,17 @@ export default function HomePage() {
 
   useEffect(() => {
     setLoadingBiz(true)
-    apiGetBusinesses()
-      .then(data => setAllBiz(Array.isArray(data) ? data : []))
-      .catch(() => {})
-      .finally(() => setLoadingBiz(false))
-  }, [])
-
-  useEffect(() => {
     setLoadingPosts(true)
-    apiGetPosts()
-      .then(data => setPosts(Array.isArray(data) ? data : []))
-      .catch(() => setPosts([]))
-      .finally(() => setLoadingPosts(false))
+    Promise.all([
+      apiGetBusinesses().catch(() => []),
+      apiGetPosts().catch(() => []),
+    ]).then(([biz, p]) => {
+      setAllBiz(Array.isArray(biz) ? biz : [])
+      setPosts(Array.isArray(p) ? p : [])
+    }).finally(() => {
+      setLoadingBiz(false)
+      setLoadingPosts(false)
+    })
   }, [])
 
   const filteredAll = useMemo(() =>
@@ -184,7 +183,7 @@ export default function HomePage() {
         <main className="home-page__content">
 
           {/* Новые бизнесы */}
-          <NewUsers />
+          <NewUsers businesses={allBiz} />
 
           {/* Публикации */}
           <section className="home-posts-section">
@@ -296,7 +295,7 @@ export default function HomePage() {
           {/* Auth gate for guests — shown below all cards */}
 
         </main>
-        <TweetsSidebar />
+        <TweetsSidebar posts={posts} />
       </div>
 
       <Footer />
