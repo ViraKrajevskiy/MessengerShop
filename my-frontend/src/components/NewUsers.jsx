@@ -32,10 +32,10 @@ export default function NewUsers({ businesses: businessesProp }) {
     navigate(`/business/${biz.id}`)
   }
 
-  if (businesses.length === 0) return null
+  const isLoading = businesses.length === 0
 
   return (
-    <section className="new-users">
+    <section className="new-users" aria-busy={isLoading || undefined}>
       <div className="new-users__header">
         <h2 className="section-title">{t('newBiz_title')}</h2>
         <button className="new-users__show-all" onClick={() => navigate('/catalog?tab=companies')}>
@@ -48,7 +48,14 @@ export default function NewUsers({ businesses: businessesProp }) {
       </div>
 
       <div className="new-users__grid">
-        {displayed.map(biz => {
+        {isLoading && Array.from({ length: 10 }).map((_, i) => (
+          <div key={`s-${i}`} className="new-users__item new-users__item--skeleton">
+            <div className="new-users__avatar new-users__avatar--skeleton" />
+            <span className="new-users__name-skeleton" />
+            <span className="new-users__city-skeleton" />
+          </div>
+        ))}
+        {!isLoading && displayed.map(biz => {
           const logo = biz.logo
             ? (resolveUrl(biz.logo) || makeInitialAvatar(biz.brand_name))
             : makeInitialAvatar(biz.brand_name)

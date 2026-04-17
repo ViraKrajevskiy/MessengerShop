@@ -146,6 +146,33 @@
   color: var(--text-muted);
 }
 
+/* Skeletons — reserve exact space during load to prevent CLS */
+.new-users__item--skeleton { cursor: default; }
+.new-users__avatar--skeleton,
+.new-users__name-skeleton,
+.new-users__city-skeleton {
+  background: linear-gradient(90deg, var(--bg-tertiary) 0%, var(--border-light) 50%, var(--bg-tertiary) 100%);
+  background-size: 200% 100%;
+  animation: nu-skel 1.4s ease-in-out infinite;
+  border-radius: 8px;
+}
+.new-users__name-skeleton {
+  display: block;
+  width: 70%;
+  height: 14px;
+  margin: 0 auto 8px;
+}
+.new-users__city-skeleton {
+  display: block;
+  width: 50%;
+  height: 12px;
+  margin: 0 auto;
+}
+@keyframes nu-skel {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
 @media (max-width: 768px) {
   .new-users__grid,
   .new-users__grid--expanded {
