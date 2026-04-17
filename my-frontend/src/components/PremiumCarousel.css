@@ -150,30 +150,44 @@
 
 @media (max-width: 500px) {
   .premium-carousel {
-    margin: 8px 0 20px;
-    gap: 10px;
+    margin: 4px 0 16px;
   }
   .premium-carousel__mosaic {
     grid-template-columns: repeat(2, 1fr);
-    height: 300px;
-    gap: 12px;
+    grid-template-rows: repeat(2, 1fr);
+    height: 58vw;
+    max-height: 280px;
+    gap: 8px;
   }
   .premium-carousel__arrow {
-    width: 36px;
-    height: 36px;
-    font-size: 18px;
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
   }
   .pc-card {
     border-radius: 12px;
   }
+  .pc-card__overlay {
+    padding: 10px 8px;
+  }
   .pc-card__name {
-    font-size: 13px;
+    font-size: 12px;
   }
   .pc-card__city {
-    font-size: 11px;
+    font-size: 10.5px;
   }
   .pc-card__badge {
-    font-size: 10px;
-    padding: 3px 9px;
+    font-size: 9px;
+    padding: 2px 7px;
+  }
+  .premium-carousel__dots {
+    margin-top: 10px;
+  }
+  .premium-carousel__dot {
+    width: 6px;
+    height: 6px;
+  }
+  .premium-carousel__dot--active {
+    width: 16px;
   }
 }
