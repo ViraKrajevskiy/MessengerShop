@@ -82,7 +82,18 @@ export default function PremiumCarousel({ businesses = [] }) {
   const handleDotClick = (i) => { setPage(i); resetTimer() }
   const handleCardClick = (id) => { if (!wasDrag.current) navigate(`/business/${id}`) }
 
-  if (slides.length === 0) return null
+  // Skeleton placeholder while loading — reserves exact height to prevent CLS
+  if (slides.length === 0) {
+    return (
+      <section className="premium-carousel" aria-busy="true">
+        <div className="premium-carousel__mosaic">
+          {Array.from({ length: 10 }).map((_, i) => (
+            <div key={i} className="pc-card pc-card--skeleton" />
+          ))}
+        </div>
+      </section>
+    )
+  }
 
   const slide = slides[page]
 
