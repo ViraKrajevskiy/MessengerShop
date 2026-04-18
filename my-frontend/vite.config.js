@@ -5,6 +5,13 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
 
+  // В проде вырезаем все console.* и debugger (debug-шум и утечка инфы)
+  // Оставляем console.error и console.warn — реальные ошибки должны быть видны
+  esbuild: {
+    drop: ['debugger'],
+    pure: ['console.log', 'console.info', 'console.debug', 'console.trace'],
+  },
+
   build: {
     // Включаем source maps для дебага (отключить в проде если не нужны)
     sourcemap: false,
