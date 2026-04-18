@@ -45,6 +45,8 @@ export default function VideoModal({ videoUrl, title, onClose }) {
           src={videoUrl}
           controls
           autoPlay
+          preload="metadata"
+          playsInline
           controlsList="nodownload"
         />
 

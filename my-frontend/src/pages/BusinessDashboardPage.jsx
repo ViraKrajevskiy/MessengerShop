@@ -351,7 +351,7 @@ function StoryRow({ story, onDelete, deleting }) {
       <div className="biz-content-row__thumb biz-content-row__thumb--story">
         {media
           ? isVideo
-            ? <video src={media} className="biz-content-row__video-thumb" muted />
+            ? <video src={media} className="biz-content-row__video-thumb" muted preload="metadata" playsInline />
             : <img src={media} alt="" />
           : <div className="biz-content-row__thumb-placeholder">🎬</div>
         }

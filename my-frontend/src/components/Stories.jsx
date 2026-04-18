@@ -248,6 +248,8 @@ function StoryViewer({ stories, startIndex, onClose, onTrackViews }) {
               controls
               controlsList="nodownload"
               autoPlay
+              preload="metadata"
+              playsInline
               onEnded={goNext}
             />
           ) : (

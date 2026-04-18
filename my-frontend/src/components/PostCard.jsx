@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { apiToggleSubscription } from '../api/businessApi'
@@ -10,6 +10,79 @@ import './PostCard.css'
 
 const FALLBACK_IMG = 'https://picsum.photos/id/342/800/600'
 
+// Module-level cache for video poster frames so the same video URL is never
+// re-fetched across multiple PostCards or remounts.
+// Keys: video URL → { status: 'pending'|'done'|'fail', poster?: string, waiters?: Array<fn> }
+const POSTER_CACHE = new Map()
+
+function getOrExtractPoster(videoUrl) {
+  return new Promise((resolve) => {
+    if (!videoUrl) { resolve(null); return }
+    const cached = POSTER_CACHE.get(videoUrl)
+    if (cached?.status === 'done') { resolve(cached.poster); return }
+    if (cached?.status === 'fail') { resolve(null); return }
+    if (cached?.status === 'pending') { cached.waiters.push(resolve); return }
+
+    const entry = { status: 'pending', waiters: [resolve] }
+    POSTER_CACHE.set(videoUrl, entry)
+
+    const finish = (poster) => {
+      const e = POSTER_CACHE.get(videoUrl)
+      if (!e) return
+      e.status = poster ? 'done' : 'fail'
+      e.poster = poster
+      const waiters = e.waiters || []
+      e.waiters = null
+      waiters.forEach(fn => fn(poster))
+    }
+
+    const video = document.createElement('video')
+    video.src = videoUrl
+    video.crossOrigin = 'anonymous'
+    video.preload = 'metadata'
+    video.muted = true
+    video.playsInline = true
+
+    let done = false
+    const cleanup = () => {
+      video.removeEventListener('loadedmetadata', onMeta)
+      video.removeEventListener('seeked', onSeeked)
+      video.removeEventListener('error', onError)
+      try { video.removeAttribute('src'); video.load() } catch { /* ignore */ }
+    }
+    const onMeta = () => { try { video.currentTime = 0.1 } catch { onError() } }
+    const onSeeked = () => {
+      if (done) return
+      done = true
+      try {
+        const canvas = document.createElement('canvas')
+        canvas.width = video.videoWidth || 400
+        canvas.height = video.videoHeight || 300
+        const ctx = canvas.getContext('2d')
+        ctx.drawImage(video, 0, 0)
+        const data = canvas.toDataURL('image/jpeg', 0.7)
+        cleanup()
+        finish(data)
+      } catch {
+        cleanup()
+        finish(null)
+      }
+    }
+    const onError = () => {
+      if (done) return
+      done = true
+      cleanup()
+      finish(null)
+    }
+
+    video.addEventListener('loadedmetadata', onMeta)
+    video.addEventListener('seeked', onSeeked)
+    video.addEventListener('error', onError)
+    // Safety timeout — give up after 8s and stop downloading
+    setTimeout(() => { if (!done) onError() }, 8000)
+  })
+}
+
 export default function PostCard({ post, onDelete }) {
   const navigate = useNavigate()
   const { user, getAccessToken } = useAuth()
@@ -19,7 +92,12 @@ export default function PostCard({ post, onDelete }) {
   const [fav, setFav] = useState(false)
   const [expanded, setExpanded] = useState(false)
   const [selectedVideo, setSelectedVideo] = useState(null)
-  const [posterUrl, setPosterUrl] = useState(null)
+  const [posterUrl, setPosterUrl] = useState(() => {
+    if (post.media_type !== 'VIDEO') return null
+    const cached = POSTER_CACHE.get(post.media_display)
+    return cached?.status === 'done' ? cached.poster : null
+  })
+  const cardRef = useRef(null)
 
   const FAVS_KEY = 'post_favorites'
 
@@ -29,43 +107,39 @@ export default function PostCard({ post, onDelete }) {
     setFav(stored.includes(post.id))
   }, [user, post.id])
 
-  // Extract video poster from first frame
+  // Extract video poster lazily — only when card is near viewport AND only once per URL.
   useEffect(() => {
-    if (post.media_type !== 'VIDEO') {
+    if (post.media_type !== 'VIDEO' || !post.media_display) {
       setPosterUrl(null)
       return
     }
+    const cached = POSTER_CACHE.get(post.media_display)
+    if (cached?.status === 'done') { setPosterUrl(cached.poster); return }
+    if (cached?.status === 'fail') { setPosterUrl(null); return }
 
-    const video = document.createElement('video')
-    video.src = post.media_display
-    video.crossOrigin = 'anonymous'
-
-    const handleLoadedMetadata = () => {
-      video.currentTime = 0.5
+    let cancelled = false
+    const trigger = () => {
+      getOrExtractPoster(post.media_display).then((poster) => {
+        if (!cancelled && poster) setPosterUrl(poster)
+      })
     }
 
-    const handleSeeked = () => {
-      try {
-        const canvas = document.createElement('canvas')
-        canvas.width = video.videoWidth
-        canvas.height = video.videoHeight
-        const ctx = canvas.getContext('2d')
-        if (ctx) {
-          ctx.drawImage(video, 0, 0)
-          setPosterUrl(canvas.toDataURL('image/jpeg'))
-        }
-      } catch (e) {
-        setPosterUrl(null)
+    const el = cardRef.current
+    if (!el || typeof IntersectionObserver === 'undefined') {
+      // Fallback — extract immediately
+      trigger()
+      return () => { cancelled = true }
+    }
+
+    const io = new IntersectionObserver((entries) => {
+      if (entries.some(e => e.isIntersecting)) {
+        io.disconnect()
+        trigger()
       }
-    }
+    }, { rootMargin: '200px' })
+    io.observe(el)
 
-    video.addEventListener('loadedmetadata', handleLoadedMetadata)
-    video.addEventListener('seeked', handleSeeked)
-
-    return () => {
-      video.removeEventListener('loadedmetadata', handleLoadedMetadata)
-      video.removeEventListener('seeked', handleSeeked)
-    }
+    return () => { cancelled = true; io.disconnect() }
   }, [post.media_type, post.media_display])
 
   const toggleFav = (e) => {
@@ -120,7 +194,7 @@ export default function PostCard({ post, onDelete }) {
           onClose={() => setSelectedVideo(null)}
         />
       )}
-      <div className="post-card" onClick={() => navigate(`/business/${post.business_id}`)}>
+      <div className="post-card" ref={cardRef} onClick={() => navigate(`/business/${post.business_id}`)}>
       <div className="post-card__header">
         <img className="post-card__avatar" src={logo} alt={post.business_name}
           onClick={(e) => { e.stopPropagation(); navigate(`/business/${post.business_id}`) }} />

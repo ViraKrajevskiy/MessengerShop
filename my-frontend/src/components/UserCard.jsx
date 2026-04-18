@@ -67,7 +67,7 @@ export default function UserCard({ id, name = 'Имя', city = 'Город', bad
       <div className={`user-card${planType === 'VIP' ? ' user-card--vip-plan' : planType === 'PRO' ? ' user-card--pro-plan' : ''}`} onClick={handleClick}>
         <div className="user-card__image">
           {isVideo
-            ? <video className="user-card__photo" src={rawPhoto} autoPlay muted loop playsInline />
+            ? <video className="user-card__photo" src={rawPhoto} autoPlay muted loop playsInline preload="metadata" />
             : <img className="user-card__photo" src={rawPhoto} alt={name} loading="lazy" width="400" height="530" />
           }
           {planType === 'VIP' ? (
