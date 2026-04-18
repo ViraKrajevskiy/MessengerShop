@@ -4,7 +4,7 @@
   background: var(--bg-secondary);
   box-shadow: var(--card-shadow);
   cursor: pointer;
-  transition: transform 0.25s, box-shadow 0.25s;
+  transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
   border: 1.5px solid var(--border-light);
 }
 

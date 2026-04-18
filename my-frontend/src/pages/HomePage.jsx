@@ -53,8 +53,8 @@ function bizToCard(b) {
 }
 
 const GUEST_LIMIT = 4
-const GUEST_CARDS_LIMIT = 8
-const CARDS_PER_PAGE = 8
+const GUEST_CARDS_LIMIT = 10
+const CARDS_PER_PAGE = 10
 /** Сколько постов показываем на главной в блоке «Публикации» */
 const HOME_POSTS_VISIBLE = 20
 
@@ -256,8 +256,8 @@ export default function HomePage() {
               )}
               <div className="all-cards__content">
                 {loadingBiz ? (
-                  <div className="card-grid card-grid--4">
-                    {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
+                  <div className="card-grid card-grid--5">
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(i => (
                       <div key={i} className="vip-card vip-card--skeleton">
                         <div className="vip-card__image"><div className="vip-card__skel-img" /></div>
                         <div className="vip-card__info">
@@ -268,7 +268,7 @@ export default function HomePage() {
                     ))}
                   </div>
                 ) : filteredAll.length > 0 ? (
-                  <div className="card-grid card-grid--4">
+                  <div className="card-grid card-grid--5">
                     {(user
                       ? filteredAll.slice(cardsPage * CARDS_PER_PAGE, (cardsPage + 1) * CARDS_PER_PAGE)
                       : filteredAll.slice(0, GUEST_CARDS_LIMIT)

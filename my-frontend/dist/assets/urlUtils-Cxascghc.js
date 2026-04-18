@@ -1,0 +1,1 @@
+import{i as e}from"./index-CzOaeFYI.js";function t(t){return t?t.startsWith(`http`)?t:`${e}${t}`:null}export{t};
