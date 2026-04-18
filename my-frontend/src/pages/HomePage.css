@@ -267,6 +267,32 @@
   .all-cards__arrow {
     display: none;
   }
+
+  /* ── Mobile: «Все карточки» — горизонтальный скролл со snap ── */
+  .all-cards-section .card-grid--4,
+  .all-cards-section .card-grid--5 {
+    display: flex;
+    grid-template-columns: none;
+    gap: 12px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    margin: 0 -14px;
+    padding: 4px 14px 10px;
+    scroll-padding-left: 14px;
+  }
+  .all-cards-section .card-grid--4::-webkit-scrollbar,
+  .all-cards-section .card-grid--5::-webkit-scrollbar {
+    display: none;
+  }
+  .all-cards-section .card-grid--4 > *,
+  .all-cards-section .card-grid--5 > * {
+    flex: 0 0 60vw;
+    width: 60vw;
+    max-width: 280px;
+    scroll-snap-align: start;
+  }
 }
 
 @media (max-width: 480px) {
@@ -313,6 +339,21 @@
   .card-grid--5 {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
+  }
+
+  /* Узкие экраны — скролл по одной карточке */
+  .all-cards-section .card-grid--4,
+  .all-cards-section .card-grid--5 {
+    gap: 10px;
+    margin: 0 -12px;
+    padding: 4px 12px 10px;
+    scroll-padding-left: 12px;
+  }
+  .all-cards-section .card-grid--4 > *,
+  .all-cards-section .card-grid--5 > * {
+    flex: 0 0 64vw;
+    width: 64vw;
+    max-width: 260px;
   }
 
   .all-cards-section {

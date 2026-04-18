@@ -151,16 +151,28 @@
 @media (max-width: 1024px) {
   .premium-carousel__mosaic {
     grid-template-columns: repeat(4, 1fr);
-    height: 420px;
+    grid-template-rows: repeat(2, 1fr);
+    height: auto;
+    aspect-ratio: 4 / 2;
     gap: 14px;
+  }
+  /* Показываем 8 карточек (4×2), остальные 2 скрыты */
+  .premium-carousel__mosaic > .pc-card:nth-child(n+9) {
+    display: none;
   }
 }
 
 @media (max-width: 768px) {
   .premium-carousel__mosaic {
     grid-template-columns: repeat(3, 1fr);
-    height: 340px;
+    grid-template-rows: repeat(2, 1fr);
+    height: auto;
+    aspect-ratio: 3 / 2;
     gap: 10px;
+  }
+  /* Показываем 6 карточек (3×2), остальные 4 скрыты */
+  .premium-carousel__mosaic > .pc-card:nth-child(n+7) {
+    display: none;
   }
 }
 
@@ -171,9 +183,14 @@
   .premium-carousel__mosaic {
     grid-template-columns: repeat(2, 1fr);
     grid-template-rows: repeat(2, 1fr);
-    height: 58vw;
-    max-height: 280px;
-    gap: 8px;
+    height: auto;
+    max-height: none;
+    aspect-ratio: 1 / 1;
+    gap: 10px;
+  }
+  /* Показываем только 4 карточки на мобилке (2×2), остальные 6 скрыты */
+  .premium-carousel__mosaic > .pc-card:nth-child(n+5) {
+    display: none;
   }
   .premium-carousel__arrow {
     width: 32px;
