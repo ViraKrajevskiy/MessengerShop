@@ -119,9 +119,9 @@ class BusinessDetailView(APIView):
         biz = self.get_object(pk, request.user)
         if not biz:
             return Response({'detail': 'Не найден.'}, status=status.HTTP_404_NOT_FOUND)
-        # Счётчик просмотров — используем F() для атомарности
-        from django.db.models import F
-        Business.objects.filter(pk=pk).update(views_count=F('views_count') + 1)
+        # Счётчик просмотров: дедуп по (user|ip) × id, окно 6 ч, боты отфильтрованы
+        from Shop.servicefunc.view_tracking import bump_view
+        bump_view(Business, pk, request, 'business')
         return Response(BusinessDetailSerializer(biz, context={'request': request}).data)
 
     @extend_schema(

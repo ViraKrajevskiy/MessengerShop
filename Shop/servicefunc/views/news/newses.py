@@ -78,8 +78,8 @@ class NewsDetailView(APIView):
         news = self.get_object(pk)
         if not news or not news.is_published:
             return Response({'detail': 'Не найдено.'}, status=status.HTTP_404_NOT_FOUND)
-        from django.db.models import F
-        News.objects.filter(pk=pk).update(views_count=F('views_count') + 1)
+        from Shop.servicefunc.view_tracking import bump_view
+        bump_view(News, pk, request, 'news')
         return Response(NewsSerializer(news, context={'request': request}).data)
 
     def patch(self, request, pk):
