@@ -27,17 +27,26 @@ export default function PremiumCarousel({ businesses = [] }) {
   const total     = slides.length
 
   const [page, setPage] = useState(0)
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== 'undefined' && window.innerWidth <= 500
+  )
   const startX    = useRef(null)
   const wasDrag   = useRef(false)
   const timerRef  = useRef(null)
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth <= 500)
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
 
   const goNext = useCallback(() => setPage(p => (p + 1) % total), [total])
   const goPrev = useCallback(() => setPage(p => (p - 1 + total) % total), [total])
 
   const resetTimer = useCallback(() => {
     clearInterval(timerRef.current)
-    if (total > 1) timerRef.current = setInterval(goNext, 5000)
-  }, [goNext, total])
+    if (total > 1 && !isMobile) timerRef.current = setInterval(goNext, 5000)
+  }, [goNext, total, isMobile])
 
   useEffect(() => {
     resetTimer()
@@ -86,8 +95,8 @@ export default function PremiumCarousel({ businesses = [] }) {
   if (slides.length === 0) {
     return (
       <section className="premium-carousel" aria-busy="true">
-        <div className="premium-carousel__mosaic">
-          {Array.from({ length: 10 }).map((_, i) => (
+        <div className={`premium-carousel__mosaic${isMobile ? ' premium-carousel__mosaic--scroll' : ''}`}>
+          {Array.from({ length: isMobile ? 6 : 10 }).map((_, i) => (
             <div key={i} className="pc-card pc-card--skeleton" />
           ))}
         </div>
@@ -96,17 +105,25 @@ export default function PremiumCarousel({ businesses = [] }) {
   }
 
   const slide = slides[page]
+  // On mobile, show ALL businesses in a single horizontal scroll row (native scroll)
+  const items = isMobile ? businesses : slide
+
+  const mosaicProps = isMobile
+    ? {}
+    : {
+        onMouseDown: e => onDragStart(e.clientX),
+        onTouchStart: e => onDragStart(e.touches[0].clientX),
+        onTouchMove: e => onDragMove(e.touches[0].clientX),
+        onTouchEnd: e => onDragEnd(e.changedTouches[0].clientX),
+      }
 
   return (
     <section className="premium-carousel">
       <div
-        className="premium-carousel__mosaic"
-        onMouseDown={e => onDragStart(e.clientX)}
-        onTouchStart={e => onDragStart(e.touches[0].clientX)}
-        onTouchMove={e => onDragMove(e.touches[0].clientX)}
-        onTouchEnd={e => onDragEnd(e.changedTouches[0].clientX)}
+        className={`premium-carousel__mosaic${isMobile ? ' premium-carousel__mosaic--scroll' : ''}`}
+        {...mosaicProps}
       >
-        {slide.map((biz, i) => (
+        {items.map((biz, i) => (
           <div
             key={i}
             className="pc-card"
@@ -131,7 +148,7 @@ export default function PremiumCarousel({ businesses = [] }) {
         ))}
       </div>
 
-      {total > 1 && (
+      {!isMobile && total > 1 && (
         <div className="premium-carousel__dots">
           {slides.map((_, i) => (
             <button
