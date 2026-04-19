@@ -65,13 +65,13 @@ export default function FilterBar({ filters, onFilterChange }) {
           onChange={(v) => updateFilter('city', v)}
         />
         <SearchableDropdown
-          label="КАТЕГОРИЯ"
+          label={t('filter_category')}
           options={categories}
           value={category}
           onChange={(v) => updateFilter('category', v)}
         />
         <SearchableDropdown
-          label="УСЛУГИ"
+          label={t('filter_services')}
           options={services}
           value={service}
           onChange={(v) => updateFilter('service', v)}

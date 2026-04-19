@@ -264,13 +264,13 @@ export default function CatalogPage() {
 
         {/* Grid columns selector */}
         <div className="cat-grid-selector">
-          <span className="cat-grid-selector__label">Столбцы:</span>
+          <span className="cat-grid-selector__label">{t('grid_columns')}</span>
           {[2, 3, 4, 5].map(col => (
             <button
               key={col}
               className={`cat-grid-selector__btn ${columns === col ? 'cat-grid-selector__btn--active' : ''}`}
               onClick={() => handleColumnsChange(col)}
-              title={`${col} карточек в строке`}
+              title={t('grid_columnsTitle').replace('{{col}}', col)}
             >
               {col}
             </button>
@@ -395,8 +395,8 @@ export default function CatalogPage() {
                     {fServices.length === 0 ? (
                       <div className="cat-empty">
                         <div className="cat-empty__icon">🔧</div>
-                        <p>{hasFilters ? 'Ничего не найдено' : t('catalog_services')}</p>
-                        {hasFilters && <button className="cat-empty__reset" onClick={clearFilters}>Сбросить фильтры</button>}
+                        <p>{hasFilters ? t('nothing_found') : t('catalog_services')}</p>
+                        {hasFilters && <button className="cat-empty__reset" onClick={clearFilters}>{t('reset_filters')}</button>}
                       </div>
                     ) : (
                       <>

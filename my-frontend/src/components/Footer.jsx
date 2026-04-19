@@ -32,12 +32,12 @@ export default function Footer() {
         <div className="footer__col">
           <h4 className="footer__col-title">{t('footer_cats')}</h4>
           <ul className="footer__links">
-            <li><span className="footer__link">Красота и уход</span></li>
-            <li><span className="footer__link">Здоровье</span></li>
-            <li><span className="footer__link">Недвижимость</span></li>
+            <li><span className="footer__link">{t('home_beauty')}</span></li>
+            <li><span className="footer__link">{t('cat_health')}</span></li>
+            <li><span className="footer__link">{t('cat_realty')}</span></li>
             <li><span className="footer__link">{t('footer_education')}</span></li>
-            <li><span className="footer__link">Юридические услуги</span></li>
-            <li><span className="footer__link">Финансы</span></li>
+            <li><span className="footer__link">{t('filter_cat_legal')}</span></li>
+            <li><span className="footer__link">{t('cat_finance')}</span></li>
           </ul>
         </div>
 
@@ -55,23 +55,23 @@ export default function Footer() {
         <div className="footer__col">
           <h4 className="footer__col-title">{t('footer_cities')}</h4>
           <ul className="footer__links">
-            <li><span className="footer__link">Стамбул</span></li>
-            <li><span className="footer__link">Анкара</span></li>
-            <li><span className="footer__link">Анталья</span></li>
-            <li><span className="footer__link">Измир</span></li>
-            <li><span className="footer__link">Бурса</span></li>
-            <li><span className="footer__link">Алматы</span></li>
+            <li><span className="footer__link">{t('city_istanbul')}</span></li>
+            <li><span className="footer__link">{t('city_ankara')}</span></li>
+            <li><span className="footer__link">{t('city_antalya')}</span></li>
+            <li><span className="footer__link">{t('city_izmir')}</span></li>
+            <li><span className="footer__link">{t('city_bursa')}</span></li>
+            <li><span className="footer__link">{t('city_almaty')}</span></li>
           </ul>
         </div>
 
       </div>
 
       <div className="footer__bottom">
-        <span>© {year} {t('appName')}. Все права защищены.</span>
+        <span>© {year} {t('appName')}. {t('footer_copyright')}</span>
         <span className="footer__bottom-links">
           <span className="footer__link">{t('footer_privacy')}</span>
           <span className="footer__divider">·</span>
-          <span className="footer__link">Условия использования</span>
+          <span className="footer__link">{t('footer_rules')}</span>
         </span>
       </div>
     </footer>

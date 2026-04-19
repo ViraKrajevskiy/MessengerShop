@@ -297,6 +297,212 @@ const ru = {
   home_allPublications: 'Все публикации',
   home_allCards:        'Все карточки',
   home_noCards:         'Нет карточек по выбранным фильтрам',
+
+  // ── Grid / FeedPage / CatalogPage common ───────────────────────────────────
+  grid_columns:         'Столбцы:',
+  grid_columnsTitle:    '{{col}} карточек в строке',
+  nothing_found:        'Ничего не найдено',
+  reset_filters:        'Сбросить фильтры',
+
+  // ── FeedPage ───────────────────────────────────────────────────────────────
+  feed_tab_posts:       'Посты',
+  feed_tab_photos:      'Фото',
+  feed_tab_videos:      'Видео',
+  feed_tab_news:        'Новости',
+  feed_tab_tweets:      'Твиты',
+  feed_noPhotos:        'Фото пока нет',
+  feed_noVideos:        'Видео пока нет',
+  feed_noNews:          'Новостей пока нет',
+  feed_noTweets:        'Твитов пока нет',
+  feed_nothingFiltered: 'По выбранным фильтрам ничего не найдено',
+  feed_empty:           'Пока нет публикаций',
+  filter_allCities:     'Все города',
+  filter_collapse:      'Свернуть',
+
+  // ── BusinessPage ───────────────────────────────────────────────────────────
+  biz_confirmDelete:    'Удалить этот пост? Это действие нельзя отменить.',
+  biz_postDeleted:      'Пост удалён',
+  biz_deleteError:      'Ошибка удаления',
+  biz_loading:          'Загружаем...',
+  biz_notFound:         'Бизнес не найден',
+  biz_notFoundSub:      'Страница недоступна или была удалена',
+  biz_toHome:           'На главную',
+  biz_voiceGreeting:    'Голосовое приветствие',
+  biz_photosVideos:     'Фото и видео',
+  biz_galleryAll:       'Все',
+  biz_galleryPhoto:     'Фото',
+  biz_galleryVideo:     'Видео',
+  biz_infoFeatures:     'Характеристики',
+  biz_infoServices:     'Услуги',
+  biz_infoFaq:          'FAQ',
+  biz_category:         'Категория',
+  biz_city:             'Город',
+  biz_rating:           'Рейтинг',
+  biz_status:           'Статус',
+  biz_verified:         'Подтверждён',
+  biz_notVerified:      'Не верифицирован',
+  biz_noServices:       'Пока услуг нет',
+  biz_noServicesSub:    'Этот бизнес ещё не добавил услуги',
+  biz_noFaq:            'Нет дополнительной информации',
+  biz_noFaqSub:         'Бизнес ещё не добавил ответы на часто задаваемые вопросы',
+  biz_similar:          'Похожие бизнесы',
+  biz_contacts:         'Контакты',
+  biz_about:            'О нас',
+  biz_publications:     'Публикации',
+  biz_subscribed:       '✓ Подписан',
+  biz_subscribe:        'Подписаться',
+  biz_chat:             'Чат',
+  biz_inGroup:          'В группе',
+  biz_joinGroup:        'Вступить',
+  biz_vipAccess:        'VIP доступ',
+  biz_vipPromo:         'Получите приоритетное размещение, бейдж VIP и расширенную аналитику для вашего бизнеса.',
+  biz_learnMore:        'Узнать больше',
+  biz_loginForDetails:  'Войти для подробностей',
+  biz_noContent:        'Бизнес ещё не добавил контент',
+  biz_deletePost:       'Удалить пост',
+
+  // ── ProductDetailPage ──────────────────────────────────────────────────────
+  product_notFound:     'Товар не найден',
+  product_isService:    'Услуга',
+  product_isProduct:    'Товар',
+  product_description:  'Описание',
+  product_idLabel:      'ID товара:',
+  product_verifiedBadge:'Проверено',
+  product_vipBadge:     'VIP',
+  product_write:        'Написать',
+  product_askAbout:     'Задать вопрос о товаре',
+  product_askAboutService:'Задать вопрос об услуге',
+  product_questionSent: 'Вопрос отправлен!',
+  product_openChat:     'Открыть чат',
+  product_willAttach:   'будет автоматически прикреплён',
+  product_questionPlaceholder: 'Вопрос о "{{name}}"...',
+
+  // ── LoginPage / RegisterPage common ────────────────────────────────────────
+  theme:                'Тема',
+  or:                   'или',
+  whoAreYou:            'Кто вы?',
+  lookingForServices:   'Ищу услуги',
+  promotingBusiness:    'Продвигаю бизнес',
+
+  // ── RegisterPage ───────────────────────────────────────────────────────────
+  reg_step_account:     'Аккаунт',
+  reg_step_profile:     'Профиль',
+  reg_step_code:        'Код',
+  reg_enterUsername:    'Введите имя пользователя',
+  reg_usernameMin3:     'Минимум 3 символа',
+  reg_enterEmail:       'Введите email',
+  reg_invalidEmail:     'Некорректный email',
+  reg_enterPassword:    'Введите пароль',
+  reg_city:             'Город',
+  reg_selectCity:       'Выберите город',
+  reg_termsAgree:       'Я принимаю',
+  reg_termsUsage:       'условия использования',
+  reg_termsAnd:         'и',
+  reg_termsPrivacy:     'политику конфиденциальности',
+  reg_needAgree:        'Необходимо согласие',
+  reg_codeSent:         'Код подтверждения отправлен на',
+  reg_codeHint:         'Введите 6-значный код из письма',
+  reg_codeFull:         'Введите все 6 цифр',
+  reg_codeNotReceived:  'Не пришёл код?',
+  reg_codeResend:       'Отправить снова',
+
+  // ── Header ─────────────────────────────────────────────────────────────────
+  header_langSwitch:    'Язык / Language',
+  header_menu:          'Меню',
+
+  // ── PostCard ───────────────────────────────────────────────────────────────
+  post_removeFav:       'Убрать из избранного',
+  post_addFav:          'В избранное',
+  post_subscribed:      '✓ Подписан',
+  post_subscribe:       'Подписаться',
+  post_collapse:        'Свернуть',
+  post_readMore:        'Читать далее',
+  post_delete:          'Удалить пост',
+
+  // ── UserCard ───────────────────────────────────────────────────────────────
+  user_removeFav:       'Убрать из избранного',
+  user_addFav:          'В избранное',
+  user_write:           'Написать',
+
+  // ── ProductCard ────────────────────────────────────────────────────────────
+  prod_unavailable:     'Недоступно',
+  prod_write:           'Написать',
+  prod_details:         'Подробнее',
+  prod_modalAbout:      'О товаре',
+  prod_modalWriteBiz:   'Написать бизнесу',
+  prod_messageSent:     'Сообщение отправлено! Бизнес свяжется с вами.',
+  prod_close:           'Закрыть',
+  prod_questionPlaceholder: 'Напишите ваш вопрос...',
+  prod_sending:         'Отправляем...',
+  prod_sendError:       'Ошибка отправки. Попробуйте ещё раз.',
+  prod_hello:           'Здравствуйте! Интересует товар:',
+
+  // ── ReviewsSection ─────────────────────────────────────────────────────────
+  rev_yourRating:       'Ваша оценка',
+  rev_prosPlaceholder:  'Достоинства (необязательно)',
+  rev_consPlaceholder:  'Недостатки (необязательно)',
+  rev_commentPlaceholder:'Комментарий (необязательно)',
+  rev_sending:          'Отправка...',
+  rev_publish:          'Опубликовать отзыв',
+  rev_empty:            'Пока нет отзывов. Будьте первым!',
+  rev_write:            'Написать отзыв',
+  rev_ratings:          'Оценки',
+  rev_hide:             'Скрыть',
+  rev_showAll:          'Смотреть все отзывы',
+
+  // ── SearchableDropdown ─────────────────────────────────────────────────────
+  dropdown_searchPh:    'Поиск',
+
+  // ── Stories ────────────────────────────────────────────────────────────────
+  stories_profile:      'Профиль',
+  stories_videoBadge:   'Видео',
+  stories_title:        'Истории',
+  stories_empty:        'Пока нет активных историй',
+
+  // ── VipSection ─────────────────────────────────────────────────────────────
+  vip_empty:            'Нет VIP пользователей по выбранным фильтрам',
+  vip_counter:          'Показано {{count}} из {{total}} VIP пользователей',
+
+  // ── Countries ──────────────────────────────────────────────────────────────
+  country_tr:           'Турция',
+  country_ru:           'Россия',
+  country_kz:           'Казахстан',
+  country_uz:           'Узбекистан',
+  country_az:           'Азербайджан',
+  country_ge:           'Грузия',
+
+  // ── Cities ─────────────────────────────────────────────────────────────────
+  city_istanbul:        'Стамбул',
+  city_ankara:          'Анкара',
+  city_antalya:         'Анталья',
+  city_izmir:           'Измир',
+  city_bursa:           'Бурса',
+  city_tashkent:        'Ташкент',
+  city_almaty:          'Алматы',
+
+  // ── Footer extras ──────────────────────────────────────────────────────────
+  footer_copyright:     'Все права защищены.',
+
+  // ── FilterBar extras ───────────────────────────────────────────────────────
+  filter_category:      'КАТЕГОРИЯ',
+  filter_services:      'УСЛУГИ',
+  filter_service_consultation:'Консультация',
+  filter_service_online:     'Онлайн встреча',
+  filter_service_personal:   'Персональный подбор',
+  filter_service_translate:  'Перевод',
+  filter_service_support:    'Сопровождение',
+  filter_service_audit:      'Аудит',
+  filter_cat_business:       'Бизнес',
+  filter_cat_beauty:         'Красота',
+  filter_cat_health:         'Здоровье',
+  filter_cat_legal:          'Юридические услуги',
+  filter_cat_realty:         'Недвижимость',
+  filter_cat_education:      'Образование',
+  filter_cat_finance:        'Финансы',
+
+  // ── ViewedBar / AuthGate extras ────────────────────────────────────────────
+  authGate_login:       'Войти',
+  authGate_register:    'Регистрация',
 }
 
 export default ru

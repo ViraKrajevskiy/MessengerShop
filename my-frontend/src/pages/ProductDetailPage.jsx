@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import { useAuth } from '../context/AuthContext'
+import { useLanguage } from '../context/LanguageContext'
 import { apiSendProductInquiry } from '../api/businessApi'
 import { DEFAULT_AVATAR } from '../utils/defaults'
 import { resolveUrl } from '../utils/urlUtils'
@@ -15,6 +16,7 @@ export default function ProductDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { user, getAccessToken } = useAuth()
+  const { t } = useLanguage()
   const [product, setProduct] = useState(null)
   const [business, setBusiness] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -87,7 +89,7 @@ export default function ProductDetailPage() {
       <div className="pdp">
         <Header />
         <main className="pdp__main">
-          <div className="pdp__not-found">Товар не найден</div>
+          <div className="pdp__not-found">{t('product_notFound')}</div>
         </main>
         <Footer />
       </div>
@@ -97,7 +99,7 @@ export default function ProductDetailPage() {
   const img = product.image_display || FALLBACK_IMG
   const priceStr = product.price != null
     ? `${Number(product.price).toLocaleString('ru-RU')} ${product.currency_symbol || product.currency}`
-    : 'Цена по запросу'
+    : t('product_onReq')
   const isService = product.product_type === 'SERVICE'
   const tags = product.tags || []
 
@@ -107,7 +109,7 @@ export default function ProductDetailPage() {
       <main className="pdp__main">
         <button className="pdp__back" onClick={() => navigate(-1)}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-          Назад
+          {t('back')}
         </button>
 
         <div className="pdp__layout">
@@ -115,7 +117,7 @@ export default function ProductDetailPage() {
           <div className="pdp__gallery">
             <img className="pdp__img" src={img} alt={product.name} />
             <span className={`pdp__type-badge pdp__type-badge--${isService ? 'service' : 'product'}`}>
-              {isService ? 'Услуга' : 'Товар'}
+              {isService ? t('product_isService') : t('product_isProduct')}
             </span>
           </div>
 
@@ -134,12 +136,12 @@ export default function ProductDetailPage() {
 
             {product.description && (
               <div className="pdp__desc">
-                <h3>Описание</h3>
+                <h3>{t('product_description')}</h3>
                 <p>{product.description}</p>
               </div>
             )}
 
-            <div className="pdp__id">ID товара: <code>#{product.id}</code></div>
+            <div className="pdp__id">{t('product_idLabel') + ' '}<code>#{product.id}</code></div>
 
             {/* Business profile */}
             {business && (
@@ -152,7 +154,7 @@ export default function ProductDetailPage() {
                 <div className="pdp__biz-info">
                   <span className="pdp__biz-name">
                     {business.brand_name}
-                    {business.is_verified && <span className="pdp__biz-verified" title="Проверено">&#10003;</span>}
+                    {business.is_verified && <span className="pdp__biz-verified" title={t('product_verifiedBadge')}>&#10003;</span>}
                     {business.is_vip && <span className="pdp__biz-vip" title="VIP">&#9733;</span>}
                   </span>
                   <span className="pdp__biz-meta">
@@ -166,7 +168,7 @@ export default function ProductDetailPage() {
             <div className="pdp__actions">
               <button className="pdp__btn pdp__btn--chat" onClick={goToChat}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-                Написать
+                {t('product_write')}
               </button>
               {business?.group_id && (
                 <button className="pdp__btn pdp__btn--group" onClick={goToGroup}>
@@ -178,27 +180,27 @@ export default function ProductDetailPage() {
 
             {/* Quick inquiry form */}
             <div className="pdp__inquiry">
-              <h3>Задать вопрос о {isService ? 'услуге' : 'товаре'}</h3>
+              <h3>{isService ? t('product_askAboutService') : t('product_askAbout')}</h3>
               {sent ? (
                 <div className="pdp__inquiry-sent">
-                  <span>Вопрос отправлен!</span>
-                  <button onClick={() => navigate('/messenger')}>Открыть чат</button>
+                  <span>{t('product_questionSent')}</span>
+                  <button onClick={() => navigate('/messenger')}>{t('product_openChat')}</button>
                 </div>
               ) : (
                 <>
                   <div className="pdp__inquiry-preview">
-                    <code>#{product.id}</code> будет автоматически прикреплён
+                    <code>#{product.id}</code> {t('product_willAttach')}
                   </div>
                   <div className="pdp__inquiry-form">
                     <input
                       type="text"
-                      placeholder={`Вопрос о "${product.name}"...`}
+                      placeholder={t('product_questionPlaceholder').replace('{{name}}', product.name)}
                       value={inquiryMsg}
                       onChange={e => setInquiryMsg(e.target.value)}
                       onKeyDown={e => e.key === 'Enter' && handleInquiry()}
                     />
                     <button onClick={handleInquiry} disabled={sending || !inquiryMsg.trim()}>
-                      {sending ? '...' : 'Отправить'}
+                      {sending ? '...' : t('send')}
                     </button>
                   </div>
                 </>

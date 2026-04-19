@@ -39,6 +39,8 @@ const en = {
   nav_register:    'Sign up',
   nav_darkTheme:   'Dark theme',
   nav_lightTheme:  'Light theme',
+  nav_changeTheme: 'Change theme',
+  nav_breadcrumbHome: 'Home',
 
   // ── Footer ─────────────────────────────────────────────────────────────────
   footer_tagline:  'Your personal business partner in Turkey and CIS',
@@ -289,6 +291,218 @@ const en = {
   feed_filter_posts:  'Posts',
   feed_filter_news:   'News',
   feed_filter_stories:'Stories',
+
+  // ── HomePage ───────────────────────────────────────────────────────────────
+  home_publications:    'Publications',
+  home_allPublications: 'All publications',
+  home_allCards:        'All cards',
+  home_noCards:         'No cards match the selected filters',
+
+  // ── Grid / FeedPage / CatalogPage common ───────────────────────────────────
+  grid_columns:         'Columns:',
+  grid_columnsTitle:    '{{col}} cards per row',
+  nothing_found:        'Nothing found',
+  reset_filters:        'Reset filters',
+
+  // ── FeedPage ───────────────────────────────────────────────────────────────
+  feed_tab_posts:       'Posts',
+  feed_tab_photos:      'Photos',
+  feed_tab_videos:      'Videos',
+  feed_tab_news:        'News',
+  feed_tab_tweets:      'Tweets',
+  feed_noPhotos:        'No photos yet',
+  feed_noVideos:        'No videos yet',
+  feed_noNews:          'No news yet',
+  feed_noTweets:        'No tweets yet',
+  feed_nothingFiltered: 'Nothing found for the selected filters',
+  feed_empty:           'No publications yet',
+  filter_allCities:     'All cities',
+  filter_collapse:      'Collapse',
+
+  // ── BusinessPage ───────────────────────────────────────────────────────────
+  biz_confirmDelete:    'Delete this post? This action cannot be undone.',
+  biz_postDeleted:      'Post deleted',
+  biz_deleteError:      'Delete error',
+  biz_loading:          'Loading...',
+  biz_notFound:         'Business not found',
+  biz_notFoundSub:      'The page is unavailable or has been deleted',
+  biz_toHome:           'To home',
+  biz_voiceGreeting:    'Voice greeting',
+  biz_photosVideos:     'Photos and videos',
+  biz_galleryAll:       'All',
+  biz_galleryPhoto:     'Photo',
+  biz_galleryVideo:     'Video',
+  biz_infoFeatures:     'Features',
+  biz_infoServices:     'Services',
+  biz_infoFaq:          'FAQ',
+  biz_category:         'Category',
+  biz_city:             'City',
+  biz_rating:           'Rating',
+  biz_status:           'Status',
+  biz_verified:         'Verified',
+  biz_notVerified:      'Not verified',
+  biz_noServices:       'No services yet',
+  biz_noServicesSub:    'This business has not added services yet',
+  biz_noFaq:            'No additional information',
+  biz_noFaqSub:         'The business has not added answers to frequently asked questions yet',
+  biz_similar:          'Similar businesses',
+  biz_contacts:         'Contacts',
+  biz_about:            'About us',
+  biz_publications:     'Publications',
+  biz_subscribed:       '✓ Subscribed',
+  biz_subscribe:        'Subscribe',
+  biz_chat:             'Chat',
+  biz_inGroup:          'In group',
+  biz_joinGroup:        'Join',
+  biz_vipAccess:        'VIP access',
+  biz_vipPromo:         'Get priority placement, a VIP badge and advanced analytics for your business.',
+  biz_learnMore:        'Learn more',
+  biz_loginForDetails:  'Log in for details',
+  biz_noContent:        'The business has not added content yet',
+  biz_deletePost:       'Delete post',
+
+  // ── ProductDetailPage ──────────────────────────────────────────────────────
+  product_notFound:     'Product not found',
+  product_isService:    'Service',
+  product_isProduct:    'Product',
+  product_description:  'Description',
+  product_idLabel:      'Product ID:',
+  product_verifiedBadge:'Verified',
+  product_vipBadge:     'VIP',
+  product_write:        'Write',
+  product_askAbout:     'Ask about the product',
+  product_askAboutService:'Ask about the service',
+  product_questionSent: 'Question sent!',
+  product_openChat:     'Open chat',
+  product_willAttach:   'will be attached automatically',
+  product_questionPlaceholder: 'Question about "{{name}}"...',
+
+  // ── LoginPage / RegisterPage common ────────────────────────────────────────
+  theme:                'Theme',
+  or:                   'or',
+  whoAreYou:            'Who are you?',
+  lookingForServices:   'Looking for services',
+  promotingBusiness:    'Promoting a business',
+
+  // ── RegisterPage ───────────────────────────────────────────────────────────
+  reg_step_account:     'Account',
+  reg_step_profile:     'Profile',
+  reg_step_code:        'Code',
+  reg_enterUsername:    'Enter username',
+  reg_usernameMin3:     'Minimum 3 characters',
+  reg_enterEmail:       'Enter email',
+  reg_invalidEmail:     'Invalid email',
+  reg_enterPassword:    'Enter password',
+  reg_city:             'City',
+  reg_selectCity:       'Select city',
+  reg_termsAgree:       'I accept',
+  reg_termsUsage:       'terms of use',
+  reg_termsAnd:         'and',
+  reg_termsPrivacy:     'privacy policy',
+  reg_needAgree:        'Consent required',
+  reg_codeSent:         'Confirmation code sent to',
+  reg_codeHint:         'Enter the 6-digit code from the email',
+  reg_codeFull:         'Enter all 6 digits',
+  reg_codeNotReceived:  "Didn't get the code?",
+  reg_codeResend:       'Resend',
+
+  // ── Header ─────────────────────────────────────────────────────────────────
+  header_langSwitch:    'Language',
+  header_menu:          'Menu',
+
+  // ── PostCard ───────────────────────────────────────────────────────────────
+  post_removeFav:       'Remove from favorites',
+  post_addFav:          'Add to favorites',
+  post_subscribed:      '✓ Subscribed',
+  post_subscribe:       'Subscribe',
+  post_collapse:        'Collapse',
+  post_readMore:        'Read more',
+  post_delete:          'Delete post',
+
+  // ── UserCard ───────────────────────────────────────────────────────────────
+  user_removeFav:       'Remove from favorites',
+  user_addFav:          'Add to favorites',
+  user_write:           'Write',
+
+  // ── ProductCard ────────────────────────────────────────────────────────────
+  prod_unavailable:     'Unavailable',
+  prod_write:           'Write',
+  prod_details:         'Details',
+  prod_modalAbout:      'About product',
+  prod_modalWriteBiz:   'Write to business',
+  prod_messageSent:     'Message sent! The business will contact you.',
+  prod_close:           'Close',
+  prod_questionPlaceholder: 'Write your question...',
+  prod_sending:         'Sending...',
+  prod_sendError:       'Send error. Please try again.',
+  prod_hello:           'Hello! I am interested in:',
+
+  // ── ReviewsSection ─────────────────────────────────────────────────────────
+  rev_yourRating:       'Your rating',
+  rev_prosPlaceholder:  'Pros (optional)',
+  rev_consPlaceholder:  'Cons (optional)',
+  rev_commentPlaceholder:'Comment (optional)',
+  rev_sending:          'Sending...',
+  rev_publish:          'Publish review',
+  rev_empty:            'No reviews yet. Be the first!',
+  rev_write:            'Write a review',
+  rev_ratings:          'Ratings',
+  rev_hide:             'Hide',
+  rev_showAll:          'See all reviews',
+
+  // ── SearchableDropdown ─────────────────────────────────────────────────────
+  dropdown_searchPh:    'Search',
+
+  // ── Stories ────────────────────────────────────────────────────────────────
+  stories_profile:      'Profile',
+  stories_videoBadge:   'Video',
+  stories_title:        'Stories',
+  stories_empty:        'No active stories yet',
+
+  // ── VipSection ─────────────────────────────────────────────────────────────
+  vip_empty:            'No VIP members match the selected filters',
+  vip_counter:          'Showing {{count}} of {{total}} VIP members',
+
+  // ── Countries ──────────────────────────────────────────────────────────────
+  country_tr:           'Turkey',
+  country_ru:           'Russia',
+  country_kz:           'Kazakhstan',
+  country_uz:           'Uzbekistan',
+  country_az:           'Azerbaijan',
+  country_ge:           'Georgia',
+
+  // ── Cities ─────────────────────────────────────────────────────────────────
+  city_istanbul:        'Istanbul',
+  city_ankara:          'Ankara',
+  city_antalya:         'Antalya',
+  city_izmir:           'Izmir',
+  city_bursa:           'Bursa',
+  city_tashkent:        'Tashkent',
+  city_almaty:          'Almaty',
+
+  // ── Footer extras ──────────────────────────────────────────────────────────
+  footer_copyright:     'All rights reserved.',
+
+  // ── FilterBar extras ───────────────────────────────────────────────────────
+  filter_category:      'CATEGORY',
+  filter_services:      'SERVICES',
+  filter_service_consultation:'Consultation',
+  filter_service_online:     'Online meeting',
+  filter_service_personal:   'Personal selection',
+  filter_service_translate:  'Translation',
+  filter_service_support:    'Support',
+  filter_service_audit:      'Audit',
+  filter_cat_business:       'Business',
+  filter_cat_beauty:         'Beauty',
+  filter_cat_health:         'Health',
+  filter_cat_legal:          'Legal services',
+  filter_cat_realty:         'Real estate',
+  filter_cat_education:      'Education',
+  filter_cat_finance:        'Finance',
+
+  // ── ViewedBar / AuthGate extras ────────────────────────────────────────────
+  authGate_login:       'Log in',
+  authGate_register:    'Sign up',
 }
 
 export default en

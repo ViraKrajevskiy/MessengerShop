@@ -5,6 +5,7 @@ import Footer from '../components/Footer'
 import Stories from '../components/Stories'
 import PostCard from '../components/PostCard'
 import { useAuth } from '../context/AuthContext'
+import { useLanguage } from '../context/LanguageContext'
 import { apiGetPosts, apiGetBusinesses, apiGetNews, CATEGORY_LABELS } from '../api/businessApi'
 import { makeInitialAvatar } from '../utils/defaults'
 import { timeAgo } from '../utils/timeUtils'
@@ -57,6 +58,7 @@ function TweetCard({ post, onTagClick }) {
 // ── News card (feed style) ──────────────────────────────────────────────────
 function FeedNewsCard({ item, onTagClick }) {
   const navigate = useNavigate()
+  const { t } = useLanguage()
   const img = item.media_display || item.media_url || null
 
   return (
@@ -64,7 +66,7 @@ function FeedNewsCard({ item, onTagClick }) {
       {img && (
         <div className="feed-news-card__img-wrap">
           <img src={img} alt={item.title} loading="lazy" />
-          <span className="feed-news-card__badge">{item.news_type === 'PLATFORM' ? 'Платформа' : 'Бизнес'}</span>
+          <span className="feed-news-card__badge">{item.news_type === 'PLATFORM' ? t('platform') : t('news_business')}</span>
         </div>
       )}
       <div className="feed-news-card__body">
@@ -129,6 +131,7 @@ export default function FeedPage() {
   const [page, setPage] = useState(0)
   const navigate = useNavigate()
   const { getAccessToken, user } = useAuth()
+  const { t } = useLanguage()
   const CARDS_PER_PAGE = columns * 5
   const GUEST_LIMIT = 4
 
@@ -232,11 +235,11 @@ export default function FeedPage() {
   const fVideos = fPosts.filter(p => p.media_display && p.media_type === 'VIDEO' && !p.text?.trim())
 
   const TABS = [
-    { key: 'posts',  label: 'Посты'   },
-    { key: 'photos', label: 'Фото'    },
-    { key: 'videos', label: 'Видео'   },
-    { key: 'news',   label: 'Новости' },
-    { key: 'tweets', label: 'Твиты'   },
+    { key: 'posts',  label: 'feed_tab_posts'  },
+    { key: 'photos', label: 'feed_tab_photos' },
+    { key: 'videos', label: 'feed_tab_videos' },
+    { key: 'news',   label: 'feed_tab_news'   },
+    { key: 'tweets', label: 'feed_tab_tweets' },
   ]
 
   return (
@@ -246,26 +249,26 @@ export default function FeedPage() {
       <main className="feed-page__main">
         {/* Tabs */}
         <div className="feed-page__tabs">
-          {TABS.map(t => (
+          {TABS.map(tb => (
             <button
-              key={t.key}
-              className={`feed-page__tab ${tab === t.key ? 'feed-page__tab--active' : ''}`}
-              onClick={() => setTab(t.key)}
+              key={tb.key}
+              className={`feed-page__tab ${tab === tb.key ? 'feed-page__tab--active' : ''}`}
+              onClick={() => setTab(tb.key)}
             >
-              {t.label}
+              {t(tb.label)}
             </button>
           ))}
         </div>
 
         {/* Grid columns selector */}
         <div className="feed-grid-selector">
-          <span className="feed-grid-selector__label">Столбцы:</span>
+          <span className="feed-grid-selector__label">{t('grid_columns')}</span>
           {[2, 3, 4, 5].map(col => (
             <button
               key={col}
               className={`feed-grid-selector__btn ${columns === col ? 'feed-grid-selector__btn--active' : ''}`}
               onClick={() => handleColumnsChange(col)}
-              title={`${col} карточек в строке`}
+              title={t('grid_columnsTitle').replace('{{col}}', col)}
             >
               {col}
             </button>
@@ -286,13 +289,13 @@ export default function FeedPage() {
               className={`feed-filter-chip feed-filter-chip--verified ${filterVerified ? 'feed-filter-chip--on' : ''}`}
               onClick={() => setFilterVerified(v => !v)}
             >
-              <span className="feed-filter-chip__icon">&#10003;</span> Проверенные
+              <span className="feed-filter-chip__icon">&#10003;</span> {t('catalog_verified')}
             </button>
             <button
               className={`feed-filter-chip feed-filter-chip--new ${filterNew ? 'feed-filter-chip--on' : ''}`}
               onClick={() => setFilterNew(v => !v)}
             >
-              <span className="feed-filter-chip__icon">&#9679;</span> Новые
+              <span className="feed-filter-chip__icon">&#9679;</span> {t('catalog_new')}
             </button>
 
             <div className="feed-filters__sep" />
@@ -303,11 +306,11 @@ export default function FeedPage() {
               value={sortOrder}
               onChange={e => setSortOrder(e.target.value)}
             >
-              <option value="none">Сортировка</option>
-              <option value="date_desc">Сначала новые</option>
-              <option value="date_asc">Сначала старые</option>
-              <option value="price_asc">Цена: по возрастанию</option>
-              <option value="price_desc">Цена: по убыванию</option>
+              <option value="none">{t('catalog_sort')}</option>
+              <option value="date_desc">{t('catalog_newest')}</option>
+              <option value="date_asc">{t('catalog_oldest')}</option>
+              <option value="price_asc">{t('catalog_priceAsc')}</option>
+              <option value="price_desc">{t('catalog_priceDesc')}</option>
             </select>
 
             {allCities.length > 0 && (
@@ -317,7 +320,7 @@ export default function FeedPage() {
                 value={filterCity}
                 onChange={e => setFilterCity(e.target.value)}
               >
-                <option value="">Все города</option>
+                <option value="">{t('filter_allCities')}</option>
                 {allCities.map(c => (
                   <option key={c} value={c}>{c}</option>
                 ))}
@@ -326,7 +329,7 @@ export default function FeedPage() {
 
             {hasActiveFilters && (
               <button className="feed-filter-chip feed-filter-chip--clear" onClick={clearFilters}>
-                &#10005; Сбросить
+                &#10005; {t('reset_filters')}
               </button>
             )}
           </div>
@@ -349,7 +352,7 @@ export default function FeedPage() {
                     className="feed-filter-chip feed-filter-chip--more"
                     onClick={() => setShowAllTags(v => !v)}
                   >
-                    {showAllTags ? 'Свернуть' : `+${allTags.length - 8}`}
+                    {showAllTags ? t('filter_collapse') : `+${allTags.length - 8}`}
                   </button>
                 )}
               </div>
@@ -438,7 +441,7 @@ export default function FeedPage() {
                         </>
                       )
                     })()}
-                    {fPhotos.length === 0 && <div className="feed-page__empty">Фото пока нет</div>}
+                    {fPhotos.length === 0 && <div className="feed-page__empty">{t('feed_noPhotos')}</div>}
                   </>
                 )}
 
@@ -472,7 +475,7 @@ export default function FeedPage() {
                         </>
                       )
                     })()}
-                    {fVideos.length === 0 && <div className="feed-page__empty">Видео пока нет</div>}
+                    {fVideos.length === 0 && <div className="feed-page__empty">{t('feed_noVideos')}</div>}
                   </>
                 )}
 
@@ -484,7 +487,7 @@ export default function FeedPage() {
                         <FeedNewsCard key={`news-${item.id}`} item={item} onTagClick={handleTagClick} />
                       ))}
                     </div>
-                    {fNews.length === 0 && <div className="feed-page__empty">Новостей пока нет</div>}
+                    {fNews.length === 0 && <div className="feed-page__empty">{t('feed_noNews')}</div>}
                   </>
                 )}
 
@@ -496,19 +499,19 @@ export default function FeedPage() {
                         <TweetCard key={`tweet-${post.id}`} post={post} onTagClick={handleTagClick} />
                       ))}
                     </div>
-                    {fPosts.length === 0 && <div className="feed-page__empty">Твитов пока нет</div>}
+                    {fPosts.length === 0 && <div className="feed-page__empty">{t('feed_noTweets')}</div>}
                   </>
                 )}
 
                 {hasActiveFilters && fPosts.length === 0 && fNews.length === 0 && tab !== 'news' && tab !== 'tweets' && (
                   <div className="feed-page__empty">
-                    По выбранным фильтрам ничего не найдено
-                    <button className="feed-page__empty-reset" onClick={clearFilters}>Сбросить фильтры</button>
+                    {t('feed_nothingFiltered')}
+                    <button className="feed-page__empty-reset" onClick={clearFilters}>{t('reset_filters')}</button>
                   </div>
                 )}
 
                 {!loading && !hasActiveFilters && posts.length === 0 && news.length === 0 && (
-                  <div className="feed-page__empty">Пока нет публикаций</div>
+                  <div className="feed-page__empty">{t('feed_empty')}</div>
                 )}
               </>
             )}

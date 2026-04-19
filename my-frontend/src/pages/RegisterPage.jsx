@@ -43,7 +43,7 @@ export default function RegisterPage() {
         setGoogleLoading(false)
       }
     },
-    onError: () => setErrors({ general: 'Ошибка входа через Google' }),
+    onError: () => setErrors({ general: t('auth_loginError') }),
   })
 
   // Шаг 3 — верификация кода
@@ -60,11 +60,11 @@ export default function RegisterPage() {
   // ── Валидация ──────────────────────────────────────────────────────────────
   const validateStep1 = () => {
     const errs = {}
-    if (!form.username.trim()) errs.username = 'Введите имя пользователя'
-    else if (form.username.length < 3) errs.username = 'Минимум 3 символа'
-    if (!form.email.trim()) errs.email = 'Введите email'
-    else if (!/\S+@\S+\.\S+/.test(form.email)) errs.email = 'Некорректный email'
-    if (!form.password) errs.password = 'Введите пароль'
+    if (!form.username.trim()) errs.username = t('reg_enterUsername')
+    else if (form.username.length < 3) errs.username = t('reg_usernameMin3')
+    if (!form.email.trim()) errs.email = t('reg_enterEmail')
+    else if (!/\S+@\S+\.\S+/.test(form.email)) errs.email = t('reg_invalidEmail')
+    if (!form.password) errs.password = t('reg_enterPassword')
     else if (form.password.length < 6) errs.password = t('reg_min6')
     if (form.password !== form.confirm) errs.confirm = t('reg_pwdMismatch')
     return errs
@@ -72,8 +72,8 @@ export default function RegisterPage() {
 
   const validateStep2 = () => {
     const errs = {}
-    if (!form.city) errs.city = 'Выберите город'
-    if (!form.agree) errs.agree = 'Необходимо согласие'
+    if (!form.city) errs.city = t('reg_selectCity')
+    if (!form.agree) errs.agree = t('reg_needAgree')
     return errs
   }
 
@@ -134,7 +134,7 @@ export default function RegisterPage() {
   const handleVerify = async (e) => {
     e.preventDefault()
     const codeStr = code.join('')
-    if (codeStr.length < 6) { setCodeError('Введите все 6 цифр'); return }
+    if (codeStr.length < 6) { setCodeError(t('reg_codeFull')); return }
     setLoading(true)
     const result = await verifyEmail(form.email, codeStr, form.password)
     setLoading(false)
@@ -147,9 +147,9 @@ export default function RegisterPage() {
 
   // ── Рендер шагов ──────────────────────────────────────────────────────────
   const stepsConfig = [
-    { label: 'Аккаунт' },
-    { label: 'Профиль' },
-    { label: 'Код' },
+    { label: t('reg_step_account') },
+    { label: t('reg_step_profile') },
+    { label: t('reg_step_code') },
   ]
 
   return (
@@ -160,7 +160,7 @@ export default function RegisterPage() {
       {/* Top bar */}
       <div className="auth-page__topbar">
         <div className="auth-page__logo" onClick={() => navigate('/')}>{t('appName')}</div>
-        <button className="auth-page__icon-btn" onClick={toggleTheme} title="Тема">
+        <button className="auth-page__icon-btn" onClick={toggleTheme} title={t('theme')}>
           {theme === 'light'
             ? <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
             : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>
@@ -170,7 +170,7 @@ export default function RegisterPage() {
 
       <div className="auth-page__center">
         <div className="auth-card auth-card--wide">
-          <button className="auth-card__close" onClick={() => navigate(-1)} title="Закрыть">✕</button>
+          <button className="auth-card__close" onClick={() => navigate(-1)} title={t('close')}>✕</button>
           {/* Header */}
           <div className="auth-card__header">
             <div className="auth-card__icon auth-card__icon--purple">
@@ -271,7 +271,7 @@ export default function RegisterPage() {
                 {t('reg_continue')} →
               </button>
 
-              <div className="auth-card__divider"><span>или</span></div>
+              <div className="auth-card__divider"><span>{t('or')}</span></div>
 
               {!showGoogleRole ? (
                 <button
@@ -293,13 +293,13 @@ export default function RegisterPage() {
                       <input type="radio" name="googleRole" value="USER" checked={googleRole === 'USER'} onChange={() => setGoogleRole('USER')} />
                       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                       <span>{t('reg_roleUser')}</span>
-                      <small>Ищу услуги</small>
+                      <small>{t('lookingForServices')}</small>
                     </label>
                     <label className={`auth-role-btn ${googleRole === 'BUSINESS' ? 'auth-role-btn--active' : ''}`}>
                       <input type="radio" name="googleRole" value="BUSINESS" checked={googleRole === 'BUSINESS'} onChange={() => setGoogleRole('BUSINESS')} />
                       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
                       <span>{t('reg_roleBusiness')}</span>
-                      <small>Продвигаю бизнес</small>
+                      <small>{t('promotingBusiness')}</small>
                     </label>
                   </div>
                   <div className="auth-card__two-btns" style={{ marginTop: 8 }}>
@@ -333,27 +333,27 @@ export default function RegisterPage() {
                     <input type="radio" name="role" value="USER" checked={form.role === 'USER'} onChange={handleChange} />
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                     <span>{t('reg_roleUser')}</span>
-                    <small>Ищу услуги</small>
+                    <small>{t('lookingForServices')}</small>
                   </label>
                   <label className={`auth-role-btn ${form.role === 'BUSINESS' ? 'auth-role-btn--active' : ''}`}>
                     <input type="radio" name="role" value="BUSINESS" checked={form.role === 'BUSINESS'} onChange={handleChange} />
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
                     <span>{t('reg_roleBusiness')}</span>
-                    <small>Продвигаю бизнес</small>
+                    <small>{t('promotingBusiness')}</small>
                   </label>
                 </div>
               </div>
 
               {/* City */}
               <div className="auth-field">
-                <label className="auth-field__label">Город</label>
+                <label className="auth-field__label">{t('reg_city')}</label>
                 <div className="auth-field__wrap">
                   <span className="auth-field__icon">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
                   </span>
                   <select className={`auth-field__input auth-field__input--select ${errors.city ? 'auth-field__input--error' : ''}`}
                     name="city" value={form.city} onChange={handleChange}>
-                    <option value="">Выберите город</option>
+                    <option value="">{t('reg_selectCity')}</option>
                     {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
@@ -365,7 +365,7 @@ export default function RegisterPage() {
                 <input type="checkbox" name="agree" checked={form.agree} onChange={handleChange} className="auth-checkbox__input" />
                 <span className="auth-checkbox__box" />
                 <span className="auth-checkbox__label">
-                  Я принимаю <span className="auth-card__switch-link">условия использования</span> и <span className="auth-card__switch-link">политику конфиденциальности</span>
+                  {t('reg_termsAgree')} <span className="auth-card__switch-link">{t('reg_termsUsage')}</span> {t('reg_termsAnd')} <span className="auth-card__switch-link">{t('reg_termsPrivacy')}</span>
                 </span>
               </label>
               {errors.agree && <span className="auth-field__error">{errors.agree}</span>}
@@ -389,10 +389,10 @@ export default function RegisterPage() {
                   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                 </div>
                 <p className="auth-verify__text">
-                  Код подтверждения отправлен на<br />
+                  {t('reg_codeSent')}<br />
                   <strong>{form.email}</strong>
                 </p>
-                <p className="auth-verify__hint">Введите 6-значный код из письма</p>
+                <p className="auth-verify__hint">{t('reg_codeHint')}</p>
               </div>
 
               {/* Code inputs */}
@@ -416,12 +416,12 @@ export default function RegisterPage() {
               {codeError && <div className="auth-card__error">{codeError}</div>}
 
               <button className="auth-card__submit auth-card__submit--purple" type="submit" disabled={loading}>
-                {loading ? <span className="auth-card__spinner" /> : 'Подтвердить'}
+                {loading ? <span className="auth-card__spinner" /> : t('reg_continue')}
               </button>
 
               <p className="auth-verify__resend">
-                Не пришёл код?{' '}
-                <span className="auth-card__switch-link" onClick={() => setStep(2)}>Отправить снова</span>
+                {t('reg_codeNotReceived')}{' '}
+                <span className="auth-card__switch-link" onClick={() => setStep(2)}>{t('reg_codeResend')}</span>
               </p>
             </form>
           )}

@@ -2,12 +2,13 @@ import { useState, useRef, useCallback, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useLanguage } from '../context/LanguageContext'
 import { apiGetStories, apiViewStory, invalidateCache } from '../api/businessApi'
 import { makeInitialAvatar } from '../utils/defaults'
 import { resolveUrl } from '../utils/urlUtils'
 import './Stories.css'
 
-function groupStoriesByAuthor(apiStories) {
+function groupStoriesByAuthor(apiStories, t) {
   if (!Array.isArray(apiStories)) {
     return []
   }
@@ -34,7 +35,7 @@ function groupStoriesByAuthor(apiStories) {
     result.push({
       id:       s.id,
       bizId:    aId,
-      userName: s.author.brand_name || s.author.username || 'Бизнес',
+      userName: s.author.brand_name || s.author.username || t('news_business'),
       city:     s.author.city || '',
       avatar:   s.author.avatar
         ? resolveUrl(s.author.avatar)
@@ -62,6 +63,7 @@ function StoryViewer({ stories, startIndex, onClose, onTrackViews }) {
   const touchStartY = useRef(0)
   const videoRef = useRef(null)
   const navigate = useNavigate()
+  const { t } = useLanguage()
 
   const story = stories[storyIdx]
   const slide = story.media[mediaIdx]
@@ -71,11 +73,11 @@ function StoryViewer({ stories, startIndex, onClose, onTrackViews }) {
     if (!dateStr) return ''
     const diff = Date.now() - new Date(dateStr).getTime()
     const mins = Math.floor(diff / 60000)
-    if (mins < 1) return 'только что'
-    if (mins < 60) return `${mins} мин. назад`
+    if (mins < 1) return t('justNow')
+    if (mins < 60) return `${mins} ${t('minAgo')}`
     const hours = Math.floor(mins / 60)
-    if (hours < 24) return `${hours} ч. назад`
-    return `${Math.floor(hours / 24)} дн. назад`
+    if (hours < 24) return `${hours} ${t('hAgo')}`
+    return `${Math.floor(hours / 24)} ${t('dAgo')}`
   }
 
   // Generate poster image from first frame of video
@@ -227,7 +229,7 @@ function StoryViewer({ stories, startIndex, onClose, onTrackViews }) {
           </div>
           <div className="story-viewer__header-right">
             <button className="story-viewer__profile-btn" onClick={handleProfileClick}>
-              Профиль
+              {t('stories_profile')}
             </button>
             <button className="story-viewer__close" onClick={(e) => { e.stopPropagation(); onClose() }}>
               &#10005;
@@ -258,7 +260,7 @@ function StoryViewer({ stories, startIndex, onClose, onTrackViews }) {
         </div>
 
         <div className="story-viewer__caption">
-          {slide.type === 'video' && <span className="story-viewer__media-type">&#128249; Видео</span>}
+          {slide.type === 'video' && <span className="story-viewer__media-type">&#128249; {t('stories_videoBadge')}</span>}
           <p>{slide.caption}</p>
         </div>
 
@@ -289,13 +291,14 @@ export default function Stories({ noTitle = false }) {
   const [loadingStories, setLoadingStories] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const { tokens } = useAuth()
+  const { t } = useLanguage()
   const viewedStoryIds = useRef(new Set())
 
   const loadStories = () => {
     setLoadingStories(true)
     invalidateCache('stories')
     apiGetStories()
-      .then(data => setStoriesData(groupStoriesByAuthor(data)))
+      .then(data => setStoriesData(groupStoriesByAuthor(data, t)))
       .catch(() => setStoriesData([]))
       .finally(() => setLoadingStories(false))
   }
@@ -304,7 +307,7 @@ export default function Stories({ noTitle = false }) {
     setRefreshing(true)
     invalidateCache('stories')
     apiGetStories()
-      .then(data => setStoriesData(groupStoriesByAuthor(data)))
+      .then(data => setStoriesData(groupStoriesByAuthor(data, t)))
       .catch(() => {})
       .finally(() => setRefreshing(false))
   }
@@ -329,7 +332,7 @@ export default function Stories({ noTitle = false }) {
       setRefreshing(true)
       invalidateCache('stories')
       apiGetStories()
-        .then(data => setStoriesData(groupStoriesByAuthor(data)))
+        .then(data => setStoriesData(groupStoriesByAuthor(data, t)))
         .catch(() => {})
         .finally(() => setRefreshing(false))
     }, 60000)
@@ -403,7 +406,7 @@ export default function Stories({ noTitle = false }) {
   if (loadingStories) {
     return (
       <section className="stories">
-        {!noTitle && <h2 className="section-title">Истории</h2>}
+        {!noTitle && <h2 className="section-title">{t('stories_title')}</h2>}
         <div className="stories__loading">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="stories__skeleton">
@@ -419,15 +422,15 @@ export default function Stories({ noTitle = false }) {
   if (storiesData.length === 0) {
     return (
       <section className="stories">
-        {!noTitle && <h2 className="section-title">Истории</h2>}
-        <p className="stories__empty">Пока нет активных историй</p>
+        {!noTitle && <h2 className="section-title">{t('stories_title')}</h2>}
+        <p className="stories__empty">{t('stories_empty')}</p>
       </section>
     )
   }
 
   return (
     <section className="stories">
-      {!noTitle && <h2 className="section-title">Истории</h2>}
+      {!noTitle && <h2 className="section-title">{t('stories_title')}</h2>}
       <div
         className="stories__list"
         ref={listRef}

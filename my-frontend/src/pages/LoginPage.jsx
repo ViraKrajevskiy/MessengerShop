@@ -70,7 +70,7 @@ export default function LoginPage() {
       <div className="auth-page__topbar">
         <div className="auth-page__logo" onClick={() => navigate('/')}>{t('appName')}</div>
         <div className="auth-page__topbar-actions">
-          <button className="auth-page__icon-btn" onClick={toggleTheme} title="Тема">
+          <button className="auth-page__icon-btn" onClick={toggleTheme} title={t('theme')}>
             {theme === 'light' ? (
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
             ) : (
@@ -82,14 +82,14 @@ export default function LoginPage() {
 
       <div className="auth-page__center">
         <div className="auth-card">
-          <button className="auth-card__close" onClick={() => navigate(-1)} title="Закрыть">✕</button>
+          <button className="auth-card__close" onClick={() => navigate(-1)} title={t('close')}>✕</button>
           {/* Header */}
           <div className="auth-card__header">
             <div className="auth-card__icon">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             </div>
             <h1 className="auth-card__title">{t('auth_login')}</h1>
-            <p className="auth-card__subtitle">{t('auth_loginBtn')} в свой аккаунт</p>
+            <p className="auth-card__subtitle">{t('auth_login')}</p>
           </div>
 
           <form className="auth-card__form" onSubmit={handleSubmit}>
@@ -152,7 +152,7 @@ export default function LoginPage() {
             </button>
 
             {/* Divider */}
-            <div className="auth-card__divider"><span>или</span></div>
+            <div className="auth-card__divider"><span>{t('or')}</span></div>
 
             {/* Social buttons */}
             <div className="auth-card__socials">
@@ -170,23 +170,23 @@ export default function LoginPage() {
                 </button>
               ) : (
                 <div className="auth-google-role">
-                  <p className="auth-google-role__title">Кто вы?</p>
+                  <p className="auth-google-role__title">{t('whoAreYou')}</p>
                   <div className="auth-role-btns">
                     <label className={`auth-role-btn ${googleRole === 'USER' ? 'auth-role-btn--active' : ''}`}>
                       <input type="radio" name="googleRole" value="USER" checked={googleRole === 'USER'} onChange={() => setGoogleRole('USER')} />
                       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                       <span>{t('reg_roleUser')}</span>
-                      <small>Ищу услуги</small>
+                      <small>{t('lookingForServices')}</small>
                     </label>
                     <label className={`auth-role-btn ${googleRole === 'BUSINESS' ? 'auth-role-btn--active' : ''}`}>
                       <input type="radio" name="googleRole" value="BUSINESS" checked={googleRole === 'BUSINESS'} onChange={() => setGoogleRole('BUSINESS')} />
                       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
                       <span>{t('reg_roleBusiness')}</span>
-                      <small>Продвигаю бизнес</small>
+                      <small>{t('promotingBusiness')}</small>
                     </label>
                   </div>
                   <div className="auth-card__two-btns" style={{ marginTop: 8 }}>
-                    <button type="button" className="auth-card__back" onClick={() => setShowGoogleRole(false)}>← Назад</button>
+                    <button type="button" className="auth-card__back" onClick={() => setShowGoogleRole(false)}>← {t('back')}</button>
                     <button
                       type="button"
                       className="auth-card__submit auth-card__submit--purple"
@@ -194,7 +194,7 @@ export default function LoginPage() {
                       onClick={() => handleGoogleLogin()}
                       disabled={googleLoading}
                     >
-                      {googleLoading ? <span className="auth-card__spinner" /> : 'Войти через Google'}
+                      {googleLoading ? <span className="auth-card__spinner" /> : t('auth_loginGoogle')}
                     </button>
                   </div>
                 </div>

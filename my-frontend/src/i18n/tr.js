@@ -39,6 +39,8 @@ const tr = {
   nav_register:    'Kayıt ol',
   nav_darkTheme:   'Karanlık tema',
   nav_lightTheme:  'Aydınlık tema',
+  nav_changeTheme: 'Temayı değiştir',
+  nav_breadcrumbHome: 'Ana Sayfa',
 
   // ── Footer ─────────────────────────────────────────────────────────────────
   footer_tagline:  "Türkiye ve BDT'de kişisel iş ortağınız",
@@ -295,6 +297,212 @@ const tr = {
   home_allPublications: 'Tüm yayınlar',
   home_allCards:        'Tüm kartlar',
   home_noCards:         'Seçili filtrelere göre kart bulunamadı',
+
+  // ── Grid / FeedPage / CatalogPage common ───────────────────────────────────
+  grid_columns:         'Sütunlar:',
+  grid_columnsTitle:    'Satırda {{col}} kart',
+  nothing_found:        'Hiçbir şey bulunamadı',
+  reset_filters:        'Filtreleri sıfırla',
+
+  // ── FeedPage ───────────────────────────────────────────────────────────────
+  feed_tab_posts:       'Gönderiler',
+  feed_tab_photos:      'Fotoğraflar',
+  feed_tab_videos:      'Videolar',
+  feed_tab_news:        'Haberler',
+  feed_tab_tweets:      'Tweetler',
+  feed_noPhotos:        'Henüz fotoğraf yok',
+  feed_noVideos:        'Henüz video yok',
+  feed_noNews:          'Henüz haber yok',
+  feed_noTweets:        'Henüz tweet yok',
+  feed_nothingFiltered: 'Seçilen filtrelere uygun sonuç bulunamadı',
+  feed_empty:           'Henüz yayın yok',
+  filter_allCities:     'Tüm şehirler',
+  filter_collapse:      'Daralt',
+
+  // ── BusinessPage ───────────────────────────────────────────────────────────
+  biz_confirmDelete:    'Bu gönderi silinsin mi? Bu işlem geri alınamaz.',
+  biz_postDeleted:      'Gönderi silindi',
+  biz_deleteError:      'Silme hatası',
+  biz_loading:          'Yükleniyor...',
+  biz_notFound:         'İşletme bulunamadı',
+  biz_notFoundSub:      'Sayfa erişilemiyor veya silindi',
+  biz_toHome:           'Ana sayfaya',
+  biz_voiceGreeting:    'Sesli karşılama',
+  biz_photosVideos:     'Fotoğraflar ve videolar',
+  biz_galleryAll:       'Tümü',
+  biz_galleryPhoto:     'Fotoğraf',
+  biz_galleryVideo:     'Video',
+  biz_infoFeatures:     'Özellikler',
+  biz_infoServices:     'Hizmetler',
+  biz_infoFaq:          'SSS',
+  biz_category:         'Kategori',
+  biz_city:             'Şehir',
+  biz_rating:           'Puan',
+  biz_status:           'Durum',
+  biz_verified:         'Doğrulandı',
+  biz_notVerified:      'Doğrulanmadı',
+  biz_noServices:       'Henüz hizmet yok',
+  biz_noServicesSub:    'Bu işletme henüz hizmet eklemedi',
+  biz_noFaq:            'Ek bilgi yok',
+  biz_noFaqSub:         'İşletme sık sorulan soruları henüz eklemedi',
+  biz_similar:          'Benzer işletmeler',
+  biz_contacts:         'İletişim',
+  biz_about:            'Hakkımızda',
+  biz_publications:     'Yayınlar',
+  biz_subscribed:       '✓ Abone olundu',
+  biz_subscribe:        'Abone ol',
+  biz_chat:             'Sohbet',
+  biz_inGroup:          'Grupta',
+  biz_joinGroup:        'Katıl',
+  biz_vipAccess:        'VIP erişim',
+  biz_vipPromo:         'İşletmeniz için öncelikli yerleşim, VIP rozeti ve gelişmiş analitik elde edin.',
+  biz_learnMore:        'Daha fazla bilgi',
+  biz_loginForDetails:  'Detaylar için giriş yap',
+  biz_noContent:        'İşletme henüz içerik eklemedi',
+  biz_deletePost:       'Gönderiyi sil',
+
+  // ── ProductDetailPage ──────────────────────────────────────────────────────
+  product_notFound:     'Ürün bulunamadı',
+  product_isService:    'Hizmet',
+  product_isProduct:    'Ürün',
+  product_description:  'Açıklama',
+  product_idLabel:      'Ürün ID:',
+  product_verifiedBadge:'Doğrulandı',
+  product_vipBadge:     'VIP',
+  product_write:        'Yaz',
+  product_askAbout:     'Ürün hakkında soru sor',
+  product_askAboutService:'Hizmet hakkında soru sor',
+  product_questionSent: 'Soru gönderildi!',
+  product_openChat:     'Sohbeti aç',
+  product_willAttach:   'otomatik olarak eklenecek',
+  product_questionPlaceholder: '"{{name}}" hakkında soru...',
+
+  // ── LoginPage / RegisterPage common ────────────────────────────────────────
+  theme:                'Tema',
+  or:                   'veya',
+  whoAreYou:            'Kimsiniz?',
+  lookingForServices:   'Hizmet arıyorum',
+  promotingBusiness:    'İşletmemi tanıtıyorum',
+
+  // ── RegisterPage ───────────────────────────────────────────────────────────
+  reg_step_account:     'Hesap',
+  reg_step_profile:     'Profil',
+  reg_step_code:        'Kod',
+  reg_enterUsername:    'Kullanıcı adı girin',
+  reg_usernameMin3:     'En az 3 karakter',
+  reg_enterEmail:       'E-posta girin',
+  reg_invalidEmail:     'Geçersiz e-posta',
+  reg_enterPassword:    'Şifre girin',
+  reg_city:             'Şehir',
+  reg_selectCity:       'Şehir seçin',
+  reg_termsAgree:       'Kabul ediyorum',
+  reg_termsUsage:       'kullanım koşulları',
+  reg_termsAnd:         've',
+  reg_termsPrivacy:     'gizlilik politikası',
+  reg_needAgree:        'Onay gerekli',
+  reg_codeSent:         'Doğrulama kodu gönderildi',
+  reg_codeHint:         'E-postadaki 6 haneli kodu girin',
+  reg_codeFull:         'Tüm 6 haneyi girin',
+  reg_codeNotReceived:  'Kod gelmedi mi?',
+  reg_codeResend:       'Tekrar gönder',
+
+  // ── Header ─────────────────────────────────────────────────────────────────
+  header_langSwitch:    'Dil / Language',
+  header_menu:          'Menü',
+
+  // ── PostCard ───────────────────────────────────────────────────────────────
+  post_removeFav:       'Favorilerden çıkar',
+  post_addFav:          'Favorilere ekle',
+  post_subscribed:      '✓ Abone olundu',
+  post_subscribe:       'Abone ol',
+  post_collapse:        'Daralt',
+  post_readMore:        'Devamını oku',
+  post_delete:          'Gönderiyi sil',
+
+  // ── UserCard ───────────────────────────────────────────────────────────────
+  user_removeFav:       'Favorilerden çıkar',
+  user_addFav:          'Favorilere ekle',
+  user_write:           'Yaz',
+
+  // ── ProductCard ────────────────────────────────────────────────────────────
+  prod_unavailable:     'Mevcut değil',
+  prod_write:           'Yaz',
+  prod_details:         'Detaylar',
+  prod_modalAbout:      'Ürün hakkında',
+  prod_modalWriteBiz:   'İşletmeye yaz',
+  prod_messageSent:     'Mesaj gönderildi! İşletme sizinle iletişime geçecek.',
+  prod_close:           'Kapat',
+  prod_questionPlaceholder: 'Sorunuzu yazın...',
+  prod_sending:         'Gönderiliyor...',
+  prod_sendError:       'Gönderme hatası. Lütfen tekrar deneyin.',
+  prod_hello:           'Merhaba! Şu ürünle ilgileniyorum:',
+
+  // ── ReviewsSection ─────────────────────────────────────────────────────────
+  rev_yourRating:       'Puanınız',
+  rev_prosPlaceholder:  'Artıları (isteğe bağlı)',
+  rev_consPlaceholder:  'Eksileri (isteğe bağlı)',
+  rev_commentPlaceholder:'Yorum (isteğe bağlı)',
+  rev_sending:          'Gönderiliyor...',
+  rev_publish:          'Yorumu yayınla',
+  rev_empty:            'Henüz yorum yok. İlk siz olun!',
+  rev_write:            'Yorum yaz',
+  rev_ratings:          'Puanlar',
+  rev_hide:             'Gizle',
+  rev_showAll:          'Tüm yorumları gör',
+
+  // ── SearchableDropdown ─────────────────────────────────────────────────────
+  dropdown_searchPh:    'Ara',
+
+  // ── Stories ────────────────────────────────────────────────────────────────
+  stories_profile:      'Profil',
+  stories_videoBadge:   'Video',
+  stories_title:        'Hikayeler',
+  stories_empty:        'Şu anda aktif hikaye yok',
+
+  // ── VipSection ─────────────────────────────────────────────────────────────
+  vip_empty:            'Seçili filtrelere göre VIP kullanıcı yok',
+  vip_counter:          '{{total}} VIP kullanıcıdan {{count}} gösteriliyor',
+
+  // ── Countries ──────────────────────────────────────────────────────────────
+  country_tr:           'Türkiye',
+  country_ru:           'Rusya',
+  country_kz:           'Kazakistan',
+  country_uz:           'Özbekistan',
+  country_az:           'Azerbaycan',
+  country_ge:           'Gürcistan',
+
+  // ── Cities ─────────────────────────────────────────────────────────────────
+  city_istanbul:        'İstanbul',
+  city_ankara:          'Ankara',
+  city_antalya:         'Antalya',
+  city_izmir:           'İzmir',
+  city_bursa:           'Bursa',
+  city_tashkent:        'Taşkent',
+  city_almaty:          'Almatı',
+
+  // ── Footer extras ──────────────────────────────────────────────────────────
+  footer_copyright:     'Tüm hakları saklıdır.',
+
+  // ── FilterBar extras ───────────────────────────────────────────────────────
+  filter_category:      'KATEGORİ',
+  filter_services:      'HİZMETLER',
+  filter_service_consultation:'Danışmanlık',
+  filter_service_online:     'Online toplantı',
+  filter_service_personal:   'Kişisel seçim',
+  filter_service_translate:  'Çeviri',
+  filter_service_support:    'Eşlik',
+  filter_service_audit:      'Denetim',
+  filter_cat_business:       'İşletme',
+  filter_cat_beauty:         'Güzellik',
+  filter_cat_health:         'Sağlık',
+  filter_cat_legal:          'Hukuki hizmetler',
+  filter_cat_realty:         'Gayrimenkul',
+  filter_cat_education:      'Eğitim',
+  filter_cat_finance:        'Finans',
+
+  // ── ViewedBar / AuthGate extras ────────────────────────────────────────────
+  authGate_login:       'Giriş yap',
+  authGate_register:    'Kayıt ol',
 }
 
 export default tr

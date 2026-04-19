@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect } from 'react'
+import { useLanguage } from '../context/LanguageContext'
 import './SearchableDropdown.css'
 
 export default function SearchableDropdown({ label, options = [], value, onChange }) {
+  const { t } = useLanguage()
   const [isOpen, setIsOpen] = useState(false)
   const [search, setSearch] = useState('')
   const ref = useRef(null)
@@ -54,7 +56,7 @@ export default function SearchableDropdown({ label, options = [], value, onChang
           <input
             type="text"
             className="sd__search"
-            placeholder={`Поиск ${label.toLowerCase()}...`}
+            placeholder={`${t('dropdown_searchPh')} ${label.toLowerCase()}...`}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             autoFocus
@@ -72,7 +74,7 @@ export default function SearchableDropdown({ label, options = [], value, onChang
                 </li>
               ))
             ) : (
-              <li className="sd__no-results">Ничего не найдено</li>
+              <li className="sd__no-results">{t('nothing_found')}</li>
             )}
           </ul>
         </div>

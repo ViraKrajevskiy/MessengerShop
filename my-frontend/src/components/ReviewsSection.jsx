@@ -59,6 +59,7 @@ function ReviewCard({ review }) {
 }
 
 function ReviewForm({ onSubmit, onCancel, loading, error }) {
+  const { t } = useLanguage()
   const [rating, setRating] = useState(0)
   const [pros, setPros] = useState('')
   const [cons, setCons] = useState('')
@@ -72,34 +73,34 @@ function ReviewForm({ onSubmit, onCancel, loading, error }) {
 
   return (
     <form className="rv-form" onSubmit={handleSubmit}>
-      <div className="rv-form__stars-label">Ваша оценка</div>
+      <div className="rv-form__stars-label">{t('rev_yourRating')}</div>
       <Stars rating={rating} size={32} interactive onSelect={setRating} />
       <input
         className="rv-form__input"
-        placeholder="Достоинства (необязательно)"
+        placeholder={t('rev_prosPlaceholder')}
         value={pros}
         onChange={e => setPros(e.target.value)}
         maxLength={500}
       />
       <input
         className="rv-form__input"
-        placeholder="Недостатки (необязательно)"
+        placeholder={t('rev_consPlaceholder')}
         value={cons}
         onChange={e => setCons(e.target.value)}
         maxLength={500}
       />
       <textarea
         className="rv-form__textarea"
-        placeholder="Комментарий (необязательно)"
+        placeholder={t('rev_commentPlaceholder')}
         value={text}
         onChange={e => setText(e.target.value)}
         rows={3}
       />
       {error && <p className="rv-form__error">{error}</p>}
       <div className="rv-form__actions">
-        <button type="button" className="rv-form__cancel" onClick={onCancel}>Отмена</button>
+        <button type="button" className="rv-form__cancel" onClick={onCancel}>{t('cancel')}</button>
         <button type="submit" className="rv-form__submit" disabled={!rating || loading}>
-          {loading ? 'Отправка...' : 'Опубликовать отзыв'}
+          {loading ? t('rev_sending') : t('rev_publish')}
         </button>
       </div>
     </form>
@@ -183,13 +184,13 @@ export default function ReviewsSection({ type, targetId, horizontal }) {
     <section className="rv-section">
       <div className="rv-section__header">
         <h2 className="rv-section__title">
-          Оценки
+          {t('rev_ratings')}
           {summary.total > 0 && <sup className="rv-section__count">{summary.total}</sup>}
         </h2>
       </div>
 
       {summary.total === 0 && (
-        <p className="rv-empty">Пока нет отзывов. Будьте первым!</p>
+        <p className="rv-empty">{t('rev_empty')}</p>
       )}
 
       {canReview && (
@@ -201,7 +202,7 @@ export default function ReviewsSection({ type, targetId, horizontal }) {
             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
           </svg>
-          Написать отзыв
+          {t('rev_write')}
         </button>
       )}
 
@@ -236,7 +237,7 @@ export default function ReviewsSection({ type, targetId, horizontal }) {
 
       {!horizontal && reviews.length > 3 && (
         <button className="rv-show-all" onClick={() => setShowAll(s => !s)}>
-          {showAll ? 'Скрыть' : `Смотреть все отзывы (${reviews.length})`}
+          {showAll ? t('rev_hide') : `${t('rev_showAll')} (${reviews.length})`}
         </button>
       )}
     </section>

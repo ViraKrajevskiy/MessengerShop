@@ -110,13 +110,13 @@ export default function VipSection({ users = [], loading = false }) {
           ))}
         </div>
       ) : (
-        <div className="vip-section__empty">Нет VIP пользователей по выбранным фильтрам</div>
+        <div className="vip-section__empty">{t('vip_empty')}</div>
       )}
 
       {/* Full page overlay when "Смотреть все" */}
       {showAll && users.length > displayLimit && (
         <div className="vip-section__counter">
-          Показано {displayUsers.length} из {users.length} VIP пользователей
+          {t('vip_counter').replace('{{count}}', displayUsers.length).replace('{{total}}', users.length)}
         </div>
       )}
     </section>

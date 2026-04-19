@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useViewed } from '../context/ViewedContext'
 import { useAuth } from '../context/AuthContext'
+import { useLanguage } from '../context/LanguageContext'
 import { useAuthGate } from './AuthGate'
 import { resolveUrl } from '../utils/urlUtils'
 import './UserCard.css'
@@ -22,6 +23,7 @@ const CARD_PHOTOS = [
 export default function UserCard({ id, name = 'Имя', city = 'Город', badge = null, type = 'card', logo = null, planType = 'FREE' }) {
   const { addViewed } = useViewed()
   const { user } = useAuth()
+  const { t } = useLanguage()
   const navigate = useNavigate()
   const { guard, AuthModal } = useAuthGate()
 
@@ -83,7 +85,7 @@ export default function UserCard({ id, name = 'Имя', city = 'Город', bad
             <button
               className={`user-card__action-btn${fav ? ' user-card__action-btn--liked' : ''}`}
               onClick={toggleFav}
-              title={fav ? 'Убрать из избранного' : 'В избранное'}
+              title={fav ? t('user_removeFav') : t('user_addFav')}
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill={fav ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
                 <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
@@ -92,7 +94,7 @@ export default function UserCard({ id, name = 'Имя', city = 'Город', bad
             <button
               className="user-card__action-btn user-card__action-btn--msg"
               onClick={handleMessage}
-              title="Написать"
+              title={t('user_write')}
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>

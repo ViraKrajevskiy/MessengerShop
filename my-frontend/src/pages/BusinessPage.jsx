@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useLanguage } from '../context/LanguageContext'
 import Header from '../components/Header'
 import ReviewsSection from '../components/ReviewsSection'
 import VideoModal from '../components/VideoModal'
@@ -21,6 +22,7 @@ const FALLBACK_COVER = 'https://picsum.photos/id/1074/1200/400'
 const WAVE_BARS = [4,7,12,9,14,10,6,13,8,11,5,10,13,7,9,12,6,11,8,14,5,9,12,7,10,13,6,11,8,4]
 
 function BusinessAudioPlayer({ audioUrl }) {
+  const { t } = useLanguage()
   const audioRef = useRef(null)
   const [playing, setPlaying] = useState(false)
   const [progress, setProgress] = useState(0)
@@ -95,7 +97,7 @@ function BusinessAudioPlayer({ audioUrl }) {
           })}
         </div>
         <div className="bp__voice-meta">
-          <span className="bp__voice-label">Голосовое приветствие</span>
+          <span className="bp__voice-label">{t('biz_voiceGreeting')}</span>
           <span className="bp__voice-time">{fmt(progress)}{duration ? ` / ${fmt(duration)}` : ''}</span>
         </div>
       </div>
@@ -110,6 +112,7 @@ function BusinessAudioPlayer({ audioUrl }) {
 }
 
 function Gallery({ posts, onVideoSelect, isPremium }) {
+  const { t } = useLanguage()
   const [tab, setTab] = useState('all')
   const images = posts.filter(p => p.media_display && p.media_type !== 'VIDEO')
   const videos = posts.filter(p => p.media_display && p.media_type === 'VIDEO')
@@ -119,11 +122,11 @@ function Gallery({ posts, onVideoSelect, isPremium }) {
   return (
     <section className="bp__card" id="section-gallery">
       <div className="bp__card-head">
-        <h2 className="bp__card-title">Фото и видео</h2>
+        <h2 className="bp__card-title">{t('biz_photosVideos')}</h2>
         <div className="bp__gallery-tabs">
-          <button className={`bp__tab ${tab === 'all'   ? 'bp__tab--on' : ''}`} onClick={() => setTab('all')}>Все</button>
-          {images.length > 0 && <button className={`bp__tab ${tab === 'photo' ? 'bp__tab--on' : ''}`} onClick={() => setTab('photo')}>Фото</button>}
-          {videos.length > 0 && <button className={`bp__tab ${tab === 'video' ? 'bp__tab--on' : ''}`} onClick={() => setTab('video')}>Видео</button>}
+          <button className={`bp__tab ${tab === 'all'   ? 'bp__tab--on' : ''}`} onClick={() => setTab('all')}>{t('biz_galleryAll')}</button>
+          {images.length > 0 && <button className={`bp__tab ${tab === 'photo' ? 'bp__tab--on' : ''}`} onClick={() => setTab('photo')}>{t('biz_galleryPhoto')}</button>}
+          {videos.length > 0 && <button className={`bp__tab ${tab === 'video' ? 'bp__tab--on' : ''}`} onClick={() => setTab('video')}>{t('biz_galleryVideo')}</button>}
         </div>
       </div>
       <div className={`bp__gallery${isPremium ? ' bp__gallery--premium' : ''}`}>
@@ -167,13 +170,14 @@ function SimilarCard({ biz, onClick }) {
 }
 
 function VipPromo({ user, navigate }) {
+  const { t } = useLanguage()
   return (
     <div className="bp__side-card bp__vip-promo">
       <div className="bp__vip-promo-icon">⭐</div>
-      <h3 className="bp__vip-promo-title">VIP доступ</h3>
-      <p className="bp__vip-promo-text">Получите приоритетное размещение, бейдж VIP и расширенную аналитику для вашего бизнеса.</p>
+      <h3 className="bp__vip-promo-title">{t('biz_vipAccess')}</h3>
+      <p className="bp__vip-promo-text">{t('biz_vipPromo')}</p>
       <button className="bp__vip-promo-btn" onClick={() => { if (!user) { navigate('/login'); return } navigate('/vip') }}>
-        {user ? 'Узнать больше' : 'Войти для подробностей'}
+        {user ? t('biz_learnMore') : t('biz_loginForDetails')}
       </button>
     </div>
   )
@@ -201,6 +205,7 @@ function ServiceCard({ item, navigate }) {
 }
 
 function InfoTabs({ biz, categoryIcon, faq, services, navigate }) {
+  const { t } = useLanguage()
   const [tab, setTab] = useState('props')
   const [openFaq, setOpenFaq] = useState(null)
   const hasFaq = faq && faq.length > 0
@@ -216,12 +221,12 @@ function InfoTabs({ biz, categoryIcon, faq, services, navigate }) {
         <button
           className={`bp__info-tab${tab === 'props' ? ' bp__info-tab--active' : ''}`}
           onClick={() => setTab('props')}
-        >Характеристики</button>
+        >{t('biz_infoFeatures')}</button>
         <button
           className={`bp__info-tab${tab === 'services' ? ' bp__info-tab--active' : ''}`}
           onClick={() => setTab('services')}
         >
-          Услуги
+          {t('biz_infoServices')}
           {serviceList.length > 0 && <span className="bp__info-tab-count">{serviceList.length}</span>}
         </button>
         <button
@@ -232,13 +237,13 @@ function InfoTabs({ biz, categoryIcon, faq, services, navigate }) {
 
       {tab === 'props' && (
         <div className="bp__props">
-          <div className="bp__prop"><span>Категория</span><span>{categoryIcon} {biz.category_label}</span></div>
-          {biz.city && <div className="bp__prop"><span>Город</span><span>{biz.city}</span></div>}
-          <div className="bp__prop"><span>Рейтинг</span><span>⭐ {Number(biz.rating).toFixed(1)} / 5</span></div>
+          <div className="bp__prop"><span>{t('biz_category')}</span><span>{categoryIcon} {biz.category_label}</span></div>
+          {biz.city && <div className="bp__prop"><span>{t('biz_city')}</span><span>{biz.city}</span></div>}
+          <div className="bp__prop"><span>{t('biz_rating')}</span><span>⭐ {Number(biz.rating).toFixed(1)} / 5</span></div>
           <div className="bp__prop">
-            <span>Статус</span>
+            <span>{t('biz_status')}</span>
             <span style={{ color: biz.is_verified ? '#10b981' : 'var(--text-muted)' }}>
-              {biz.is_verified ? '✓ Подтверждён' : 'Не верифицирован'}
+              {biz.is_verified ? `✓ ${t('biz_verified')}` : t('biz_notVerified')}
             </span>
           </div>
         </div>
@@ -264,8 +269,8 @@ function InfoTabs({ biz, categoryIcon, faq, services, navigate }) {
               <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                 <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
               </svg>
-              <p>Пока услуг нет</p>
-              <span>Этот бизнес ещё не добавил услуги</span>
+              <p>{t('biz_noServices')}</p>
+              <span>{t('biz_noServicesSub')}</span>
             </div>
       )}
 
@@ -290,8 +295,8 @@ function InfoTabs({ biz, categoryIcon, faq, services, navigate }) {
                 <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
                 <line x1="12" y1="17" x2="12.01" y2="17"/>
               </svg>
-              <p>Нет дополнительной информации</p>
-              <span>Бизнес ещё не добавил ответы на часто задаваемые вопросы</span>
+              <p>{t('biz_noFaq')}</p>
+              <span>{t('biz_noFaqSub')}</span>
             </div>
       )}
     </section>
@@ -303,6 +308,7 @@ export default function BusinessPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { user, getAccessToken } = useAuth()
+  const { t } = useLanguage()
 
   const [biz, setBiz]               = useState(null)
   const [posts, setPosts]           = useState([])
@@ -373,15 +379,15 @@ export default function BusinessPage() {
   }, [id])
 
   const handleDeletePost = async (postId) => {
-    if (!window.confirm('Удалить этот пост? Это действие нельзя отменить.')) return
+    if (!window.confirm(t('biz_confirmDelete'))) return
     setDeletingPost(postId)
     try {
       const token = await getAccessToken()
       await apiDeletePost(id, postId, token)
       setPosts(prev => prev.filter(p => p.id !== postId))
-      showToast('Пост удалён')
+      showToast(t('biz_postDeleted'))
     } catch (e) {
-      showToast(e.message || 'Ошибка удаления')
+      showToast(e.message || t('biz_deleteError'))
     } finally {
       setDeletingPost(null)
     }
@@ -399,7 +405,7 @@ export default function BusinessPage() {
       <Header />
       <div className="bp__loader">
         <span className="bp__spinner" />
-        <p>Загружаем...</p>
+        <p>{t('biz_loading')}</p>
       </div>
     </div>
   )
@@ -409,8 +415,8 @@ export default function BusinessPage() {
       <Header />
       <div className="bp__error-state">
         <div style={{ fontSize: 48 }}>🏢</div>
-        <h2>Бизнес не найден</h2>
-        <p>{error || 'Страница недоступна или была удалена'}</p>
+        <h2>{t('biz_notFound')}</h2>
+        <p>{error || t('biz_notFoundSub')}</p>
         <button onClick={() => navigate('/')}>На главную</button>
       </div>
     </div>
@@ -501,12 +507,12 @@ export default function BusinessPage() {
             <div className="bp__stats">
               <div className="bp__stat">
                 <span className="bp__stat-num">{subCount}</span>
-                <span className="bp__stat-label">подписчиков</span>
+                <span className="bp__stat-label">{t('myprofile_subscribers').toLowerCase()}</span>
               </div>
               {biz.views_count > 0 && (
                 <div className="bp__stat">
                   <span className="bp__stat-num">{biz.views_count}</span>
-                  <span className="bp__stat-label">просмотров</span>
+                  <span className="bp__stat-label">{t('views')}</span>
                 </div>
               )}
             </div>
@@ -520,14 +526,14 @@ export default function BusinessPage() {
                 onClick={handleSubscribe}
                 disabled={subLoading}
               >
-                {subscribed ? '✓ Подписан' : 'Подписаться'}
+                {subscribed ? t('biz_subscribed') : t('biz_subscribe')}
               </button>
               <button className="bp__act-btn bp__act-btn--chat"
                 onClick={() => { if (!user) { navigate('/login'); return } navigate('/messenger') }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                 </svg>
-                Чат
+                {t('biz_chat')}
               </button>
               {biz.group_id && (
                 <button
@@ -541,7 +547,7 @@ export default function BusinessPage() {
                     <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
                     <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                   </svg>
-                  {inGroup ? 'В группе' : 'Вступить'}
+                  {inGroup ? t('biz_inGroup') : t('biz_joinGroup')}
                 </button>
               )}
               {biz.phone && (
@@ -563,11 +569,11 @@ export default function BusinessPage() {
 
             {/* БЛОК 1: О нас + Контакты — объединённый */}
             <section className="bp__card" id="section-about">
-              <h2 className="bp__card-title">О нас</h2>
+              <h2 className="bp__card-title">{t('biz_about')}</h2>
               {audioUrl && <BusinessAudioPlayer audioUrl={audioUrl} />}
               {biz.description && <p className="bp__about-text" style={{ marginTop: audioUrl ? 14 : 0 }}>{biz.description}</p>}
               {biz.description && <div className="bp__about-divider" />}
-              <h3 className="bp__about-contacts-title">Контакты</h3>
+              <h3 className="bp__about-contacts-title">{t('biz_contacts')}</h3>
               <div className="bp__contacts-row">
                 {biz.phone && (
                   <a href={`tel:${biz.phone}`} className="bp__contact-chip bp__contact-chip--phone">
@@ -615,7 +621,7 @@ export default function BusinessPage() {
 
             {posts.length > 0 && (
               <section className="bp__card" id="section-posts">
-                <h2 className="bp__card-title">Публикации <span className="bp__pill">{posts.length}</span></h2>
+                <h2 className="bp__card-title">{t('biz_publications')} <span className="bp__pill">{posts.length}</span></h2>
                 <div className="bp__feed">
                   {(() => {
                     const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE)
@@ -653,7 +659,7 @@ export default function BusinessPage() {
                                 className="bp__feed-delete"
                                 onClick={() => handleDeletePost(post.id)}
                                 disabled={deletingPost === post.id}
-                                title="Удалить пост"
+                                title={t('biz_deletePost')}
                               >
                                 {deletingPost === post.id ? (
                                   <span className="bp__feed-delete-spinner" />
@@ -699,7 +705,7 @@ export default function BusinessPage() {
             {!biz.description && posts.length === 0 && (
               <div className="bp__empty">
                 <div style={{ fontSize: 40, marginBottom: 12 }}>📭</div>
-                <p>Бизнес ещё не добавил контент</p>
+                <p>{t('biz_noContent')}</p>
               </div>
             )}
           </div>
@@ -712,7 +718,7 @@ export default function BusinessPage() {
 
         {similar.length > 0 && (
           <section className="bp__similar">
-            <h2 className="bp__card-title">Похожие бизнесы</h2>
+            <h2 className="bp__card-title">{t('biz_similar')}</h2>
             <div className="bp__sim-grid">
               {similar.map(s => (
                 <SimilarCard key={s.id} biz={s} onClick={() => navigate(`/business/${s.id}`)} />
