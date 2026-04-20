@@ -185,7 +185,8 @@
   color: var(--text-muted);
   background: var(--bg-secondary);
   border-radius: var(--radius-lg);
-  border: 1.5px dashed var(--border-color);
+  border: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
 }
 
 /* Responsive */
@@ -400,7 +401,8 @@
   text-align: center;
   background: var(--bg-secondary);
   border-radius: var(--radius-lg);
-  border: 1.5px solid var(--border-light);
+  border: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
 }
 .home-auth-gate__content {
   position: relative;
@@ -459,7 +461,8 @@
   display: flex;
   gap: 20px;
   overflow-x: auto;
-  padding: 0 0 8px 0;
+  /* top/bottom padding, чтобы hover translateY(-4px) + тень не резались scroll-контейнером */
+  padding: 10px 0 12px 0;
   cursor: grab;
   user-select: none;
   scrollbar-width: none;
@@ -474,7 +477,7 @@
 
 .home-posts-section .post-card {
   border: none;
-  box-shadow: var(--card-shadow);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
   /* exactly 3 per view: (100% - 2 gaps) / 3 */
   flex: 0 0 calc((100% - 2 * 20px) / 3);
   height: 420px;
@@ -554,7 +557,8 @@
 .post-card-skeleton {
   background: var(--bg-secondary);
   border-radius: var(--radius-lg);
-  border: 1.5px solid var(--border-light);
+  border: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
   overflow: hidden;
 }
 .post-card-skeleton__header {
@@ -664,9 +668,9 @@
 .news-card {
   background: var(--bg-secondary);
   border-radius: var(--radius-lg);
-  border: 1.5px solid var(--border-light);
+  border: none;
   overflow: hidden;
-  box-shadow: var(--card-shadow);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
   cursor: pointer;
   transition: transform 0.25s, box-shadow 0.25s;
   display: flex;
@@ -675,8 +679,7 @@
 
 .news-card:hover {
   transform: translateY(-4px);
-  box-shadow: var(--card-shadow-hover);
-  border-color: var(--border-color);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
 }
 
 /* Header — exact same structure/size as post-card__header */

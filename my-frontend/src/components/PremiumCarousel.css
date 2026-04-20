@@ -24,9 +24,9 @@
   cursor: pointer;
   background: var(--bg-tertiary);
   border-radius: 16px;
-  border: 3px solid #a855f7;
-  box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.35), 0 6px 18px rgba(168, 85, 247, 0.28);
-  transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+  border: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  transition: transform 0.25s, box-shadow 0.25s;
 }
 
 .pc-card--skeleton {
@@ -43,8 +43,7 @@
 
 .pc-card:hover {
   transform: translateY(-3px) scale(1.02);
-  border-color: #c084fc;
-  box-shadow: 0 0 0 2px rgba(192, 132, 252, 0.5), 0 12px 30px rgba(168, 85, 247, 0.45);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 }
 
 .pc-card img {
@@ -216,7 +215,6 @@
   }
   .pc-card {
     border-radius: 12px;
-    border-width: 2px;
   }
   .pc-card__overlay {
     padding: 10px 8px;

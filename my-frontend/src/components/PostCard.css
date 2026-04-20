@@ -2,21 +2,20 @@
 .post-card {
   background: var(--bg-secondary);
   border-radius: var(--radius-lg);
-  border: 1.5px solid var(--border-light);
+  border: none;
   overflow: hidden;
   cursor: pointer;
   transition: transform 0.25s, box-shadow 0.25s;
   display: flex;
   flex-direction: column;
-  box-shadow: var(--card-shadow);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
   user-select: none;
   -webkit-user-drag: none;
 }
 
 .post-card:hover {
   transform: translateY(-4px);
-  box-shadow: var(--card-shadow-hover);
-  border-color: var(--border-color);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
 }
 
 .post-card__header {
