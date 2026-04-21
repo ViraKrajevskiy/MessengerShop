@@ -274,14 +274,15 @@
   .all-cards-section .card-grid--5 {
     display: flex;
     grid-template-columns: none;
-    gap: 12px;
+    gap: 14px;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     margin: 0 -14px;
-    padding: 4px 14px 10px;
-    scroll-padding-left: 14px;
+    /* 5vw боковой padding = визуальные поля у одной карточки на экран */
+    padding: 8px 5vw 12px;
+    scroll-padding-left: 5vw;
   }
   .all-cards-section .card-grid--4::-webkit-scrollbar,
   .all-cards-section .card-grid--5::-webkit-scrollbar {
@@ -289,9 +290,10 @@
   }
   .all-cards-section .card-grid--4 > *,
   .all-cards-section .card-grid--5 > * {
-    flex: 0 0 60vw;
-    width: 60vw;
-    max-width: 280px;
+    /* 1 карточка дышит: вьюпорт минус 5vw × 2 поля */
+    flex: 0 0 calc(100vw - 10vw);
+    width: calc(100vw - 10vw);
+    max-width: 360px;
     scroll-snap-align: start;
   }
 }
@@ -516,19 +518,26 @@
 
 @media (max-width: 768px) {
   .home-posts-grid {
-    gap: 12px;
-    padding: 0 0 6px;
+    gap: 14px;
+    /* боковой padding создаёт «поля» слева/справа, карточка дышит, а не прилипает к краю */
+    padding: 8px 5vw 12px;
+    scroll-snap-type: x mandatory;
+    scroll-padding-left: 5vw;
   }
   .home-posts-section .post-card {
-    flex: 0 0 72vw;
-    width: 72vw;
-    min-width: 72vw;
-    max-width: 320px;
+    /* 1 карточка ~ во всю ширину минус поля, соседние за пределами вью */
+    flex: 0 0 calc(100vw - 10vw);
+    width: calc(100vw - 10vw);
+    min-width: 0;
+    max-width: 380px;
     height: auto;
+    scroll-snap-align: start;
+    border-radius: 16px;
   }
   .home-posts-section .post-card__image {
-    aspect-ratio: 4/5;
-    max-height: 340px;
+    /* 4/3 вместо 4/5 — не так растянуто вертикально, картинка выглядит фотографично */
+    aspect-ratio: 4/3;
+    max-height: 300px;
   }
 }
 
@@ -538,18 +547,19 @@
 
 @media (max-width: 480px) {
   .home-posts-grid {
-    gap: 10px;
-    scroll-padding-left: 12px;
+    gap: 12px;
+    padding: 8px 4vw 12px;
+    scroll-padding-left: 4vw;
   }
   .home-posts-section .post-card {
-    flex: 0 0 78vw;
-    width: 78vw;
-    min-width: 78vw;
-    max-width: 300px;
+    flex: 0 0 calc(100vw - 8vw);
+    width: calc(100vw - 8vw);
+    min-width: 0;
+    max-width: 340px;
   }
   .home-posts-section .post-card__image {
-    aspect-ratio: 4/5;
-    max-height: 320px;
+    aspect-ratio: 4/3;
+    max-height: 260px;
   }
 }
 

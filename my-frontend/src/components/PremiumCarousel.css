@@ -24,9 +24,10 @@
   cursor: pointer;
   background: var(--bg-tertiary);
   border-radius: 16px;
-  border: none;
+  /* Заметная фиолетовая линия по краям — «premium»-акцент */
+  border: 2px solid #a855f7;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-  transition: transform 0.25s, box-shadow 0.25s;
+  transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
 }
 
 .pc-card--skeleton {
@@ -43,7 +44,8 @@
 
 .pc-card:hover {
   transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  border-color: #c084fc;
+  box-shadow: 0 8px 24px rgba(168, 85, 247, 0.3);
 }
 
 .pc-card img {
@@ -192,9 +194,11 @@
     height: auto;
     max-height: none;
     aspect-ratio: auto;
-    gap: 10px;
-    padding: 2px 4px 8px;
-    margin: 0 -4px;
+    gap: 14px;
+    /* боковые поля → одна карточка «дышит», top/bottom под фиолетовую рамку и тень */
+    padding: 10px 5vw 14px;
+    margin: 0;
+    scroll-padding-left: 5vw;
     cursor: default;
     scrollbar-width: none;
   }
@@ -202,10 +206,13 @@
     display: none;
   }
   .premium-carousel__mosaic--scroll > .pc-card {
-    flex: 0 0 45vw;
-    min-width: 150px;
-    max-width: 220px;
-    aspect-ratio: 4 / 5;
+    /* 1 карточка на вью: ширина вьюпорта минус 5vw × 2 поля */
+    flex: 0 0 calc(100vw - 10vw);
+    width: calc(100vw - 10vw);
+    min-width: 0;
+    max-width: 360px;
+    /* 4/3 — карточка-фотография, пропорциональная, не растянутая */
+    aspect-ratio: 4 / 3;
     scroll-snap-align: start;
   }
   .premium-carousel__arrow {

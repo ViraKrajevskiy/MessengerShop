@@ -75,18 +75,19 @@ export default function HomePage() {
   const [loadingPosts, setLoadingPosts] = useState(true)
 
   useEffect(() => {
+    // Грузим независимо — кто пришёл первым, тот и показывается.
+    // Раньше был Promise.all — если один запрос медленный, вся страница висела.
     setLoadingBiz(true)
+    apiGetBusinesses()
+      .then(biz => setAllBiz(Array.isArray(biz) ? biz : []))
+      .catch(() => setAllBiz([]))
+      .finally(() => setLoadingBiz(false))
+
     setLoadingPosts(true)
-    Promise.all([
-      apiGetBusinesses().catch(() => []),
-      apiGetPosts().catch(() => []),
-    ]).then(([biz, p]) => {
-      setAllBiz(Array.isArray(biz) ? biz : [])
-      setPosts(Array.isArray(p) ? p : [])
-    }).finally(() => {
-      setLoadingBiz(false)
-      setLoadingPosts(false)
-    })
+    apiGetPosts()
+      .then(p => setPosts(Array.isArray(p) ? p : []))
+      .catch(() => setPosts([]))
+      .finally(() => setLoadingPosts(false))
   }, [])
 
   const filteredAll = useMemo(() =>

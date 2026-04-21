@@ -2,7 +2,7 @@ import { API_URL as BASE } from '../config/api'
 
 const cache = new Map()
 const inflight = new Map()
-const TTL = 60_000
+const TTL = 5 * 60_000
 
 function cached(key, fetcher) {
   const hit = cache.get(key)
