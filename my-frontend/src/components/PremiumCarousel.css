@@ -183,22 +183,18 @@
   }
   /* Horizontal scroll row on mobile — all premium businesses visible via native scroll */
   .premium-carousel__mosaic--scroll {
-    display: flex;
-    grid-template-columns: none;
-    grid-template-rows: none;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
+    /* 2×2 сетка — 2 сверху, 2 снизу, без скролла */
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 10px;
+    overflow: visible;
+    padding: 8px 0 10px;
+    margin: 0;
     height: auto;
     max-height: none;
     aspect-ratio: auto;
-    gap: 14px;
-    /* боковые поля → одна карточка «дышит», top/bottom под фиолетовую рамку и тень */
-    padding: 10px 5vw 14px;
-    margin: 0;
-    scroll-padding-left: 5vw;
+    scroll-snap-type: none;
     cursor: default;
     scrollbar-width: none;
   }
@@ -206,14 +202,17 @@
     display: none;
   }
   .premium-carousel__mosaic--scroll > .pc-card {
-    /* 1 карточка на вью: ширина вьюпорта минус 5vw × 2 поля */
-    flex: 0 0 calc(100vw - 10vw);
-    width: calc(100vw - 10vw);
-    min-width: 0;
-    max-width: 360px;
-    /* 4/3 — карточка-фотография, пропорциональная, не растянутая */
-    aspect-ratio: 4 / 3;
-    scroll-snap-align: start;
+    /* 2×2 grid — ширина = 1fr (половина вью минус gap) */
+    flex: none;
+    width: auto;
+    max-width: none;
+    aspect-ratio: 4 / 5;
+    scroll-snap-align: none;
+    border-radius: 12px;
+  }
+  /* Скрыть всё кроме первых 4 — показываем ровно 2×2 */
+  .premium-carousel__mosaic--scroll > .pc-card:nth-child(n+5) {
+    display: none;
   }
   .premium-carousel__arrow {
     width: 32px;

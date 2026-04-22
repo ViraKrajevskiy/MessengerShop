@@ -1,0 +1,1 @@
+import{i as e}from"./index-CxP9FKKg.js";function t(t){return t?t.startsWith(`http`)?t:`${e}${t}`:null}export{t};
