@@ -29,6 +29,12 @@ const PATH_NAMES = {
   '/pricing':   'nav_pricing',
 }
 
+const LANG_META = [
+  { code: 'ru', country: 'ru', label: 'Русский', flag: '🇷🇺' },
+  { code: 'en', country: 'us', label: 'English', flag: '🇺🇸' },
+  { code: 'tr', country: 'tr', label: 'Türkçe', flag: '🇹🇷' },
+]
+
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -148,25 +154,19 @@ export default function Header() {
                   <line x1="2" y1="12" x2="22" y2="12"/>
                   <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
                 </svg>
-                <img
-                  src={`https://flagcdn.com/20x15/${lang === 'en' ? 'us' : lang}.png`}
-                  width="16" height="12" alt={lang}
-                  className="header__lang-globe-flag"
-                />
+                <span className="header__lang-globe-flag" aria-hidden="true">
+                  {(LANG_META.find(l => l.code === lang)?.flag) || '🌐'}
+                </span>
               </button>
               {langOpen && (
                 <div className="header__lang-dropdown">
-                  {[
-                    { code: 'ru', country: 'ru', label: 'Русский' },
-                    { code: 'en', country: 'us', label: 'English' },
-                    { code: 'tr', country: 'tr', label: 'Türkçe' },
-                  ].map(({ code, country, label }) => (
+                  {LANG_META.map(({ code, label, flag }) => (
                     <button
                       key={code}
                       className={`header__lang-option ${lang === code ? 'header__lang-option--active' : ''}`}
                       onClick={() => { setLang(code); setLangOpen(false) }}
                     >
-                      <img src={`https://flagcdn.com/20x15/${country}.png`} width="20" height="15" alt={label} />
+                      <span aria-hidden="true">{flag}</span>
                       <span>{label}</span>
                     </button>
                   ))}
@@ -391,17 +391,13 @@ export default function Header() {
             <span>{theme === 'light' ? t('nav_darkTheme') : t('nav_lightTheme')}</span>
           </button>
           <div className="header__mobile-lang">
-            {[
-              { code: 'ru', country: 'ru', label: 'Русский' },
-              { code: 'en', country: 'us', label: 'English' },
-              { code: 'tr', country: 'tr', label: 'Türkçe' },
-            ].map(({ code, country, label }) => (
+            {LANG_META.map(({ code, label, flag }) => (
               <button
                 key={code}
                 className={`header__mobile-lang-btn ${lang === code ? 'header__mobile-lang-btn--active' : ''}`}
                 onClick={() => setLang(code)}
               >
-                <img src={`https://flagcdn.com/20x15/${country}.png`} width="20" height="15" alt={label} />
+                <span aria-hidden="true">{flag}</span>
                 <span>{label}</span>
               </button>
             ))}

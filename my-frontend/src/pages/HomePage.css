@@ -272,8 +272,10 @@
   /* ── Mobile: «Все карточки» — горизонтальный скролл со snap ── */
   .all-cards-section .card-grid--4,
   .all-cards-section .card-grid--5 {
-    display: flex;
-    grid-template-columns: none;
+    display: grid;
+    grid-template-rows: repeat(2, auto);
+    grid-auto-flow: column;
+    grid-auto-columns: calc((100vw - 10vw - 14px) / 2);
     gap: 14px;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
@@ -290,10 +292,12 @@
   }
   .all-cards-section .card-grid--4 > *,
   .all-cards-section .card-grid--5 > * {
-    /* 1 карточка дышит: вьюпорт минус 5vw × 2 поля */
-    flex: 0 0 calc(100vw - 10vw);
-    width: calc(100vw - 10vw);
-    max-width: 360px;
+    width: auto;
+    max-width: none;
+    scroll-snap-align: none;
+  }
+  .all-cards-section .card-grid--4 > *:nth-child(2n + 1),
+  .all-cards-section .card-grid--5 > *:nth-child(2n + 1) {
     scroll-snap-align: start;
   }
 }
@@ -347,6 +351,7 @@
   /* Узкие экраны — скролл по одной карточке */
   .all-cards-section .card-grid--4,
   .all-cards-section .card-grid--5 {
+    grid-auto-columns: calc((100vw - 8vw - 10px) / 2);
     gap: 10px;
     margin: 0 -12px;
     padding: 4px 12px 10px;
@@ -354,9 +359,8 @@
   }
   .all-cards-section .card-grid--4 > *,
   .all-cards-section .card-grid--5 > * {
-    flex: 0 0 64vw;
-    width: 64vw;
-    max-width: 260px;
+    width: auto;
+    max-width: none;
   }
 
   .all-cards-section {
@@ -518,21 +522,27 @@
 
 @media (max-width: 768px) {
   .home-posts-grid {
+    display: grid;
+    grid-template-rows: repeat(2, auto);
+    grid-auto-flow: column;
+    grid-auto-columns: calc((100vw - 10vw - 14px) / 2);
     gap: 14px;
-    /* боковой padding создаёт «поля» слева/справа, карточка дышит, а не прилипает к краю */
+    /* 2 ряда и 2 колонки во вьюпорте = 4 карточки за раз */
     padding: 8px 5vw 12px;
     scroll-snap-type: x mandatory;
     scroll-padding-left: 5vw;
   }
   .home-posts-section .post-card {
-    /* 1 карточка ~ во всю ширину минус поля, соседние за пределами вью */
-    flex: 0 0 calc(100vw - 10vw);
-    width: calc(100vw - 10vw);
-    min-width: 0;
-    max-width: 380px;
+    width: auto;
+    max-width: none;
     height: auto;
-    scroll-snap-align: start;
     border-radius: 16px;
+  }
+  .home-posts-grid .post-card {
+    scroll-snap-align: none;
+  }
+  .home-posts-grid .post-card:nth-child(2n + 1) {
+    scroll-snap-align: start;
   }
   .home-posts-section .post-card__image {
     /* 4/3 вместо 4/5 — не так растянуто вертикально, картинка выглядит фотографично */
@@ -547,15 +557,14 @@
 
 @media (max-width: 480px) {
   .home-posts-grid {
+    grid-auto-columns: calc((100vw - 8vw - 12px) / 2);
     gap: 12px;
     padding: 8px 4vw 12px;
     scroll-padding-left: 4vw;
   }
   .home-posts-section .post-card {
-    flex: 0 0 calc(100vw - 8vw);
-    width: calc(100vw - 8vw);
-    min-width: 0;
-    max-width: 340px;
+    width: auto;
+    max-width: none;
   }
   .home-posts-section .post-card__image {
     aspect-ratio: 4/3;
