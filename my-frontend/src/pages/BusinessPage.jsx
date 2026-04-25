@@ -7,6 +7,7 @@ import ReviewsSection from '../components/ReviewsSection'
 import VideoModal from '../components/VideoModal'
 import { apiGetBusiness, apiGetBusinessPosts, apiGetBusinesses, apiToggleSubscription, apiJoinGroup, apiCheckGroupMembership, apiDeletePost } from '../api/businessApi'
 import { resolveUrl } from '../utils/urlUtils'
+import { lastSeenText } from '../utils/timeUtils'
 import './BusinessPage.css'
 
 const CATEGORY_ICONS = {
@@ -504,6 +505,14 @@ export default function BusinessPage() {
               <h1 className="bp__name">{biz.brand_name}</h1>
               {biz.is_vip && <span className="bp__vip-tag">VIP</span>}
             </div>
+            {(biz.owner_is_online || biz.owner_last_seen) && (
+              <div className={`bp__online-status ${biz.owner_is_online ? 'bp__online-status--online' : ''}`}>
+                <span className="bp__online-dot" />
+                <span className="bp__online-text">
+                  {lastSeenText(biz.owner_last_seen, biz.owner_is_online)}
+                </span>
+              </div>
+            )}
             <div className="bp__stats">
               <div className="bp__stat">
                 <span className="bp__stat-num">{subCount}</span>

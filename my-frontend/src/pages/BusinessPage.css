@@ -97,6 +97,43 @@
   letter-spacing: 0.5px;
 }
 
+/* ── Online / last seen status ── */
+.bp__online-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  line-height: 1;
+  font-weight: 500;
+  max-width: 100%;
+}
+.bp__online-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #cbd5e1;
+  flex-shrink: 0;
+}
+.bp__online-status--online {
+  color: #10b981;
+}
+.bp__online-status--online .bp__online-dot {
+  background: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.18);
+  animation: bp-pulse 2s ease-in-out infinite;
+}
+.bp__online-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@keyframes bp-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.18); }
+  50%      { box-shadow: 0 0 0 5px rgba(16, 185, 129, 0.08); }
+}
+
 .bp__tags {
   display: flex;
   flex-wrap: wrap;

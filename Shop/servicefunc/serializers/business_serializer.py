@@ -49,6 +49,8 @@ class BusinessDetailSerializer(serializers.ModelSerializer):
     owner_username    = serializers.CharField(source='owner.username', read_only=True)
     owner_email       = serializers.EmailField(source='owner.email', read_only=True)
     owner_avatar      = serializers.ImageField(source='owner.avatar', read_only=True)
+    owner_is_online   = serializers.SerializerMethodField()
+    owner_last_seen   = serializers.DateTimeField(source='owner.last_seen', read_only=True)
     category_label    = serializers.CharField(source='get_category_display', read_only=True)
     products          = serializers.SerializerMethodField()
     subscribers_count = serializers.SerializerMethodField()
@@ -66,12 +68,16 @@ class BusinessDetailSerializer(serializers.ModelSerializer):
             'plan_type', 'plan_period', 'plan_expires_at',
             'rating', 'views_count', 'created_at',
             'owner_username', 'owner_email', 'owner_avatar',
+            'owner_is_online', 'owner_last_seen',
             'subscribers_count', 'is_subscribed',
             'products', 'group_id', 'faq', 'services', 'tags',
             'social_telegram', 'social_whatsapp', 'social_instagram',
             'social_youtube', 'social_tiktok', 'social_facebook',
         ]
         read_only_fields = ['is_verified', 'is_vip', 'is_pro', 'rating', 'views_count', 'created_at']
+
+    def get_owner_is_online(self, obj):
+        return bool(obj.owner and obj.owner.is_online)
 
     def get_tags(self, obj):
         return [t.name for t in obj.tags.all()]
