@@ -570,6 +570,11 @@
     aspect-ratio: 4/3;
     max-height: 260px;
   }
+  /* В узкой 2×2 сетке карточка ~165px — кнопка «Подписаться» не помещается,
+     прячем её, оставляем имя + время на максимуме ширины. */
+  .home-posts-section .post-card__follow {
+    display: none;
+  }
 }
 
 /* ── Skeleton placeholders ── */
