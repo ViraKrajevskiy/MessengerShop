@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import { useLanguage } from '../context/LanguageContext'
 import { DEFAULT_AVATAR } from '../utils/defaults'
 import { API_URL } from '../config/api'
+import FlagIcon from './FlagIcon'
 import './Header.css'
 
 const ThemeIcon = ({ theme }) => theme === 'light' ? (
@@ -155,18 +156,18 @@ export default function Header() {
                   <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
                 </svg>
                 <span className="header__lang-globe-flag" aria-hidden="true">
-                  {(LANG_META.find(l => l.code === lang)?.flag) || '🌐'}
+                  <FlagIcon code={lang === 'en' ? 'us' : lang} alt={lang} size={16} />
                 </span>
               </button>
               {langOpen && (
                 <div className="header__lang-dropdown">
-                  {LANG_META.map(({ code, label, flag }) => (
+                  {LANG_META.map(({ code, country, label }) => (
                     <button
                       key={code}
                       className={`header__lang-option ${lang === code ? 'header__lang-option--active' : ''}`}
                       onClick={() => { setLang(code); setLangOpen(false) }}
                     >
-                      <span aria-hidden="true">{flag}</span>
+                      <FlagIcon code={country} alt={label} />
                       <span>{label}</span>
                     </button>
                   ))}
@@ -391,13 +392,13 @@ export default function Header() {
             <span>{theme === 'light' ? t('nav_darkTheme') : t('nav_lightTheme')}</span>
           </button>
           <div className="header__mobile-lang">
-            {LANG_META.map(({ code, label, flag }) => (
+            {LANG_META.map(({ code, country, label }) => (
               <button
                 key={code}
                 className={`header__mobile-lang-btn ${lang === code ? 'header__mobile-lang-btn--active' : ''}`}
                 onClick={() => setLang(code)}
               >
-                <span aria-hidden="true">{flag}</span>
+                <FlagIcon code={country} alt={label} />
                 <span>{label}</span>
               </button>
             ))}
