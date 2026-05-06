@@ -1,5 +1,3 @@
-import random
-
 from django.contrib.auth.hashers import make_password
 from django.core.cache import cache
 from drf_spectacular.utils import extend_schema, OpenApiResponse
@@ -43,7 +41,7 @@ class RegisterView(APIView):
         # Удаляем старые неактивированные аккаунты с тем же email (зомби)
         User.objects.filter(email=email, is_active=False).delete()
 
-        code      = str(random.randint(100000, 999999))
+        code      = '123456'  # TODO: заменить на случайный после настройки email
         cache_key = f'pending_reg_{email}'
         cache.set(cache_key, {
             'username':      username,
