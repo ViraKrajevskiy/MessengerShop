@@ -30,7 +30,7 @@ class RegisterView(APIView):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        email    = serializer.validated_data['email']
+        email    = serializer.validated_data['email'].strip().lower()
         username = serializer.validated_data['username']
         role     = serializer.validated_data['role']
 

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core.cache import cache
 from drf_spectacular.utils import extend_schema, OpenApiResponse, inline_serializer
 from rest_framework import serializers, status
@@ -28,14 +29,17 @@ class VerifyEmailView(APIView):
         },
     )
     def post(self, request):
-        email = request.data.get('email')
-        code  = request.data.get('code')
+        email = (request.data.get('email') or '').strip().lower()
+        code  = (request.data.get('code') or '').strip()
 
         if not email or not code:
             return Response({'error': 'email и code обязательны.'}, status=status.HTTP_400_BAD_REQUEST)
 
         cache_key = f'pending_reg_{email}'
         pending   = cache.get(cache_key)
+
+        if settings.DEBUG:
+            print(f'[VERIFY] email={email!r} code={code!r} cache_key={cache_key!r} pending={pending}')
 
         if not pending:
             return Response(
