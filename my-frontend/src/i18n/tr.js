@@ -153,6 +153,8 @@ const tr = {
   catalog_verified:   'Doğrulanmış',
   catalog_new:        'Yeni',
   catalog_sort:       'Sırala',
+  catalog_allCities:  'Tüm şehirler',
+  catalog_allCats:    'Tüm kategoriler',
   catalog_newest:     'Önce yeni',
   catalog_oldest:     'Önce eski',
   catalog_priceAsc:   'Fiyat: düşükten yükseğe',

@@ -332,14 +332,14 @@ export default function CatalogPage() {
 
             {allCities.length > 0 && (
               <select className="cat-filters__select" value={filterCity} onChange={e => setFilterCity(e.target.value)}>
-                <option value=""></option>
+                <option value="">{t('catalog_allCities')}</option>
                 {allCities.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             )}
 
             {tab === 'companies' && (
               <select className="cat-filters__select" value={filterCat} onChange={e => setFilterCat(e.target.value)}>
-                <option value=""></option>
+                <option value="">{t('catalog_allCats')}</option>
                 {Object.entries(CATEGORY_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
               </select>
             )}

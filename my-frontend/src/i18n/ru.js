@@ -153,6 +153,8 @@ const ru = {
   catalog_verified:   'Проверенные',
   catalog_new:        'Новые',
   catalog_sort:       'Сортировка',
+  catalog_allCities:  'Все города',
+  catalog_allCats:    'Все категории',
   catalog_newest:     'Сначала новые',
   catalog_oldest:     'Сначала старые',
   catalog_priceAsc:   'Цена: по возрастанию',

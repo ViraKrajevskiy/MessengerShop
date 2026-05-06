@@ -153,6 +153,8 @@ const en = {
   catalog_verified:   'Verified',
   catalog_new:        'New',
   catalog_sort:       'Sort',
+  catalog_allCities:  'All cities',
+  catalog_allCats:    'All categories',
   catalog_newest:     'Newest first',
   catalog_oldest:     'Oldest first',
   catalog_priceAsc:   'Price: low to high',
