@@ -6,6 +6,8 @@
   cursor: pointer;
   transition: transform 0.25s, box-shadow 0.25s;
   border: none;
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 .user-card:hover {
@@ -26,6 +28,9 @@
   object-fit: cover;
   display: block;
   transition: transform 0.35s;
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
 }
 
 .user-card:hover .user-card__photo {
