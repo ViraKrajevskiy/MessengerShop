@@ -1,1 +1,0 @@
-import{i as e}from"./index-CxstuDkl.js";function t(t){return t?t.startsWith(`http`)?t:`${e}${t}`:null}export{t};
