@@ -483,23 +483,6 @@ function GroupChatView({ group, onBack, getAccessToken, currentUserId }) {
         </div>
       </div>
 
-      {/* Pinned messages bar */}
-      {pinnedMessages.length > 0 && (
-        <div className="group-pinned-bar" onClick={() => setPinnedIdx(i => (i + 1) % pinnedMessages.length)}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M12 2v10l3.5 3.5L12 22"/>
-          </svg>
-          <div className="group-pinned-bar__content">
-            <span className="group-pinned-bar__count">{pinnedIdx + 1} / {pinnedMessages.length}</span>
-            <span className="group-pinned-bar__text">{pinnedMessages[pinnedIdx % pinnedMessages.length]?.text.slice(0, 80)}</span>
-          </div>
-          {pinnedMessages.length > 1 && (
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{flexShrink:0, opacity:0.5}}>
-              <path d="M6 9l6 6 6-6"/>
-            </svg>
-          )}
-        </div>
-      )}
 
       <div className="chat-view__messages" style={{ flex: showPanel ? '1 1 50%' : '1' }}>
         {loading ? (
@@ -536,11 +519,6 @@ function GroupChatView({ group, onBack, getAccessToken, currentUserId }) {
                 {contextMsg === msg.id && (
                   <div className="msg-context-menu">
                     {isMe && <button onClick={() => startEdit(msg)}>Редактировать</button>}
-                    {canPin && (
-                      <button onClick={() => handlePin(msg.id, !msg.is_pinned)}>
-                        {msg.is_pinned ? 'Открепить' : 'Закрепить'}
-                      </button>
-                    )}
                     {canDeleteThis && (
                       <button className="msg-context-menu__danger" onClick={() => handleDelete(msg.id)}>Удалить</button>
                     )}
@@ -706,16 +684,6 @@ function MemberPanel({ detail, isAdmin, getAccessToken, onClose, onUpdate }) {
                     type="checkbox"
                     checked={m.can_delete_messages}
                     onChange={e => handleToggle(m.id, 'can_delete_messages', e.target.checked)}
-                  />
-                  <span className="toggle-switch" />
-                </label>
-
-                <label className="toggle-label">
-                  <span>Закрепление</span>
-                  <input
-                    type="checkbox"
-                    checked={m.can_pin_messages}
-                    onChange={e => handleToggle(m.id, 'can_pin_messages', e.target.checked)}
                   />
                   <span className="toggle-switch" />
                 </label>
