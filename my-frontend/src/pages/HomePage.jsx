@@ -14,7 +14,6 @@ import { useLanguage } from '../context/LanguageContext'
 import { resolveUrl } from '../utils/urlUtils'
 import './HomePage.css'
 
-// ---------- adaptive descriptions (keys resolved via t() inside component) ----------
 const DESC_KEYS = {
   default:        { title: 'home_turkey',   text: 'home_turkey_sub' },
   'Турция':       { title: 'home_turkey',   text: 'home_turkey_sub' },
@@ -57,6 +56,7 @@ const GUEST_CARDS_LIMIT = 10
 const CARDS_PER_PAGE = 10
 /** Сколько постов показываем на главной в блоке «Публикации» */
 const HOME_POSTS_VISIBLE = 20
+const MOBILE_MEDIA_QUERY = '(max-width: 500px)'
 
 export default function HomePage() {
   const navigate = useNavigate()
@@ -70,6 +70,7 @@ export default function HomePage() {
   const [allBiz, setAllBiz] = useState([])
   const [loadingBiz, setLoadingBiz] = useState(true)
   const [cardsPage, setCardsPage] = useState(0)
+  const [isMobile, setIsMobile] = useState(false)
 
   const [posts, setPosts] = useState([])
   const [loadingPosts, setLoadingPosts] = useState(true)
@@ -101,6 +102,17 @@ export default function HomePage() {
     setCardsPage(0)
   }, [allBiz, filters])
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const media = window.matchMedia(MOBILE_MEDIA_QUERY)
+    const update = () => setIsMobile(media.matches)
+
+    update()
+    media.addEventListener('change', update)
+    return () => media.removeEventListener('change', update)
+  }, [])
+
   // Premium (VIP/PRO) businesses for carousel
   const premiumBiz = useMemo(() =>
     allBiz.filter(b => b.plan_type === 'VIP' || b.plan_type === 'PRO' || b.is_vip || b.is_pro),
@@ -131,6 +143,12 @@ export default function HomePage() {
     () => posts.slice(0, HOME_POSTS_VISIBLE),
     [posts]
   )
+
+  const homeBusinessCards = useMemo(() => {
+    if (isMobile) return filteredAll
+    if (!user) return filteredAll.slice(0, GUEST_CARDS_LIMIT)
+    return filteredAll.slice(cardsPage * CARDS_PER_PAGE, (cardsPage + 1) * CARDS_PER_PAGE)
+  }, [cardsPage, filteredAll, isMobile, user])
 
   const postsGridRef = useRef(null)
   const dragState = useRef({ isDown: false, startX: 0, scrollLeft: 0, moved: false })
@@ -246,7 +264,7 @@ export default function HomePage() {
               </button>
             </div>
             <div className="all-cards__carousel">
-              {tokens?.access && (
+              {tokens?.access && !isMobile && (
                 <button
                   className="all-cards__arrow"
                   onClick={() => setCardsPage(p => p - 1)}
@@ -270,18 +288,15 @@ export default function HomePage() {
                   </div>
                 ) : filteredAll.length > 0 ? (
                   <div className="card-grid card-grid--5">
-                    {(user
-                      ? filteredAll.slice(cardsPage * CARDS_PER_PAGE, (cardsPage + 1) * CARDS_PER_PAGE)
-                      : filteredAll.slice(0, GUEST_CARDS_LIMIT)
-                    ).map(u => (
-                      <UserCard key={u.id} id={u.id} name={u.name} city={u.city} logo={u.logo} planType={u.plan_type} type="all" />
+                    {homeBusinessCards.map(u => (
+                      <UserCard key={u.id} id={u.id} name={u.name} city={u.city} logo={u.logo} planType={u.plan_type} type="all" isOnline={!!u.owner_is_online} />
                     ))}
                   </div>
                 ) : (
                   <div className="no-results">{t('home_noCards')}</div>
                 )}
               </div>
-              {tokens?.access && (
+              {tokens?.access && !isMobile && (
                 <button
                   className="all-cards__arrow"
                   onClick={() => setCardsPage(p => p + 1)}

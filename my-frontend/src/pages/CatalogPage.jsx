@@ -98,7 +98,10 @@ function BizCard({ biz }) {
 
   return (
     <div className="cat-biz-card" onClick={() => navigate(`/business/${biz.id}`)}>
-      <img className="cat-biz-card__logo" src={logo} alt={biz.brand_name} width="48" height="48" />
+      <div className="cat-biz-card__logo-wrap">
+        <img className="cat-biz-card__logo" src={logo} alt={biz.brand_name} width="48" height="48" />
+        {biz.owner_is_online && <span className="cat-biz-card__online-dot" />}
+      </div>
       <div className="cat-biz-card__info">
         <div className="cat-biz-card__name">
           {biz.brand_name}

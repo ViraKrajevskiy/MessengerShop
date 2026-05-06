@@ -20,7 +20,7 @@ const CARD_PHOTOS = [
   'https://picsum.photos/id/429/400/530',
 ]
 
-export default function UserCard({ id, name = 'Имя', city = 'Город', badge = null, type = 'card', logo = null, planType = 'FREE' }) {
+export default function UserCard({ id, name = 'Имя', city = 'Город', badge = null, type = 'card', logo = null, planType = 'FREE', isOnline = false }) {
   const { addViewed } = useViewed()
   const { user } = useAuth()
   const { t } = useLanguage()
@@ -89,6 +89,8 @@ export default function UserCard({ id, name = 'Имя', city = 'Город', bad
           ) : badge ? (
             <span className="user-card__badge">{badge}</span>
           ) : null}
+
+          {isOnline && <span className="user-card__online-dot" />}
 
           {/* Action buttons — появляются при hover */}
           <div className="user-card__actions">

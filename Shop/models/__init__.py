@@ -5,3 +5,4 @@ from .models import GroupChat, GroupMember, GroupMessage
 from .models import VerificationRequest, VerificationDocument, VerificationMessage
 from .models import News
 from .models import Complaint, PostFavorite, Tag, Article, PaymentRequest, Notification
+from .chat_model import ChatMessage,Chat

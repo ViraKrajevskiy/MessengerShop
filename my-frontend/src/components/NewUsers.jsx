@@ -83,6 +83,7 @@ export default function NewUsers({ businesses: businessesProp }) {
                   ? <video className="new-users__avatar-img" src={logo} muted playsInline preload="metadata" />
                   : <img className="new-users__avatar-img" src={logo} alt={biz.brand_name} loading="lazy" decoding="async" />
                 }
+                {biz.owner_is_online && <span className="new-users__online-dot" />}
               </div>
               <span className="new-users__name">{biz.brand_name}</span>
               <span className="new-users__city">{biz.city || '—'}</span>

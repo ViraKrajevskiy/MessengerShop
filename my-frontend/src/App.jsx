@@ -5,6 +5,7 @@ import { ThemeProvider } from './context/ThemeContext'
 import { ViewedProvider } from './context/ViewedContext'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { LanguageProvider } from './context/LanguageContext'
+import ChatPanel from './components/ChatPanel'
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || ''
 
@@ -68,7 +69,9 @@ function AppContent() {
         <LanguageProvider>
         <AuthProvider>
           <ViewedProvider>
+            <ChatPanel />
             <Suspense fallback={<PageFallback />}>
+
               <Routes>
                 <Route path="/"               element={<HomePage />} />
                 <Route path="/feed"           element={<FeedPage />} />

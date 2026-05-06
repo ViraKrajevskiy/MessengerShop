@@ -55,8 +55,12 @@ from Shop.servicefunc.views.groups import (
 from Shop.servicefunc.views.news.newses import BusinessNewsListView, NewsListView, NewsCreateView, NewsDetailView
 from Shop.servicefunc.views.tags import TagListView
 from Shop.servicefunc.views.moderator.feed import ModeratorFeedView
+from Shop.servicefunc.views.chat_views.chat import ChatAPIView,ChatHistoryAPIView
 
 urlpatterns = [
+    path('chat/', ChatAPIView.as_view(), name='chat-api'),
+    path('chat/<str:session_id>/', ChatHistoryAPIView.as_view(), name='chat-history'),
+
     path('auth/register/',               RegisterView.as_view(),              name='auth_register'),
     path('auth/verify-email/',           VerifyEmailView.as_view(),           name='auth_verify_email'),
     path('auth/login/',                  LoginView.as_view(),                 name='auth_login'),
@@ -160,4 +164,7 @@ urlpatterns = [
 
     # ── Moderator unified feed ────────────────────────────────────────────────
     path('moderator/feed/',                 ModeratorFeedView.as_view(),          name='moderator_feed'),
+    path('api/chat/', ChatAPIView.as_view(), name='chat-api'),
+    path('api/chat/<str:session_id>/', ChatHistoryAPIView.as_view(), name='chat-history'),
+
 ]

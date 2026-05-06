@@ -517,7 +517,7 @@
 /* ── Mobile drawer — top offset updated to 90px for 2-row header ── */
 .header__mobile-drawer {
   position: fixed;
-  top: 90px;
+  top: 52px;
   left: 0;
   right: 0;
   background: var(--bg-secondary);
@@ -529,7 +529,7 @@
   visibility: hidden;
   transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0.28s;
   box-shadow: 0 8px 32px rgba(0,0,0,0.16);
-  max-height: calc(100dvh - 90px);
+  max-height: calc(100dvh - 52px);
   overflow-y: auto;
 }
 

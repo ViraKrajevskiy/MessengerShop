@@ -1,7 +1,4 @@
-"""
-Юнит-тесты для моделей: User, Business, Story, StoryView, Comment
-Запуск: python manage.py test Shop.auto_test.test_models
-"""
+
 from django.test import TestCase
 from django.utils import timezone
 from datetime import timedelta

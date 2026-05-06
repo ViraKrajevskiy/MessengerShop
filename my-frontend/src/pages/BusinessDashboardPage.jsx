@@ -887,7 +887,11 @@ export default function BusinessDashboardPage() {
         headers: { Authorization: `Bearer ${token}` },
         body: fd,
       })
-      if (!res.ok) throw new Error()
+      if (!res.ok) {
+        const err = await res.json().catch(() => null)
+        const msg = err && (err.detail || Object.values(err).flat().join(' ')) || 'Ошибка при сохранении'
+        throw new Error(msg)
+      }
       const updated = await res.json()
       setBizData(updated)
       setEditLogo(null)
@@ -896,8 +900,8 @@ export default function BusinessDashboardPage() {
       setRemoveAudio(false)
       if (audioInputRef.current) audioInputRef.current.value = ''
       showToast('✅ Профиль сохранён!')
-    } catch {
-      showToast('❌ Ошибка при сохранении')
+    } catch (e) {
+      showToast('❌ ' + (e.message || 'Ошибка при сохранении'))
     } finally {
       setSavingProfile(false)
     }

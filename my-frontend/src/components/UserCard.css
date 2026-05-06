@@ -64,6 +64,25 @@
   color: var(--text-muted);
 }
 
+/* ── Online dot ── */
+.user-card__online-dot {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #10b981;
+  border: 2px solid #fff;
+  z-index: 4;
+  animation: uc-pulse 2s ease-in-out infinite;
+}
+
+@keyframes uc-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
+  50%       { box-shadow: 0 0 0 4px rgba(16, 185, 129, 0); }
+}
+
 /* ── Action buttons ── */
 .user-card__actions {
   position: absolute;

@@ -28,6 +28,7 @@ class BusinessListSerializer(serializers.ModelSerializer):
     subscribers_count = serializers.SerializerMethodField()
     is_vip            = serializers.BooleanField(read_only=True)
     is_pro            = serializers.BooleanField(read_only=True)
+    owner_is_online   = serializers.SerializerMethodField()
 
     class Meta:
         model = Business
@@ -36,13 +37,16 @@ class BusinessListSerializer(serializers.ModelSerializer):
             'city', 'logo', 'is_verified', 'is_vip', 'is_pro',
             'plan_type',
             'rating', 'views_count', 'subscribers_count',
-            'owner_username', 'owner_avatar',
+            'owner_username', 'owner_avatar', 'owner_is_online',
         ]
 
     def get_subscribers_count(self, obj):
         if hasattr(obj, '_subscribers_count'):
             return obj._subscribers_count
         return obj.subscribers.count()
+
+    def get_owner_is_online(self, obj):
+        return bool(obj.owner and obj.owner.is_online)
 
 
 class BusinessDetailSerializer(serializers.ModelSerializer):

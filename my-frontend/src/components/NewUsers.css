@@ -1,3 +1,20 @@
+.new-users__online-dot {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #10b981;
+  border: 2px solid var(--bg-primary, #fff);
+  animation: nu-pulse 2s ease-in-out infinite;
+}
+
+@keyframes nu-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
+  50%       { box-shadow: 0 0 0 3px rgba(16, 185, 129, 0); }
+}
+
 .new-users {
   padding: 28px 0;
   min-height: 420px; /* CLS fix: reserve space for new users grid */
