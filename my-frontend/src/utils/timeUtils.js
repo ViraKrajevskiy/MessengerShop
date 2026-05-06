@@ -25,7 +25,7 @@ export function timeAgoShort(dateStr) {
 /** "был в сети" — Telegram-style status text */
 export function lastSeenText(dateStr, isOnline = false) {
   if (isOnline) return 'в сети'
-  if (!dateStr) return ''
+  if (!dateStr) return 'не в сети'
   const date = new Date(dateStr)
   const diff = Date.now() - date.getTime()
   const mins = Math.floor(diff / 60000)
