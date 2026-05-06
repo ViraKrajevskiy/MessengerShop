@@ -6,7 +6,7 @@ import {
   apiGetInquiries, apiGetInquiryMessages, apiSendInquiryMessage,
   apiDeleteInquiryMessage, apiEditInquiryMessage,
   apiGetGroups, apiCreateGroup, apiGetGroupDetail,
-  apiGetGroupMessages, apiSendGroupMessage, apiDeleteGroupMessage, apiPinGroupMessage,
+  apiGetGroupMessages, apiSendGroupMessage, apiDeleteGroupMessage,
   apiEditGroupMessage,
   apiAddGroupMember, apiUpdateGroupMember, apiRemoveGroupMember,
   apiSearchProducts,
@@ -344,7 +344,6 @@ function GroupChatView({ group, onBack, getAccessToken, currentUserId }) {
   const mentionTimer = useRef(null)
 
   const myMembership = detail?.members?.find(m => m.user_id === currentUserId)
-  const canPin    = myMembership?.can_pin_messages
   const canDelete = myMembership?.can_delete_messages
   const canSend   = myMembership?.can_send_messages !== false
   const isAdmin   = myMembership && ['OWNER','ADMIN'].includes(myMembership.role)
@@ -424,15 +423,6 @@ function GroupChatView({ group, onBack, getAccessToken, currentUserId }) {
     setContextMsg(null)
   }
 
-  const handlePin = async (msgId, pinned) => {
-    try {
-      const token = await getAccessToken()
-      const updated = await apiPinGroupMessage(group.id, msgId, pinned, token)
-      setMessages(prev => prev.map(m => m.id === msgId ? updated : m))
-    } catch {}
-    setContextMsg(null)
-  }
-
   const startEdit = (msg) => {
     setEditingMsg(msg)
     setText(msg.text)
@@ -444,9 +434,6 @@ function GroupChatView({ group, onBack, getAccessToken, currentUserId }) {
     setEditingMsg(null)
     setText('')
   }
-
-  const pinnedMessages = messages.filter(m => m.is_pinned)
-  const [pinnedIdx, setPinnedIdx] = useState(0)
 
   return (
     <div className="chat-view">
@@ -507,12 +494,11 @@ function GroupChatView({ group, onBack, getAccessToken, currentUserId }) {
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
                 </button>
               )}
-              <div className={`msg-bubble ${isMe ? 'msg-bubble--me' : 'msg-bubble--them'} ${msg.is_pinned ? 'msg-bubble--pinned' : ''}`}>
+              <div className={`msg-bubble ${isMe ? 'msg-bubble--me' : 'msg-bubble--them'}`}>
                 {!isMe && <span className="msg-bubble__author">{msg.sender_name}</span>}
                 <MessageContent text={msg.text} mentionedProducts={msg.mentioned_products} navigate={navigate} />
                 <span className="msg-bubble__time">
                   {msg.is_edited && <span className="msg-bubble__edited">ред.</span>}
-                  {msg.is_pinned && <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style={{opacity:0.6,marginRight:2}}><circle cx="12" cy="12" r="4"/></svg>}
                   {new Date(msg.created_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
                   {isMe && <svg className="msg-bubble__check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6L9 17l-5-5"/></svg>}
                 </span>
