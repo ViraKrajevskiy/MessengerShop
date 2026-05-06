@@ -12,6 +12,8 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = ('username', 'email', 'password', 'password2', 'role', 'city')
         extra_kwargs = {
             'city': {'required': False},
+            'username': {'validators': []},  # проверяем уникальность вручную в view
+            'email': {'validators': []},
         }
 
     def validate_email(self, value):

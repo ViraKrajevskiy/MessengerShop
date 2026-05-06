@@ -1,5 +1,7 @@
 import random
 
+from django.contrib.auth.hashers import make_password
+from django.core.cache import cache
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework import status
 from rest_framework.permissions import AllowAny
@@ -30,21 +32,30 @@ class RegisterView(APIView):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        email = serializer.validated_data['email']
+        email    = serializer.validated_data['email']
+        username = serializer.validated_data['username']
+        role     = serializer.validated_data['role']
 
-        if User.objects.filter(email=email).exists():
-            return Response({'message': _GENERIC_OK}, status=status.HTTP_201_CREATED)
+        # Активный аккаунт с таким email — не раскрываем, просто говорим ОК
+        if User.objects.filter(email=email, is_active=True).exists():
+            return Response({'message': _GENERIC_OK, 'role': role}, status=status.HTTP_201_CREATED)
 
-        user = serializer.save()
-        code = str(random.randint(100000, 999999))
-        user.verification_code = code
-        user.save(update_fields=['verification_code'])
+        # Удаляем старые неактивированные аккаунты с тем же email (зомби)
+        User.objects.filter(email=email, is_active=False).delete()
 
-        sent = send_verification_email(to_email=user.email, code=code, username=user.username)
+        code      = str(random.randint(100000, 999999))
+        cache_key = f'pending_reg_{email}'
+        cache.set(cache_key, {
+            'username':      username,
+            'email':         email,
+            'password_hash': make_password(serializer.validated_data['password']),
+            'role':          role,
+            'city':          serializer.validated_data.get('city', ''),
+            'code':          code,
+        }, timeout=900)  # 15 минут
+
+        sent = send_verification_email(to_email=email, code=code, username=username)
         if not sent:
-            print(f'[DEV] Код для {user.email}: {code}')
+            print(f'[DEV] Код для {email}: {code}')
 
-        return Response(
-            {'message': _GENERIC_OK, 'role': user.role},
-            status=status.HTTP_201_CREATED,
-        )
+        return Response({'message': _GENERIC_OK, 'role': role}, status=status.HTTP_201_CREATED)
