@@ -329,6 +329,7 @@ export default function BusinessPage() {
   const [postsPage, setPostsPage]   = useState(0)
   const POSTS_PER_PAGE = 8
   const [selectedVideo, setSelectedVideo] = useState(null)
+  const [avatarVideoOpen, setAvatarVideoOpen] = useState(false)
 
   const showToast = (msg) => {
     setToast(msg)
@@ -467,6 +468,14 @@ export default function BusinessPage() {
     <div className="bp">
       <Header />
 
+      {/* Avatar video modal */}
+      {avatarVideoOpen && logoIsVideo && (
+        <div className="biz-video-modal" onClick={() => setAvatarVideoOpen(false)}>
+          <video src={logo} autoPlay controls onClick={e => e.stopPropagation()} />
+          <button className="biz-video-modal__close" onClick={() => setAvatarVideoOpen(false)}>✕</button>
+        </div>
+      )}
+
       {/* Video Modal */}
       {selectedVideo && (
         <VideoModal
@@ -506,7 +515,7 @@ export default function BusinessPage() {
         {/* Hero */}
         <div className="bp__hero">
           {logoIsVideo
-            ? <video src={logo} className="bp__avatar" autoPlay muted loop playsInline />
+            ? <video src={logo} className="bp__avatar bp__avatar--clickable" autoPlay muted loop playsInline onClick={() => setAvatarVideoOpen(true)} />
             : <img src={logo} alt={biz.brand_name} className="bp__avatar" />
           }
 

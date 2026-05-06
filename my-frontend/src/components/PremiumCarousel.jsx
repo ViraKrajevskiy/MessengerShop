@@ -39,7 +39,6 @@ export default function PremiumCarousel({ businesses = [] }) {
   const total     = slides.length
 
   const [page, setPage] = useState(0)
-  const [videoModal, setVideoModal] = useState(null)
   const [isMobile, setIsMobile] = useState(
     typeof window !== 'undefined' && window.innerWidth <= MOBILE_BREAKPOINT
   )
@@ -104,8 +103,6 @@ export default function PremiumCarousel({ businesses = [] }) {
   const handleDotClick = (i) => { setPage(i); resetTimer() }
   const handleCardClick = (biz) => {
     if (wasDrag.current) return
-    const photo = biz.logo ? resolveUrl(biz.logo) : null
-    if (isVideoSrc(biz.logo)) { setVideoModal(photo); return }
     navigate(`/business/${biz.id}`)
   }
 
@@ -170,13 +167,6 @@ export default function PremiumCarousel({ businesses = [] }) {
           </div>
         ))}
       </div>
-
-      {videoModal && (
-        <div className="biz-video-modal" onClick={() => setVideoModal(null)}>
-          <video src={videoModal} autoPlay controls onClick={e => e.stopPropagation()} />
-          <button className="biz-video-modal__close" onClick={() => setVideoModal(null)}>✕</button>
-        </div>
-      )}
 
       {!isMobile && total > 1 && (
         <div className="premium-carousel__dots">

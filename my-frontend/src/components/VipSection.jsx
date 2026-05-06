@@ -29,7 +29,6 @@ const VIP_PHOTOS = [
 
 export default function VipSection({ users = [], loading = false }) {
   const [showAll, setShowAll] = useState(false)
-  const [videoModal, setVideoModal] = useState(null)
   const { addViewed } = useViewed()
   const { t } = useLanguage()
   const navigate = useNavigate()
@@ -39,8 +38,6 @@ export default function VipSection({ users = [], loading = false }) {
   const hasMore = users.length > displayLimit
 
   const handleCardClick = (user) => {
-    const photo = user.logo ? resolveUrl(user.logo) : null
-    if (isVideoSrc(user.logo)) { setVideoModal(photo); return }
     addViewed({ id: user.id, name: user.name, city: user.city, badge: 'VIP', type: 'vip' })
     navigate(`/business/${user.id}`)
   }
@@ -132,12 +129,6 @@ export default function VipSection({ users = [], loading = false }) {
         </div>
       )}
 
-      {videoModal && (
-        <div className="biz-video-modal" onClick={() => setVideoModal(null)}>
-          <video src={videoModal} autoPlay controls onClick={e => e.stopPropagation()} />
-          <button className="biz-video-modal__close" onClick={() => setVideoModal(null)}>✕</button>
-        </div>
-      )}
     </section>
   )
 }
