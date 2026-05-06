@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useViewed } from '../context/ViewedContext'
 import { useAuth } from '../context/AuthContext'
@@ -51,8 +51,18 @@ export default function UserCard({ id, name = 'Имя', city = 'Город', bad
     })
   }
 
+  const videoRef = useRef(null)
+
   const rawPhoto = logo ? resolveUrl(logo) : CARD_PHOTOS[id % CARD_PHOTOS.length]
   const isVideo = logo && /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(logo)
+
+  const handleMouseEnter = () => { if (isVideo && videoRef.current) videoRef.current.play() }
+  const handleMouseLeave = () => {
+    if (isVideo && videoRef.current) {
+      videoRef.current.pause()
+      videoRef.current.currentTime = 0
+    }
+  }
 
   const handleClick = () => {
     addViewed({ id, name, city, badge, type })
@@ -67,9 +77,9 @@ export default function UserCard({ id, name = 'Имя', city = 'Город', bad
   return (
     <>
       <div className={`user-card${planType === 'VIP' ? ' user-card--vip-plan' : planType === 'PRO' ? ' user-card--pro-plan' : ''}`} onClick={handleClick}>
-        <div className="user-card__image">
+        <div className="user-card__image" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
           {isVideo
-            ? <video className="user-card__photo" src={rawPhoto} autoPlay muted loop playsInline preload="metadata" />
+            ? <video ref={videoRef} className="user-card__photo" src={rawPhoto} muted loop playsInline preload="metadata" />
             : <img className="user-card__photo" src={rawPhoto} alt={name} loading="lazy" width="400" height="530" />
           }
           {planType === 'VIP' ? (
