@@ -1,6 +1,7 @@
 .bp {
   min-height: 100vh;
   background: var(--bg-primary);
+  overflow-x: clip;
 }
 
 /* ── Cover ── */
@@ -9,6 +10,13 @@
   background-size: cover;
   background-position: center;
   position: relative;
+}
+.bp__cover-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 .bp__cover-fade {
   position: absolute;
@@ -40,6 +48,8 @@
   max-width: min(1420px, calc(100vw - 40px));
   margin: 0 auto;
   padding: 24px 20px 60px;
+  box-sizing: border-box;
+  min-width: 0;
 }
 
 /* ── Hero ── */
@@ -280,11 +290,13 @@
   gap: 20px;
   margin-top: 20px;
   align-items: start;
+  min-width: 0;
 }
 .bp__main {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  min-width: 0;
 }
 
 /* ── Cards ── */
@@ -293,6 +305,7 @@
   border: 1.5px solid var(--border-color);
   border-radius: 18px;
   padding: 22px 24px;
+  min-width: 0;
 }
 .bp__card-head {
   display: flex;
@@ -350,6 +363,12 @@
   border: 1.5px solid var(--border-color);
   background: var(--bg-primary);
   color: var(--text-primary);
+  max-width: 100%;
+  min-width: 0;
+}
+.bp__contact-chip span {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .bp__contact-chip:hover { border-color: var(--accent-1); color: var(--accent-1); }
 .bp__contact-chip--phone svg { stroke: #10b981; }
@@ -378,14 +397,27 @@
 .bp__prop {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  gap: 12px;
   padding: 9px 0;
   border-bottom: 1px solid var(--border-color);
   font-size: 13px;
 }
 .bp__prop:last-child { border-bottom: none; }
-.bp__prop span:first-child { color: var(--text-muted); font-weight: 500; }
-.bp__prop span:last-child  { color: var(--text-primary); font-weight: 600; text-align: right; }
+.bp__prop span:first-child {
+  color: var(--text-muted);
+  font-weight: 500;
+  flex: 1 1 40%;
+  min-width: 0;
+}
+.bp__prop span:last-child  {
+  color: var(--text-primary);
+  font-weight: 600;
+  text-align: right;
+  flex: 1 1 60%;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
 
 /* ── Gallery ── */
 .bp__gallery-tabs {
@@ -412,11 +444,11 @@
 }
 .bp__gallery {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 20px;
 }
 .bp__gallery--premium {
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
 }
 .bp__gallery-cell {
   position: relative;
@@ -468,7 +500,7 @@
 /* ── Feed (posts) ── */
 .bp__feed {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 14px;
 }
 .bp__feed-item {
@@ -748,7 +780,11 @@
   gap: 0;
   border-bottom: 1.5px solid var(--border-color);
   margin-bottom: 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  min-width: 0;
 }
+.bp__info-tabs::-webkit-scrollbar { display: none; }
 .bp__info-tab {
   background: none;
   border: none;
@@ -761,6 +797,8 @@
   cursor: pointer;
   transition: color 0.2s, border-color 0.2s;
   font-family: inherit;
+  white-space: nowrap;
+  flex: 0 0 auto;
 }
 .bp__info-tab--active {
   color: var(--text-primary);
@@ -1048,7 +1086,7 @@
 }
 .bp__sim-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 20px;
 }
 .bp__sim-card {
@@ -1198,7 +1236,7 @@
   .bp__avatar { width: 120px; min-height: 120px; }
   .bp__actions { justify-content: flex-start; }
   .bp__cover { height: 180px; }
-  .bp__feed { grid-template-columns: repeat(2, 1fr); }
+  .bp__feed { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 600px) {
@@ -1212,9 +1250,9 @@
   .bp__actions { gap: 6px; }
   .bp__act-btn { padding: 8px 12px; font-size: 12px; border-radius: 10px; }
   .bp__card { padding: 16px 14px; border-radius: 14px; }
-  .bp__gallery, .bp__gallery--premium { grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .bp__gallery, .bp__gallery--premium { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
   .bp__feed { grid-template-columns: 1fr; }
-  .bp__sim-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .bp__sim-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
   .bp__contacts-row { flex-direction: column; }
   .bp__section-nav { gap: 2px; padding: 4px; }
   .bp__section-tab { padding: 6px 12px; font-size: 12px; }
@@ -1339,6 +1377,6 @@
   .bp__name { font-size: 18px; }
   .bp__section-tab { padding: 5px 10px; font-size: 11.5px; }
   .bp__act-btn { padding: 7px 10px; font-size: 11.5px; gap: 4px; }
-  .bp__gallery, .bp__gallery--premium { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .bp__gallery, .bp__gallery--premium { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .bp__card { padding: 12px 12px; border-radius: 12px; }
 }

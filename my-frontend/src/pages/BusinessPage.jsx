@@ -423,8 +423,12 @@ export default function BusinessPage() {
     </div>
   )
 
+  const isVideo = (src) => src && /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(src)
+
   const logo     = resolveUrl(biz.logo)  || FALLBACK_LOGO
   const cover    = resolveUrl(biz.cover) || FALLBACK_COVER
+  const logoIsVideo  = isVideo(biz.logo)
+  const coverIsVideo = isVideo(biz.cover)
   const audioUrl = resolveUrl(biz.audio) || null
   const categoryIcon = CATEGORY_ICONS[biz.category] || '🏢'
 
@@ -485,7 +489,10 @@ export default function BusinessPage() {
       )}
 
       {/* Cover */}
-      <div className="bp__cover" style={{ backgroundImage: `url(${cover})` }}>
+      <div className="bp__cover" style={coverIsVideo ? {} : { backgroundImage: `url(${cover})` }}>
+        {coverIsVideo && (
+          <video className="bp__cover-video" src={cover} autoPlay muted loop playsInline />
+        )}
         <div className="bp__cover-fade" />
         <button className="bp__back" onClick={() => navigate(-1)}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -498,7 +505,10 @@ export default function BusinessPage() {
 
         {/* Hero */}
         <div className="bp__hero">
-          <img src={logo} alt={biz.brand_name} className="bp__avatar" />
+          {logoIsVideo
+            ? <video src={logo} className="bp__avatar" autoPlay muted loop playsInline />
+            : <img src={logo} alt={biz.brand_name} className="bp__avatar" />
+          }
 
           <div className="bp__hero-body">
             <div className="bp__name-row">
