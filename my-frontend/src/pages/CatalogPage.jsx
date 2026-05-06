@@ -158,7 +158,7 @@ export default function CatalogPage() {
   const [filterCity, setFilterCity]       = useState('')
   const [filterCat, setFilterCat]         = useState('')
   const [sortOrder, setSortOrder]         = useState('none')
-  const [showAllTags, setShowAllTags]     = useState(false)
+  const [showAllTags, setShowAllTags]     = useState(() => typeof window !== 'undefined' && window.innerWidth >= 900)
   const [search, setSearch]               = useState('')
   const [columns, setColumns]             = useState(4)
 

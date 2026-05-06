@@ -126,7 +126,7 @@ export default function FeedPage() {
   const [filterNew, setFilterNew] = useState(false)
   const [filterCity, setFilterCity] = useState('')
   const [sortOrder, setSortOrder] = useState('none') // none | date_desc | date_asc | price_desc | price_asc
-  const [showAllTags, setShowAllTags] = useState(false)
+  const [showAllTags, setShowAllTags] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 900)
   const [columns, setColumns] = useState(4)
   const [page, setPage] = useState(0)
   const navigate = useNavigate()
