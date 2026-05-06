@@ -38,9 +38,6 @@ class VerifyEmailView(APIView):
         except User.DoesNotExist:
             return Response({'error': 'Пользователь не найден.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        if user.is_active:
-            return Response({'message': 'Аккаунт уже активирован.'}, status=status.HTTP_200_OK)
-
         if user.verification_code != code:
             return Response({'error': 'Неверный код подтверждения.'}, status=status.HTTP_400_BAD_REQUEST)
 
