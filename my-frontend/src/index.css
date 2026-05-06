@@ -172,3 +172,33 @@ button { font-family: inherit; }
 img, video, iframe, svg {
   max-width: 100%;
 }
+
+/* ── Video modal overlay (shared: VipSection, PremiumCarousel) ── */
+.biz-video-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .88);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.biz-video-modal video {
+  max-height: 90vh;
+  max-width: 90vw;
+  border-radius: 12px;
+  outline: none;
+}
+.biz-video-modal__close {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: .8;
+}
+.biz-video-modal__close:hover { opacity: 1; }

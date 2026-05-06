@@ -3,7 +3,19 @@ import { useNavigate } from 'react-router-dom'
 import { resolveUrl } from '../utils/urlUtils'
 import './PremiumCarousel.css'
 
+const isVideoSrc = (src) => src && /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(src)
+
+function onImgEnter(e) {
+  const v = e.currentTarget.querySelector('video')
+  if (v) v.play().catch(() => {})
+}
+function onImgLeave(e) {
+  const v = e.currentTarget.querySelector('video')
+  if (v) { v.pause(); v.currentTime = 0 }
+}
+
 const PAGE_SIZE = 10
+const MOBILE_BREAKPOINT = 500
 
 function buildSlides(businesses) {
   if (businesses.length === 0) return []
@@ -27,15 +39,16 @@ export default function PremiumCarousel({ businesses = [] }) {
   const total     = slides.length
 
   const [page, setPage] = useState(0)
+  const [videoModal, setVideoModal] = useState(null)
   const [isMobile, setIsMobile] = useState(
-    typeof window !== 'undefined' && window.innerWidth <= 500
+    typeof window !== 'undefined' && window.innerWidth <= MOBILE_BREAKPOINT
   )
   const startX    = useRef(null)
   const wasDrag   = useRef(false)
   const timerRef  = useRef(null)
 
   useEffect(() => {
-    const onResize = () => setIsMobile(window.innerWidth <= 500)
+    const onResize = () => setIsMobile(window.innerWidth <= MOBILE_BREAKPOINT)
     window.addEventListener('resize', onResize)
     return () => window.removeEventListener('resize', onResize)
   }, [])
@@ -89,7 +102,12 @@ export default function PremiumCarousel({ businesses = [] }) {
   }, [onDragMove, onDragEnd])
 
   const handleDotClick = (i) => { setPage(i); resetTimer() }
-  const handleCardClick = (id) => { if (!wasDrag.current) navigate(`/business/${id}`) }
+  const handleCardClick = (biz) => {
+    if (wasDrag.current) return
+    const photo = biz.logo ? resolveUrl(biz.logo) : null
+    if (isVideoSrc(biz.logo)) { setVideoModal(photo); return }
+    navigate(`/business/${biz.id}`)
+  }
 
   // Skeleton placeholder while loading — reserves exact height to prevent CLS
   if (slides.length === 0) {
@@ -127,16 +145,21 @@ export default function PremiumCarousel({ businesses = [] }) {
           <div
             key={i}
             className="pc-card"
-            onClick={() => handleCardClick(biz.id)}
+            onClick={() => handleCardClick(biz)}
+            onMouseEnter={onImgEnter}
+            onMouseLeave={onImgLeave}
           >
-            <img
-              src={getPhoto(biz)}
-              alt={biz.brand_name || biz.name}
-              loading={i < 5 ? 'eager' : 'lazy'}
-              fetchPriority={i < 5 ? 'high' : 'auto'}
-              decoding="async"
-              draggable={false}
-            />
+            {isVideoSrc(biz.logo)
+              ? <video src={resolveUrl(biz.logo)} muted loop playsInline preload="metadata" draggable={false} />
+              : <img
+                  src={getPhoto(biz)}
+                  alt={biz.brand_name || biz.name}
+                  loading={i < 5 ? 'eager' : 'lazy'}
+                  fetchPriority={i < 5 ? 'high' : 'auto'}
+                  decoding="async"
+                  draggable={false}
+                />
+            }
             <div className="pc-card__overlay">
               <span className={`pc-card__badge${biz.plan_type === 'PRO' || biz.is_pro ? ' pc-card__badge--pro' : ''}`}>
                 {biz.plan_type === 'PRO' || biz.is_pro ? 'PRO' : 'VIP'}
@@ -147,6 +170,13 @@ export default function PremiumCarousel({ businesses = [] }) {
           </div>
         ))}
       </div>
+
+      {videoModal && (
+        <div className="biz-video-modal" onClick={() => setVideoModal(null)}>
+          <video src={videoModal} autoPlay controls onClick={e => e.stopPropagation()} />
+          <button className="biz-video-modal__close" onClick={() => setVideoModal(null)}>✕</button>
+        </div>
+      )}
 
       {!isMobile && total > 1 && (
         <div className="premium-carousel__dots">

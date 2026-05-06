@@ -7,25 +7,41 @@ import { makeInitialAvatar } from '../utils/defaults'
 import { resolveUrl } from '../utils/urlUtils'
 import './NewUsers.css'
 
+const NEW_BUSINESS_LIMIT = 40
+const DESKTOP_BUSINESS_LIMIT = 10
+const MOBILE_MEDIA_QUERY = '(max-width: 500px)'
+
 export default function NewUsers({ businesses: businessesProp }) {
   const [businesses, setBusinesses] = useState(
-    Array.isArray(businessesProp) ? businessesProp.slice(0, 20) : []
+    Array.isArray(businessesProp) ? businessesProp.slice(0, NEW_BUSINESS_LIMIT) : []
   )
+  const [isMobile, setIsMobile] = useState(false)
   const { addViewed } = useViewed()
   const { t } = useLanguage()
   const navigate = useNavigate()
 
   useEffect(() => {
     if (Array.isArray(businessesProp)) {
-      setBusinesses(businessesProp.slice(0, 20))
+      setBusinesses(businessesProp.slice(0, NEW_BUSINESS_LIMIT))
       return
     }
     apiGetBusinesses()
-      .then(data => setBusinesses(data.slice(0, 20)))
+      .then(data => setBusinesses(data.slice(0, NEW_BUSINESS_LIMIT)))
       .catch(() => {})
   }, [businessesProp])
 
-  const displayed = businesses.slice(0, 10)
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const media = window.matchMedia(MOBILE_MEDIA_QUERY)
+    const update = () => setIsMobile(media.matches)
+
+    update()
+    media.addEventListener('change', update)
+    return () => media.removeEventListener('change', update)
+  }, [])
+
+  const displayed = isMobile ? businesses : businesses.slice(0, DESKTOP_BUSINESS_LIMIT)
 
   const handleClick = (biz) => {
     addViewed({ id: biz.id, name: biz.brand_name, city: biz.city, badge: null, type: 'business' })
@@ -56,13 +72,17 @@ export default function NewUsers({ businesses: businessesProp }) {
           </div>
         ))}
         {!isLoading && displayed.map(biz => {
+          const isVideo = biz.logo && /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(biz.logo)
           const logo = biz.logo
             ? (resolveUrl(biz.logo) || makeInitialAvatar(biz.brand_name))
             : makeInitialAvatar(biz.brand_name)
           return (
             <div key={biz.id} className="new-users__item" onClick={() => handleClick(biz)}>
               <div className="new-users__avatar">
-                <img className="new-users__avatar-img" src={logo} alt={biz.brand_name} loading="lazy" decoding="async" />
+                {isVideo
+                  ? <video className="new-users__avatar-img" src={logo} muted playsInline preload="metadata" />
+                  : <img className="new-users__avatar-img" src={logo} alt={biz.brand_name} loading="lazy" decoding="async" />
+                }
               </div>
               <span className="new-users__name">{biz.brand_name}</span>
               <span className="new-users__city">{biz.city || '—'}</span>

@@ -5,6 +5,17 @@ import { useLanguage } from '../context/LanguageContext'
 import { resolveUrl } from '../utils/urlUtils'
 import './VipSection.css'
 
+const isVideoSrc = (src) => src && /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(src)
+
+function onImgEnter(e) {
+  const v = e.currentTarget.querySelector('video')
+  if (v) v.play().catch(() => {})
+}
+function onImgLeave(e) {
+  const v = e.currentTarget.querySelector('video')
+  if (v) { v.pause(); v.currentTime = 0 }
+}
+
 const VIP_PHOTOS = [
   'https://picsum.photos/id/1027/400/530',
   'https://picsum.photos/id/1012/400/530',
@@ -18,16 +29,18 @@ const VIP_PHOTOS = [
 
 export default function VipSection({ users = [], loading = false }) {
   const [showAll, setShowAll] = useState(false)
+  const [videoModal, setVideoModal] = useState(null)
   const { addViewed } = useViewed()
   const { t } = useLanguage()
   const navigate = useNavigate()
 
-  // Show first 2 rows (8 cards) on home, or all on "show all" page
   const displayLimit = 8
   const displayUsers = showAll ? users : users.slice(0, displayLimit)
   const hasMore = users.length > displayLimit
 
   const handleCardClick = (user) => {
+    const photo = user.logo ? resolveUrl(user.logo) : null
+    if (isVideoSrc(user.logo)) { setVideoModal(photo); return }
     addViewed({ id: user.id, name: user.name, city: user.city, badge: 'VIP', type: 'vip' })
     navigate(`/business/${user.id}`)
   }
@@ -78,18 +91,18 @@ export default function VipSection({ users = [], loading = false }) {
               className="vip-card"
               onClick={() => handleCardClick(user)}
             >
-              <div className="vip-card__image">
-                <img
-                className="vip-card__photo"
-                src={user.logo
-                  ? resolveUrl(user.logo)
-                  : VIP_PHOTOS[user.id % VIP_PHOTOS.length]}
-                alt={user.name}
-                loading={idx < 4 ? 'eager' : 'lazy'}
-                fetchPriority={idx === 0 ? 'high' : undefined}
-                width="400"
-                height="530"
-              />
+              <div className="vip-card__image" onMouseEnter={onImgEnter} onMouseLeave={onImgLeave}>
+                {isVideoSrc(user.logo)
+                  ? <video className="vip-card__photo" src={resolveUrl(user.logo)} muted loop playsInline preload="metadata" />
+                  : <img
+                      className="vip-card__photo"
+                      src={user.logo ? resolveUrl(user.logo) : VIP_PHOTOS[user.id % VIP_PHOTOS.length]}
+                      alt={user.name}
+                      loading={idx < 4 ? 'eager' : 'lazy'}
+                      fetchPriority={idx === 0 ? 'high' : undefined}
+                      width="400" height="530"
+                    />
+                }
                 <span className="vip-card__badge">VIP</span>
                 <div className="vip-card__overlay">
                   <span className="vip-card__category">{user.category}</span>
@@ -113,10 +126,16 @@ export default function VipSection({ users = [], loading = false }) {
         <div className="vip-section__empty">{t('vip_empty')}</div>
       )}
 
-      {/* Full page overlay when "Смотреть все" */}
       {showAll && users.length > displayLimit && (
         <div className="vip-section__counter">
           {t('vip_counter').replace('{{count}}', displayUsers.length).replace('{{total}}', users.length)}
+        </div>
+      )}
+
+      {videoModal && (
+        <div className="biz-video-modal" onClick={() => setVideoModal(null)}>
+          <video src={videoModal} autoPlay controls onClick={e => e.stopPropagation()} />
+          <button className="biz-video-modal__close" onClick={() => setVideoModal(null)}>✕</button>
         </div>
       )}
     </section>
