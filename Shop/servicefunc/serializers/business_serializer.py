@@ -114,6 +114,9 @@ class BusinessCreateUpdateSerializer(serializers.ModelSerializer):
         required=False, write_only=True,
     )
     remove_audio = serializers.BooleanField(required=False, write_only=True, default=False)
+    # Accept video files in addition to images
+    logo  = serializers.FileField(required=False, allow_null=True)
+    cover = serializers.FileField(required=False, allow_null=True)
 
     class Meta:
         model = Business
@@ -124,6 +127,11 @@ class BusinessCreateUpdateSerializer(serializers.ModelSerializer):
             'social_youtube', 'social_tiktok', 'social_facebook',
             'tags', 'remove_audio',
         ]
+
+    def validate_website(self, value):
+        if value and not value.startswith(('http://', 'https://')):
+            value = 'https://' + value
+        return value
 
     def validate_tags(self, value):
         instance = self.instance
