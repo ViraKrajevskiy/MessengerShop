@@ -132,6 +132,11 @@
   padding: 3px;
   transition: transform 0.22s, box-shadow 0.22s;
   box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  /* Force perfect circle clip on all browsers */
+  -webkit-mask-image: radial-gradient(circle, white 98%, transparent 100%);
+  mask-image: radial-gradient(circle, white 98%, transparent 100%);
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 .stories__item:hover .stories__avatar {
