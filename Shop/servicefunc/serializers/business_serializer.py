@@ -33,8 +33,8 @@ class BusinessListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Business
         fields = [
-            'id', 'brand_name', 'category', 'category_label',
-            'city', 'logo', 'is_verified', 'is_vip', 'is_pro',
+            'id', 'brand_name', 'description', 'category', 'category_label',
+            'city', 'logo', 'cover', 'is_verified', 'is_vip', 'is_pro',
             'plan_type',
             'rating', 'views_count', 'subscribers_count',
             'owner_username', 'owner_avatar', 'owner_is_online',

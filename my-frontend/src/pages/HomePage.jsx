@@ -9,6 +9,7 @@ import Footer from '../components/Footer'
 import TweetsSidebar from '../components/TweetsSidebar'
 import PostCard from '../components/PostCard'
 import PremiumCarousel from '../components/PremiumCarousel'
+import NearbyBusinesses from '../components/NearbyBusinesses'
 import { apiGetBusinesses, apiGetPosts, CATEGORY_LABELS } from '../api/businessApi'
 import { useLanguage } from '../context/LanguageContext'
 import { resolveUrl } from '../utils/urlUtils'
@@ -254,6 +255,9 @@ export default function HomePage() {
               </div>
             ) : null}
           </section>
+
+          {/* Бизнесы рядом с вами */}
+          <NearbyBusinesses businesses={allBiz} posts={posts} />
 
           {/* Все карточки */}
           <section className="all-cards-section">
