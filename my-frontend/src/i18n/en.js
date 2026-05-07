@@ -300,6 +300,10 @@ const en = {
   home_allCards:        'All cards',
   home_noCards:         'No cards match the selected filters',
 
+  nearby_title: 'Businesses near you',
+  nearby_sub:   'Use the "Near me" feature or select a city you are going to visit.',
+  nearby_geo:   'Near me',
+
   // ── Grid / FeedPage / CatalogPage common ───────────────────────────────────
   grid_columns:         'Columns:',
   grid_columnsTitle:    '{{col}} cards per row',

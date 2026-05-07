@@ -300,6 +300,10 @@ const tr = {
   home_allCards:        'Tüm kartlar',
   home_noCards:         'Seçili filtrelere göre kart bulunamadı',
 
+  nearby_title: 'Yakınızdaki işletmeler',
+  nearby_sub:   '«Yakınımda» özelliğini kullanın veya ziyaret etmek istediğiniz şehri seçin.',
+  nearby_geo:   'Yakınımda',
+
   // ── Grid / FeedPage / CatalogPage common ───────────────────────────────────
   grid_columns:         'Sütunlar:',
   grid_columnsTitle:    'Satırda {{col}} kart',
