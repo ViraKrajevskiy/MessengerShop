@@ -27,6 +27,7 @@
 .home-page__content {
   flex: 1;
   min-width: 0;
+  overflow: hidden;
   padding: 0 0 60px;
 }
 
