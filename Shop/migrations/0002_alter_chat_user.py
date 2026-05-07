@@ -5,6 +5,39 @@ from django.conf import settings
 from django.db import migrations, models
 
 
+def ensure_chat_tables(apps, schema_editor):
+    """
+    Create Shop_chat / Shop_chatmessage tables if they don't yet exist.
+    Needed for servers whose 0001_initial was applied before Chat was added to the project.
+    """
+    db = schema_editor.connection
+    existing = {t.lower() for t in db.introspection.table_names()}
+
+    if 'shop_chat' not in existing:
+        schema_editor.execute("""
+            CREATE TABLE IF NOT EXISTS "Shop_chat" (
+                "id"         integer  NOT NULL PRIMARY KEY AUTOINCREMENT,
+                "session_id" varchar(100) NOT NULL UNIQUE,
+                "created_at" datetime NOT NULL,
+                "updated_at" datetime NOT NULL,
+                "user_id"    integer  NULL REFERENCES "Shop_user" ("id")
+                    DEFERRABLE INITIALLY DEFERRED
+            )
+        """)
+
+    if 'shop_chatmessage' not in existing:
+        schema_editor.execute("""
+            CREATE TABLE IF NOT EXISTS "Shop_chatmessage" (
+                "id"         integer  NOT NULL PRIMARY KEY AUTOINCREMENT,
+                "role"       varchar(10) NOT NULL,
+                "content"    text     NOT NULL,
+                "created_at" datetime NOT NULL,
+                "chat_id"    integer  NOT NULL REFERENCES "Shop_chat" ("id")
+                    DEFERRABLE INITIALLY DEFERRED
+            )
+        """)
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -12,6 +45,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        # Ensure tables exist before altering (handles legacy servers)
+        migrations.RunPython(ensure_chat_tables, migrations.RunPython.noop),
         migrations.AlterField(
             model_name='chat',
             name='user',
