@@ -559,12 +559,5 @@ class Migration(migrations.Migration):
                 'unique_together': {('user', 'business')},
             },
         ),
-        migrations.AddConstraint(
-            model_name='business',
-            constraint=models.UniqueConstraint(django.db.models.functions.text.Lower('brand_name'), name='uniq_business_brand_name_ci'),
-        ),
-        migrations.AddConstraint(
-            model_name='business',
-            constraint=models.UniqueConstraint(condition=models.Q(('phone', ''), _negated=True), fields=('phone',), name='uniq_business_phone_when_set'),
-        ),
+        # NOTE: UniqueConstraint with expressions removed — not supported on server's Django version
     ]
