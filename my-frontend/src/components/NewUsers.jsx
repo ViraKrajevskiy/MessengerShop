@@ -8,7 +8,7 @@ import { resolveUrl } from '../utils/urlUtils'
 import './NewUsers.css'
 
 const NEW_BUSINESS_LIMIT = 40
-const DESKTOP_BUSINESS_LIMIT = 10
+const DESKTOP_BUSINESS_LIMIT = 6
 const MOBILE_MEDIA_QUERY = '(max-width: 500px)'
 
 export default function NewUsers({ businesses: businessesProp }) {
