@@ -77,8 +77,8 @@ function AppContent() {
                 <Route path="/feed"           element={<FeedPage />} />
                 <Route path="/profile/:id"    element={<ProfilePage />} />
                 <Route path="/business/:id"   element={<BusinessPage />} />
-                <Route path="/login"          element={<GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}><LoginPage /></GoogleOAuthProvider>} />
-                <Route path="/register"       element={<GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}><RegisterPage /></GoogleOAuthProvider>} />
+                <Route path="/login"          element={GOOGLE_CLIENT_ID ? <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}><LoginPage /></GoogleOAuthProvider> : <LoginPage />} />
+                <Route path="/register"       element={GOOGLE_CLIENT_ID ? <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}><RegisterPage /></GoogleOAuthProvider> : <RegisterPage />} />
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
                 <Route path="/verification"   element={<VerificationPage />} />
