@@ -25,13 +25,35 @@
   padding: 12px 14px 10px;
 }
 
+.post-card__avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
 .post-card__avatar {
   width: 32px;
   height: 32px;
   border-radius: 50%;
   object-fit: cover;
-  flex-shrink: 0;
-  cursor: pointer;
+  display: block;
+}
+
+.post-card__online-dot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #10b981;
+  border: 2px solid var(--bg-secondary, #fff);
+  animation: pc-pulse 2s ease-in-out infinite;
+}
+
+@keyframes pc-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
+  50%       { box-shadow: 0 0 0 3px rgba(16, 185, 129, 0); }
 }
 
 .post-card__meta {

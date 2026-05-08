@@ -3,23 +3,25 @@ from rest_framework import serializers
 from Shop.models import Post, Product, ProductInquiry, InquiryMessage
 
 class PostSerializer(serializers.ModelSerializer):
-    business_name  = serializers.CharField(source='business.brand_name', read_only=True)
-    business_logo  = serializers.SerializerMethodField()
-    business_id    = serializers.IntegerField(source='business.id', read_only=True)
-    is_verified    = serializers.BooleanField(source='business.is_verified', read_only=True)
-    media_display  = serializers.SerializerMethodField()
-    is_subscribed  = serializers.SerializerMethodField()
-    tags           = serializers.SerializerMethodField()
-    is_favorited   = serializers.SerializerMethodField()   # НОВОЕ
-    favorites_count = serializers.SerializerMethodField()  # НОВОЕ
+    business_name     = serializers.CharField(source='business.brand_name', read_only=True)
+    business_logo     = serializers.SerializerMethodField()
+    business_id       = serializers.IntegerField(source='business.id', read_only=True)
+    is_verified       = serializers.BooleanField(source='business.is_verified', read_only=True)
+    owner_is_online   = serializers.SerializerMethodField()
+    media_display     = serializers.SerializerMethodField()
+    is_subscribed     = serializers.SerializerMethodField()
+    tags              = serializers.SerializerMethodField()
+    is_favorited      = serializers.SerializerMethodField()
+    favorites_count   = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
         fields = [
             'id', 'business_id', 'business_name', 'business_logo', 'is_verified',
+            'owner_is_online',
             'text', 'media_display', 'media_type', 'views_count',
             'is_subscribed', 'tags',
-            'is_favorited', 'favorites_count',   # НОВОЕ
+            'is_favorited', 'favorites_count',
             'created_at', 'updated_at',
         ]
 
@@ -35,6 +37,9 @@ class PostSerializer(serializers.ModelSerializer):
         if hasattr(obj, '_favorites_count'):
             return obj._favorites_count
         return obj.favorites.count()
+
+    def get_owner_is_online(self, obj):
+        return bool(obj.business and obj.business.owner and obj.business.owner.is_online)
 
     def get_business_logo(self, obj):
         if obj.business.logo:
