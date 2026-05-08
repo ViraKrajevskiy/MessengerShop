@@ -71,6 +71,7 @@ export default function HomePage() {
   const [allBiz, setAllBiz] = useState([])
   const [loadingBiz, setLoadingBiz] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
+  const [cardFilter, setCardFilter] = useState({ planType: null, verified: false, sortNew: false, category: null })
 
   const [posts, setPosts] = useState([])
   const [loadingPosts, setLoadingPosts] = useState(true)
@@ -141,9 +142,13 @@ export default function HomePage() {
   )
 
   const homeBusinessCards = useMemo(() => {
-    if (!user) return filteredAll.slice(0, GUEST_CARDS_LIMIT)
-    return filteredAll
-  }, [filteredAll, user])
+    let list = user ? filteredAll : filteredAll.slice(0, GUEST_CARDS_LIMIT)
+    if (cardFilter.planType === 'VIP') list = list.filter(u => u.plan_type === 'VIP' || u.is_vip)
+    if (cardFilter.verified) list = list.filter(u => u.is_verified)
+    if (cardFilter.category) list = list.filter(u => u.category === cardFilter.category)
+    if (cardFilter.sortNew) list = [...list].sort((a, b) => b.id - a.id)
+    return list
+  }, [filteredAll, user, cardFilter])
 
   const postsGridRef = useRef(null)
   const dragState = useRef({ isDown: false, startX: 0, scrollLeft: 0, moved: false })
@@ -261,6 +266,34 @@ export default function HomePage() {
                 {t('home_allPublications')}
               </button>
             </div>
+
+            {/* Фильтры */}
+            <div className="ac-filters">
+              <div className="ac-filters__row">
+                <button
+                  className={`ac-chip${cardFilter.planType === 'VIP' ? ' ac-chip--active' : ''}`}
+                  onClick={() => setCardFilter(f => ({ ...f, planType: f.planType === 'VIP' ? null : 'VIP' }))}
+                >⭐ VIP</button>
+                <button
+                  className={`ac-chip${cardFilter.verified ? ' ac-chip--active' : ''}`}
+                  onClick={() => setCardFilter(f => ({ ...f, verified: !f.verified }))}
+                >{t('filter_verified') || 'Проверенные'}</button>
+                <button
+                  className={`ac-chip${cardFilter.sortNew ? ' ac-chip--active' : ''}`}
+                  onClick={() => setCardFilter(f => ({ ...f, sortNew: !f.sortNew }))}
+                >{t('filter_new') || 'Новые'}</button>
+              </div>
+              <div className="ac-filters__row ac-filters__row--cats">
+                {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
+                  <button
+                    key={key}
+                    className={`ac-chip ac-chip--sm${cardFilter.category === label ? ' ac-chip--active' : ''}`}
+                    onClick={() => setCardFilter(f => ({ ...f, category: f.category === label ? null : label }))}
+                  >{label}</button>
+                ))}
+              </div>
+            </div>
+
             <div className="card-grid card-grid--5">
               {loadingBiz ? (
                 [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(i => (
