@@ -70,7 +70,6 @@ export default function HomePage() {
 
   const [allBiz, setAllBiz] = useState([])
   const [loadingBiz, setLoadingBiz] = useState(true)
-  const [cardsPage, setCardsPage] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
 
   const [posts, setPosts] = useState([])
@@ -98,10 +97,6 @@ export default function HomePage() {
       (!filters.category || b.category === filters.category)
     ).map(bizToCard)
   , [allBiz, filters])
-
-  useEffect(() => {
-    setCardsPage(0)
-  }, [allBiz, filters])
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -146,10 +141,9 @@ export default function HomePage() {
   )
 
   const homeBusinessCards = useMemo(() => {
-    if (isMobile) return filteredAll
     if (!user) return filteredAll.slice(0, GUEST_CARDS_LIMIT)
-    return filteredAll.slice(cardsPage * CARDS_PER_PAGE, (cardsPage + 1) * CARDS_PER_PAGE)
-  }, [cardsPage, filteredAll, isMobile, user])
+    return filteredAll
+  }, [filteredAll, user])
 
   const postsGridRef = useRef(null)
   const dragState = useRef({ isDown: false, startX: 0, scrollLeft: 0, moved: false })
@@ -267,47 +261,23 @@ export default function HomePage() {
                 {t('home_allPublications')}
               </button>
             </div>
-            <div className="all-cards__carousel">
-              {tokens?.access && !isMobile && (
-                <button
-                  className="all-cards__arrow"
-                  onClick={() => setCardsPage(p => p - 1)}
-                  disabled={cardsPage === 0}
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-                </button>
-              )}
-              <div className="all-cards__content">
-                {loadingBiz ? (
-                  <div className="card-grid card-grid--5">
-                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(i => (
-                      <div key={i} className="vip-card vip-card--skeleton">
-                        <div className="vip-card__image"><div className="vip-card__skel-img" /></div>
-                        <div className="vip-card__info">
-                          <div className="vip-card__skel-line" style={{ width: '70%' }} />
-                          <div className="vip-card__skel-line" style={{ width: '40%' }} />
-                        </div>
-                      </div>
-                    ))}
+            <div className="card-grid card-grid--5">
+              {loadingBiz ? (
+                [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(i => (
+                  <div key={i} className="vip-card vip-card--skeleton">
+                    <div className="vip-card__image"><div className="vip-card__skel-img" /></div>
+                    <div className="vip-card__info">
+                      <div className="vip-card__skel-line" style={{ width: '70%' }} />
+                      <div className="vip-card__skel-line" style={{ width: '40%' }} />
+                    </div>
                   </div>
-                ) : filteredAll.length > 0 ? (
-                  <div className="card-grid card-grid--5">
-                    {homeBusinessCards.map(u => (
-                      <UserCard key={u.id} id={u.id} name={u.name} city={u.city} logo={u.logo} planType={u.plan_type} type="all" isOnline={!!u.owner_is_online} />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="no-results">{t('home_noCards')}</div>
-                )}
-              </div>
-              {tokens?.access && !isMobile && (
-                <button
-                  className="all-cards__arrow"
-                  onClick={() => setCardsPage(p => p + 1)}
-                  disabled={(cardsPage + 1) * CARDS_PER_PAGE >= filteredAll.length}
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                </button>
+                ))
+              ) : filteredAll.length > 0 ? (
+                homeBusinessCards.map(u => (
+                  <UserCard key={u.id} id={u.id} name={u.name} city={u.city} logo={u.logo} planType={u.plan_type} type="all" isOnline={!!u.owner_is_online} />
+                ))
+              ) : (
+                <div className="no-results">{t('home_noCards')}</div>
               )}
             </div>
           </section>
