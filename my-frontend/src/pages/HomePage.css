@@ -270,36 +270,10 @@
     display: none;
   }
 
-  /* ── Mobile: «Все карточки» — горизонтальный скролл со snap ── */
   .all-cards-section .card-grid--4,
   .all-cards-section .card-grid--5 {
-    display: grid;
-    grid-template-rows: repeat(2, auto);
-    grid-auto-flow: column;
-    grid-auto-columns: calc((100vw - 10vw - 14px) / 2);
+    grid-template-columns: repeat(2, 1fr);
     gap: 14px;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    margin: 0 -14px;
-    /* 5vw боковой padding = визуальные поля у одной карточки на экран */
-    padding: 8px 5vw 12px;
-    scroll-padding-left: 5vw;
-  }
-  .all-cards-section .card-grid--4::-webkit-scrollbar,
-  .all-cards-section .card-grid--5::-webkit-scrollbar {
-    display: none;
-  }
-  .all-cards-section .card-grid--4 > *,
-  .all-cards-section .card-grid--5 > * {
-    width: auto;
-    max-width: none;
-    scroll-snap-align: none;
-  }
-  .all-cards-section .card-grid--4 > *:nth-child(2n + 1),
-  .all-cards-section .card-grid--5 > *:nth-child(2n + 1) {
-    scroll-snap-align: start;
   }
 }
 
@@ -349,19 +323,10 @@
     gap: 10px;
   }
 
-  /* Узкие экраны — скролл по одной карточке */
   .all-cards-section .card-grid--4,
   .all-cards-section .card-grid--5 {
-    grid-auto-columns: calc((100vw - 8vw - 10px) / 2);
+    grid-template-columns: repeat(2, 1fr);
     gap: 10px;
-    margin: 0 -12px;
-    padding: 4px 12px 10px;
-    scroll-padding-left: 12px;
-  }
-  .all-cards-section .card-grid--4 > *,
-  .all-cards-section .card-grid--5 > * {
-    width: auto;
-    max-width: none;
   }
 
   .all-cards-section {
