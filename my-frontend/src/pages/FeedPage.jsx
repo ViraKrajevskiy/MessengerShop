@@ -126,7 +126,6 @@ export default function FeedPage() {
   const [filterNew, setFilterNew] = useState(false)
   const [filterCity, setFilterCity] = useState('')
   const [sortOrder, setSortOrder] = useState('none') // none | date_desc | date_asc | price_desc | price_asc
-  const [showAllTags, setShowAllTags] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 900)
   const [columns, setColumns] = useState(4)
   const [page, setPage] = useState(0)
   const navigate = useNavigate()
@@ -337,8 +336,8 @@ export default function FeedPage() {
           {/* Tags */}
           {allTags.length > 0 && (
             <div className="feed-filters__tags">
-              <div className={`feed-filters__tags-list ${showAllTags ? 'feed-filters__tags-list--expanded' : ''}`}>
-                {(showAllTags ? allTags : allTags.slice(0, 8)).map(tag => (
+              <div className="feed-filters__tags-list feed-filters__tags-list--expanded">
+                {allTags.map(tag => (
                   <button
                     key={tag}
                     className={`feed-filter-chip feed-filter-chip--tag ${activeTags.includes(tag) ? 'feed-filter-chip--on' : ''}`}
@@ -347,14 +346,6 @@ export default function FeedPage() {
                     #{tag}
                   </button>
                 ))}
-                {allTags.length > 8 && (
-                  <button
-                    className="feed-filter-chip feed-filter-chip--more"
-                    onClick={() => setShowAllTags(v => !v)}
-                  >
-                    {showAllTags ? t('filter_collapse') : `+${allTags.length - 8}`}
-                  </button>
-                )}
               </div>
               {activeTags.length > 0 && (
                 <div className="feed-filters__active">
