@@ -147,7 +147,7 @@
   position: absolute;
   bottom: calc(100% + 7px);
   right: 0;
-  background: rgba(0, 0, 0, 0.78);
+  background: rgba(0, 0, 0, 0.82);
   color: #fff;
   font-size: 11px;
   font-weight: 600;
@@ -158,6 +158,7 @@
   opacity: 0;
   transform: translateY(4px);
   transition: opacity 0.18s, transform 0.18s;
+  z-index: 20;
 }
 
 .user-card__verified-badge:hover::after {
