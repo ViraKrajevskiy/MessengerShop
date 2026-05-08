@@ -1,1 +1,0 @@
-import{i as e}from"./index-kA8Me4fQ.js";function t(t){return t?t.startsWith(`http`)?t:`${e}${t}`:null}export{t};
