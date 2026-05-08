@@ -171,6 +171,8 @@ const ru = {
   filter_withReviews:   'С отзывами',
   filter_withVideo:     'С видео',
   filter_verified100:   '100% проверенные',
+  filter_verified:      'Официальные',
+  filter_new:           'Новые',
   filter_updated:       'Обновлённые',
   filter_private:       'Частные',
   filter_online:        'Онлайн',

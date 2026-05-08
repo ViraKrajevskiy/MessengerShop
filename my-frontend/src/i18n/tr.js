@@ -171,6 +171,8 @@ const tr = {
   filter_withReviews:   'Yorumlu',
   filter_withVideo:     'Videolu',
   filter_verified100:   '%100 doğrulanmış',
+  filter_verified:      'Resmi',
+  filter_new:           'Yeni',
   filter_updated:       'Güncellenmiş',
   filter_private:       'Bireysel',
   filter_online:        'Çevrimiçi',
