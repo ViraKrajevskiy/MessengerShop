@@ -12,7 +12,7 @@ from Shop.servicefunc.views.auth.google_auth import GoogleAuthView
 from Shop.servicefunc.views.moderator.auth import ModeratorLoginView
 from Shop.servicefunc.views.moderator.posts import ModeratorPostListView, ModeratorPostBlockView
 from Shop.servicefunc.views.moderator.complaints import ComplaintCreateView, ModeratorComplaintListView, ModeratorComplaintDetailView
-from Shop.servicefunc.views.moderator.tariffs import ModeratorBusinessListView, ModeratorTariffAssignView
+from Shop.servicefunc.views.moderator.tariffs import ModeratorBusinessListView, ModeratorTariffAssignView, ModeratorVerifyBusinessView
 from Shop.servicefunc.views.moderator.payments import (
     PaymentRequestCreateView, PaymentRequestStatusView,
     ModeratorPaymentListView, ModeratorPaymentDetailView,
@@ -142,6 +142,7 @@ urlpatterns = [
     path('moderator/complaints/<int:pk>/', ModeratorComplaintDetailView.as_view(), name='moderator_complaint_detail'),
     path('moderator/businesses/',      ModeratorBusinessListView.as_view(),        name='moderator_business_list'),
     path('moderator/businesses/<int:pk>/tariff/', ModeratorTariffAssignView.as_view(), name='moderator_tariff_assign'),
+    path('moderator/businesses/<int:pk>/verify/', ModeratorVerifyBusinessView.as_view(), name='moderator_verify_business'),
 
     path('moderator/stories/',                      ModeratorStoryListView.as_view(),    name='moderator_story_list'),
     path('moderator/stories/<int:pk>/block/',        ModeratorStoryBlockView.as_view(),   name='moderator_story_block'),

@@ -91,3 +91,22 @@ class ModeratorTariffAssignView(APIView):
             'plan_period':     business.plan_period,
             'plan_expires_at': business.plan_expires_at,
         })
+
+
+class ModeratorVerifyBusinessView(APIView):
+    """
+    PATCH /api/moderator/businesses/<pk>/verify/
+    Toggles is_verified for a business.
+    """
+    permission_classes = [IsAuthenticated, IsModerator]
+
+    def patch(self, request, pk):
+        try:
+            business = Business.objects.get(pk=pk)
+        except Business.DoesNotExist:
+            return Response({'detail': 'Бизнес не найден.'}, status=404)
+
+        business.is_verified = not business.is_verified
+        business.save(update_fields=['is_verified'])
+
+        return Response({'id': business.id, 'is_verified': business.is_verified})
