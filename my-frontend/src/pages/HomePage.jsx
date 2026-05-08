@@ -49,6 +49,7 @@ function bizToCard(b) {
     is_pro: b.is_pro,
     plan_type: b.plan_type || 'FREE',
     rating: b.rating,
+    owner_is_online: b.owner_is_online,
   }
 }
 
