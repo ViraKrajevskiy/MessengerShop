@@ -198,8 +198,10 @@ export default function PostCard({ post, onDelete }) {
       )}
       <div className="post-card" ref={cardRef} onClick={() => navigate(`/business/${post.business_id}`)}>
       <div className="post-card__header">
-        <img className="post-card__avatar" src={logo} alt={post.business_name}
-          onClick={(e) => { e.stopPropagation(); navigate(`/business/${post.business_id}`) }} />
+        <div className="post-card__avatar-wrap" onClick={(e) => { e.stopPropagation(); navigate(`/business/${post.business_id}`) }}>
+          <img className="post-card__avatar" src={logo} alt={post.business_name} />
+          {post.owner_is_online && <span className="post-card__online-dot" />}
+        </div>
         <div className="post-card__meta">
           <span className="post-card__name">
             <span className="post-card__name-text">{post.business_name}</span>
