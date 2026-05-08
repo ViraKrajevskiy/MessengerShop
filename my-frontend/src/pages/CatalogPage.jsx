@@ -158,7 +158,6 @@ export default function CatalogPage() {
   const [filterCity, setFilterCity]       = useState('')
   const [filterCat, setFilterCat]         = useState('')
   const [sortOrder, setSortOrder]         = useState('none')
-  const [showAllTags, setShowAllTags]     = useState(() => typeof window !== 'undefined' && window.innerWidth >= 900)
   const [search, setSearch]               = useState('')
   const [columns, setColumns]             = useState(4)
 
@@ -355,7 +354,7 @@ export default function CatalogPage() {
           {tab !== 'companies' && allTags.length > 0 && (
             <div className="cat-filters__tags">
               <div className="cat-filters__tags-list">
-                {(showAllTags ? allTags : allTags.slice(0, 8)).map(tag => (
+                {allTags.map(tag => (
                   <button
                     key={tag}
                     className={`cat-filter-chip cat-filter-chip--tag ${activeTags.includes(tag) ? 'cat-filter-chip--on' : ''}`}
@@ -364,11 +363,6 @@ export default function CatalogPage() {
                     #{tag}
                   </button>
                 ))}
-                {allTags.length > 8 && (
-                  <button className="cat-filter-chip cat-filter-chip--more" onClick={() => setShowAllTags(v => !v)}>
-                    {showAllTags ? '−' : `+${allTags.length - 8}`}
-                  </button>
-                )}
               </div>
               {activeTags.length > 0 && (
                 <div className="cat-filters__active-tags">
