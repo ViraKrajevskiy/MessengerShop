@@ -308,7 +308,7 @@ export default function HomePage() {
                 ))
               ) : filteredAll.length > 0 ? (
                 homeBusinessCards.map(u => (
-                  <UserCard key={u.id} id={u.id} name={u.name} city={u.city} logo={u.logo} planType={u.plan_type} type="all" isOnline={!!u.owner_is_online} />
+                  <UserCard key={u.id} id={u.id} name={u.name} city={u.city} logo={u.logo} planType={u.plan_type} type="all" isOnline={!!u.owner_is_online} isVerified={!!u.is_verified} />
                 ))
               ) : (
                 <div className="no-results">{t('home_noCards')}</div>
