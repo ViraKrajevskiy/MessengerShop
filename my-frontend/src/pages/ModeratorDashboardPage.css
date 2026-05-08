@@ -367,11 +367,13 @@
 .mod-btn--red    { background: rgba(239,68,68,0.2);   color: #f87171; }
 .mod-btn--gray   { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); }
 .mod-btn--purple { background: rgba(139,92,246,0.2);  color: #c4b5fd; }
+.mod-btn--teal   { background: rgba(20,184,166,0.2);  color: #2dd4bf; }
 
 .mod-btn--green:hover:not(:disabled)  { background: rgba(34,197,94,0.35); }
 .mod-btn--red:hover:not(:disabled)    { background: rgba(239,68,68,0.35); }
 .mod-btn--gray:hover:not(:disabled)   { background: rgba(255,255,255,0.15); }
 .mod-btn--purple:hover:not(:disabled) { background: rgba(139,92,246,0.35); }
+.mod-btn--teal:hover:not(:disabled)   { background: rgba(20,184,166,0.35); }
 
 /* Plan buttons */
 .mod-plan-btns {

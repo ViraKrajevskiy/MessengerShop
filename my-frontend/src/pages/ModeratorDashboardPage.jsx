@@ -6,7 +6,7 @@ import {
   apiModeratorGetVerificationDetail, apiModeratorSendVerificationMessage,
   apiModeratorGetPosts, apiModeratorBlockPost,
   apiModeratorGetComplaints, apiModeratorResolveComplaint,
-  apiModeratorGetBusinesses, apiModeratorAssignTariff,
+  apiModeratorGetBusinesses, apiModeratorAssignTariff, apiModeratorToggleVerify,
   apiModeratorGetStories, apiModeratorBlockStory,
   apiModeratorGetComments, apiModeratorBlockComment,
   apiModeratorGetProducts, apiModeratorBlockProduct,
@@ -460,6 +460,7 @@ function TariffsTab({ token }) {
   const [planType, setPlanType] = useState('PRO')
   const [planPeriod, setPlanPeriod] = useState('MONTH')
   const [saving, setSaving] = useState(false)
+  const [verifying, setVerifying] = useState(false)
   const [search, setSearch] = useState('')
 
   const load = useCallback(async () => {
@@ -482,6 +483,16 @@ function TariffsTab({ token }) {
       load()
     } catch { /* ignore */ }
     finally { setSaving(false) }
+  }
+
+  const handleToggleVerify = async () => {
+    setVerifying(true)
+    try {
+      const res = await apiModeratorToggleVerify(token, selected.id)
+      setSelected(s => ({ ...s, is_verified: res.is_verified }))
+      setItems(prev => prev.map(b => b.id === selected.id ? { ...b, is_verified: res.is_verified } : b))
+    } catch { /* ignore */ }
+    finally { setVerifying(false) }
   }
 
   const filtered = items.filter(b => b.brand_name.toLowerCase().includes(search.toLowerCase()))
@@ -570,9 +581,17 @@ function TariffsTab({ token }) {
                 </>
               )}
 
-              <div className="mod-modal__actions" style={{ marginTop: 16 }}>
+              <div className="mod-modal__actions" style={{ marginTop: 16, gap: 8, display: 'flex', flexWrap: 'wrap' }}>
                 <button className="mod-btn mod-btn--purple" disabled={saving} onClick={handleAssign}>
                   {saving ? '…' : '💎 Назначить тариф'}
+                </button>
+                <button
+                  className={`mod-btn ${selected.is_verified ? 'mod-btn--gray' : 'mod-btn--teal'}`}
+                  disabled={verifying}
+                  onClick={handleToggleVerify}
+                  style={{ minWidth: 160 }}
+                >
+                  {verifying ? '…' : selected.is_verified ? '✓ Снять верификацию' : '✓ Верифицировать'}
                 </button>
               </div>
             </div>

@@ -65,6 +65,13 @@ export async function apiModeratorAssignTariff(token, businessId, { plan_type, p
   })
 }
 
+export async function apiModeratorToggleVerify(token, businessId) {
+  return request(`/moderator/businesses/${businessId}/verify/`, {
+    method: 'PATCH',
+    headers: auth(token),
+  })
+}
+
 // ── Verification (reuses existing endpoints) ─────────────────────────────────
 export async function apiModeratorGetVerifications(token, { status } = {}) {
   const params = status ? `?status=${status}` : ''
