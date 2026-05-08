@@ -171,6 +171,8 @@ const en = {
   filter_withReviews:   'With reviews',
   filter_withVideo:     'With video',
   filter_verified100:   '100% verified',
+  filter_verified:      'Official',
+  filter_new:           'New',
   filter_updated:       'Updated',
   filter_private:       'Private',
   filter_online:        'Online',
