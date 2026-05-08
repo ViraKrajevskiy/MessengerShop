@@ -1119,25 +1119,59 @@
 .bp__sim-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.05) 55%, transparent 100%);
+  background: linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.0) 52%, transparent 100%);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   padding: 12px 10px;
   gap: 3px;
-  opacity: 0;
-  transition: opacity 0.28s ease;
   border-radius: 14px;
 }
-.bp__sim-card:hover .bp__sim-overlay {
+.bp__sim-top-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 2px;
+}
+
+.bp__sim-verified {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #2196f3;
+  box-shadow: 0 1px 5px rgba(33,150,243,0.5);
+  flex-shrink: 0;
+  position: relative;
+  cursor: default;
+}
+
+.bp__sim-verified::after {
+  content: 'Официальный';
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: rgba(0,0,0,0.82);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+  padding: 3px 8px;
+  border-radius: 6px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.18s, transform 0.18s;
+  z-index: 20;
+}
+
+.bp__sim-verified:hover::after {
   opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
-@media (hover: none) {
-  .bp__sim-overlay {
-    opacity: 1;
-    background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 55%);
-  }
-}
+
 .bp__sim-badge {
   display: inline-block;
   background: linear-gradient(135deg, #f5a623, #ff8f00);
