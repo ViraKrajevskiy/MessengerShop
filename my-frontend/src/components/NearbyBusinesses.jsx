@@ -74,8 +74,10 @@ export default function NearbyBusinesses({ businesses = [], posts = [] }) {
   /* reset page on city change */
   useEffect(() => { setPage(0) }, [selectedCity, geoCity])
 
-  /* swipe support */
+  /* swipe + drag-scroll support */
   const swipeStart = useRef(null)
+  const dragState  = useRef({ isDown: false, startX: 0, scrollLeft: 0, moved: false })
+
   const onTouchStart = e => { swipeStart.current = e.touches[0].clientX }
   const onTouchEnd   = e => {
     if (swipeStart.current === null) return
@@ -85,6 +87,32 @@ export default function NearbyBusinesses({ businesses = [], posts = [] }) {
       if (dx > 0 && page > 0)             setPage(p => p - 1)
     }
     swipeStart.current = null
+  }
+
+  const onMouseDown = e => {
+    const el = trackRef.current
+    if (!el) return
+    dragState.current = { isDown: true, startX: e.clientX, scrollLeft: el.scrollLeft, moved: false }
+    el.style.cursor = 'grabbing'
+    el.style.userSelect = 'none'
+  }
+  const onMouseMove = e => {
+    if (!dragState.current.isDown) return
+    const el = trackRef.current
+    if (!el) return
+    const dx = e.clientX - dragState.current.startX
+    if (Math.abs(dx) > 5) dragState.current.moved = true
+    el.scrollLeft = dragState.current.scrollLeft - dx
+  }
+  const onMouseUp = () => {
+    dragState.current.isDown = false
+    const el = trackRef.current
+    if (!el) return
+    el.style.cursor = 'grab'
+    el.style.userSelect = ''
+    if (dragState.current.moved) {
+      el.addEventListener('click', e => e.stopPropagation(), { capture: true, once: true })
+    }
   }
 
   /* geolocation */
@@ -155,6 +183,11 @@ export default function NearbyBusinesses({ businesses = [], posts = [] }) {
             ref={trackRef}
             onTouchStart={onTouchStart}
             onTouchEnd={onTouchEnd}
+            onMouseDown={onMouseDown}
+            onMouseMove={onMouseMove}
+            onMouseUp={onMouseUp}
+            onMouseLeave={onMouseUp}
+            style={{ cursor: 'grab' }}
           >
             {visible.map(biz => {
               const img = postImageMap[biz.id] || resolveUrl(biz.cover) || null
