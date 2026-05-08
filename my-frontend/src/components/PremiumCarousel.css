@@ -88,6 +88,26 @@
   }
 }
 
+/* ── Overlay top row (badge + verified) ── */
+.pc-card__overlay-top {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 2px;
+}
+
+.pc-card__verified {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #2196f3;
+  box-shadow: 0 1px 5px rgba(33,150,243,0.5);
+  flex-shrink: 0;
+}
+
 /* ── Badge ── */
 .pc-card__badge {
   display: inline-block;

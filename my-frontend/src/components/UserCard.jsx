@@ -71,7 +71,7 @@ export default function UserCard({ id, name = 'Имя', city = 'Город', bad
 
   const handleMessage = (e) => {
     e.stopPropagation()
-    guard(() => navigate('/messenger'))
+    guard(() => navigate('/messenger', { state: { openBizId: id } }))
   }
 
   return (

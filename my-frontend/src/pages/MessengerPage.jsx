@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import Header from '../components/Header'
 import { useAuth } from '../context/AuthContext'
 import {
@@ -718,6 +718,7 @@ function CreateGroupModal({ onClose, onCreate }) {
 /* ═════ Main MessengerPage ═════ */
 export default function MessengerPage() {
   const navigate = useNavigate()
+  const { state: locationState } = useLocation()
   const { user, getAccessToken } = useAuth()
 
   const [tab, setTab]               = useState('chats') // 'chats' | 'groups'
@@ -741,8 +742,13 @@ export default function MessengerPage() {
           apiGetInquiries(token).catch(() => []),
           apiGetGroups(token).catch(() => []),
         ])
-        setInquiries(inqs || [])
+        const loadedInqs = inqs || []
+        setInquiries(loadedInqs)
         setGroups(grps || [])
+        if (locationState?.openBizId) {
+          const idx = loadedInqs.findIndex(i => i.biz_id === locationState.openBizId)
+          if (idx !== -1) setActiveIdx(idx)
+        }
       } finally { setLoading(false) }
     })
   }, [user])
