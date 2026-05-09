@@ -209,37 +209,55 @@
 .cat-price-slider {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 12px 0 4px;
+  gap: 6px;
+  padding: 10px 0 4px;
 }
 
-.cat-price-slider__labels {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 13px;
+.cat-price-slider__label {
+  font-size: 12px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--text-muted);
+  letter-spacing: 0.3px;
 }
 
-.cat-price-slider__values {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--accent-1);
+.cat-price-slider__body {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
+
+.cat-price-slider__num {
+  width: 62px;
+  flex-shrink: 0;
+  padding: 4px 7px;
+  border-radius: 7px;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.15s;
+  -moz-appearance: textfield;
+}
+.cat-price-slider__num::-webkit-inner-spin-button,
+.cat-price-slider__num::-webkit-outer-spin-button { -webkit-appearance: none; }
+.cat-price-slider__num:focus { border-color: var(--accent-1); }
 
 .cat-price-slider__track-wrap {
   position: relative;
-  height: 6px;
-  margin: 10px 0;
+  height: 4px;
+  flex: 1;
+  margin: 6px 0;
 }
 
 .cat-price-slider__fill {
   position: absolute;
   top: 0;
-  height: 6px;
+  height: 4px;
   background: var(--accent-gradient);
-  border-radius: 3px;
+  border-radius: 2px;
   pointer-events: none;
   z-index: 1;
 }
@@ -250,9 +268,9 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 6px;
-  background: var(--border);
-  border-radius: 3px;
+  height: 4px;
+  background: var(--border-color, #e0e0e0);
+  border-radius: 2px;
 }
 
 .cat-price-slider__input {
@@ -260,7 +278,7 @@
   top: 50%;
   transform: translateY(-50%);
   width: 100%;
-  height: 6px;
+  height: 4px;
   background: transparent;
   appearance: none;
   -webkit-appearance: none;
@@ -271,29 +289,28 @@
 .cat-price-slider__input::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 20px;
-  height: 20px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   background: #fff;
   border: 2px solid var(--accent-1);
-  box-shadow: 0 1px 6px rgba(0,0,0,0.18);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
   pointer-events: all;
   cursor: pointer;
-  transition: border-color 0.15s, transform 0.15s;
+  transition: transform 0.15s;
 }
 
 .cat-price-slider__input::-webkit-slider-thumb:hover {
-  transform: scale(1.15);
-  border-color: var(--accent-2, var(--accent-1));
+  transform: scale(1.2);
 }
 
 .cat-price-slider__input::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   background: #fff;
   border: 2px solid var(--accent-1);
-  box-shadow: 0 1px 6px rgba(0,0,0,0.18);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
   pointer-events: all;
   cursor: pointer;
 }

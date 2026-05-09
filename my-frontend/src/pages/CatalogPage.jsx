@@ -327,35 +327,46 @@ export default function CatalogPage() {
           {/* Price slider — только для услуг */}
           {tab === 'services' && dataMax > 0 && (
             <div className="cat-price-slider">
-              <div className="cat-price-slider__labels">
-                <span>{t('catalog_price') || 'Цена'}</span>
-                <span className="cat-price-slider__values">
-                  {priceMin.toLocaleString()} — {priceMax.toLocaleString()} ₺
-                </span>
-              </div>
-              <div className="cat-price-slider__track-wrap">
-                <div
-                  className="cat-price-slider__fill"
-                  style={{
-                    left: `${((priceMin - dataMin) / (dataMax - dataMin)) * 100}%`,
-                    right: `${((dataMax - priceMax) / (dataMax - dataMin)) * 100}%`,
-                  }}
-                />
+              <span className="cat-price-slider__label">{t('catalog_price') || 'Цена'} ₺</span>
+              <div className="cat-price-slider__body">
                 <input
-                  type="range"
-                  className="cat-price-slider__input"
-                  min={dataMin} max={dataMax} value={priceMin}
+                  type="number"
+                  className="cat-price-slider__num"
+                  min={dataMin} max={priceMax - 1}
+                  value={priceMin}
                   onChange={e => {
-                    const v = Math.min(Number(e.target.value), priceMax - 1)
+                    const v = Math.min(Math.max(Number(e.target.value), dataMin), priceMax - 1)
                     setPriceMin(v)
                   }}
                 />
+                <div className="cat-price-slider__track-wrap">
+                  <div
+                    className="cat-price-slider__fill"
+                    style={{
+                      left: `${((priceMin - dataMin) / (dataMax - dataMin)) * 100}%`,
+                      right: `${((dataMax - priceMax) / (dataMax - dataMin)) * 100}%`,
+                    }}
+                  />
+                  <input
+                    type="range"
+                    className="cat-price-slider__input"
+                    min={dataMin} max={dataMax} value={priceMin}
+                    onChange={e => setPriceMin(Math.min(Number(e.target.value), priceMax - 1))}
+                  />
+                  <input
+                    type="range"
+                    className="cat-price-slider__input"
+                    min={dataMin} max={dataMax} value={priceMax}
+                    onChange={e => setPriceMax(Math.max(Number(e.target.value), priceMin + 1))}
+                  />
+                </div>
                 <input
-                  type="range"
-                  className="cat-price-slider__input"
-                  min={dataMin} max={dataMax} value={priceMax}
+                  type="number"
+                  className="cat-price-slider__num"
+                  min={priceMin + 1} max={dataMax}
+                  value={priceMax}
                   onChange={e => {
-                    const v = Math.max(Number(e.target.value), priceMin + 1)
+                    const v = Math.max(Math.min(Number(e.target.value), dataMax), priceMin + 1)
                     setPriceMax(v)
                   }}
                 />
