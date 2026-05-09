@@ -54,8 +54,8 @@ function bizToCard(b) {
 }
 
 const GUEST_LIMIT = 4
-const GUEST_CARDS_LIMIT = 16
-const CARDS_PER_PAGE = 16
+const GUEST_CARDS_LIMIT = 12
+const CARDS_PER_PAGE = 12
 /** Сколько постов показываем на главной в блоке «Публикации» */
 const HOME_POSTS_VISIBLE = 20
 const MOBILE_MEDIA_QUERY = '(max-width: 500px)'
