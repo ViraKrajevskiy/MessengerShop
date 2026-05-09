@@ -160,6 +160,7 @@ const ru = {
   catalog_priceAsc:   'Цена: по возрастанию',
   catalog_priceDesc:  'Цена: по убыванию',
   catalog_priceOnReq: 'Цена по запросу',
+  catalog_priceAll:   'Все',
   catalog_favorite:   'В избранное',
   catalog_details:    'Подробнее',
 
