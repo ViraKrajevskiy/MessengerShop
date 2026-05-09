@@ -1,0 +1,1 @@
+import{r as e}from"./index-kFkUhJmD.js";function t(t){return t?t.startsWith(`http`)?t:`${e}${t}`:null}export{t};
