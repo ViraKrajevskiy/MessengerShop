@@ -1,0 +1,1 @@
+import{r as e}from"./index-pIhr2cHW.js";function t(t){return t?t.startsWith(`http`)?t:`${e}${t}`:null}export{t};
