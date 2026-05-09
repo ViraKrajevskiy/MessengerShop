@@ -105,13 +105,14 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
+  padding: 4px 2px 8px;
 }
 
 .nearby__card {
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: 16px;
-  overflow: hidden;
+  overflow: clip;
   cursor: pointer;
   transition: box-shadow 0.2s, transform 0.2s;
 }
