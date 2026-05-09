@@ -1,6 +1,5 @@
 .user-card {
   border-radius: var(--radius-lg);
-  overflow: hidden;
   background: var(--bg-secondary);
   box-shadow: 0 4px 8px -6px rgba(0, 0, 0, 0.12);
   cursor: pointer;
@@ -8,6 +7,7 @@
   border: none;
   will-change: transform;
   transform: translateZ(0);
+  position: relative;
 }
 
 .user-card:hover {
@@ -20,6 +20,7 @@
   width: 100%;
   aspect-ratio: 3/4;
   overflow: hidden;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 
 .user-card__photo {
