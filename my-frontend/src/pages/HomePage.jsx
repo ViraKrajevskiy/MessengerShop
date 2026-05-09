@@ -299,7 +299,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="card-grid card-grid--5">
+            <div className="card-grid card-grid--4">
               {loadingBiz ? (
                 Array.from({ length: 16 }).map((_, i) => (
                   <div key={i} className="vip-card vip-card--skeleton">
