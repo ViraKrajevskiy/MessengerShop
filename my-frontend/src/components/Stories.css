@@ -112,7 +112,8 @@
 }
 
 .stories__item {
-  flex: 0 0 auto;
+  flex: 0 0 88px;
+  width: 88px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -121,7 +122,6 @@
   scroll-snap-align: start;
   user-select: none;
   -webkit-user-drag: none;
-  min-width: 100px;
 }
 
 .stories__avatar {
