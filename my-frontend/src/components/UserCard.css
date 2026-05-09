@@ -1,23 +1,24 @@
-/* Обёртка — без overflow:hidden, чтобы бейдж не обрезался */
+/* Обёртка — без overflow:hidden, анимация и тень здесь */
 .user-card__wrap {
   position: relative;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 4px 8px -6px rgba(0, 0, 0, 0.12);
+  transition: transform 0.25s, box-shadow 0.25s;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.user-card__wrap:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 20px -8px rgba(0, 0, 0, 0.14);
 }
 
 .user-card {
   border-radius: var(--radius-lg);
   overflow: hidden;
   background: var(--bg-secondary);
-  box-shadow: 0 4px 8px -6px rgba(0, 0, 0, 0.12);
   cursor: pointer;
-  transition: transform 0.25s, box-shadow 0.25s;
   border: none;
-  will-change: transform;
-  transform: translateZ(0);
-}
-
-.user-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 10px 20px -8px rgba(0, 0, 0, 0.14);
 }
 
 .user-card__image {
@@ -221,17 +222,17 @@
   background: rgba(229, 57, 53, 0.9);
 }
 
-/* ── Plan-based styling — мягкий цветной «глоу» без жёсткой рамки ── */
-.user-card--vip-plan {
+/* ── Plan-based styling — тень на обёртке ── */
+.user-card__wrap--vip {
   box-shadow: 0 5px 14px -7px rgba(245, 166, 35, 0.50);
 }
-.user-card--vip-plan:hover {
+.user-card__wrap--vip:hover {
   box-shadow: 0 10px 20px -8px rgba(245, 166, 35, 0.55);
 }
-.user-card--pro-plan {
+.user-card__wrap--pro {
   box-shadow: 0 5px 14px -7px rgba(66, 165, 245, 0.50);
 }
-.user-card--pro-plan:hover {
+.user-card__wrap--pro:hover {
   box-shadow: 0 10px 20px -8px rgba(66, 165, 245, 0.55);
 }
 

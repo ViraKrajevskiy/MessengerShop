@@ -76,7 +76,7 @@ export default function UserCard({ id, name = 'Имя', city = 'Город', bad
 
   return (
     <>
-      <div className="user-card__wrap">
+      <div className={`user-card__wrap${planType === 'VIP' ? ' user-card__wrap--vip' : planType === 'PRO' ? ' user-card__wrap--pro' : ''}`}>
         {isVerified && (
           <span className="user-card__verified-badge" title="Официальный">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff">
@@ -84,7 +84,7 @@ export default function UserCard({ id, name = 'Имя', city = 'Город', bad
             </svg>
           </span>
         )}
-        <div className={`user-card${planType === 'VIP' ? ' user-card--vip-plan' : planType === 'PRO' ? ' user-card--pro-plan' : ''}`} onClick={handleClick}>
+        <div className="user-card" onClick={handleClick}>
           <div className="user-card__image" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
             {isVideo
               ? <video ref={videoRef} className="user-card__photo" src={rawPhoto} muted loop playsInline preload="metadata" />
