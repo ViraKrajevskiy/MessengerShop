@@ -125,11 +125,12 @@
   text-shadow: 0 1px 3px rgba(0,0,0,0.4);
 }
 
-/* ── Verified badge (on photo) ── */
+/* ── Verified badge (поверх карточки, вне overflow:hidden) ── */
 .user-card__verified-badge {
   position: absolute;
   top: 9px;
   left: 9px;
+  z-index: 10;
   width: 22px;
   height: 22px;
   border-radius: 50%;
