@@ -163,6 +163,7 @@ export default function CatalogPage() {
   const [priceMin, setPriceMin]           = useState(0)
   const [priceMax, setPriceMax]           = useState(0)
   const [priceRangeSet, setPriceRangeSet] = useState(false)
+  const [maxFocused, setMaxFocused]       = useState(false)
 
   useEffect(() => {
     Promise.all([apiGetProducts(), apiGetBusinesses()])
@@ -361,13 +362,20 @@ export default function CatalogPage() {
                   />
                 </div>
                 <input
-                  type="number"
+                  type={priceMax >= dataMax && !maxFocused ? 'text' : 'number'}
                   className="cat-price-slider__num"
+                  value={priceMax >= dataMax && !maxFocused ? 'Все' : priceMax}
                   min={priceMin + 1} max={dataMax}
-                  value={priceMax}
+                  onFocus={() => setMaxFocused(true)}
+                  onBlur={e => {
+                    setMaxFocused(false)
+                    const v = e.target.value === '' ? dataMax : Math.max(Math.min(Number(e.target.value), dataMax), priceMin + 1)
+                    setPriceMax(isNaN(v) ? dataMax : v)
+                  }}
                   onChange={e => {
+                    if (!maxFocused) return
                     const v = Math.max(Math.min(Number(e.target.value), dataMax), priceMin + 1)
-                    setPriceMax(v)
+                    if (!isNaN(v)) setPriceMax(v)
                   }}
                 />
               </div>
