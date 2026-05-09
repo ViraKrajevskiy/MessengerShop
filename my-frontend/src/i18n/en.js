@@ -161,6 +161,9 @@ const en = {
   catalog_priceDesc:  'Price: high to low',
   catalog_priceOnReq: 'Price on request',
   catalog_priceAll:   'All',
+  catalog_price:      'Price',
+  catalog_priceFrom:  'from',
+  catalog_priceTo:    'to',
   catalog_favorite:   'Add to favorites',
   catalog_details:    'Details',
 
