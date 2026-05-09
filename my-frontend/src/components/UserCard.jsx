@@ -76,7 +76,7 @@ export default function UserCard({ id, name = 'Имя', city = 'Город', bad
 
   return (
     <>
-      <div className={`user-card${planType === 'VIP' ? ' user-card--vip-plan' : planType === 'PRO' ? ' user-card--pro-plan' : ''}`} onClick={handleClick} style={{ position: 'relative' }}>
+      <div className="user-card__wrap">
         {isVerified && (
           <span className="user-card__verified-badge" title="Официальный">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff">
@@ -84,46 +84,47 @@ export default function UserCard({ id, name = 'Имя', city = 'Город', bad
             </svg>
           </span>
         )}
-        <div className="user-card__image" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
-          {isVideo
-            ? <video ref={videoRef} className="user-card__photo" src={rawPhoto} muted loop playsInline preload="metadata" />
-            : <img className="user-card__photo" src={rawPhoto} alt={name} loading="lazy" width="400" height="530" />
-          }
-          {planType === 'VIP' ? (
-            <span className="user-card__badge user-card__badge--vip">VIP</span>
-          ) : planType === 'PRO' ? (
-            <span className="user-card__badge user-card__badge--pro">PRO</span>
-          ) : badge ? (
-            <span className="user-card__badge">{badge}</span>
-          ) : null}
+        <div className={`user-card${planType === 'VIP' ? ' user-card--vip-plan' : planType === 'PRO' ? ' user-card--pro-plan' : ''}`} onClick={handleClick}>
+          <div className="user-card__image" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+            {isVideo
+              ? <video ref={videoRef} className="user-card__photo" src={rawPhoto} muted loop playsInline preload="metadata" />
+              : <img className="user-card__photo" src={rawPhoto} alt={name} loading="lazy" width="400" height="530" />
+            }
+            {planType === 'VIP' ? (
+              <span className="user-card__badge user-card__badge--vip">VIP</span>
+            ) : planType === 'PRO' ? (
+              <span className="user-card__badge user-card__badge--pro">PRO</span>
+            ) : badge ? (
+              <span className="user-card__badge">{badge}</span>
+            ) : null}
 
-          {isOnline && <span className="user-card__online-dot" />}
+            {isOnline && <span className="user-card__online-dot" />}
 
-          {/* Action buttons — появляются при hover */}
-          <div className="user-card__actions">
-            <button
-              className={`user-card__action-btn${fav ? ' user-card__action-btn--liked' : ''}`}
-              onClick={toggleFav}
-              title={fav ? t('user_removeFav') : t('user_addFav')}
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill={fav ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
-                <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
-              </svg>
-            </button>
-            <button
-              className="user-card__action-btn user-card__action-btn--msg"
-              onClick={handleMessage}
-              title={t('user_write')}
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-              </svg>
-            </button>
+            <div className="user-card__actions">
+              <button
+                className={`user-card__action-btn${fav ? ' user-card__action-btn--liked' : ''}`}
+                onClick={toggleFav}
+                title={fav ? t('user_removeFav') : t('user_addFav')}
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill={fav ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+                  <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
+                </svg>
+              </button>
+              <button
+                className="user-card__action-btn user-card__action-btn--msg"
+                onClick={handleMessage}
+                title={t('user_write')}
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+                </svg>
+              </button>
+            </div>
           </div>
-        </div>
-        <div className="user-card__info">
-          <span className="user-card__name">{name}</span>
-          <span className="user-card__city">{city}</span>
+          <div className="user-card__info">
+            <span className="user-card__name">{name}</span>
+            <span className="user-card__city">{city}</span>
+          </div>
         </div>
       </div>
       <AuthModal />
