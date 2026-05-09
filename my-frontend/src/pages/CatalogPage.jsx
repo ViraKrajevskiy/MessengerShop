@@ -160,6 +160,9 @@ export default function CatalogPage() {
   const [sortOrder, setSortOrder]         = useState('none')
   const [search, setSearch]               = useState('')
   const [columns, setColumns]             = useState(4)
+  const [priceMin, setPriceMin]           = useState(0)
+  const [priceMax, setPriceMax]           = useState(0)
+  const [priceRangeSet, setPriceRangeSet] = useState(false)
 
   useEffect(() => {
     Promise.all([apiGetProducts(), apiGetBusinesses()])
@@ -174,6 +177,21 @@ export default function CatalogPage() {
   // Derived lists
   const allProducts = useMemo(() => products.filter(p => p.product_type !== 'SERVICE'), [products])
   const allServices = useMemo(() => products.filter(p => p.product_type === 'SERVICE'), [products])
+
+  // Price range from services
+  const [dataMin, dataMax] = useMemo(() => {
+    const prices = allServices.map(s => parseFloat(s.price)).filter(p => !isNaN(p) && p > 0)
+    if (!prices.length) return [0, 0]
+    return [Math.floor(Math.min(...prices)), Math.ceil(Math.max(...prices))]
+  }, [allServices])
+
+  useEffect(() => {
+    if (dataMax > 0 && !priceRangeSet) {
+      setPriceMin(dataMin)
+      setPriceMax(dataMax)
+      setPriceRangeSet(true)
+    }
+  }, [dataMin, dataMax, priceRangeSet])
 
   // All unique tags
   const allTags = useMemo(() => {
@@ -196,13 +214,20 @@ export default function CatalogPage() {
 
   const isNew = (item) => item.created_at && (Date.now() - new Date(item.created_at)) / 3600000 < 24
 
-  const passesProductFilter = (p) =>
-    (!search || p.name?.toLowerCase().includes(search.toLowerCase()) || p.business_name?.toLowerCase().includes(search.toLowerCase())) &&
-    (activeTags.length === 0 || activeTags.some(tg => (p.tags || []).includes(tg))) &&
-    (!filterVip      || vipBizIds.has(p.business_id)) &&
-    (!filterVerified || verifiedBizIds.has(p.business_id)) &&
-    (!filterNew      || isNew(p)) &&
-    (!filterCity     || bizCityMap.get(p.business_id) === filterCity)
+  const passesProductFilter = (p) => {
+    if (priceRangeSet && dataMax > 0 && p.product_type === 'SERVICE') {
+      const price = parseFloat(p.price)
+      if (!isNaN(price) && price > 0 && (price < priceMin || price > priceMax)) return false
+    }
+    return (
+      (!search || p.name?.toLowerCase().includes(search.toLowerCase()) || p.business_name?.toLowerCase().includes(search.toLowerCase())) &&
+      (activeTags.length === 0 || activeTags.some(tg => (p.tags || []).includes(tg))) &&
+      (!filterVip      || vipBizIds.has(p.business_id)) &&
+      (!filterVerified || verifiedBizIds.has(p.business_id)) &&
+      (!filterNew      || isNew(p)) &&
+      (!filterCity     || bizCityMap.get(p.business_id) === filterCity)
+    )
+  }
 
   const passesBizFilter = (b) =>
     (!search || b.brand_name?.toLowerCase().includes(search.toLowerCase())) &&
@@ -229,6 +254,7 @@ export default function CatalogPage() {
   const clearFilters = () => {
     setActiveTags([]); setFilterVip(false); setFilterVerified(false)
     setFilterNew(false); setFilterCity(''); setFilterCat(''); setSortOrder('none'); setSearch('')
+    setPriceMin(dataMin); setPriceMax(dataMax)
   }
 
   const toggleTag = (tag) => setActiveTags(prev => prev.includes(tag) ? prev.filter(tg => tg !== tag) : [...prev, tag])
@@ -297,6 +323,45 @@ export default function CatalogPage() {
               <button className="cat-filters__search-clear" onClick={() => setSearch('')}>✕</button>
             )}
           </div>
+
+          {/* Price slider — только для услуг */}
+          {tab === 'services' && dataMax > 0 && (
+            <div className="cat-price-slider">
+              <div className="cat-price-slider__labels">
+                <span>{t('catalog_price') || 'Цена'}</span>
+                <span className="cat-price-slider__values">
+                  {priceMin.toLocaleString()} — {priceMax.toLocaleString()} ₺
+                </span>
+              </div>
+              <div className="cat-price-slider__track-wrap">
+                <div
+                  className="cat-price-slider__fill"
+                  style={{
+                    left: `${((priceMin - dataMin) / (dataMax - dataMin)) * 100}%`,
+                    right: `${((dataMax - priceMax) / (dataMax - dataMin)) * 100}%`,
+                  }}
+                />
+                <input
+                  type="range"
+                  className="cat-price-slider__input"
+                  min={dataMin} max={dataMax} value={priceMin}
+                  onChange={e => {
+                    const v = Math.min(Number(e.target.value), priceMax - 1)
+                    setPriceMin(v)
+                  }}
+                />
+                <input
+                  type="range"
+                  className="cat-price-slider__input"
+                  min={dataMin} max={dataMax} value={priceMax}
+                  onChange={e => {
+                    const v = Math.max(Number(e.target.value), priceMin + 1)
+                    setPriceMax(v)
+                  }}
+                />
+              </div>
+            </div>
+          )}
 
           {/* Chips row */}
           <div className="cat-filters__row">

@@ -205,6 +205,99 @@
   .cat-filters__search-clear { right: 10px; }
 }
 
+/* ── Price range slider ── */
+.cat-price-slider {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 0 4px;
+}
+
+.cat-price-slider__labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.cat-price-slider__values {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent-1);
+}
+
+.cat-price-slider__track-wrap {
+  position: relative;
+  height: 6px;
+  margin: 10px 0;
+}
+
+.cat-price-slider__fill {
+  position: absolute;
+  top: 0;
+  height: 6px;
+  background: var(--accent-gradient);
+  border-radius: 3px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.cat-price-slider__track-wrap::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+}
+
+.cat-price-slider__input {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 100%;
+  height: 6px;
+  background: transparent;
+  appearance: none;
+  -webkit-appearance: none;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.cat-price-slider__input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--accent-1);
+  box-shadow: 0 1px 6px rgba(0,0,0,0.18);
+  pointer-events: all;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.cat-price-slider__input::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  border-color: var(--accent-2, var(--accent-1));
+}
+
+.cat-price-slider__input::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--accent-1);
+  box-shadow: 0 1px 6px rgba(0,0,0,0.18);
+  pointer-events: all;
+  cursor: pointer;
+}
+
 /* Chips row */
 .cat-filters__row {
   display: flex;
