@@ -1,1 +1,0 @@
-import{r as e}from"./index-Bl9LQ7-c.js";function t(t){return t?t.startsWith(`http`)?t:`${e}${t}`:null}export{t};

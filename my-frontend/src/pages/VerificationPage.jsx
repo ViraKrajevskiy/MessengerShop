@@ -358,50 +358,50 @@ export default function VerificationPage() {
             </p>
 
             <div className="vp__docs-required">
-              <div className="vp__docs-required__title">📋</div>
+              <div className="vp__docs-required__title">📋 {t('verif_docsRequired')}</div>
               <div className="vp__docs-required__list">
                 <div className="vp__doc-req-item">
                   <span className="vp__doc-req-item__num">1</span>
                   <div>
-                    <strong></strong>
-                    <p></p>
+                    <strong>{t('verif_doc1_title')}</strong>
+                    <p>{t('verif_doc1_desc')}</p>
                   </div>
                 </div>
                 <div className="vp__doc-req-item">
                   <span className="vp__doc-req-item__num">2</span>
                   <div>
-                    <strong></strong>
-                    <p></p>
+                    <strong>{t('verif_doc2_title')}</strong>
+                    <p>{t('verif_doc2_desc')}</p>
                   </div>
                 </div>
                 <div className="vp__doc-req-item">
                   <span className="vp__doc-req-item__num">3</span>
                   <div>
-                    <strong></strong>
-                    <p></p>
+                    <strong>{t('verif_doc3_title')}</strong>
+                    <p>{t('verif_doc3_desc')}</p>
                   </div>
                 </div>
                 <div className="vp__doc-req-item">
                   <span className="vp__doc-req-item__num">4</span>
                   <div>
-                    <strong></strong>
-                    <p></p>
+                    <strong>{t('verif_doc4_title')}</strong>
+                    <p>{t('verif_doc4_desc')}</p>
                   </div>
                 </div>
               </div>
             </div>
 
             <div className="vp__steps">
-              <div className="vp__step"><span>1</span><p></p></div>
+              <div className="vp__step"><span>1</span><p>{t('verif_step1')}</p></div>
               <div className="vp__step-arrow">→</div>
-              <div className="vp__step"><span>2</span><p></p></div>
+              <div className="vp__step"><span>2</span><p>{t('verif_step2')}</p></div>
               <div className="vp__step-arrow">→</div>
-              <div className="vp__step"><span>3</span><p></p></div>
+              <div className="vp__step"><span>3</span><p>{t('verif_step3')}</p></div>
             </div>
 
             {error && <div className="vp__error">{error}</div>}
             <button className="vp__create-btn" onClick={handleCreate} disabled={creating}>
-              {creating ? <span className="vp__spinner" /> : '🚀'}
+              {creating ? <span className="vp__spinner" /> : <>🚀 {t('verif_createBtn')}</>}
             </button>
           </div>
         </main>
@@ -423,26 +423,26 @@ export default function VerificationPage() {
               <div className="vp__status-icon">{status?.icon}</div>
               <div className="vp__status-label" style={{ color: status?.color }}>{status?.label}</div>
               {verReq?.status === 'REJECTED' && verReq.comment && (
-                <div className="vp__reject-reason"><strong></strong> {verReq.comment}</div>
+                <div className="vp__reject-reason"><strong>{t('verif_rejectLabel')}</strong> {verReq.comment}</div>
               )}
             </div>
 
             {verReq?.status === 'PENDING' && (
               <div className="vp__sidebar-hint">
-                <div className="vp__sidebar-hint__title">📋</div>
+                <div className="vp__sidebar-hint__title">📋 {t('verif_docsRequired')}</div>
                 <ul className="vp__sidebar-hint__list">
-                  <li>📄</li>
-                  <li>🏢</li>
-                  <li>📸</li>
-                  <li>🔗</li>
+                  <li>📄 {t('verif_hint1')}</li>
+                  <li>🏢 {t('verif_hint2')}</li>
+                  <li>📸 {t('verif_hint3')}</li>
+                  <li>🔗 {t('verif_hint4')}</li>
                 </ul>
               </div>
             )}
 
             <div className="vp__docs-list">
-              <h3 className="vp__sidebar-title"></h3>
+              <h3 className="vp__sidebar-title">{t('verif_docsTitle')}</h3>
               {verReq?.documents?.length === 0
-                ? <p className="vp__no-docs"></p>
+                ? <p className="vp__no-docs">{t('verif_noDocs')}</p>
                 : verReq?.documents?.map(doc => (
                     <div key={doc.id} className="vp__doc-item">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
