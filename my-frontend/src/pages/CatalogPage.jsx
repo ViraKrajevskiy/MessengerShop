@@ -325,74 +325,6 @@ export default function CatalogPage() {
             )}
           </div>
 
-          {/* Price slider — только для услуг */}
-          {tab === 'services' && dataMax > 0 && (
-            <div className="cat-price-slider">
-              <div className="cat-price-slider__header">
-                <span className="cat-price-slider__title">{t('catalog_price')} ₺</span>
-                <span className="cat-price-slider__range-label">
-                  {priceMin.toLocaleString()} — {priceMax >= dataMax ? t('catalog_priceAll') : priceMax.toLocaleString()}
-                </span>
-              </div>
-              <div className="cat-price-slider__body">
-                <div className="cat-price-slider__input-wrap">
-                  <span className="cat-price-slider__hint">{t('catalog_priceFrom')}</span>
-                  <input
-                    type="number"
-                    className="cat-price-slider__num"
-                    min={dataMin} max={priceMax - 1}
-                    value={priceMin}
-                    onChange={e => {
-                      const v = Math.min(Math.max(Number(e.target.value), dataMin), priceMax - 1)
-                      setPriceMin(v)
-                    }}
-                  />
-                </div>
-                <div className="cat-price-slider__track-wrap">
-                  <div
-                    className="cat-price-slider__fill"
-                    style={{
-                      left: `${((priceMin - dataMin) / (dataMax - dataMin)) * 100}%`,
-                      right: `${((dataMax - priceMax) / (dataMax - dataMin)) * 100}%`,
-                    }}
-                  />
-                  <input
-                    type="range"
-                    className="cat-price-slider__input"
-                    min={dataMin} max={dataMax} value={priceMin}
-                    onChange={e => setPriceMin(Math.min(Number(e.target.value), priceMax - 1))}
-                  />
-                  <input
-                    type="range"
-                    className="cat-price-slider__input"
-                    min={dataMin} max={dataMax} value={priceMax}
-                    onChange={e => setPriceMax(Math.max(Number(e.target.value), priceMin + 1))}
-                  />
-                </div>
-                <div className="cat-price-slider__input-wrap">
-                  <span className="cat-price-slider__hint">{t('catalog_priceTo')}</span>
-                  <input
-                    type={priceMax >= dataMax && !maxFocused ? 'text' : 'number'}
-                    className="cat-price-slider__num"
-                    value={priceMax >= dataMax && !maxFocused ? t('catalog_priceAll') : priceMax}
-                    min={priceMin + 1} max={dataMax}
-                    onFocus={() => setMaxFocused(true)}
-                    onBlur={e => {
-                      setMaxFocused(false)
-                      const v = e.target.value === '' ? dataMax : Math.max(Math.min(Number(e.target.value), dataMax), priceMin + 1)
-                      setPriceMax(isNaN(v) ? dataMax : v)
-                    }}
-                    onChange={e => {
-                      if (!maxFocused) return
-                      const v = Math.max(Math.min(Number(e.target.value), dataMax), priceMin + 1)
-                      if (!isNaN(v)) setPriceMax(v)
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Chips row */}
           <div className="cat-filters__row">
             <button
@@ -436,6 +368,53 @@ export default function CatalogPage() {
                 <option value="">{t('catalog_allCats')}</option>
                 {Object.entries(CATEGORY_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
               </select>
+            )}
+
+            {tab === 'services' && dataMax > 0 && (
+              <div className="cat-price-slider">
+                <span className="cat-price-slider__label">₺</span>
+                <input
+                  type="number"
+                  className="cat-price-slider__num"
+                  min={dataMin} max={priceMax - 1}
+                  value={priceMin}
+                  onChange={e => {
+                    const v = Math.min(Math.max(Number(e.target.value), dataMin), priceMax - 1)
+                    setPriceMin(v)
+                  }}
+                />
+                <div className="cat-price-slider__track-wrap">
+                  <div className="cat-price-slider__fill" style={{
+                    left: `${((priceMin - dataMin) / (dataMax - dataMin)) * 100}%`,
+                    right: `${((dataMax - priceMax) / (dataMax - dataMin)) * 100}%`,
+                  }} />
+                  <input type="range" className="cat-price-slider__input"
+                    min={dataMin} max={dataMax} value={priceMin}
+                    onChange={e => setPriceMin(Math.min(Number(e.target.value), priceMax - 1))}
+                  />
+                  <input type="range" className="cat-price-slider__input"
+                    min={dataMin} max={dataMax} value={priceMax}
+                    onChange={e => setPriceMax(Math.max(Number(e.target.value), priceMin + 1))}
+                  />
+                </div>
+                <input
+                  type={priceMax >= dataMax && !maxFocused ? 'text' : 'number'}
+                  className="cat-price-slider__num"
+                  value={priceMax >= dataMax && !maxFocused ? t('catalog_priceAll') : priceMax}
+                  min={priceMin + 1} max={dataMax}
+                  onFocus={() => setMaxFocused(true)}
+                  onBlur={e => {
+                    setMaxFocused(false)
+                    const v = e.target.value === '' ? dataMax : Math.max(Math.min(Number(e.target.value), dataMax), priceMin + 1)
+                    setPriceMax(isNaN(v) ? dataMax : v)
+                  }}
+                  onChange={e => {
+                    if (!maxFocused) return
+                    const v = Math.max(Math.min(Number(e.target.value), dataMax), priceMin + 1)
+                    if (!isNaN(v)) setPriceMax(v)
+                  }}
+                />
+              </div>
             )}
 
             {hasFilters && (
