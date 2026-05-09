@@ -364,7 +364,7 @@ export default function CatalogPage() {
                 <input
                   type={priceMax >= dataMax && !maxFocused ? 'text' : 'number'}
                   className="cat-price-slider__num"
-                  value={priceMax >= dataMax && !maxFocused ? 'Все' : priceMax}
+                  value={priceMax >= dataMax && !maxFocused ? t('catalog_priceAll') : priceMax}
                   min={priceMin + 1} max={dataMax}
                   onFocus={() => setMaxFocused(true)}
                   onBlur={e => {

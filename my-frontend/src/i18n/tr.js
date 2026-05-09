@@ -160,6 +160,7 @@ const tr = {
   catalog_priceAsc:   'Fiyat: düşükten yükseğe',
   catalog_priceDesc:  'Fiyat: yüksekten düşüğe',
   catalog_priceOnReq: 'Fiyat talep üzerine',
+  catalog_priceAll:   'Tümü',
   catalog_favorite:   'Favorilere ekle',
   catalog_details:    'Detaylar',
 
