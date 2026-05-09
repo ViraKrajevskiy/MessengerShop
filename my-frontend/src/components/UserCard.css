@@ -1,5 +1,11 @@
+/* Обёртка — без overflow:hidden, чтобы бейдж не обрезался */
+.user-card__wrap {
+  position: relative;
+}
+
 .user-card {
   border-radius: var(--radius-lg);
+  overflow: hidden;
   background: var(--bg-secondary);
   box-shadow: 0 4px 8px -6px rgba(0, 0, 0, 0.12);
   cursor: pointer;
@@ -7,7 +13,6 @@
   border: none;
   will-change: transform;
   transform: translateZ(0);
-  position: relative;
 }
 
 .user-card:hover {
@@ -20,7 +25,6 @@
   width: 100%;
   aspect-ratio: 3/4;
   overflow: hidden;
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 
 .user-card__photo {
@@ -126,7 +130,7 @@
   text-shadow: 0 1px 3px rgba(0,0,0,0.4);
 }
 
-/* ── Verified badge (поверх карточки, вне overflow:hidden) ── */
+/* ── Verified badge — на обёртке, вне overflow:hidden карточки ── */
 .user-card__verified-badge {
   position: absolute;
   top: 9px;
