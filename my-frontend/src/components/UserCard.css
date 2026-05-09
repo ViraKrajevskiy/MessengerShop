@@ -62,9 +62,6 @@
   font-size: 13.5px;
   font-weight: 700;
   color: var(--text-primary);
-  display: flex;
-  align-items: center;
-  gap: 5px;
 }
 
 .user-card__city {
@@ -128,28 +125,29 @@
   text-shadow: 0 1px 3px rgba(0,0,0,0.4);
 }
 
-/* ── Verified badge (inline in name row) ── */
-.user-card__verified-inline {
-  flex-shrink: 0;
-  width: 18px;
-  height: 18px;
+/* ── Verified badge (on photo) ── */
+.user-card__verified-badge {
+  position: absolute;
+  top: 9px;
+  left: 9px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   background: #2196f3;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 1px 5px rgba(33, 150, 243, 0.45);
-  position: relative;
+  box-shadow: 0 1px 5px rgba(33, 150, 243, 0.55);
+  z-index: 4;
   cursor: default;
-  vertical-align: middle;
 }
 
-.user-card__verified-inline::after {
+.user-card__verified-badge::after {
   content: 'Официальный';
   position: absolute;
-  bottom: calc(100% + 7px);
+  top: calc(100% + 7px);
   left: 50%;
-  transform: translateX(-50%) translateY(4px);
+  transform: translateX(-50%) translateY(-4px);
   background: rgba(0, 0, 0, 0.82);
   color: #fff;
   font-size: 11px;
@@ -163,7 +161,7 @@
   z-index: 20;
 }
 
-.user-card__verified-inline:hover::after {
+.user-card__verified-badge:hover::after {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
