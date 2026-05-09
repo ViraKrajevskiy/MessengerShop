@@ -100,12 +100,6 @@ export default function UserCard({ id, name = 'Имя', city = 'Город', bad
             </span>
           )}
 
-          {/* Name overlay — появляется при hover */}
-          <div className="user-card__overlay">
-            <span className="user-card__overlay-name">{name}</span>
-            {city && <span className="user-card__overlay-city">{city}</span>}
-          </div>
-
           {/* Action buttons — появляются при hover */}
           <div className="user-card__actions">
             <button
