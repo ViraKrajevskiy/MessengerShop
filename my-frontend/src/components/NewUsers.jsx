@@ -64,7 +64,7 @@ export default function NewUsers({ businesses: businessesProp }) {
       </div>
 
       <div className="new-users__grid">
-        {isLoading && Array.from({ length: 10 }).map((_, i) => (
+        {isLoading && Array.from({ length: DESKTOP_BUSINESS_LIMIT }).map((_, i) => (
           <div key={`s-${i}`} className="new-users__item new-users__item--skeleton">
             <div className="new-users__avatar new-users__avatar--skeleton" />
             <span className="new-users__name-skeleton" />
