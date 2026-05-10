@@ -179,11 +179,14 @@ STORAGES = {
 }
 
 # ---------- Оптимизация API ----------
-# Кеширование (in-memory для dev, на проде лучше Redis)
+# Кэш через БД — общий для всех воркеров gunicorn/uvicorn.
+# LocMemCache не подходит: каждый воркер имел свою память,
+# и pending_reg_<email> терялся между POST /register/ и POST /verify-email/.
+# Перед первым стартом выполнить: python manage.py createcachetable
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'messhop-cache',
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'django_cache',
         'TIMEOUT': 120,           # 2 минуты по умолчанию
     }
 }
