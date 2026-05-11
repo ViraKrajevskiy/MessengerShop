@@ -420,6 +420,26 @@
   overflow-wrap: anywhere;
 }
 
+.bp__verified-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #10b981;
+}
+
+.bp__verified-status__text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+}
+
+.bp__verified-status__date {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
 /* ── Gallery ── */
 .bp__gallery-tabs {
   display: flex;

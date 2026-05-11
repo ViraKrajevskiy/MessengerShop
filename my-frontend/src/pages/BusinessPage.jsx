@@ -5,7 +5,7 @@ import { useLanguage } from '../context/LanguageContext'
 import Header from '../components/Header'
 import ReviewsSection from '../components/ReviewsSection'
 import VideoModal from '../components/VideoModal'
-import { apiGetBusiness, apiGetBusinessPosts, apiGetBusinesses, apiToggleSubscription, apiJoinGroup, apiCheckGroupMembership, apiDeletePost } from '../api/businessApi'
+import { apiGetBusiness, apiGetBusinessPosts, apiGetBusinesses, apiToggleSubscription, apiJoinGroup, apiCheckGroupMembership, apiDeletePost, apiStartBizChat } from '../api/businessApi'
 import { resolveUrl } from '../utils/urlUtils'
 import { lastSeenText } from '../utils/timeUtils'
 import './BusinessPage.css'
@@ -18,6 +18,11 @@ const CATEGORY_ICONS = {
 
 const FALLBACK_LOGO  = 'https://picsum.photos/id/1027/200/200'
 const FALLBACK_COVER = 'https://picsum.photos/id/1074/1200/400'
+
+function fmtDate(dt) {
+  if (!dt) return ''
+  return new Date(dt).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' })
+}
 
 /* ── Аудио-плеер (голосовое сообщение) ── */
 const WAVE_BARS = [4,7,12,9,14,10,6,13,8,11,5,10,13,7,9,12,6,11,8,14,5,9,12,7,10,13,6,11,8,4]
@@ -253,7 +258,19 @@ function InfoTabs({ biz, categoryIcon, faq, services, navigate }) {
           <div className="bp__prop">
             <span>{t('biz_status')}</span>
             <span style={{ color: biz.is_verified ? '#10b981' : 'var(--text-muted)' }}>
-              {biz.is_verified ? `✓ ${t('biz_verified')}` : t('biz_notVerified')}
+              {biz.is_verified ? (
+                <span className="bp__verified-status">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ flexShrink: 0 }}>
+                    <path d="M12 2L9.19 4.09 5.5 3.82 4.41 7.41 1.42 9.72 2.83 13.21 1.42 16.71 4.41 19 5.5 22.59 9.19 22.32 12 24.41 14.81 22.32 18.5 22.59 19.59 19 22.58 16.71 21.17 13.21 22.58 9.72 19.59 7.41 18.5 3.82 14.81 4.09 12 2ZM10.09 16.72L7.29 13.91 8.71 12.5 10.09 13.88 15.34 8.63 16.76 10.05 10.09 16.72Z"/>
+                  </svg>
+                  <span className="bp__verified-status__text">
+                    {t('biz_verified')}
+                    {biz.verified_at && (
+                      <span className="bp__verified-status__date">с {fmtDate(biz.verified_at)}</span>
+                    )}
+                  </span>
+                </span>
+              ) : t('biz_notVerified')}
             </span>
           </div>
         </div>
@@ -452,13 +469,8 @@ export default function BusinessPage() {
 
   const handleJoinGroup = async () => {
     if (!user) { navigate('/login'); return }
-    if (groupLoading || !biz.group_id) return
-    setGroupLoading(true)
-    try {
-      const token = await getAccessToken()
-      await apiJoinGroup(biz.group_id, token)
-      setInGroup(true)
-    } catch {} finally { setGroupLoading(false) }
+    if (!biz.group_id) return
+    navigate('/messenger', { state: { openGroup: { id: biz.group_id, name: biz.name, member_count: 0 } } })
   }
 
   const handleSubscribe = async () => {
@@ -564,7 +576,16 @@ export default function BusinessPage() {
                 {subscribed ? t('biz_subscribed') : t('biz_subscribe')}
               </button>
               <button className="bp__act-btn bp__act-btn--chat"
-                onClick={() => { if (!user) { navigate('/login'); return } navigate('/messenger') }}>
+                onClick={async () => {
+                  if (!user) { navigate('/login'); return }
+                  try {
+                    const token = await getAccessToken()
+                    const data = await apiStartBizChat(id, token)
+                    navigate('/messenger', { state: { openBizId: parseInt(id), openInquiryId: data.inquiry_id } })
+                  } catch {
+                    navigate('/messenger', { state: { openBizId: parseInt(id) } })
+                  }
+                }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                 </svg>
@@ -573,8 +594,7 @@ export default function BusinessPage() {
               {biz.group_id && (
                 <button
                   className={`bp__act-btn bp__act-btn--group ${inGroup ? 'bp__act-btn--joined' : ''}`}
-                  onClick={inGroup ? () => navigate('/messenger') : handleJoinGroup}
-                  disabled={groupLoading}
+                  onClick={handleJoinGroup}
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
