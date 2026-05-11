@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Header from '../components/Header'
@@ -156,36 +156,6 @@ export default function HomePage() {
   const cardTotalPages = Math.max(1, Math.ceil(homeBusinessCards.length / CARDS_PER_PAGE))
   const cardPageItems = homeBusinessCards.slice((cardPage - 1) * CARDS_PER_PAGE, cardPage * CARDS_PER_PAGE)
 
-  const postsGridRef = useRef(null)
-  const dragState = useRef({ isDown: false, startX: 0, scrollLeft: 0, moved: false })
-
-  const onDragStart = (clientX) => {
-    const el = postsGridRef.current
-    if (!el) return
-    dragState.current = { isDown: true, startX: clientX, scrollLeft: el.scrollLeft, moved: false }
-    el.style.cursor = 'grabbing'
-    el.style.userSelect = 'none'
-  }
-  const onDragMove = (clientX) => {
-    if (!dragState.current.isDown) return
-    const el = postsGridRef.current
-    if (!el) return
-    const dx = clientX - dragState.current.startX
-    if (Math.abs(dx) > 5) dragState.current.moved = true
-    el.scrollLeft = dragState.current.scrollLeft - dx
-  }
-  const onDragEnd = () => {
-    dragState.current.isDown = false
-    const el = postsGridRef.current
-    if (!el) return
-    el.style.cursor = 'grab'
-    el.style.userSelect = ''
-    // block the next click if user was dragging
-    if (dragState.current.moved) {
-      el.addEventListener('click', e => e.stopPropagation(), { capture: true, once: true })
-    }
-  }
-
   return (
     <div className="home-page">
       <Header />
@@ -243,17 +213,7 @@ export default function HomePage() {
                 ))}
               </div>
             ) : homePosts.length > 0 ? (
-              <div
-                className="home-posts-grid"
-                ref={postsGridRef}
-                onMouseDown={e => onDragStart(e.clientX)}
-                onMouseMove={e => onDragMove(e.clientX)}
-                onMouseUp={onDragEnd}
-                onMouseLeave={onDragEnd}
-                onTouchStart={e => onDragStart(e.touches[0].clientX)}
-                onTouchMove={e => onDragMove(e.touches[0].clientX)}
-                onTouchEnd={onDragEnd}
-              >
+              <div className="home-posts-grid">
                 {homePosts.map(p => (
                   <PostCard key={p.id} post={p} />
                 ))}
