@@ -144,6 +144,40 @@
   cursor: default;
 }
 
+.user-card__verified-tip {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  transform: translateY(-4px);
+  background: rgba(15, 23, 42, 0.92);
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  padding: 6px 11px;
+  border-radius: 8px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.18s, transform 0.18s;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.25);
+}
+
+.user-card__verified-badge:hover .user-card__verified-tip {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.user-card__verified-tip-date {
+  font-size: 10px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.7);
+}
+
 
 /* ── Action buttons ── */
 .user-card__actions {
