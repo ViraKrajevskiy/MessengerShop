@@ -1,1 +1,0 @@
-import{i as e}from"./index-CHlcIJjS.js";function t(t){return t?t.startsWith(`http`)?t:`${e}${t}`:null}export{t};
