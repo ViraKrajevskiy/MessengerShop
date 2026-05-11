@@ -4,7 +4,6 @@ import { resolveUrl } from '../utils/urlUtils'
 import { useLanguage } from '../context/LanguageContext'
 import './NearbyBusinesses.css'
 
-/* ── City photos (static map for known Turkish/CIS cities) ─────────── */
 const CITY_PHOTOS = {
   'Стамбул':   'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=80&h=80&fit=crop',
   'Istanbul':  'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=80&h=80&fit=crop',
@@ -24,19 +23,19 @@ function cityPhoto(city) {
   return CITY_PHOTOS[city] || `https://picsum.photos/seed/${encodeURIComponent(city)}/80/80`
 }
 
-const CARDS_PER_PAGE = 2
-const MAX_CITIES     = 5
+const MAX_CITIES = 5
+const CARDS_PER_VIEW = 2
 
 export default function NearbyBusinesses({ businesses = [], posts = [] }) {
-  const navigate         = useNavigate()
-  const { t }            = useLanguage()
-  const [selectedCity, setSelectedCity] = useState(null) // null = nearby/all
-  const [page, setPage]  = useState(0)
-  const [geoCity, setGeoCity]  = useState(null)
+  const navigate = useNavigate()
+  const { t } = useLanguage()
+  const [selectedCity, setSelectedCity] = useState(null)
+  const [geoCity, setGeoCity] = useState(null)
   const [geoLoading, setGeoLoading] = useState(false)
+  const [scrollPage, setScrollPage] = useState(0)
   const trackRef = useRef(null)
+  const dragState = useRef({ isDown: false, startX: 0, scrollLeft: 0, moved: false })
 
-  /* build city tabs sorted by count */
   const cityTabs = useMemo(() => {
     const counts = {}
     businesses.forEach(b => {
@@ -48,7 +47,6 @@ export default function NearbyBusinesses({ businesses = [], posts = [] }) {
       .map(([city, count]) => ({ city, count }))
   }, [businesses])
 
-  /* filter businesses */
   const filtered = useMemo(() => {
     const active = selectedCity || geoCity
     if (!active) return businesses.slice(0, 20)
@@ -57,7 +55,6 @@ export default function NearbyBusinesses({ businesses = [], posts = [] }) {
     )
   }, [businesses, selectedCity, geoCity])
 
-  /* post-image lookup: business_id → first post with image */
   const postImageMap = useMemo(() => {
     const m = {}
     posts.forEach(p => {
@@ -68,43 +65,37 @@ export default function NearbyBusinesses({ businesses = [], posts = [] }) {
     return m
   }, [posts])
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / CARDS_PER_PAGE))
-  const visible    = filtered.slice(page * CARDS_PER_PAGE, (page + 1) * CARDS_PER_PAGE)
+  const totalPages = Math.ceil(filtered.length / CARDS_PER_VIEW)
 
-  /* reset page on city change */
-  useEffect(() => { setPage(0) }, [selectedCity, geoCity])
+  useEffect(() => {
+    const el = trackRef.current
+    if (el) el.scrollLeft = 0
+    setScrollPage(0)
+  }, [selectedCity, geoCity])
 
-  /* swipe + drag-scroll support */
-  const swipeStart = useRef(null)
-  const dragState  = useRef({ isDown: false, startX: 0, scrollLeft: 0, moved: false })
-
-  const onTouchStart = e => { swipeStart.current = e.touches[0].clientX }
-  const onTouchEnd   = e => {
-    if (swipeStart.current === null) return
-    const dx = e.changedTouches[0].clientX - swipeStart.current
-    if (Math.abs(dx) > 40) {
-      if (dx < 0 && page < totalPages - 1) setPage(p => p + 1)
-      if (dx > 0 && page > 0)             setPage(p => p - 1)
-    }
-    swipeStart.current = null
-  }
-
-  const onMouseDown = e => {
+  const onScroll = () => {
     const el = trackRef.current
     if (!el) return
-    dragState.current = { isDown: true, startX: e.clientX, scrollLeft: el.scrollLeft, moved: false }
+    const page = Math.round(el.scrollLeft / el.clientWidth)
+    setScrollPage(page)
+  }
+
+  const onDragStart = (clientX) => {
+    const el = trackRef.current
+    if (!el) return
+    dragState.current = { isDown: true, startX: clientX, scrollLeft: el.scrollLeft, moved: false }
     el.style.cursor = 'grabbing'
     el.style.userSelect = 'none'
   }
-  const onMouseMove = e => {
+  const onDragMove = (clientX) => {
     if (!dragState.current.isDown) return
     const el = trackRef.current
     if (!el) return
-    const dx = e.clientX - dragState.current.startX
+    const dx = clientX - dragState.current.startX
     if (Math.abs(dx) > 5) dragState.current.moved = true
     el.scrollLeft = dragState.current.scrollLeft - dx
   }
-  const onMouseUp = () => {
+  const onDragEnd = () => {
     dragState.current.isDown = false
     const el = trackRef.current
     if (!el) return
@@ -115,13 +106,11 @@ export default function NearbyBusinesses({ businesses = [], posts = [] }) {
     }
   }
 
-  /* geolocation */
   const handleNearby = () => {
     if (!navigator.geolocation) return
     setGeoLoading(true)
     navigator.geolocation.getCurrentPosition(
       () => {
-        // Without a geocoding API we just pick the most popular city
         const top = cityTabs[0]?.city || null
         setGeoCity(top)
         setSelectedCity(null)
@@ -141,9 +130,7 @@ export default function NearbyBusinesses({ businesses = [], posts = [] }) {
         {t('nearby_sub') || 'Воспользуйтесь функцией «Рядом со мной» или выберите город, который вы собираетесь посетить.'}
       </p>
 
-      {/* ── City chips ─────────────────────────────────── */}
       <div className="nearby__cities">
-        {/* Nearby btn */}
         <button
           className={`nearby__chip nearby__chip--geo${selectedCity === null && !geoCity ? ' nearby__chip--active' : ''}`}
           onClick={handleNearby}
@@ -161,19 +148,12 @@ export default function NearbyBusinesses({ businesses = [], posts = [] }) {
             className={`nearby__chip${selectedCity === city ? ' nearby__chip--active' : ''}`}
             onClick={() => { setSelectedCity(city); setGeoCity(null) }}
           >
-            <img
-              className="nearby__chip-img"
-              src={cityPhoto(city)}
-              alt={city}
-              loading="lazy"
-              decoding="async"
-            />
+            <img className="nearby__chip-img" src={cityPhoto(city)} alt={city} loading="lazy" decoding="async" />
             <span>{city} ({count})</span>
           </button>
         ))}
       </div>
 
-      {/* ── Cards carousel ─────────────────────────────── */}
       {filtered.length === 0 ? (
         <p className="nearby__empty">Нет бизнесов в этом городе</p>
       ) : (
@@ -181,15 +161,16 @@ export default function NearbyBusinesses({ businesses = [], posts = [] }) {
           <div
             className="nearby__track"
             ref={trackRef}
-            onTouchStart={onTouchStart}
-            onTouchEnd={onTouchEnd}
-            onMouseDown={onMouseDown}
-            onMouseMove={onMouseMove}
-            onMouseUp={onMouseUp}
-            onMouseLeave={onMouseUp}
-            style={{ cursor: 'grab' }}
+            onScroll={onScroll}
+            onMouseDown={e => onDragStart(e.clientX)}
+            onMouseMove={e => onDragMove(e.clientX)}
+            onMouseUp={onDragEnd}
+            onMouseLeave={onDragEnd}
+            onTouchStart={e => onDragStart(e.touches[0].clientX)}
+            onTouchMove={e => onDragMove(e.touches[0].clientX)}
+            onTouchEnd={onDragEnd}
           >
-            {visible.map(biz => {
+            {filtered.map(biz => {
               const img = postImageMap[biz.id] || resolveUrl(biz.cover) || null
               return (
                 <div
@@ -210,25 +191,16 @@ export default function NearbyBusinesses({ businesses = [], posts = [] }) {
                       <p className="nearby__card-city">{biz.city}</p>
                       {biz.description && (
                         <p className="nearby__card-desc">
-                          {biz.description.length > 140
-                            ? biz.description.slice(0, 140) + '…'
-                            : biz.description}
+                          {biz.description.length > 140 ? biz.description.slice(0, 140) + '…' : biz.description}
                         </p>
                       )}
                       {!biz.description && biz.category_label && (
                         <p className="nearby__card-cat">{biz.category_label}</p>
                       )}
                     </div>
-
                     {img && (
                       <div className="nearby__card-img-wrap">
-                        <img
-                          className="nearby__card-img"
-                          src={img}
-                          alt={biz.brand_name}
-                          loading="lazy"
-                          decoding="async"
-                        />
+                        <img className="nearby__card-img" src={img} alt={biz.brand_name} loading="lazy" decoding="async" />
                       </div>
                     )}
                   </div>
@@ -237,15 +209,16 @@ export default function NearbyBusinesses({ businesses = [], posts = [] }) {
             })}
           </div>
 
-          {/* Dots */}
           {totalPages > 1 && (
             <div className="nearby__dots">
               {Array.from({ length: totalPages }).map((_, i) => (
                 <button
                   key={i}
-                  className={`nearby__dot${i === page ? ' nearby__dot--active' : ''}`}
-                  onClick={() => setPage(i)}
-                  aria-label={`Страница ${i + 1}`}
+                  className={`nearby__dot${i === scrollPage ? ' nearby__dot--active' : ''}`}
+                  onClick={() => {
+                    const el = trackRef.current
+                    if (el) el.scrollTo({ left: i * el.clientWidth, behavior: 'smooth' })
+                  }}
                 />
               ))}
             </div>

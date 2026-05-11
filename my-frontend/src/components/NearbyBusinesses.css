@@ -102,13 +102,23 @@
 
 /* ── Cards ──────────────────────────────────────────────────────── */
 .nearby__track {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  display: flex;
   gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
   padding: 4px 2px 8px;
+  cursor: grab;
+}
+
+.nearby__track::-webkit-scrollbar {
+  display: none;
 }
 
 .nearby__card {
+  flex: 0 0 calc((100% - 16px) / 2);
+  scroll-snap-align: start;
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: 10px;
@@ -242,8 +252,8 @@
 }
 
 @media (max-width: 768px) {
-  .nearby__track {
-    grid-template-columns: 1fr;
+  .nearby__card {
+    flex: 0 0 calc(100% - 8px);
   }
 
   .nearby__card-img-wrap {
