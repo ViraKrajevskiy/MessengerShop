@@ -564,6 +564,32 @@
   max-height: 300px;
 }
 
+.home-posts-dots {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  margin-top: 14px;
+}
+
+.home-posts-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border-color);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.25s;
+  flex-shrink: 0;
+}
+
+.home-posts-dot--active {
+  background: var(--accent-1);
+  width: 20px;
+  border-radius: 4px;
+}
+
 .home-posts-section .post-card__body {
   min-height: 56px;
 }

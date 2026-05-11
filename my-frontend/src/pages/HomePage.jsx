@@ -154,6 +154,7 @@ export default function HomePage() {
 
   const postsGridRef = useRef(null)
   const dragState = useRef({ isDown: false, startX: 0, scrollLeft: 0, moved: false })
+  const [postsPage, setPostsPage] = useState(0)
 
   const onDragStart = (clientX) => {
     const el = postsGridRef.current
@@ -180,6 +181,15 @@ export default function HomePage() {
       el.addEventListener('click', e => e.stopPropagation(), { capture: true, once: true })
     }
   }
+
+  const onPostsScroll = () => {
+    const el = postsGridRef.current
+    if (!el) return
+    const page = Math.round(el.scrollLeft / el.clientWidth)
+    setPostsPage(page)
+  }
+
+  const postsTotalPages = Math.ceil(homePosts.length / 3)
 
   return (
     <div className="home-page">
@@ -238,21 +248,38 @@ export default function HomePage() {
                 ))}
               </div>
             ) : homePosts.length > 0 ? (
-              <div
-                className="home-posts-grid"
-                ref={postsGridRef}
-                onMouseDown={e => onDragStart(e.clientX)}
-                onMouseMove={e => onDragMove(e.clientX)}
-                onMouseUp={onDragEnd}
-                onMouseLeave={onDragEnd}
-                onTouchStart={e => onDragStart(e.touches[0].clientX)}
-                onTouchMove={e => onDragMove(e.touches[0].clientX)}
-                onTouchEnd={onDragEnd}
-              >
-                {homePosts.map(p => (
-                  <PostCard key={p.id} post={p} />
-                ))}
-              </div>
+              <>
+                <div
+                  className="home-posts-grid"
+                  ref={postsGridRef}
+                  onScroll={onPostsScroll}
+                  onMouseDown={e => onDragStart(e.clientX)}
+                  onMouseMove={e => onDragMove(e.clientX)}
+                  onMouseUp={onDragEnd}
+                  onMouseLeave={onDragEnd}
+                  onTouchStart={e => onDragStart(e.touches[0].clientX)}
+                  onTouchMove={e => onDragMove(e.touches[0].clientX)}
+                  onTouchEnd={onDragEnd}
+                >
+                  {homePosts.map(p => (
+                    <PostCard key={p.id} post={p} />
+                  ))}
+                </div>
+                {postsTotalPages > 1 && (
+                  <div className="home-posts-dots">
+                    {Array.from({ length: postsTotalPages }).map((_, i) => (
+                      <button
+                        key={i}
+                        className={`home-posts-dot${i === postsPage ? ' home-posts-dot--active' : ''}`}
+                        onClick={() => {
+                          const el = postsGridRef.current
+                          if (el) el.scrollTo({ left: i * el.clientWidth, behavior: 'smooth' })
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
+              </>
             ) : null}
           </section>
 
