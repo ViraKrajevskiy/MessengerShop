@@ -72,22 +72,22 @@
 /* ── Online dot ── */
 .user-card__online-dot {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 13px;
-  height: 13px;
+  top: 10px;
+  right: 10px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
-  background: radial-gradient(circle at 38% 38%, #4ade80, #059669);
-  border: 2.5px solid #fff;
-  box-shadow: 0 0 0 1.5px rgba(16, 185, 129, 0.35), 0 2px 6px rgba(0,0,0,0.18);
-  z-index: 4;
-  animation: uc-pulse 2.4s ease-out infinite;
+  background: radial-gradient(circle at 35% 35%, #6ee7b7, #10b981, #047857);
+  border: 2.5px solid rgba(255,255,255,0.95);
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.4), 0 2px 8px rgba(0,0,0,0.22);
+  z-index: 6;
+  animation: uc-pulse 2.2s ease-out infinite;
 }
 
 @keyframes uc-pulse {
-  0%   { box-shadow: 0 0 0 1.5px rgba(16,185,129,0.35), 0 2px 6px rgba(0,0,0,0.18); }
-  55%  { box-shadow: 0 0 0 5px rgba(16,185,129,0), 0 2px 6px rgba(0,0,0,0.18); }
-  100% { box-shadow: 0 0 0 1.5px rgba(16,185,129,0.35), 0 2px 6px rgba(0,0,0,0.18); }
+  0%   { box-shadow: 0 0 0 2px rgba(16,185,129,0.4), 0 2px 8px rgba(0,0,0,0.22); }
+  50%  { box-shadow: 0 0 0 6px rgba(16,185,129,0), 0 2px 8px rgba(0,0,0,0.22); }
+  100% { box-shadow: 0 0 0 2px rgba(16,185,129,0.4), 0 2px 8px rgba(0,0,0,0.22); }
 }
 
 /* ── Name overlay on hover ── */
@@ -182,7 +182,7 @@
 /* ── Action buttons ── */
 .user-card__actions {
   position: absolute;
-  top: 10px;
+  top: 44px;
   right: 10px;
   display: flex;
   flex-direction: column;

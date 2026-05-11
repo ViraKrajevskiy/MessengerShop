@@ -95,8 +95,6 @@ export default function UserCard({ id, name = 'Имя', city = 'Город', bad
             <span className="user-card__badge">{badge}</span>
           ) : null}
 
-          {isOnline && <span className="user-card__online-dot" />}
-
           {isVerified && (
             <span className="user-card__verified-badge">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="#fff">
@@ -109,6 +107,8 @@ export default function UserCard({ id, name = 'Имя', city = 'Город', bad
             </span>
           )}
 
+          {isOnline && <span className="user-card__online-dot" />}
+
           <div className="user-card__actions">
             <button
               className={`user-card__action-btn${fav ? ' user-card__action-btn--liked' : ''}`}
@@ -117,15 +117,6 @@ export default function UserCard({ id, name = 'Имя', city = 'Город', bad
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill={fav ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
                 <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
-              </svg>
-            </button>
-            <button
-              className="user-card__action-btn user-card__action-btn--msg"
-              onClick={handleMessage}
-              title={t('user_write')}
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
               </svg>
             </button>
           </div>
