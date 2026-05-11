@@ -127,7 +127,7 @@
 .feed-post {
   background: var(--bg-secondary);
   border: 1.5px solid var(--border-light);
-  border-radius: var(--radius-lg);
+  border-radius: 10px;
   overflow: hidden;
   box-shadow: var(--card-shadow);
   transition: transform 0.25s, box-shadow 0.25s;
@@ -233,7 +233,7 @@
 
 .feed-post__media {
   width: 100%;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 1 / 1;
   overflow: hidden;
   position: relative;
   background: var(--bg-tertiary);
@@ -365,7 +365,7 @@
 .feed-product {
   background: var(--bg-secondary);
   border: 1.5px solid var(--border-light);
-  border-radius: 16px;
+  border-radius: 10px;
   overflow: hidden;
   box-shadow: var(--card-shadow);
   display: flex;
@@ -380,7 +380,7 @@
 
 .feed-product__img-wrap {
   position: relative;
-  aspect-ratio: 4/3;
+  aspect-ratio: 1/1;
   overflow: hidden;
   cursor: pointer;
   background: var(--bg-tertiary);
@@ -505,7 +505,7 @@
   padding: 10px 14px;
   background: var(--bg-secondary);
   border: 1.5px solid var(--border-light);
-  border-radius: 14px;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s;
   box-shadow: var(--card-shadow);
@@ -571,7 +571,7 @@
 .feed-sidebar-card {
   background: var(--bg-secondary);
   border: 1.5px solid var(--border-light);
-  border-radius: 20px;
+  border-radius: 10px;
   padding: 18px;
   box-shadow: var(--card-shadow);
   display: flex;
@@ -684,7 +684,7 @@
     gap: 10px;
   }
   .feed-post__media {
-    aspect-ratio: 4/3;
+    aspect-ratio: 1/1;
   }
 }
 
@@ -701,7 +701,7 @@
   padding: 14px 16px;
   background: var(--bg-secondary);
   border: 1.5px solid var(--border-light);
-  border-radius: 16px;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.22s;
   box-shadow: var(--card-shadow);
@@ -781,7 +781,7 @@
   padding: 14px;
   background: var(--bg-secondary);
   border: 1.5px solid var(--border-light);
-  border-radius: 16px;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.22s;
   box-shadow: var(--card-shadow);
@@ -797,9 +797,9 @@
   position: relative;
   width: 140px;
   flex-shrink: 0;
-  border-radius: 12px;
+  border-radius: 0;
   overflow: hidden;
-  aspect-ratio: 4/3;
+  aspect-ratio: 1/1;
 }
 
 .feed-news-card__img-wrap img {
@@ -856,7 +856,7 @@
 
 @media (max-width: 600px) {
   .feed-news-card { flex-direction: column; }
-  .feed-news-card__img-wrap { width: 100%; aspect-ratio: 16/9; }
+  .feed-news-card__img-wrap { width: 100%; aspect-ratio: 1/1; }
   .feed-tweet { padding: 10px 12px; }
   .feed-tweet__avatar { width: 34px; height: 34px; }
 }

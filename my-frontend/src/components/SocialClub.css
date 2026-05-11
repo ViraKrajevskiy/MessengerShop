@@ -40,7 +40,7 @@
 
 /* ========== Post Card — identical to UserCard ========== */
 .sc-card {
-  border-radius: var(--radius-lg);
+  border-radius: 10px;
   overflow: hidden;
   background: var(--bg-secondary);
   box-shadow: var(--card-shadow);
@@ -61,7 +61,7 @@
 .sc-card__image {
   position: relative;
   width: 100%;
-  aspect-ratio: 3/4;
+  aspect-ratio: 1/1;
   overflow: hidden;
 }
 
@@ -180,7 +180,7 @@
 }
 .sk-media {
   width: 100%;
-  aspect-ratio: 3/4;
+  aspect-ratio: 1/1;
   background: var(--border-light);
   position: relative;
   overflow: hidden;

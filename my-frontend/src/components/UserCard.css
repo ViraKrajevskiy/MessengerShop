@@ -1,5 +1,5 @@
 .user-card {
-  border-radius: var(--radius-lg);
+  border-radius: 10px;
   overflow: hidden;
   background: var(--bg-secondary);
   box-shadow: 0 4px 8px -6px rgba(0, 0, 0, 0.12);
@@ -18,7 +18,7 @@
 .user-card__image {
   position: relative;
   width: 100%;
-  aspect-ratio: 3/4;
+  aspect-ratio: 1/1;
   overflow: hidden;
 }
 
@@ -72,20 +72,22 @@
 /* ── Online dot ── */
 .user-card__online-dot {
   position: absolute;
-  top: 9px;
-  right: 9px;
-  width: 11px;
-  height: 11px;
+  top: 8px;
+  right: 8px;
+  width: 13px;
+  height: 13px;
   border-radius: 50%;
-  background: #10b981;
-  border: 2px solid #fff;
+  background: radial-gradient(circle at 38% 38%, #4ade80, #059669);
+  border: 2.5px solid #fff;
+  box-shadow: 0 0 0 1.5px rgba(16, 185, 129, 0.35), 0 2px 6px rgba(0,0,0,0.18);
   z-index: 4;
-  animation: uc-pulse 2s ease-in-out infinite;
+  animation: uc-pulse 2.4s ease-out infinite;
 }
 
 @keyframes uc-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
-  50%       { box-shadow: 0 0 0 4px rgba(16, 185, 129, 0); }
+  0%   { box-shadow: 0 0 0 1.5px rgba(16,185,129,0.35), 0 2px 6px rgba(0,0,0,0.18); }
+  55%  { box-shadow: 0 0 0 5px rgba(16,185,129,0), 0 2px 6px rgba(0,0,0,0.18); }
+  100% { box-shadow: 0 0 0 1.5px rgba(16,185,129,0.35), 0 2px 6px rgba(0,0,0,0.18); }
 }
 
 /* ── Name overlay on hover ── */
@@ -130,41 +132,52 @@
   position: absolute;
   top: 13px;
   left: 13px;
-  z-index: 10;
+  z-index: 5;
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: #2196f3;
+  background: linear-gradient(135deg, #42a5f5, #1565c0);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 1px 5px rgba(33, 150, 243, 0.55);
-  z-index: 4;
+  box-shadow: 0 1px 6px rgba(33, 150, 243, 0.6);
   cursor: default;
 }
 
-.user-card__verified-badge::after {
-  content: 'Официальный';
+.user-card__verified-tip {
   position: absolute;
-  top: calc(100% + 6px);
-  left: 0;
-  transform: translateY(-4px);
-  background: rgba(0, 0, 0, 0.82);
+  top: calc(100% + 7px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(8px);
   color: #fff;
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 700;
   white-space: nowrap;
-  padding: 4px 9px;
-  border-radius: 7px;
+  padding: 7px 12px;
+  border-radius: 9px;
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.18s, transform 0.18s;
   z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.28);
 }
 
-.user-card__verified-badge:hover::after {
+.user-card__verified-badge:hover .user-card__verified-tip {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateX(-50%) translateY(0);
+}
+
+.user-card__verified-tip-date {
+  font-size: 10.5px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.72);
+  letter-spacing: 0.2px;
 }
 
 /* ── Action buttons ── */
@@ -255,10 +268,10 @@
 
 @media (max-width: 768px) {
   .user-card {
-    border-radius: 12px;
+    border-radius: 0;
   }
   .user-card__image {
-    aspect-ratio: 3/4;
+    aspect-ratio: 1/1;
   }
   .user-card__info {
     padding: 10px 11px 12px;
@@ -284,10 +297,10 @@
 
 @media (max-width: 480px) {
   .user-card {
-    border-radius: 10px;
+    border-radius: 0;
   }
   .user-card__image {
-    aspect-ratio: 2.5/3.5;
+    aspect-ratio: 1/1;
   }
   .user-card__info {
     padding: 9px 10px 11px;

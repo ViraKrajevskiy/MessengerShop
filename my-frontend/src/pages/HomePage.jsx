@@ -45,6 +45,7 @@ function bizToCard(b) {
     category: b.category_label || CATEGORY_LABELS[b.category] || b.category,
     logo: b.logo,
     is_verified: b.is_verified,
+    verified_at: b.verified_at || null,
     is_vip: b.is_vip,
     is_pro: b.is_pro,
     plan_type: b.plan_type || 'FREE',
@@ -312,7 +313,7 @@ export default function HomePage() {
                 ))
               ) : filteredAll.length > 0 ? (
                 cardPageItems.map(u => (
-                  <UserCard key={u.id} id={u.id} name={u.name} city={u.city} logo={u.logo} planType={u.plan_type} type="all" isOnline={!!u.owner_is_online} isVerified={!!u.is_verified} />
+                  <UserCard key={u.id} id={u.id} name={u.name} city={u.city} logo={u.logo} planType={u.plan_type} type="all" isOnline={!!u.owner_is_online} isVerified={!!u.is_verified} verifiedAt={u.verified_at} />
                 ))
               ) : (
                 <div className="no-results">{t('home_noCards')}</div>

@@ -507,7 +507,7 @@
 .bp__feed-item {
   background: var(--bg-primary);
   border: 1.5px solid var(--border-color);
-  border-radius: 14px;
+  border-radius: 10px;
   overflow: hidden;
   transition: transform 0.2s, box-shadow 0.2s;
 }
@@ -517,7 +517,7 @@
 }
 .bp__feed-media {
   position: relative;
-  aspect-ratio: 4/3;
+  aspect-ratio: 1/1;
   overflow: hidden;
   background: var(--bg-tertiary);
 }
@@ -727,7 +727,7 @@
 }
 .bp__service-card {
   border: 1.5px solid var(--border-light);
-  border-radius: var(--radius-lg);
+  border-radius: 10px;
   overflow: hidden;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
@@ -740,7 +740,7 @@
 }
 .bp__service-img {
   width: 100%;
-  aspect-ratio: 4/3;
+  aspect-ratio: 1/1;
   overflow: hidden;
 }
 .bp__service-img img {
@@ -1093,7 +1093,7 @@
 .bp__sim-card {
   position: relative;
   aspect-ratio: 1 / 1;
-  border-radius: 16px;
+  border-radius: 10px;
   overflow: hidden;
   cursor: pointer;
   background: var(--bg-tertiary);

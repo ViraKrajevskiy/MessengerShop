@@ -419,7 +419,7 @@
 .cat-product {
   background: var(--bg-secondary);
   border: 1.5px solid var(--border-light);
-  border-radius: 16px;
+  border-radius: 10px;
   overflow: hidden;
   box-shadow: var(--card-shadow);
   display: flex;
@@ -434,7 +434,7 @@
 
 .cat-product__img-wrap {
   position: relative;
-  aspect-ratio: 4/3;
+  aspect-ratio: 1/1;
   overflow: hidden;
   cursor: pointer;
   background: var(--bg-tertiary);
@@ -518,7 +518,7 @@
   padding: 14px 16px;
   background: var(--bg-secondary);
   border: 1.5px solid var(--border-light);
-  border-radius: 14px;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s;
   box-shadow: var(--card-shadow);
@@ -565,7 +565,7 @@
   padding: 14px 16px;
   background: var(--bg-secondary);
   border: 1.5px solid var(--border-light);
-  border-radius: 16px;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s;
   box-shadow: var(--card-shadow);
@@ -672,7 +672,7 @@
 /* ── Skeleton ──────────────────────────────────────────────────────────────── */
 .cat-skeleton { pointer-events: none; }
 .cat-skel-img {
-  width: 100%; aspect-ratio: 4/3;
+  width: 100%; aspect-ratio: 1/1;
   background: var(--border-light);
   animation: catSkel 1.4s ease-in-out infinite;
 }

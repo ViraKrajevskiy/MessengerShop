@@ -20,7 +20,12 @@ const CARD_PHOTOS = [
   'https://picsum.photos/id/429/400/530',
 ]
 
-export default function UserCard({ id, name = 'Имя', city = 'Город', badge = null, type = 'card', logo = null, planType = 'FREE', isOnline = false, isVerified = false }) {
+function fmtDate(dt) {
+  if (!dt) return ''
+  return new Date(dt).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' })
+}
+
+export default function UserCard({ id, name = 'Имя', city = 'Город', badge = null, type = 'card', logo = null, planType = 'FREE', isOnline = false, isVerified = false, verifiedAt = null }) {
   const { addViewed } = useViewed()
   const { user } = useAuth()
   const { t } = useLanguage()
@@ -93,10 +98,14 @@ export default function UserCard({ id, name = 'Имя', city = 'Город', bad
           {isOnline && <span className="user-card__online-dot" />}
 
           {isVerified && (
-            <span className="user-card__verified-badge" title="Официальный">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff">
+            <span className="user-card__verified-badge">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="#fff">
                 <path d="M12 2L9.19 4.09 5.5 3.82 4.41 7.41 1.42 9.72 2.83 13.21 1.42 16.71 4.41 19 5.5 22.59 9.19 22.32 12 24.41 14.81 22.32 18.5 22.59 19.59 19 22.58 16.71 21.17 13.21 22.58 9.72 19.59 7.41 18.5 3.82 14.81 4.09 12 2ZM10.09 16.72L7.29 13.91 8.71 12.5 10.09 13.88 15.34 8.63 16.76 10.05 10.09 16.72Z"/>
               </svg>
+              <span className="user-card__verified-tip">
+                Официальный
+                {verifiedAt && <span className="user-card__verified-tip-date">с {fmtDate(verifiedAt)}</span>}
+              </span>
             </span>
           )}
 

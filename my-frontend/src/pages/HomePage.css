@@ -564,7 +564,7 @@
 }
 
 .home-posts-grid .post-card-skeleton .skel-img--portrait {
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 1 / 1;
   max-height: 300px;
 }
 
@@ -593,7 +593,7 @@
     width: auto;
     max-width: none;
     height: auto;
-    border-radius: 16px;
+    border-radius: 0;
   }
   .home-posts-grid .post-card {
     scroll-snap-align: none;
@@ -602,8 +602,7 @@
     scroll-snap-align: start;
   }
   .home-posts-section .post-card__image {
-    /* 4/3 вместо 4/5 — не так растянуто вертикально, картинка выглядит фотографично */
-    aspect-ratio: 4/3;
+    aspect-ratio: 1/1;
     max-height: 300px;
   }
 }
@@ -624,7 +623,7 @@
     max-width: none;
   }
   .home-posts-section .post-card__image {
-    aspect-ratio: 4/3;
+    aspect-ratio: 1/1;
     max-height: 260px;
   }
   /* В узкой 2×2 сетке карточка ~165px — кнопка «Подписаться» не помещается,
@@ -672,7 +671,7 @@
 }
 .skel-img {
   width: 100%;
-  aspect-ratio: 4/3;
+  aspect-ratio: 1/1;
   background: var(--bg-tertiary);
 }
 .skel-body {
@@ -748,7 +747,7 @@
 /* ── NewsCard — same proportions as PostCard ── */
 .news-card {
   background: var(--bg-secondary);
-  border-radius: var(--radius-lg);
+  border-radius: 10px;
   border: none;
   overflow: hidden;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
@@ -823,11 +822,10 @@
   box-shadow: 0 2px 8px rgba(229,57,53,0.35);
 }
 
-/* Image — same 4:3 as post-card__image */
 .news-card__image {
   position: relative;
   width: 100%;
-  aspect-ratio: 4/3;
+  aspect-ratio: 1/1;
   overflow: hidden;
   background: var(--bg-tertiary);
 }

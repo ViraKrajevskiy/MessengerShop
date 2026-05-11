@@ -111,7 +111,7 @@
 .nearby__card {
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  border-radius: 16px;
+  border-radius: 10px;
   overflow: clip;
   cursor: pointer;
   transition: box-shadow 0.2s, transform 0.2s;

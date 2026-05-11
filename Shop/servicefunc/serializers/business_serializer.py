@@ -34,7 +34,7 @@ class BusinessListSerializer(serializers.ModelSerializer):
         model = Business
         fields = [
             'id', 'brand_name', 'description', 'category', 'category_label',
-            'city', 'logo', 'cover', 'is_verified', 'is_vip', 'is_pro',
+            'city', 'logo', 'cover', 'is_verified', 'verified_at', 'is_vip', 'is_pro',
             'plan_type',
             'rating', 'views_count', 'subscribers_count',
             'owner_username', 'owner_avatar', 'owner_is_online',
@@ -68,7 +68,7 @@ class BusinessDetailSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'brand_name', 'description', 'category', 'category_label',
             'city', 'address', 'phone', 'website',
-            'logo', 'cover', 'audio', 'is_verified', 'is_vip', 'is_pro',
+            'logo', 'cover', 'audio', 'is_verified', 'verified_at', 'is_vip', 'is_pro',
             'plan_type', 'plan_period', 'plan_expires_at',
             'rating', 'views_count', 'created_at',
             'owner_username', 'owner_email', 'owner_avatar',
@@ -78,7 +78,7 @@ class BusinessDetailSerializer(serializers.ModelSerializer):
             'social_telegram', 'social_whatsapp', 'social_instagram',
             'social_youtube', 'social_tiktok', 'social_facebook',
         ]
-        read_only_fields = ['is_verified', 'is_vip', 'is_pro', 'rating', 'views_count', 'created_at']
+        read_only_fields = ['is_verified', 'verified_at', 'is_vip', 'is_pro', 'rating', 'views_count', 'created_at']
 
     def get_owner_is_online(self, obj):
         return bool(obj.owner and obj.owner.is_online)

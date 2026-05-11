@@ -91,6 +91,7 @@ class Business(BaseController):
     logo         = models.ImageField(upload_to='logos/', blank=True, null=True)
     cover        = models.ImageField(upload_to='covers/', blank=True, null=True)
     is_verified  = models.BooleanField(default=False)
+    verified_at  = models.DateTimeField(null=True, blank=True)
     plan_type    = models.CharField(max_length=10, choices=PlanType.choices, default=PlanType.FREE)
     plan_period  = models.CharField(max_length=10, choices=PlanPeriod.choices, null=True, blank=True)
     plan_expires_at = models.DateTimeField(null=True, blank=True)
@@ -373,18 +374,24 @@ class ProductLike(models.Model):
 
 
 class ProductInquiry(BaseController):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='inquiries')
-    sender  = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_inquiries')
-    message = models.TextField()
-    is_read = models.BooleanField(default=False)
+    product  = models.ForeignKey(Product, null=True, blank=True, on_delete=models.SET_NULL, related_name='inquiries')
+    business = models.ForeignKey('Business', null=True, blank=True, on_delete=models.CASCADE, related_name='direct_inquiries')
+    sender   = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_inquiries')
+    message  = models.TextField(blank=True, default='')
+    is_read  = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['-created_at']
         verbose_name = 'Product Inquiry'
         verbose_name_plural = 'Product Inquiries'
 
+    @property
+    def biz(self):
+        return self.business or (self.product.business if self.product else None)
+
     def __str__(self):
-        return f'Inquiry from {self.sender.email} for {self.product.name}'
+        target = self.product.name if self.product else (self.business.brand_name if self.business else 'unknown')
+        return f'Inquiry from {self.sender.email} for {target}'
 
 
 class InquiryMessage(models.Model):

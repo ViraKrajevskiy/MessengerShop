@@ -107,6 +107,7 @@ class ModeratorVerifyBusinessView(APIView):
             return Response({'detail': 'Бизнес не найден.'}, status=404)
 
         business.is_verified = not business.is_verified
-        business.save(update_fields=['is_verified'])
+        business.verified_at = timezone.now() if business.is_verified else None
+        business.save(update_fields=['is_verified', 'verified_at'])
 
-        return Response({'id': business.id, 'is_verified': business.is_verified})
+        return Response({'id': business.id, 'is_verified': business.is_verified, 'verified_at': business.verified_at})
