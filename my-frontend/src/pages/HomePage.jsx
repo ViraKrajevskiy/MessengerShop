@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Header from '../components/Header'
@@ -56,7 +56,6 @@ function bizToCard(b) {
 
 const GUEST_LIMIT = 4
 const GUEST_CARDS_LIMIT = 12
-const CARDS_PER_PAGE = 12
 /** Сколько постов показываем на главной в блоке «Публикации» */
 const HOME_POSTS_VISIBLE = 20
 const MOBILE_MEDIA_QUERY = '(max-width: 500px)'
@@ -74,7 +73,6 @@ export default function HomePage() {
   const [loadingBiz, setLoadingBiz] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
   const [cardFilter, setCardFilter] = useState({ planType: null, verified: false, sortNew: false, category: null })
-  const [cardPage, setCardPage] = useState(1)
 
   const [posts, setPosts] = useState([])
   const [loadingPosts, setLoadingPosts] = useState(true)
@@ -153,8 +151,35 @@ export default function HomePage() {
     return list
   }, [filteredAll, user, cardFilter])
 
-  const cardTotalPages = Math.max(1, Math.ceil(homeBusinessCards.length / CARDS_PER_PAGE))
-  const cardPageItems = homeBusinessCards.slice((cardPage - 1) * CARDS_PER_PAGE, cardPage * CARDS_PER_PAGE)
+
+  const postsGridRef = useRef(null)
+  const dragState = useRef({ isDown: false, startX: 0, scrollLeft: 0, moved: false })
+
+  const onDragStart = (clientX) => {
+    const el = postsGridRef.current
+    if (!el) return
+    dragState.current = { isDown: true, startX: clientX, scrollLeft: el.scrollLeft, moved: false }
+    el.style.cursor = 'grabbing'
+    el.style.userSelect = 'none'
+  }
+  const onDragMove = (clientX) => {
+    if (!dragState.current.isDown) return
+    const el = postsGridRef.current
+    if (!el) return
+    const dx = clientX - dragState.current.startX
+    if (Math.abs(dx) > 5) dragState.current.moved = true
+    el.scrollLeft = dragState.current.scrollLeft - dx
+  }
+  const onDragEnd = () => {
+    dragState.current.isDown = false
+    const el = postsGridRef.current
+    if (!el) return
+    el.style.cursor = 'grab'
+    el.style.userSelect = ''
+    if (dragState.current.moved) {
+      el.addEventListener('click', e => e.stopPropagation(), { capture: true, once: true })
+    }
+  }
 
   return (
     <div className="home-page">
@@ -213,7 +238,17 @@ export default function HomePage() {
                 ))}
               </div>
             ) : homePosts.length > 0 ? (
-              <div className="home-posts-grid">
+              <div
+                className="home-posts-grid"
+                ref={postsGridRef}
+                onMouseDown={e => onDragStart(e.clientX)}
+                onMouseMove={e => onDragMove(e.clientX)}
+                onMouseUp={onDragEnd}
+                onMouseLeave={onDragEnd}
+                onTouchStart={e => onDragStart(e.touches[0].clientX)}
+                onTouchMove={e => onDragMove(e.touches[0].clientX)}
+                onTouchEnd={onDragEnd}
+              >
                 {homePosts.map(p => (
                   <PostCard key={p.id} post={p} />
                 ))}
@@ -272,7 +307,7 @@ export default function HomePage() {
                   </div>
                 ))
               ) : filteredAll.length > 0 ? (
-                cardPageItems.map(u => (
+                homeBusinessCards.map(u => (
                   <UserCard key={u.id} id={u.id} name={u.name} city={u.city} logo={u.logo} planType={u.plan_type} type="all" isOnline={!!u.owner_is_online} isVerified={!!u.is_verified} verifiedAt={u.verified_at} />
                 ))
               ) : (
@@ -280,27 +315,6 @@ export default function HomePage() {
               )}
             </div>
 
-            {cardTotalPages > 1 && (
-              <div className="ac-pagination">
-                <button
-                  className="ac-pagination__btn"
-                  disabled={cardPage === 1}
-                  onClick={() => setCardPage(p => p - 1)}
-                >‹</button>
-                {Array.from({ length: cardTotalPages }).map((_, i) => (
-                  <button
-                    key={i}
-                    className={`ac-pagination__btn${cardPage === i + 1 ? ' ac-pagination__btn--active' : ''}`}
-                    onClick={() => setCardPage(i + 1)}
-                  >{i + 1}</button>
-                ))}
-                <button
-                  className="ac-pagination__btn"
-                  disabled={cardPage === cardTotalPages}
-                  onClick={() => setCardPage(p => p + 1)}
-                >›</button>
-              </div>
-            )}
           </section>
 
           {/* Auth gate for guests — shown below all cards */}
