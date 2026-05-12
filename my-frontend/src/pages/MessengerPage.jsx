@@ -9,6 +9,7 @@ import {
   apiGetGroupMessages, apiSendGroupMessage, apiDeleteGroupMessage,
   apiEditGroupMessage,
   apiAddGroupMember, apiUpdateGroupMember, apiRemoveGroupMember,
+  apiJoinGroup,
   apiSearchProducts,
 } from '../api/businessApi'
 import { DEFAULT_AVATAR } from '../utils/defaults'
@@ -196,21 +197,42 @@ function ChatView({ inquiry, isBusiness, onBack, onProfileClick, getAccessToken,
 
   const send = async (e) => {
     e.preventDefault()
-    if (!text.trim() || sending) return
+    const trimmed = text.trim()
+    if (!trimmed || sending) return
     setSending(true)
-    try {
-      const token = await getAccessToken()
-      if (editingMsg) {
-        const updated = await apiEditInquiryMessage(inquiry.id, editingMsg.id, text.trim(), token)
+    if (editingMsg) {
+      try {
+        const token = await getAccessToken()
+        const updated = await apiEditInquiryMessage(inquiry.id, editingMsg.id, trimmed, token)
         setMessages(prev => prev.map(m => m.id === editingMsg.id ? updated : m))
         setEditingMsg(null)
-      } else {
-        const msg = await apiSendInquiryMessage(inquiry.id, text.trim(), token)
-        setMessages(prev => [...prev, msg])
-      }
-      setText('')
-      setMentionResults([])
-    } catch {} finally { setSending(false) }
+        setText('')
+        setMentionResults([])
+      } catch {} finally { setSending(false) }
+      return
+    }
+    // Optimistic: show message immediately
+    const tempId = `tmp-${Date.now()}`
+    const optimistic = {
+      id: tempId,
+      sender_id: currentUserId,
+      text: trimmed,
+      created_at: new Date().toISOString(),
+      is_edited: false,
+      mentioned_products: [],
+      _pending: true,
+    }
+    setMessages(prev => [...prev, optimistic])
+    setText('')
+    setMentionResults([])
+    try {
+      const token = await getAccessToken()
+      const msg = await apiSendInquiryMessage(inquiry.id, trimmed, token)
+      setMessages(prev => prev.map(m => m.id === tempId ? msg : m))
+    } catch {
+      setMessages(prev => prev.filter(m => m.id !== tempId))
+      setText(trimmed)
+    } finally { setSending(false) }
   }
 
   const handleDelete = async (msgId) => {
@@ -341,12 +363,16 @@ function GroupChatView({ group, onBack, getAccessToken, currentUserId }) {
   const [contextMsg, setContextMsg] = useState(null)
   const [editingMsg, setEditingMsg] = useState(null)
   const [mentionResults, setMentionResults] = useState([])
+  const [joining, setJoining]   = useState(false)
+  const [joinError, setJoinError] = useState('')
   const mentionTimer = useRef(null)
 
   const myMembership = detail?.members?.find(m => m.user_id === currentUserId)
-  const canDelete = myMembership?.can_delete_messages
-  const canSend   = myMembership?.can_send_messages !== false
-  const isAdmin   = myMembership && ['OWNER','ADMIN'].includes(myMembership.role)
+  const isMember  = !!myMembership
+  const canDelete = !!myMembership?.can_delete_messages
+  const canPin    = !!myMembership?.can_pin_messages
+  const canSend   = isMember && myMembership?.can_send_messages !== false
+  const isAdmin   = !!myMembership && ['OWNER','ADMIN'].includes(myMembership.role)
 
   // Count online members
   const onlineCount = detail?.members?.filter(m => m.is_online).length || 0
@@ -397,21 +423,42 @@ function GroupChatView({ group, onBack, getAccessToken, currentUserId }) {
 
   const send = async (e) => {
     e.preventDefault()
-    if (!text.trim() || sending) return
+    const trimmed = text.trim()
+    if (!trimmed || sending) return
     setSending(true)
-    try {
-      const token = await getAccessToken()
-      if (editingMsg) {
-        const updated = await apiEditGroupMessage(group.id, editingMsg.id, text.trim(), token)
+    if (editingMsg) {
+      try {
+        const token = await getAccessToken()
+        const updated = await apiEditGroupMessage(group.id, editingMsg.id, trimmed, token)
         setMessages(prev => prev.map(m => m.id === editingMsg.id ? updated : m))
         setEditingMsg(null)
-      } else {
-        const msg = await apiSendGroupMessage(group.id, text.trim(), token)
-        setMessages(prev => [...prev, msg])
-      }
-      setText('')
-      setMentionResults([])
-    } catch {} finally { setSending(false) }
+        setText('')
+        setMentionResults([])
+      } catch {} finally { setSending(false) }
+      return
+    }
+    const tempId = `tmp-${Date.now()}`
+    const optimistic = {
+      id: tempId,
+      sender_id: currentUserId,
+      sender_name: 'Вы',
+      text: trimmed,
+      created_at: new Date().toISOString(),
+      is_edited: false,
+      mentioned_products: [],
+      _pending: true,
+    }
+    setMessages(prev => [...prev, optimistic])
+    setText('')
+    setMentionResults([])
+    try {
+      const token = await getAccessToken()
+      const msg = await apiSendGroupMessage(group.id, trimmed, token)
+      setMessages(prev => prev.map(m => m.id === tempId ? msg : m))
+    } catch {
+      setMessages(prev => prev.filter(m => m.id !== tempId))
+      setText(trimmed)
+    } finally { setSending(false) }
   }
 
   const handleDelete = async (msgId) => {
@@ -433,6 +480,21 @@ function GroupChatView({ group, onBack, getAccessToken, currentUserId }) {
   const cancelEdit = () => {
     setEditingMsg(null)
     setText('')
+  }
+
+  const handleJoin = async () => {
+    if (joining) return
+    setJoining(true); setJoinError('')
+    try {
+      const token = await getAccessToken()
+      await apiJoinGroup(group.id, token)
+      const det = await apiGetGroupDetail(group.id, token)
+      setDetail(det)
+    } catch (err) {
+      setJoinError(err?.message || 'Не удалось вступить')
+    } finally {
+      setJoining(false)
+    }
   }
 
   return (
@@ -543,7 +605,15 @@ function GroupChatView({ group, onBack, getAccessToken, currentUserId }) {
           </button>
         </div>
       )}
-      {canSend ? (
+      {!isMember ? (
+        <div className="chat-view__join-bar">
+          <button className="chat-view__join-btn" onClick={handleJoin} disabled={joining}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>
+            {joining ? 'Вступление...' : 'Вступить в группу'}
+          </button>
+          {joinError && <span className="chat-view__join-error">{joinError}</span>}
+        </div>
+      ) : canSend ? (
         <div className="chat-view__input-wrap">
           <MentionDropdown items={mentionResults} onSelect={selectMention} />
           <form className="chat-view__input-bar" onSubmit={send}>
@@ -745,9 +815,16 @@ export default function MessengerPage() {
         const loadedInqs = inqs || []
         setInquiries(loadedInqs)
         setGroups(grps || [])
-        if (locationState?.openBizId) {
+        if (locationState?.openInquiryId) {
+          const idx = loadedInqs.findIndex(i => i.id === locationState.openInquiryId)
+          if (idx !== -1) setActiveIdx(idx)
+        } else if (locationState?.openBizId) {
           const idx = loadedInqs.findIndex(i => i.biz_id === locationState.openBizId)
           if (idx !== -1) setActiveIdx(idx)
+        }
+        if (locationState?.openGroup) {
+          setTab('groups')
+          setActiveGroup(locationState.openGroup)
         }
       } finally { setLoading(false) }
     })

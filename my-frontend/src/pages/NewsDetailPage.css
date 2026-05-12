@@ -146,7 +146,7 @@
 @media (max-width: 600px) {
   .news-container { padding: 16px 16px 70px; }
   .news-article { padding: 16px; }
-  .news-main-image { margin: 0 -16px 16px; border-radius: 0; }
+  .news-main-image { margin: 0 -16px 16px; border-radius: 16px; overflow: hidden; }
   .news-main-title { font-size: 22px; }
 }
 

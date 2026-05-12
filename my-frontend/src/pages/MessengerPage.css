@@ -653,6 +653,42 @@
 }
 .chat-view__input-bar--info svg { flex-shrink: 0; opacity: 0.6; }
 
+/* Join group bar (preview mode) */
+.chat-view__join-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  padding: 12px 16px;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+.chat-view__join-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 18px;
+  background: var(--accent-gradient);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.2s;
+}
+.chat-view__join-btn:hover { opacity: 0.88; }
+.chat-view__join-btn:disabled { opacity: 0.55; cursor: default; }
+.chat-view__join-error {
+  text-align: center;
+  font-size: 12px;
+  color: #ef4444;
+}
+
 .chat-view__system-msg {
   text-align: center;
   color: var(--text-muted);

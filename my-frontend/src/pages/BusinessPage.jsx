@@ -12,7 +12,7 @@ import './BusinessPage.css'
 
 const CATEGORY_ICONS = {
   BEAUTY: '\u{1f485}', HEALTH: '\u{1fa7a}', REALTY: '\u{1f3e0}', EDUCATION: '\u{1f4da}',
-  FINANCE: '\u{1f4bc}', LEGAL: '\u2696\ufe0f', TOURISM: '\u2708\ufe0f', FOOD: '\u{1f37d}\ufe0f',
+  FINANCE: '\u{1f4bc}', LEGAL: '⚖️', TOURISM: '✈️', FOOD: '\u{1f37d}️',
   TRANSPORT: '\u{1f697}', OTHER: '\u{1f3e2}',
 }
 
@@ -685,26 +685,8 @@ export default function BusinessPage() {
                     const visiblePosts = posts.slice(start, end)
                     return visiblePosts.map(post => (
                       <div key={post.id} className="bp__feed-item">
-                        {post.media_display && (
-                          <div
-                            className={`bp__feed-media${post.media_type === 'VIDEO' ? ' bp__feed-media--video' : ''}`}
-                            onClick={() => post.media_type === 'VIDEO' && setSelectedVideo({ url: post.media_display, title: post.text })}
-                          >
-                            {post.media_type === 'VIDEO' ? (
-                              <div className="bp__feed-video-placeholder">
-                                <div className="bp__feed-video-icon">▶</div>
-                              </div>
-                            ) : (
-                              <img src={post.media_display} alt="" loading="lazy" />
-                            )}
-                            {post.media_type === 'VIDEO' && <div className="bp__play">▶</div>}
-                          </div>
-                        )}
                         <div className="bp__feed-body">
                           <p className="bp__feed-text">{post.text}</p>
-                          <div className="bp__feed-hashtags">
-                            {bizHashtags.slice(0, 3).map((h, i) => <span key={i} className="bp__feed-hashtag">{h}</span>)}
-                          </div>
                           <div className="bp__feed-footer">
                             <span className="bp__feed-date">
                               {new Date(post.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}

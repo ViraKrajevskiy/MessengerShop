@@ -9,7 +9,7 @@
   grid-template-rows: 1fr;
   gap: 20px;
   height: 500px;
-  border-radius: 0;
+  border-radius: 16px;
   overflow: hidden;
 }
 
@@ -72,7 +72,7 @@
 .hero-slider__dot--active {
   background: var(--accent-1);
   width: 20px;
-  border-radius: 0;
+  border-radius: 999px;
 }
 
 @media (max-width: 768px) {

@@ -1111,14 +1111,15 @@
   gap: 20px;
 }
 .bp__sim-card {
-  position: relative;
-  aspect-ratio: 1 / 1;
   border-radius: 10px;
   overflow: hidden;
+  background: var(--bg-secondary);
+  box-shadow: 0 4px 8px -6px rgba(0, 0, 0, 0.12);
   cursor: pointer;
-  background: var(--bg-tertiary);
-  box-shadow: 0 0 0 2px rgba(180,140,255,0.35), 0 4px 18px rgba(160,120,255,0.18);
   transition: transform 0.25s, box-shadow 0.25s;
+  border: none;
+  will-change: transform;
+  transform: translateZ(0);
 }
 .bp__sim-card:hover {
   transform: translateY(-3px) scale(1.02);

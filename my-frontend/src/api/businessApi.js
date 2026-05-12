@@ -102,6 +102,18 @@ export async function apiGetInquiries(token) {
   return res.json()
 }
 
+export async function apiStartBizChat(bizId, token) {
+  const res = await fetch(`${BASE}/businesses/${bizId}/chat/`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}` },
+  })
+  if (!res.ok) {
+    const e = await res.json().catch(() => ({}))
+    throw new Error(e.detail || 'Не удалось открыть чат')
+  }
+  return res.json()
+}
+
 export async function apiGetBusinessReviews(id) {
   const res = await fetch(`${BASE}/businesses/${id}/reviews/`)
   if (!res.ok) throw new Error('Ошибка загрузки отзывов')

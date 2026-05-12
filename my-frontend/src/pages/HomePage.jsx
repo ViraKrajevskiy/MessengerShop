@@ -334,7 +334,7 @@ export default function HomePage() {
                   </div>
                 ))
               ) : filteredAll.length > 0 ? (
-                homeBusinessCards.slice(0, -3).map(u => (
+                homeBusinessCards.slice(0, 12).map(u => (
                   <UserCard key={u.id} id={u.id} name={u.name} city={u.city} logo={u.logo} planType={u.plan_type} type="all" isOnline={!!u.owner_is_online} isVerified={!!u.is_verified} verifiedAt={u.verified_at} />
                 ))
               ) : (
