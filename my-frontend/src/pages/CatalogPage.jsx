@@ -269,22 +269,6 @@ export default function CatalogPage() {
           <p>{t('catalog_sub')}</p>
         </div>
 
-        {/* Tabs */}
-        <div className="cat-page__tabs">
-          {TABS.map(tb => (
-            <button
-              key={tb.key}
-              className={`cat-page__tab ${tab === tb.key ? 'cat-page__tab--active' : ''}`}
-              onClick={() => setTab(tb.key)}
-            >
-              {tb.label}
-              <span className="cat-page__tab-count">
-                {tb.key === 'services' ? fServices.length : fBiz.length}
-              </span>
-            </button>
-          ))}
-        </div>
-
         {/* Search + Filters */}
         <div className="cat-filters">
           {/* Search */}
