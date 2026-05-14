@@ -143,6 +143,14 @@
   justify-content: center;
   box-shadow: 0 1px 6px rgba(33, 150, 243, 0.6);
   cursor: default;
+  padding: 0;
+}
+
+.user-card__verified-badge svg {
+  display: block;
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
 }
 
 .user-card__verified-badge::after {
