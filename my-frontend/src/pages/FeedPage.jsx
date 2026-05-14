@@ -326,15 +326,6 @@ export default function FeedPage() {
                   </button>
                 ))}
               </div>
-              {activeTags.length > 0 && (
-                <div className="feed-filters__active">
-                  {activeTags.map(tag => (
-                    <span key={tag} className="feed-filter-active-tag" onClick={() => handleTagClick(tag)}>
-                      #{tag} <span className="feed-filter-active-tag__x">&#10005;</span>
-                    </span>
-                  ))}
-                </div>
-              )}
             </div>
           )}
         </div>
