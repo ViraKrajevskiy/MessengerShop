@@ -171,6 +171,15 @@
   padding: 0;
 }
 
+/* ── Price slider inline (in filter row) ── */
+.cat-price-slider-inline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 220px;
+  flex-shrink: 0;
+}
+
 .cat-price-slider__num {
   width: 56px;
   flex-shrink: 0;
