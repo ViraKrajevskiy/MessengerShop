@@ -8,6 +8,7 @@ import VideoModal from '../components/VideoModal'
 import { apiGetBusiness, apiGetBusinessPosts, apiGetBusinesses, apiToggleSubscription, apiJoinGroup, apiCheckGroupMembership, apiDeletePost, apiStartBizChat } from '../api/businessApi'
 import { resolveUrl } from '../utils/urlUtils'
 import { lastSeenText } from '../utils/timeUtils'
+import { makeInitialAvatar } from '../utils/defaults'
 import './BusinessPage.css'
 
 const CATEGORY_ICONS = {
@@ -158,28 +159,20 @@ function Gallery({ posts, onVideoSelect, isPremium }) {
 }
 
 function SimilarCard({ biz, onClick }) {
-  const photo = resolveUrl(biz.logo) || resolveUrl(biz.cover) || `https://picsum.photos/id/${(biz.id % 80) + 10}/500/500`
+  const isVideo = biz.logo && /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(biz.logo)
+  const logo = resolveUrl(biz.logo) || makeInitialAvatar(biz.brand_name)
+
   return (
     <div className="bp__sim-card" onClick={onClick}>
-      <img src={photo} alt={biz.brand_name} loading="lazy" />
-      <div className="bp__sim-overlay">
-        <div className="bp__sim-top-row">
-          {(biz.is_vip || biz.is_pro) && (
-            <span className={`bp__sim-badge${biz.is_pro ? ' bp__sim-badge--pro' : ''}`}>
-              {biz.is_pro ? 'PRO' : 'VIP'}
-            </span>
-          )}
-          {biz.is_verified && (
-            <span className="bp__sim-verified">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="#fff">
-                <path d="M12 2L9.19 4.09 5.5 3.82 4.41 7.41 1.42 9.72 2.83 13.21 1.42 16.71 4.41 19 5.5 22.59 9.19 22.32 12 24.41 14.81 22.32 18.5 22.59 19.59 19 22.58 16.71 21.17 13.21 22.58 9.72 19.59 7.41 18.5 3.82 14.81 4.09 12 2ZM10.09 16.72L7.29 13.91 8.71 12.5 10.09 13.88 15.34 8.63 16.76 10.05 10.09 16.72Z"/>
-              </svg>
-            </span>
-          )}
-        </div>
-        <p className="bp__sim-name">{biz.brand_name}</p>
-        {biz.city && <p className="bp__sim-city">{biz.city}</p>}
+      <div className="bp__sim-avatar">
+        {isVideo
+          ? <video className="bp__sim-avatar-img" src={logo} muted playsInline preload="metadata" />
+          : <img className="bp__sim-avatar-img" src={logo} alt={biz.brand_name} loading="lazy" decoding="async" />
+        }
+        {biz.owner_is_online && <span className="bp__sim-online-dot" />}
       </div>
+      <span className="bp__sim-name">{biz.brand_name}</span>
+      <span className="bp__sim-city">{biz.city || '—'}</span>
     </div>
   )
 }
