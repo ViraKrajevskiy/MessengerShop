@@ -785,11 +785,11 @@
 
 @media (max-width: 480px) {
   .card-grid--4 {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
     gap: 8px;
   }
   .card-grid--5 {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
     gap: 8px;
   }
 }
