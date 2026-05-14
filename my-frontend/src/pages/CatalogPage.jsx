@@ -159,7 +159,7 @@ export default function CatalogPage() {
   const [filterCat, setFilterCat]         = useState('')
   const [sortOrder, setSortOrder]         = useState('none')
   const [search, setSearch]               = useState('')
-  const [columns, setColumns]             = useState(4)
+  const [columns, setColumns]             = useState(() => typeof window !== 'undefined' && window.innerWidth < 768 ? 2 : 5)
   const [priceMin, setPriceMin]           = useState(0)
   const [priceMax, setPriceMax]           = useState(0)
   const [priceRangeSet, setPriceRangeSet] = useState(false)
@@ -294,7 +294,7 @@ export default function CatalogPage() {
         {/* Grid columns selector */}
         <div className="cat-grid-selector">
           <span className="cat-grid-selector__label">{t('grid_columns')}</span>
-          {[2, 3, 4, 5].map(col => (
+          {[1, 2, 3, 4, 5].map(col => (
             <button
               key={col}
               className={`cat-grid-selector__btn ${columns === col ? 'cat-grid-selector__btn--active' : ''}`}
