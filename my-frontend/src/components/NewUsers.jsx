@@ -9,6 +9,7 @@ import './NewUsers.css'
 
 const NEW_BUSINESS_LIMIT = 40
 const DESKTOP_BUSINESS_LIMIT = 12
+const MOBILE_BUSINESS_LIMIT = 12
 const MOBILE_MEDIA_QUERY = '(max-width: 500px)'
 
 export default function NewUsers({ businesses: businessesProp }) {
@@ -41,7 +42,7 @@ export default function NewUsers({ businesses: businessesProp }) {
     return () => media.removeEventListener('change', update)
   }, [])
 
-  const displayed = isMobile ? businesses : businesses.slice(0, DESKTOP_BUSINESS_LIMIT)
+  const displayed = isMobile ? businesses.slice(0, MOBILE_BUSINESS_LIMIT) : businesses.slice(0, DESKTOP_BUSINESS_LIMIT)
 
   const handleClick = (biz) => {
     addViewed({ id: biz.id, name: biz.brand_name, city: biz.city, badge: null, type: 'business' })
