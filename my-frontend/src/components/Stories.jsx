@@ -374,6 +374,7 @@ export default function Stories({ noTitle = false }) {
     if (!el) return
     drag.current = { isDown: true, startX: e.clientX, scrollLeft: el.scrollLeft, moved: false }
     el.style.cursor = 'grabbing'
+    el.classList.add('is-dragging')
   }
   const onMouseMove = (e) => {
     if (!drag.current.isDown) return
@@ -385,7 +386,10 @@ export default function Stories({ noTitle = false }) {
   }
   const onMouseUp = () => {
     drag.current.isDown = false
-    if (listRef.current) listRef.current.style.cursor = 'grab'
+    if (listRef.current) {
+      listRef.current.style.cursor = 'grab'
+      listRef.current.classList.remove('is-dragging')
+    }
   }
 
   const onTouchStart = (e) => {

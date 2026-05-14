@@ -99,7 +99,6 @@
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
   padding: 6px 2px;
-  scroll-snap-type: x mandatory;
   min-height: 120px;
 }
 
@@ -119,9 +118,13 @@
   align-items: center;
   gap: 8px;
   cursor: pointer;
-  scroll-snap-align: start;
   user-select: none;
   -webkit-user-drag: none;
+}
+
+.stories__list.is-dragging .stories__item:hover .stories__avatar {
+  transform: translateZ(0);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
 }
 
 .stories__avatar {
