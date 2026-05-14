@@ -21,6 +21,7 @@ const TABS = [
   { id: 'feed',         label: 'Лента',        icon: '📰' },
   { id: 'verification', label: 'Верификация', icon: '🛡️' },
   { id: 'posts',        label: 'Посты',        icon: '📝' },
+  { id: 'tweets',       label: 'Твиты',        icon: '🐦' },
   { id: 'stories',      label: 'Истории',      icon: '🎬' },
   { id: 'comments',     label: 'Комментарии',  icon: '💬' },
   { id: 'products',     label: 'Продукты',     icon: '🛍️' },
@@ -329,6 +330,77 @@ function PostsTab({ token }) {
                   }
                 </div>
               )}
+              <div className="mod-card__meta">
+                {new Date(post.created_at).toLocaleString('ru')}
+                {post.is_blocked && post.blocked_by && ` · Заблокировал: ${post.blocked_by}`}
+              </div>
+              <div className="mod-card__actions">
+                <button
+                  className={`mod-btn ${post.is_blocked ? 'mod-btn--green' : 'mod-btn--red'}`}
+                  disabled={toggling === post.id}
+                  onClick={() => toggleBlock(post)}
+                >
+                  {toggling === post.id ? '…' : post.is_blocked ? '🔓 Разблокировать' : '🚫 Заблокировать'}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── Tweets Tab (text-only posts) ──────────────────────────────────────────────
+function TweetsTab({ token }) {
+  const [items, setItems] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [filter, setFilter] = useState('')
+  const [toggling, setToggling] = useState(null)
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    try {
+      const params = filter === 'blocked' ? { blocked: true } : filter === 'active' ? { blocked: false } : {}
+      const data = await apiModeratorGetPosts(token, params)
+      setItems((data || []).filter(p => !p.media))
+    } catch { /* ignore */ }
+    finally { setLoading(false) }
+  }, [token, filter])
+
+  useEffect(() => { load() }, [load])
+
+  const toggleBlock = async (post) => {
+    setToggling(post.id)
+    try {
+      await apiModeratorBlockPost(token, post.id, !post.is_blocked)
+      setItems(prev => prev.map(p => p.id === post.id ? { ...p, is_blocked: !p.is_blocked } : p))
+    } catch { /* ignore */ }
+    finally { setToggling(null) }
+  }
+
+  return (
+    <div className="mod-tab">
+      <div className="mod-tab__filters">
+        {[{ v: '', l: 'Все' }, { v: 'active', l: 'Активные' }, { v: 'blocked', l: 'Заблокированные' }].map(f => (
+          <button key={f.v} className={`mod-filter-btn ${filter === f.v ? 'mod-filter-btn--active' : ''}`} onClick={() => setFilter(f.v)}>
+            {f.l}
+          </button>
+        ))}
+      </div>
+
+      {loading ? <div className="mod-loader">Загрузка…</div> : (
+        <div className="mod-list">
+          {items.length === 0 && <div className="mod-empty">Нет твитов</div>}
+          {items.map(post => (
+            <div key={post.id} className={`mod-card ${post.is_blocked ? 'mod-card--blocked' : ''}`}>
+              <div className="mod-card__row">
+                <div className="mod-card__title">🐦 {post.business?.brand_name}</div>
+                <span className={`mod-badge ${post.is_blocked ? 'mod-badge--red' : 'mod-badge--green'}`}>
+                  {post.is_blocked ? 'Заблокирован' : 'Активен'}
+                </span>
+              </div>
+              <div className="mod-card__text">{post.text || <i>Без текста</i>}</div>
               <div className="mod-card__meta">
                 {new Date(post.created_at).toLocaleString('ru')}
                 {post.is_blocked && post.blocked_by && ` · Заблокировал: ${post.blocked_by}`}
@@ -1162,6 +1234,7 @@ export default function ModeratorDashboardPage() {
           {tab === 'feed'         && <FeedTab         token={token} />}
           {tab === 'verification' && <VerificationTab token={token} />}
           {tab === 'posts'        && <PostsTab        token={token} />}
+          {tab === 'tweets'       && <TweetsTab       token={token} />}
           {tab === 'complaints'   && <ComplaintsTab   token={token} />}
           {tab === 'tariffs'      && <TariffsTab      token={token} />}
           {tab === 'stories' && (

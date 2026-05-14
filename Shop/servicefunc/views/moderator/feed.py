@@ -31,8 +31,8 @@ class ModeratorFeedView(APIView):
         # ── Posts ─────────────────────────────────────────────────────────────
         if not type_filter or type_filter == 'post':
             posts = _blocked_qs(
-                Post.objects.select_related('business', 'blocked_by').order_by('-created_at')[:limit]
-            )
+                Post.objects.select_related('business', 'blocked_by')
+            ).order_by('-created_at')[:limit]
             for p in posts:
                 items.append({
                     'content_type': 'post',
@@ -53,8 +53,8 @@ class ModeratorFeedView(APIView):
         # ── Stories ───────────────────────────────────────────────────────────
         if not type_filter or type_filter == 'story':
             stories = _blocked_qs(
-                Story.objects.select_related('author', 'blocked_by').order_by('-created_at')[:limit]
-            )
+                Story.objects.select_related('author', 'blocked_by')
+            ).order_by('-created_at')[:limit]
             for s in stories:
                 items.append({
                     'content_type': 'story',
@@ -73,8 +73,8 @@ class ModeratorFeedView(APIView):
         # ── Products ──────────────────────────────────────────────────────────
         if not type_filter or type_filter == 'product':
             products = _blocked_qs(
-                Product.objects.select_related('business', 'blocked_by').order_by('-created_at')[:limit]
-            )
+                Product.objects.select_related('business', 'blocked_by')
+            ).order_by('-created_at')[:limit]
             for p in products:
                 items.append({
                     'content_type': 'product',
