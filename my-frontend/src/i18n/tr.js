@@ -452,6 +452,7 @@ const tr = {
   post_collapse:        'Daralt',
   post_readMore:        'Devamını oku',
   post_delete:          'Gönderiyi sil',
+  post_report:          'Bu gönderiyi bildir',
 
   // ── UserCard ───────────────────────────────────────────────────────────────
   user_removeFav:       'Favorilerden çıkar',

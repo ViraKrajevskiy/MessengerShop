@@ -111,29 +111,51 @@
 
 .post-card__follow {
   flex-shrink: 0;
-  align-self: center;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 700;
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: 12px;
+  font-weight: 800;
   font-family: inherit;
   cursor: pointer;
-  transition: all 0.2s;
-  border: 1.5px solid #2196f3;
-  background: transparent;
-  color: #2196f3;
+  transition: opacity 0.2s;
+  color: #e91e63;
   white-space: nowrap;
 }
 
 .post-card__follow:hover {
-  background: rgba(33, 150, 243, 0.1);
-  color: #2196f3;
+  opacity: 0.75;
 }
 
 .post-card__follow--active {
-  background: transparent;
   color: var(--text-muted);
-  padding: 5px 10px;
+  font-weight: 700;
+}
+
+.post-card__sep {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.post-card__report {
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.post-card__report:hover {
+  opacity: 0.75;
+  color: var(--text-secondary);
 }
 
 .post-card__image {
