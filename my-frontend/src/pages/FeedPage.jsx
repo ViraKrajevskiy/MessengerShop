@@ -126,12 +126,11 @@ export default function FeedPage() {
   const [filterNew, setFilterNew] = useState(false)
   const [filterCity, setFilterCity] = useState('')
   const [sortOrder, setSortOrder] = useState('none') // none | date_desc | date_asc | price_desc | price_asc
-  const [columns, setColumns] = useState(4)
   const [page, setPage] = useState(0)
   const navigate = useNavigate()
   const { getAccessToken, user } = useAuth()
   const { t } = useLanguage()
-  const CARDS_PER_PAGE = columns * 5
+  const CARDS_PER_PAGE = 25
   const GUEST_LIMIT = 4
 
   useEffect(() => {
@@ -159,11 +158,6 @@ export default function FeedPage() {
     setActiveTags(prev =>
       prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
     )
-  }
-
-  const handleColumnsChange = (col) => {
-    setColumns(col)
-    setPage(0)
   }
 
   const clearFilters = () => {
@@ -255,21 +249,6 @@ export default function FeedPage() {
               onClick={() => setTab(tb.key)}
             >
               {t(tb.label)}
-            </button>
-          ))}
-        </div>
-
-        {/* Grid columns selector */}
-        <div className="feed-grid-selector">
-          <span className="feed-grid-selector__label">{t('grid_columns')}</span>
-          {[2, 3, 4, 5].map(col => (
-            <button
-              key={col}
-              className={`feed-grid-selector__btn ${columns === col ? 'feed-grid-selector__btn--active' : ''}`}
-              onClick={() => handleColumnsChange(col)}
-              title={t('grid_columnsTitle').replace('{{col}}', col)}
-            >
-              {col}
             </button>
           ))}
         </div>
@@ -378,7 +357,7 @@ export default function FeedPage() {
                       const paginatedPosts = allPosts.slice(page * CARDS_PER_PAGE, (page + 1) * CARDS_PER_PAGE)
                       return (
                         <>
-                          <div className="post-cards-grid" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
+                          <div className="post-cards-grid post-cards-grid--5">
                             {paginatedPosts.map(post => (
                               <PostCard key={`post-${post.id}`} post={post} />
                             ))}
@@ -411,7 +390,7 @@ export default function FeedPage() {
                       const paginatedPhotos = allPhotos.slice(page * CARDS_PER_PAGE, (page + 1) * CARDS_PER_PAGE)
                       return (
                         <>
-                          <div className="post-cards-grid" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
+                          <div className="post-cards-grid post-cards-grid--5">
                             {paginatedPhotos.map(post => (
                               <PostCard key={`photo-${post.id}`} post={post} />
                             ))}
@@ -445,7 +424,7 @@ export default function FeedPage() {
                       const paginatedVideos = allVideos.slice(page * CARDS_PER_PAGE, (page + 1) * CARDS_PER_PAGE)
                       return (
                         <>
-                          <div className="post-cards-grid" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
+                          <div className="post-cards-grid post-cards-grid--5">
                             {paginatedVideos.map(post => (
                               <PostCard key={`video-${post.id}`} post={post} />
                             ))}
