@@ -401,15 +401,6 @@ export default function CatalogPage() {
                   </button>
                 ))}
               </div>
-              {activeTags.length > 0 && (
-                <div className="cat-filters__active-tags">
-                  {activeTags.map(tag => (
-                    <span key={tag} className="cat-active-tag" onClick={() => toggleTag(tag)}>
-                      #{tag} <span>✕</span>
-                    </span>
-                  ))}
-                </div>
-              )}
             </div>
           )}
         </div>
