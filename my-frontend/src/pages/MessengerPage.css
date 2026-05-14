@@ -150,8 +150,15 @@
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: var(--green);
+  background: radial-gradient(circle at 35% 35%, #6ee7b7, #10b981, #059669);
   border: 2.5px solid var(--bg-secondary);
+  box-shadow: 0 0 0 1.5px rgba(16,185,129,0.3), inset 0 1px 2px rgba(255,255,255,0.35);
+  animation: msg-online-pulse 2.2s ease-out infinite;
+}
+
+@keyframes msg-online-pulse {
+  0%, 100% { box-shadow: 0 0 0 1.5px rgba(16,185,129,0.3), 0 0 0 0 rgba(16,185,129,0.2), inset 0 1px 2px rgba(255,255,255,0.35); }
+  50%       { box-shadow: 0 0 0 1.5px rgba(16,185,129,0.1), 0 0 0 5px rgba(16,185,129,0), inset 0 1px 2px rgba(255,255,255,0.35); }
 }
 
 /* Contact list */
@@ -947,8 +954,15 @@
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: var(--green);
+  background: radial-gradient(circle at 35% 35%, #6ee7b7, #10b981, #059669);
   border: 2px solid var(--bg-primary);
+  box-shadow: 0 0 0 1px rgba(16,185,129,0.3), inset 0 1px 1px rgba(255,255,255,0.3);
+  animation: bubble-online-pulse 2.2s ease-out infinite;
+}
+
+@keyframes bubble-online-pulse {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(16,185,129,0.3), 0 0 0 0 rgba(16,185,129,0.2), inset 0 1px 1px rgba(255,255,255,0.3); }
+  50%       { box-shadow: 0 0 0 1px rgba(16,185,129,0.1), 0 0 0 4px rgba(16,185,129,0), inset 0 1px 1px rgba(255,255,255,0.3); }
 }
 
 /* Online count in group header */
@@ -1248,8 +1262,15 @@
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: var(--green);
+  background: radial-gradient(circle at 35% 35%, #6ee7b7, #10b981, #059669);
   border: 2px solid var(--bg-secondary);
+  box-shadow: 0 0 0 1px rgba(16,185,129,0.3), inset 0 1px 1px rgba(255,255,255,0.3);
+  animation: member-online-pulse 2.2s ease-out infinite;
+}
+
+@keyframes member-online-pulse {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(16,185,129,0.3), 0 0 0 0 rgba(16,185,129,0.2), inset 0 1px 1px rgba(255,255,255,0.3); }
+  50%       { box-shadow: 0 0 0 1px rgba(16,185,129,0.1), 0 0 0 4px rgba(16,185,129,0), inset 0 1px 1px rgba(255,255,255,0.3); }
 }
 
 .member-card__name {
