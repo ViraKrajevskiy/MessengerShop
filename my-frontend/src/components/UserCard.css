@@ -148,9 +148,9 @@
 .user-card__verified-badge::after {
   content: 'Официальный';
   position: absolute;
-  bottom: calc(100% + 6px);
-  left: 50%;
-  transform: translateX(-50%) translateY(4px);
+  top: 50%;
+  left: calc(100% + 8px);
+  transform: translateY(-50%) translateX(-4px);
   background: rgba(0,0,0,0.82);
   color: #fff;
   font-size: 10px;
@@ -166,7 +166,7 @@
 
 .user-card__verified-badge:hover::after {
   opacity: 1;
-  transform: translateX(-50%) translateY(0);
+  transform: translateY(-50%) translateX(0);
 }
 
 .user-card__verified-tip {
