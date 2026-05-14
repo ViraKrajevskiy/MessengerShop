@@ -342,7 +342,7 @@
     gap: 14px;
   }
   .post-card {
-    border-radius: 0;
+    border-radius: 10px;
   }
   .post-card__header {
     padding: 11px 13px 9px;
