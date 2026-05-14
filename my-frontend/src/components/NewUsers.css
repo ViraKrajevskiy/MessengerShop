@@ -78,11 +78,11 @@
   align-items: center;
   gap: 0;
   cursor: pointer;
-  padding: 0 22px 24px;
+  padding: 0 8px 24px;
   border-radius: var(--radius-lg);
   transition: all 0.22s;
-  max-width: 174px;
-  min-height: 200px; /* Prevent layout shift */
+  max-width: 220px;
+  min-height: 240px;
 }
 
 .new-users__item:hover {
