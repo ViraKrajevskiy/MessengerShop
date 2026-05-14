@@ -1,6 +1,53 @@
 import { useState, useEffect, useCallback } from 'react'
 import { API_URL } from '../config/api'
 import { useNavigate } from 'react-router-dom'
+import { useLanguage } from '../context/LanguageContext'
+
+// Russian → Turkish dictionary for the moderator dashboard. Inline because this
+// page is admin-only and is otherwise hardcoded in Russian — keys would bloat i18n.
+const MOD_TR = {
+  // Tabs
+  'Лента': 'Akış', 'Верификация': 'Doğrulama', 'Посты': 'Gönderiler',
+  'Твиты': 'Tweetler', 'Истории': 'Hikayeler', 'Комментарии': 'Yorumlar',
+  'Услуги': 'Hizmetler', 'Отзывы': 'Değerlendirmeler', 'Жалобы': 'Şikayetler',
+  'Тарифы': 'Tarifeler', 'Оплаты': 'Ödemeler', 'Профили': 'Profiller',
+  // Status / plan
+  'Бесплатный': 'Ücretsiz', 'Ожидание': 'Beklemede', 'Одобрено': 'Onaylandı',
+  'Отклонено': 'Reddedildi', 'Решено': 'Çözüldü',
+  // Reasons
+  'Спам': 'Spam', 'Неприемлемый контент': 'Uygunsuz içerik',
+  'Мошенничество': 'Dolandırıcılık', 'Дезинформация': 'Yanlış bilgi', 'Другое': 'Diğer',
+  // Filters / common
+  'Все': 'Tümü', 'Всё': 'Tümü', 'Активные': 'Aktif', 'Заблокированные': 'Engellenmiş',
+  'Активен': 'Aktif', 'Заблокирован': 'Engellendi',
+  // Buttons
+  'Загрузка…': 'Yükleniyor…', 'Загрузка...': 'Yükleniyor...',
+  'Сохранить': 'Kaydet', 'Отменить': 'İptal', 'Закрыть': 'Kapat',
+  'Применить': 'Uygula', 'Назначить': 'Ata', 'Подтвердить': 'Onayla',
+  'Одобрить': 'Onayla', 'Отклонить': 'Reddet',
+  '🚫 Заблокировать': '🚫 Engelle', '🔓 Разблокировать': '🔓 Engeli kaldır',
+  // Empties
+  'Нет постов': 'Gönderi yok', 'Нет твитов': 'Tweet yok',
+  'Нет историй': 'Hikaye yok', 'Нет комментариев': 'Yorum yok',
+  'Нет услуг': 'Hizmet yok', 'Нет отзывов': 'Değerlendirme yok',
+  'Нет жалоб': 'Şikayet yok', 'Нет оплат': 'Ödeme yok',
+  'Нет профилей': 'Profil yok', 'Нет верификаций': 'Doğrulama yok',
+  'Нет данных': 'Veri yok', 'Без текста': 'Metin yok',
+  // Misc
+  'Выйти': 'Çıkış', 'Модератор': 'Moderatör', 'Панель модератора': 'Moderatör paneli',
+  'Панель управления контентом': 'İçerik yönetim paneli',
+  'Заблокировал:': 'Engelleyen:', 'Причина': 'Sebep', 'Статус': 'Durum',
+  'Бизнес': 'İşletme', 'Пользователь': 'Kullanıcı', 'Дата': 'Tarih',
+  'Сумма': 'Tutar', 'Тариф': 'Tarife', 'Действие': 'İşlem',
+  'Без названия': 'Başlıksız',
+  'Авто-удаление:': 'Otomatik silme:',
+}
+
+function useModT() {
+  const ctx = useLanguage()
+  const lang = ctx?.lang || 'ru'
+  return (ru) => (lang === 'tr' && MOD_TR[ru]) ? MOD_TR[ru] : ru
+}
 import {
   apiModeratorGetVerifications, apiModeratorReviewVerification,
   apiModeratorGetVerificationDetail, apiModeratorSendVerificationMessage,
@@ -278,6 +325,7 @@ function PostsTab({ token }) {
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('')
   const [toggling, setToggling] = useState(null)
+  const mt = useModT()
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -305,23 +353,23 @@ function PostsTab({ token }) {
       <div className="mod-tab__filters">
         {[{ v: '', l: 'Все' }, { v: 'active', l: 'Активные' }, { v: 'blocked', l: 'Заблокированные' }].map(f => (
           <button key={f.v} className={`mod-filter-btn ${filter === f.v ? 'mod-filter-btn--active' : ''}`} onClick={() => setFilter(f.v)}>
-            {f.l}
+            {mt(f.l)}
           </button>
         ))}
       </div>
 
-      {loading ? <div className="mod-loader">Загрузка…</div> : (
+      {loading ? <div className="mod-loader">{mt('Загрузка…')}</div> : (
         <div className="mod-list">
-          {items.length === 0 && <div className="mod-empty">Нет постов</div>}
+          {items.length === 0 && <div className="mod-empty">{mt('Нет постов')}</div>}
           {items.map(post => (
             <div key={post.id} className={`mod-card ${post.is_blocked ? 'mod-card--blocked' : ''}`}>
               <div className="mod-card__row">
                 <div className="mod-card__title">{post.business?.brand_name}</div>
                 <span className={`mod-badge ${post.is_blocked ? 'mod-badge--red' : 'mod-badge--green'}`}>
-                  {post.is_blocked ? 'Заблокирован' : 'Активен'}
+                  {post.is_blocked ? mt('Заблокирован') : mt('Активен')}
                 </span>
               </div>
-              <div className="mod-card__text">{post.text || <i>Без текста</i>}</div>
+              <div className="mod-card__text">{post.text || <i>{mt('Без текста')}</i>}</div>
               {post.media && (
                 <div className="mod-card__media">
                   {post.media_type === 'IMAGE'
@@ -332,7 +380,7 @@ function PostsTab({ token }) {
               )}
               <div className="mod-card__meta">
                 {new Date(post.created_at).toLocaleString('ru')}
-                {post.is_blocked && post.blocked_by && ` · Заблокировал: ${post.blocked_by}`}
+                {post.is_blocked && post.blocked_by && ` · ${mt('Заблокировал:')} ${post.blocked_by}`}
               </div>
               <div className="mod-card__actions">
                 <button
@@ -340,7 +388,7 @@ function PostsTab({ token }) {
                   disabled={toggling === post.id}
                   onClick={() => toggleBlock(post)}
                 >
-                  {toggling === post.id ? '…' : post.is_blocked ? '🔓 Разблокировать' : '🚫 Заблокировать'}
+                  {toggling === post.id ? '…' : post.is_blocked ? mt('🔓 Разблокировать') : mt('🚫 Заблокировать')}
                 </button>
               </div>
             </div>
@@ -357,6 +405,7 @@ function TweetsTab({ token }) {
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('')
   const [toggling, setToggling] = useState(null)
+  const mt = useModT()
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -384,26 +433,26 @@ function TweetsTab({ token }) {
       <div className="mod-tab__filters">
         {[{ v: '', l: 'Все' }, { v: 'active', l: 'Активные' }, { v: 'blocked', l: 'Заблокированные' }].map(f => (
           <button key={f.v} className={`mod-filter-btn ${filter === f.v ? 'mod-filter-btn--active' : ''}`} onClick={() => setFilter(f.v)}>
-            {f.l}
+            {mt(f.l)}
           </button>
         ))}
       </div>
 
-      {loading ? <div className="mod-loader">Загрузка…</div> : (
+      {loading ? <div className="mod-loader">{mt('Загрузка…')}</div> : (
         <div className="mod-list">
-          {items.length === 0 && <div className="mod-empty">Нет твитов</div>}
+          {items.length === 0 && <div className="mod-empty">{mt('Нет твитов')}</div>}
           {items.map(post => (
             <div key={post.id} className={`mod-card ${post.is_blocked ? 'mod-card--blocked' : ''}`}>
               <div className="mod-card__row">
                 <div className="mod-card__title">🐦 {post.business?.brand_name}</div>
                 <span className={`mod-badge ${post.is_blocked ? 'mod-badge--red' : 'mod-badge--green'}`}>
-                  {post.is_blocked ? 'Заблокирован' : 'Активен'}
+                  {post.is_blocked ? mt('Заблокирован') : mt('Активен')}
                 </span>
               </div>
-              <div className="mod-card__text">{post.text || <i>Без текста</i>}</div>
+              <div className="mod-card__text">{post.text || <i>{mt('Без текста')}</i>}</div>
               <div className="mod-card__meta">
                 {new Date(post.created_at).toLocaleString('ru')}
-                {post.is_blocked && post.blocked_by && ` · Заблокировал: ${post.blocked_by}`}
+                {post.is_blocked && post.blocked_by && ` · ${mt('Заблокировал:')} ${post.blocked_by}`}
               </div>
               <div className="mod-card__actions">
                 <button
@@ -411,7 +460,7 @@ function TweetsTab({ token }) {
                   disabled={toggling === post.id}
                   onClick={() => toggleBlock(post)}
                 >
-                  {toggling === post.id ? '…' : post.is_blocked ? '🔓 Разблокировать' : '🚫 Заблокировать'}
+                  {toggling === post.id ? '…' : post.is_blocked ? mt('🔓 Разблокировать') : mt('🚫 Заблокировать')}
                 </button>
               </div>
             </div>
@@ -680,6 +729,7 @@ function BlockableTab({ token, fetchFn, blockFn, renderTitle, renderMeta, render
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('')
   const [toggling, setToggling] = useState(null)
+  const mt = useModT()
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -707,27 +757,27 @@ function BlockableTab({ token, fetchFn, blockFn, renderTitle, renderMeta, render
       <div className="mod-tab__filters">
         {[{ v: '', l: 'Все' }, { v: 'active', l: 'Активные' }, { v: 'blocked', l: 'Заблокированные' }].map(f => (
           <button key={f.v} className={`mod-filter-btn ${filter === f.v ? 'mod-filter-btn--active' : ''}`} onClick={() => setFilter(f.v)}>
-            {f.l}
+            {mt(f.l)}
           </button>
         ))}
       </div>
 
-      {loading ? <div className="mod-loader">Загрузка…</div> : (
+      {loading ? <div className="mod-loader">{mt('Загрузка…')}</div> : (
         <div className="mod-list">
-          {items.length === 0 && <div className="mod-empty">Нет записей</div>}
+          {items.length === 0 && <div className="mod-empty">{mt('Нет данных')}</div>}
           {items.map(item => (
             <div key={item.id} className={`mod-card ${item.is_blocked ? 'mod-card--blocked' : ''}`}>
               <div className="mod-card__row">
                 <div className="mod-card__title">{renderTitle(item)}</div>
                 <span className={`mod-badge ${item.is_blocked ? 'mod-badge--red' : 'mod-badge--green'}`}>
-                  {item.is_blocked ? 'Заблокирован' : 'Активен'}
+                  {item.is_blocked ? mt('Заблокирован') : mt('Активен')}
                 </span>
               </div>
               {renderMeta && <div className="mod-card__meta">{renderMeta(item)}</div>}
               {renderExtra && renderExtra(item)}
               {item.is_blocked && item.blocked_at && (
                 <div className="mod-card__meta" style={{ color: 'rgba(248,113,113,0.7)' }}>
-                  🗑️ Авто-удаление: {new Date(new Date(item.blocked_at).getTime() + 4*24*60*60*1000).toLocaleDateString('ru')}
+                  🗑️ {mt('Авто-удаление:')} {new Date(new Date(item.blocked_at).getTime() + 4*24*60*60*1000).toLocaleDateString('ru')}
                 </div>
               )}
               <div className="mod-card__actions">
@@ -736,7 +786,7 @@ function BlockableTab({ token, fetchFn, blockFn, renderTitle, renderMeta, render
                   disabled={toggling === item.id}
                   onClick={() => toggleBlock(item)}
                 >
-                  {toggling === item.id ? '…' : item.is_blocked ? '🔓 Разблокировать' : '🚫 Заблокировать'}
+                  {toggling === item.id ? '…' : item.is_blocked ? mt('🔓 Разблокировать') : mt('🚫 Заблокировать')}
                 </button>
               </div>
             </div>
@@ -1163,6 +1213,7 @@ function ProfilesTab({ token }) {
 export default function ModeratorDashboardPage() {
   const [tab, setTab] = useState('feed')
   const { token, modUser, logout } = useModeratorAuth()
+  const mt = useModT()
 
   if (!token) return null
 
@@ -1174,7 +1225,7 @@ export default function ModeratorDashboardPage() {
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
           </svg>
-          <span>Модератор</span>
+          <span>{mt('Модератор')}</span>
         </div>
 
         <nav className="mod-nav">
@@ -1185,7 +1236,7 @@ export default function ModeratorDashboardPage() {
               onClick={() => setTab(t.id)}
             >
               <span className="mod-nav__icon">{t.icon}</span>
-              <span>{t.label}</span>
+              <span>{mt(t.label)}</span>
             </button>
           ))}
         </nav>
@@ -1196,9 +1247,9 @@ export default function ModeratorDashboardPage() {
           </div>
           <div className="mod-sidebar__info">
             <div className="mod-sidebar__name">{modUser?.username}</div>
-            <div className="mod-sidebar__role">Модератор</div>
+            <div className="mod-sidebar__role">{mt('Модератор')}</div>
           </div>
-          <button className="mod-sidebar__logout" onClick={logout} title="Выйти">
+          <button className="mod-sidebar__logout" onClick={logout} title={mt('Выйти')}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
               <polyline points="16 17 21 12 16 7"/>
@@ -1212,8 +1263,8 @@ export default function ModeratorDashboardPage() {
       <main className="mod-main">
         <div className="mod-main__header">
           <div>
-            <h1 className="mod-main__title">{TABS.find(t => t.id === tab)?.label}</h1>
-            <p className="mod-main__subtitle">Панель управления контентом</p>
+            <h1 className="mod-main__title">{mt(TABS.find(t => t.id === tab)?.label)}</h1>
+            <p className="mod-main__subtitle">{mt('Панель управления контентом')}</p>
           </div>
         </div>
 
@@ -1225,7 +1276,7 @@ export default function ModeratorDashboardPage() {
               className={`mod-mobile-tab ${tab === t.id ? 'mod-mobile-tab--active' : ''}`}
               onClick={() => setTab(t.id)}
             >
-              {t.icon} {t.label}
+              {t.icon} {mt(t.label)}
             </button>
           ))}
         </div>
