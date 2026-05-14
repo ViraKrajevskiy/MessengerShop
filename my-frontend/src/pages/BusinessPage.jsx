@@ -5,10 +5,10 @@ import { useLanguage } from '../context/LanguageContext'
 import Header from '../components/Header'
 import ReviewsSection from '../components/ReviewsSection'
 import VideoModal from '../components/VideoModal'
+import UserCard from '../components/UserCard'
 import { apiGetBusiness, apiGetBusinessPosts, apiGetBusinesses, apiToggleSubscription, apiJoinGroup, apiCheckGroupMembership, apiDeletePost, apiStartBizChat } from '../api/businessApi'
 import { resolveUrl } from '../utils/urlUtils'
 import { lastSeenText } from '../utils/timeUtils'
-import { makeInitialAvatar } from '../utils/defaults'
 import './BusinessPage.css'
 
 const CATEGORY_ICONS = {
@@ -158,24 +158,6 @@ function Gallery({ posts, onVideoSelect, isPremium }) {
   )
 }
 
-function SimilarCard({ biz, onClick }) {
-  const isVideo = biz.logo && /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(biz.logo)
-  const logo = resolveUrl(biz.logo) || makeInitialAvatar(biz.brand_name)
-
-  return (
-    <div className="bp__sim-card" onClick={onClick}>
-      <div className="bp__sim-avatar">
-        {isVideo
-          ? <video className="bp__sim-avatar-img" src={logo} muted playsInline preload="metadata" />
-          : <img className="bp__sim-avatar-img" src={logo} alt={biz.brand_name} loading="lazy" decoding="async" />
-        }
-        {biz.owner_is_online && <span className="bp__sim-online-dot" />}
-      </div>
-      <span className="bp__sim-name">{biz.brand_name}</span>
-      <span className="bp__sim-city">{biz.city || '—'}</span>
-    </div>
-  )
-}
 
 function VipPromo({ user, navigate }) {
   const { t } = useLanguage()
@@ -749,9 +731,20 @@ export default function BusinessPage() {
         {similar.length > 0 && (
           <section className="bp__similar">
             <h2 className="bp__card-title">{t('biz_similar')}</h2>
-            <div className="bp__sim-grid">
+            <div className="card-grid card-grid--5">
               {similar.map(s => (
-                <SimilarCard key={s.id} biz={s} onClick={() => navigate(`/business/${s.id}`)} />
+                <UserCard
+                  key={s.id}
+                  id={s.id}
+                  name={s.brand_name}
+                  city={s.city}
+                  logo={s.logo}
+                  planType={s.plan_type || 'FREE'}
+                  isOnline={!!s.owner_is_online}
+                  isVerified={!!s.is_verified}
+                  verifiedAt={s.verified_at || null}
+                  type="all"
+                />
               ))}
             </div>
           </section>
