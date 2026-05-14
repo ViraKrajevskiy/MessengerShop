@@ -2,8 +2,8 @@ import { API_URL as BASE_URL } from '../config/api'
 
 async function request(endpoint, options = {}) {
   const response = await fetch(`${BASE_URL}${endpoint}`, {
-    headers: { 'Content-Type': 'application/json', ...options.headers },
     ...options,
+    headers: { 'Content-Type': 'application/json', ...options.headers },
   })
   let data = null
   try { data = await response.json() } catch { /* empty */ }
