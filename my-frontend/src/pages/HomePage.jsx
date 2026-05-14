@@ -7,6 +7,7 @@ import NewUsers from '../components/NewUsers'
 import UserCard from '../components/UserCard'
 import Footer from '../components/Footer'
 import TweetsSidebar from '../components/TweetsSidebar'
+import BusinessRankSidebar from '../components/BusinessRankSidebar'
 import PostCard from '../components/PostCard'
 import PremiumCarousel from '../components/PremiumCarousel'
 import NearbyBusinesses from '../components/NearbyBusinesses'
@@ -347,7 +348,17 @@ export default function HomePage() {
           {/* Auth gate for guests — shown below all cards */}
 
         </main>
-        <TweetsSidebar posts={posts} />
+        <div className="home-page__sidebar">
+          <TweetsSidebar posts={posts} />
+          <BusinessRankSidebar
+            title={t('home_popularBiz') || 'Самые популярные Бизнесы на этой неделе'}
+            businesses={[...allBiz].sort((a, b) => (b.rating || 0) - (a.rating || 0))}
+          />
+          <BusinessRankSidebar
+            title={t('home_viewedBiz') || 'Самые просматриваемые Бизнесы на этой неделе'}
+            businesses={[...allBiz].sort((a, b) => (b.views_count || b.id || 0) - (a.views_count || a.id || 0))}
+          />
+        </div>
       </div>
 
       <Footer />

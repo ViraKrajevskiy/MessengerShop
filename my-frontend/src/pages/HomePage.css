@@ -30,6 +30,23 @@
   padding: 0 0 60px;
 }
 
+.home-page__sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  flex-shrink: 0;
+  margin-top: 28px;
+  align-self: flex-start;
+}
+
+.home-page__sidebar .tweets-sidebar {
+  margin-top: 0;
+}
+
+@media (max-width: 1024px) {
+  .home-page__sidebar { display: none; }
+}
+
 .home-page__hero {
   padding: 32px 0 16px;
   position: relative;
