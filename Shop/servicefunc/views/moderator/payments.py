@@ -116,7 +116,7 @@ class ModeratorPaymentListView(APIView):
 
     def get(self, request):
         qs = PaymentRequest.objects.select_related(
-            'business', 'business__owner', 'business__logo', 'reviewed_by'
+            'business', 'business__owner', 'reviewed_by'
         ).order_by('-created_at')
         status_filter = request.query_params.get('status')
         if status_filter:
