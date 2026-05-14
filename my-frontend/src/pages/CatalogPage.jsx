@@ -141,7 +141,6 @@ export default function CatalogPage() {
 
   const TABS = [
     { key: 'services',  label: `🔧 ${t('catalog_services')}` },
-    { key: 'companies', label: `🏢 ${t('catalog_companies')}` },
   ]
 
   const [searchParams] = useSearchParams()
