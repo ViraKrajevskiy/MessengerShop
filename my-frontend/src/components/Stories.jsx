@@ -424,12 +424,7 @@ export default function Stories({ noTitle = false }) {
   }
 
   if (storiesData.length === 0) {
-    return (
-      <section className="stories">
-        {!noTitle && <h2 className="section-title">{t('stories_title')}</h2>}
-        <p className="stories__empty">{t('stories_empty')}</p>
-      </section>
-    )
+    return null
   }
 
   return (
