@@ -120,16 +120,17 @@
   flex: 0 0 calc((100% - 16px) / 2);
   scroll-snap-align: start;
   background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
+  border: none;
   border-radius: 10px;
   overflow: clip;
   cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   transition: box-shadow 0.2s, transform 0.2s;
 }
 
 .nearby__card:hover {
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.1);
-  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
 }
 
 .nearby__card-body {
