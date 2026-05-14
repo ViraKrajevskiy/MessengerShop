@@ -634,21 +634,22 @@
 
 @media (max-width: 480px) {
   .home-posts-grid {
-    grid-auto-columns: calc((100vw - 8vw - 12px) / 2);
+    display: flex;
+    flex-direction: column;
     gap: 12px;
-    padding: 8px 4vw 12px;
-    scroll-padding-left: 4vw;
+    padding: 8px 12px 12px;
+    overflow-x: visible;
+    scroll-snap-type: none;
   }
   .home-posts-section .post-card {
-    width: auto;
+    width: 100%;
     max-width: none;
+    height: auto;
   }
   .home-posts-section .post-card__image {
     aspect-ratio: 1/1;
-    max-height: 260px;
+    max-height: 100%;
   }
-  /* В узкой 2×2 сетке карточка ~165px — кнопка «Подписаться» не помещается,
-     прячем её, оставляем имя + время на максимуме ширины. */
   .home-posts-section .post-card__follow {
     display: none;
   }
