@@ -52,10 +52,11 @@
 }
 
 .user-card__info {
-  padding: 11px 13px 13px;
+  /* === Увеличь padding чтобы сделать карточку выше === */
+  padding: 16px 13px 18px;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 5px;
 }
 
 .user-card__name {
