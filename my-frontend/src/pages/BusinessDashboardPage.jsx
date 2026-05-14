@@ -587,6 +587,69 @@ function CreatePostModal({ getAccessToken, bizId, onClose, onSuccess }) {
   )
 }
 
+// ── Create Tweet Modal (text-only post, premium only) ─────────────────────────
+function CreateTweetModal({ getAccessToken, bizId, onClose, onSuccess }) {
+  const [text, setText]       = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError]     = useState('')
+
+  const MAX = 280
+
+  const handleSubmit = async () => {
+    const value = text.trim()
+    if (!value) { setError('Введите текст твита'); return }
+    if (value.length > MAX) { setError(`Максимум ${MAX} символов`); return }
+    setLoading(true); setError('')
+    const fd = new FormData()
+    fd.append('text', value)
+    try {
+      const token = await getAccessToken()
+      if (!token) {
+        setError('Сессия истекла')
+        return
+      }
+      const r = await fetch(`${BASE}/businesses/${bizId}/posts/`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: fd,
+      })
+      if (!r.ok) {
+        const body = await r.json().catch(() => ({}))
+        setError(body.detail || 'Ошибка')
+        return
+      }
+      onSuccess('Твит опубликован!')
+      onClose()
+    } catch {
+      setError('Ошибка соединения')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <Modal title="Новый твит" onClose={onClose}>
+      <div className="biz-form">
+        <textarea
+          className="biz-form__textarea"
+          placeholder="Что у вас нового? Только текст, до 280 символов..."
+          value={text}
+          onChange={e => setText(e.target.value)}
+          rows={5}
+          maxLength={MAX}
+        />
+        <div style={{ textAlign: 'right', fontSize: 12, color: text.length > MAX ? '#e53935' : 'var(--text-muted)' }}>
+          {text.length} / {MAX}
+        </div>
+        {error && <p className="biz-form__error">{error}</p>}
+        <button className="biz-form__submit" onClick={handleSubmit} disabled={loading}>
+          {loading ? <span className="biz-form__spinner" /> : 'Опубликовать'}
+        </button>
+      </div>
+    </Modal>
+  )
+}
+
 // ── Create Product Modal ───────────────────────────────────────────────────────
 function CreateProductModal({ getAccessToken, bizId, onClose, onSuccess }) {
   const [form, setForm] = useState({
@@ -816,6 +879,7 @@ export default function BusinessDashboardPage() {
   // Modals
   const [showStory,    setShowStory]    = useState(false)
   const [showPost,     setShowPost]     = useState(false)
+  const [showTweet,    setShowTweet]    = useState(false)
   const [showProduct,  setShowProduct]  = useState(false)
   const [editingService, setEditingService] = useState(null) // service object being edited
 
@@ -1417,6 +1481,20 @@ export default function BusinessDashboardPage() {
             </svg>
             Новый пост
           </button>
+          {(bizData?.plan_type === 'PRO' || bizData?.plan_type === 'VIP') && (
+            <button
+              type="button"
+              className="biz-publish-btn biz-publish-btn--tweet"
+              onClick={() => setShowTweet(true)}
+              disabled={!bizId}
+              title="Доступно для PRO и VIP"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/>
+              </svg>
+              Новый твит
+            </button>
+          )}
           <button
             type="button"
             className="biz-publish-btn biz-publish-btn--product"
@@ -1632,6 +1710,19 @@ export default function BusinessDashboardPage() {
                   📝 Посты
                   {postsLoaded && <span className="biz-content-tab__count">{posts.length}</span>}
                 </button>
+                {(bizData?.plan_type === 'PRO' || bizData?.plan_type === 'VIP') && (
+                  <button
+                    className={`biz-content-tab ${activeTab === 'tweets' ? 'biz-content-tab--active' : ''}`}
+                    onClick={() => setActiveTab('tweets')}
+                  >
+                    🐦 Твиты
+                    {postsLoaded && (
+                      <span className="biz-content-tab__count">
+                        {posts.filter(p => !p.media_display).length}
+                      </span>
+                    )}
+                  </button>
+                )}
                 <button
                   className={`biz-content-tab ${activeTab === 'stories' ? 'biz-content-tab--active' : ''}`}
                   onClick={() => setActiveTab('stories')}
@@ -1827,6 +1918,40 @@ export default function BusinessDashboardPage() {
                   ) : (
                     <div className="biz-content-list">
                       {filteredPosts.map(post => (
+                        <PostRow
+                          key={post.id}
+                          post={post}
+                          onDelete={id => requestDelete('post', id, post.text?.slice(0, 30))}
+                          deleting={null}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* ── Tweets tab (PRO/VIP only) ── */}
+              {activeTab === 'tweets' && (
+                <>
+                  <div className="biz-dashboard__section-header">
+                    <h2>Мои твиты</h2>
+                    <button className="biz-dashboard__add-btn" onClick={() => setShowTweet(true)}>
+                      + Новый твит
+                    </button>
+                  </div>
+
+                  {postsLoading ? (
+                    <div className="biz-content-loading"><div className="biz-dashboard__spinner" /></div>
+                  ) : posts.filter(p => !p.media_display).length === 0 ? (
+                    <div className="biz-dashboard__empty">
+                      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" opacity="0.3">
+                        <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/>
+                      </svg>
+                      <p>Нет твитов. Нажмите «Новый твит» чтобы опубликовать.</p>
+                    </div>
+                  ) : (
+                    <div className="biz-content-list">
+                      {posts.filter(p => !p.media_display).map(post => (
                         <PostRow
                           key={post.id}
                           post={post}
@@ -2457,6 +2582,14 @@ export default function BusinessDashboardPage() {
           getAccessToken={getAccessToken}
           bizId={bizId}
           onClose={() => setShowPost(false)}
+          onSuccess={handleSuccess}
+        />
+      )}
+      {showTweet && bizId && (
+        <CreateTweetModal
+          getAccessToken={getAccessToken}
+          bizId={bizId}
+          onClose={() => setShowTweet(false)}
           onSuccess={handleSuccess}
         />
       )}
