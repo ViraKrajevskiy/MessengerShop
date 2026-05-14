@@ -1214,6 +1214,7 @@ export default function ModeratorDashboardPage() {
   const [tab, setTab] = useState('feed')
   const { token, modUser, logout } = useModeratorAuth()
   const mt = useModT()
+  const { lang, setLang } = useLanguage() || { lang: 'ru', setLang: () => {} }
 
   if (!token) return null
 
@@ -1240,6 +1241,18 @@ export default function ModeratorDashboardPage() {
             </button>
           ))}
         </nav>
+
+        <div className="mod-sidebar__langs">
+          {[['ru','RU'],['en','EN'],['tr','TR']].map(([code, label]) => (
+            <button
+              key={code}
+              className={`mod-sidebar__lang-btn ${lang === code ? 'mod-sidebar__lang-btn--active' : ''}`}
+              onClick={() => setLang(code)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
 
         <div className="mod-sidebar__user">
           <div className="mod-sidebar__avatar">
