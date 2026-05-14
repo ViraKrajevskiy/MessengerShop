@@ -325,6 +325,8 @@ const en = {
   home_allPublications: 'All publications',
   home_allCards:        'All cards',
   home_noCards:         'No cards match the selected filters',
+  home_popularBiz:      'Most popular businesses this week',
+  home_viewedBiz:       'Most viewed businesses this week',
 
   nearby_title: 'Businesses near you',
   nearby_sub:   'Use the "Near me" feature or select a city you are going to visit.',

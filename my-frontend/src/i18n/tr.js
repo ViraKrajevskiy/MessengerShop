@@ -325,6 +325,8 @@ const tr = {
   home_allPublications: 'Tüm yayınlar',
   home_allCards:        'Tüm kartlar',
   home_noCards:         'Seçili filtrelere göre kart bulunamadı',
+  home_popularBiz:      'Bu haftanın en popüler işletmeleri',
+  home_viewedBiz:       'Bu haftanın en çok görüntülenen işletmeleri',
 
   nearby_title: 'Yakınızdaki işletmeler',
   nearby_sub:   '«Yakınımda» özelliğini kullanın veya ziyaret etmek istediğiniz şehri seçin.',
