@@ -5,7 +5,7 @@ import { useLanguage } from '../context/LanguageContext'
 import Header from '../components/Header'
 import ReviewsSection from '../components/ReviewsSection'
 import VideoModal from '../components/VideoModal'
-import UserCard from '../components/UserCard'
+import '../components/PremiumCarousel.css'
 import { apiGetBusiness, apiGetBusinessPosts, apiGetBusinesses, apiToggleSubscription, apiJoinGroup, apiCheckGroupMembership, apiDeletePost, apiStartBizChat } from '../api/businessApi'
 import { resolveUrl } from '../utils/urlUtils'
 import { lastSeenText } from '../utils/timeUtils'
@@ -731,21 +731,41 @@ export default function BusinessPage() {
         {similar.length > 0 && (
           <section className="bp__similar">
             <h2 className="bp__card-title">{t('biz_similar')}</h2>
-            <div className="card-grid card-grid--5">
-              {similar.map(s => (
-                <UserCard
-                  key={s.id}
-                  id={s.id}
-                  name={s.brand_name}
-                  city={s.city}
-                  logo={s.logo}
-                  planType={s.plan_type || 'FREE'}
-                  isOnline={!!s.owner_is_online}
-                  isVerified={!!s.is_verified}
-                  verifiedAt={s.verified_at || null}
-                  type="all"
-                />
-              ))}
+            <div className="premium-carousel__mosaic bp__sim-mosaic">
+              {similar.map(s => {
+                const isVid = s.logo && /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(s.logo)
+                const photo = resolveUrl(s.logo) || `https://picsum.photos/id/${(s.id % 80) + 10}/500/400`
+                return (
+                  <div
+                    key={s.id}
+                    className="pc-card"
+                    onClick={() => navigate(`/business/${s.id}`)}
+                  >
+                    {isVid
+                      ? <video src={photo} muted loop playsInline preload="metadata" draggable={false} />
+                      : <img src={photo} alt={s.brand_name} loading="lazy" decoding="async" draggable={false} />
+                    }
+                    <div className="pc-card__overlay">
+                      <div className="pc-card__overlay-top">
+                        {(s.is_vip || s.is_pro || s.plan_type === 'VIP' || s.plan_type === 'PRO') && (
+                          <span className={`pc-card__badge${s.plan_type === 'PRO' || s.is_pro ? ' pc-card__badge--pro' : ''}`}>
+                            {s.plan_type === 'PRO' || s.is_pro ? 'PRO' : 'VIP'}
+                          </span>
+                        )}
+                        {s.is_verified && (
+                          <span className="pc-card__verified">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="#fff">
+                              <path d="M12 2L9.19 4.09 5.5 3.82 4.41 7.41 1.42 9.72 2.83 13.21 1.42 16.71 4.41 19 5.5 22.59 9.19 22.32 12 24.41 14.81 22.32 18.5 22.59 19.59 19 22.58 16.71 21.17 13.21 22.58 9.72 19.59 7.41 18.5 3.82 14.81 4.09 12 2ZM10.09 16.72L7.29 13.91 8.71 12.5 10.09 13.88 15.34 8.63 16.76 10.05 10.09 16.72Z"/>
+                            </svg>
+                          </span>
+                        )}
+                      </div>
+                      <span className="pc-card__name">{s.brand_name}</span>
+                      {s.city && <span className="pc-card__city">{s.city}</span>}
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           </section>
         )}

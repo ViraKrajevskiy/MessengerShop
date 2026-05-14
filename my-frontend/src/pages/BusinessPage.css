@@ -1106,6 +1106,19 @@
   border-top: 1.5px solid var(--border-color);
 }
 
+.bp__sim-mosaic {
+  height: auto;
+  aspect-ratio: 5 / 2;
+  cursor: default;
+}
+
+@media (max-width: 1024px) {
+  .bp__sim-mosaic { aspect-ratio: 4 / 2; }
+}
+@media (max-width: 768px) {
+  .bp__sim-mosaic { aspect-ratio: 3 / 2; }
+}
+
 /* ── Empty / Loader / Error ── */
 .bp__empty {
   text-align: center;
