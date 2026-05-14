@@ -203,25 +203,48 @@ export default function PostCard({ post, onDelete }) {
           {post.owner_is_online && <span className="post-card__online-dot" />}
         </div>
         <div className="post-card__meta">
-          <span className="post-card__name">
-            <span className="post-card__name-text">{post.business_name}</span>
-            {post.is_verified && (
-              <svg className="post-card__verified" width="14" height="14" viewBox="0 0 24 24" fill="#2196f3">
-                <path d="M12 2L9.19 4.09 5.5 3.82 4.41 7.41 1.42 9.72 2.83 13.21 1.42 16.71 4.41 19 5.5 22.59 9.19 22.32 12 24.41 14.81 22.32 18.5 22.59 19.59 19 22.58 16.71 21.17 13.21 22.58 9.72 19.59 7.41 18.5 3.82 14.81 4.09 12 2ZM10.09 16.72L7.29 13.91 8.71 12.5 10.09 13.88 15.34 8.63 16.76 10.05 10.09 16.72Z"/>
-              </svg>
+          <div className="post-card__top-row">
+            <span className="post-card__name">
+              <span className="post-card__name-text">{post.business_name}</span>
+              {post.is_verified && (
+                <svg className="post-card__verified" width="14" height="14" viewBox="0 0 24 24" fill="#2196f3">
+                  <path d="M12 2L9.19 4.09 5.5 3.82 4.41 7.41 1.42 9.72 2.83 13.21 1.42 16.71 4.41 19 5.5 22.59 9.19 22.32 12 24.41 14.81 22.32 18.5 22.59 19.59 19 22.58 16.71 21.17 13.21 22.58 9.72 19.59 7.41 18.5 3.82 14.81 4.09 12 2ZM10.09 16.72L7.29 13.91 8.71 12.5 10.09 13.88 15.34 8.63 16.76 10.05 10.09 16.72Z"/>
+                </svg>
+              )}
+            </span>
+            <span className="post-card__sep">·</span>
+            <button
+              className={`post-card__follow ${followed ? 'post-card__follow--active' : ''}`}
+              onClick={handleFollow}
+              disabled={subLoading}
+            >
+              {followed ? t('post_subscribed') : t('post_subscribe')}
+            </button>
+          </div>
+          <div className="post-card__bottom-row">
+            {post.created_at && (
+              <span className="post-card__time">{timeAgo(post.created_at)}</span>
             )}
-          </span>
-          {post.created_at && (
-            <span className="post-card__time">{timeAgo(post.created_at)}</span>
-          )}
+            <span className="post-card__sep">·</span>
+            <button
+              className="post-card__report"
+              onClick={(e) => {
+                e.stopPropagation()
+                if (!user) { navigate('/login'); return }
+                navigate('/messenger', {
+                  state: {
+                    openSupport: true,
+                    reportPostId: post.id,
+                    reportBusinessId: post.business_id,
+                    reportBusinessName: post.business_name,
+                  }
+                })
+              }}
+            >
+              {t('post_report')}
+            </button>
+          </div>
         </div>
-        <button
-          className={`post-card__follow ${followed ? 'post-card__follow--active' : ''}`}
-          onClick={handleFollow}
-          disabled={subLoading}
-        >
-          {followed ? t('post_subscribed') : 'Подписаться'}
-        </button>
       </div>
 
       <div

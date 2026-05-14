@@ -452,6 +452,7 @@ const en = {
   post_collapse:        'Collapse',
   post_readMore:        'Read more',
   post_delete:          'Delete post',
+  post_report:          'Report this post',
 
   // ── UserCard ───────────────────────────────────────────────────────────────
   user_removeFav:       'Remove from favorites',
