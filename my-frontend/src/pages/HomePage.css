@@ -614,7 +614,7 @@
     width: auto;
     max-width: none;
     height: auto;
-    border-radius: 0;
+    border-radius: 10px;
   }
   .home-posts-grid .post-card {
     scroll-snap-align: none;
