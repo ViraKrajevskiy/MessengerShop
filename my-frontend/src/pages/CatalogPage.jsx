@@ -159,7 +159,6 @@ export default function CatalogPage() {
   const [filterCat, setFilterCat]         = useState('')
   const [sortOrder, setSortOrder]         = useState('none')
   const [search, setSearch]               = useState('')
-  const [columns, setColumns]             = useState(() => typeof window !== 'undefined' && window.innerWidth < 768 ? 2 : 5)
   const [priceMin, setPriceMin]           = useState(0)
   const [priceMax, setPriceMax]           = useState(0)
   const [priceRangeSet, setPriceRangeSet] = useState(false)
@@ -260,10 +259,6 @@ export default function CatalogPage() {
 
   const toggleTag = (tag) => setActiveTags(prev => prev.includes(tag) ? prev.filter(tg => tg !== tag) : [...prev, tag])
 
-  const handleColumnsChange = (col) => {
-    setColumns(col)
-  }
-
   return (
     <div className="cat-page">
       <Header />
@@ -287,21 +282,6 @@ export default function CatalogPage() {
               <span className="cat-page__tab-count">
                 {tb.key === 'services' ? fServices.length : fBiz.length}
               </span>
-            </button>
-          ))}
-        </div>
-
-        {/* Grid columns selector */}
-        <div className="cat-grid-selector">
-          <span className="cat-grid-selector__label">{t('grid_columns')}</span>
-          {[1, 2, 3, 4, 5].map(col => (
-            <button
-              key={col}
-              className={`cat-grid-selector__btn ${columns === col ? 'cat-grid-selector__btn--active' : ''}`}
-              onClick={() => handleColumnsChange(col)}
-              title={t('grid_columnsTitle').replace('{{col}}', col)}
-            >
-              {col}
             </button>
           ))}
         </div>
@@ -472,7 +452,7 @@ export default function CatalogPage() {
                     ) : (
                       <>
                         <div className="cat-results-count">{fServices.length}</div>
-                        <div className="card-grid" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
+                        <div className="card-grid card-grid--5">
                           {fServices.map(s => (
                             <ServiceCard key={s.id} product={s} onTagClick={toggleTag} />
                           ))}
@@ -494,7 +474,7 @@ export default function CatalogPage() {
                     ) : (
                       <>
                         <div className="cat-results-count">{fBiz.length}</div>
-                        <div className="card-grid" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
+                        <div className="card-grid card-grid--5">
                           {fBiz.map(b => (
                             <BizCard key={b.id} biz={b} />
                           ))}
