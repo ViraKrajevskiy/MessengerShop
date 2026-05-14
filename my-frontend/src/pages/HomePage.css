@@ -644,18 +644,15 @@
     scroll-snap-type: x mandatory;
   }
   .home-posts-section .post-card {
-    width: 100vw;
-    max-width: 100vw;
+    width: calc(100vw - 24px);
+    max-width: calc(100vw - 24px);
     height: auto;
-    flex: 0 0 100vw;
+    flex: 0 0 calc(100vw - 24px);
     scroll-snap-align: start;
   }
   .home-posts-section .post-card__image {
     aspect-ratio: 1/1;
     max-height: 100%;
-  }
-  .home-posts-section .post-card__follow {
-    display: none;
   }
 }
 
