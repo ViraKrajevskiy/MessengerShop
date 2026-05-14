@@ -97,24 +97,24 @@ function BizCard({ biz }) {
     : makeInitialAvatar(biz.brand_name)
 
   return (
-    <div className="cat-biz-card" onClick={() => navigate(`/business/${biz.id}`)}>
-      <div className="cat-biz-card__logo-wrap">
-        <img className="cat-biz-card__logo" src={logo} alt={biz.brand_name} width="48" height="48" />
-        {biz.owner_is_online && <span className="cat-biz-card__online-dot" />}
-      </div>
-      <div className="cat-biz-card__info">
-        <div className="cat-biz-card__name">
-          {biz.brand_name}
-          {biz.is_verified && (
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="#2196f3" style={{marginLeft:4,verticalAlign:'middle',flexShrink:0}}>
+    <div className="user-card" onClick={() => navigate(`/business/${biz.id}`)}>
+      <div className="user-card__image">
+        <img className="user-card__photo" src={logo} alt={biz.brand_name} loading="lazy" width="400" height="400" />
+        {biz.owner_is_online && <span className="user-card__online-dot" />}
+        {biz.is_vip ? (
+          <span className="user-card__badge user-card__badge--vip">VIP</span>
+        ) : biz.is_verified ? (
+          <span className="user-card__verified-badge">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="#fff">
               <path d="M12 2L9.19 4.09 5.5 3.82 4.41 7.41 1.42 9.72 2.83 13.21 1.42 16.71 4.41 19 5.5 22.59 9.19 22.32 12 24.41 14.81 22.32 18.5 22.59 19.59 19 22.58 16.71 21.17 13.21 22.58 9.72 19.59 7.41 18.5 3.82 14.81 4.09 12 2ZM10.09 16.72L7.29 13.91 8.71 12.5 10.09 13.88 15.34 8.63 16.76 10.05 10.09 16.72Z"/>
             </svg>
-          )}
-        </div>
-        <div className="cat-biz-card__cat">{CATEGORY_LABELS[biz.category] || biz.category}</div>
-        {biz.city && <div className="cat-biz-card__city">📍 {biz.city}</div>}
+          </span>
+        ) : null}
       </div>
-      {biz.is_vip && <span className="cat-biz-card__vip">VIP</span>}
+      <div className="user-card__info">
+        <span className="user-card__name">{biz.brand_name}</span>
+        <span className="user-card__city">{CATEGORY_LABELS[biz.category] || biz.category}{biz.city ? ` · ${biz.city}` : ''}</span>
+      </div>
     </div>
   )
 }
@@ -494,7 +494,7 @@ export default function CatalogPage() {
                     ) : (
                       <>
                         <div className="cat-results-count">{fBiz.length}</div>
-                        <div className="cat-biz-grid">
+                        <div className="card-grid" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
                           {fBiz.map(b => (
                             <BizCard key={b.id} biz={b} />
                           ))}
