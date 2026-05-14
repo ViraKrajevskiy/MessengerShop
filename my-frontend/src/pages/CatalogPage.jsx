@@ -333,16 +333,9 @@ export default function CatalogPage() {
               </select>
             )}
 
-            {hasFilters && (
-              <button className="cat-filter-chip cat-filter-chip--clear" onClick={clearFilters}>
-                ✕
-              </button>
-            )}
-          </div>
-
-          {/* Price slider — полная ширина под чипами */}
-          {tab === 'services' && dataMax > 0 && (
-            <div className="cat-price-slider">
+            {/* Price slider — in row for services */}
+            {tab === 'services' && dataMax > 0 && (
+              <div className="cat-price-slider-inline">
               <input
                 type="number"
                 className="cat-price-slider__num"
@@ -384,8 +377,15 @@ export default function CatalogPage() {
                   if (!isNaN(v)) setPriceMax(v)
                 }}
               />
-            </div>
-          )}
+              </div>
+            )}
+
+            {hasFilters && (
+              <button className="cat-filter-chip cat-filter-chip--clear" onClick={clearFilters}>
+                ✕
+              </button>
+            )}
+          </div>
 
           {/* Tags (only for products/services) */}
           {tab !== 'companies' && allTags.length > 0 && (
