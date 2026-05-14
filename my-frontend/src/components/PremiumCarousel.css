@@ -24,8 +24,8 @@
   cursor: pointer;
   background: var(--bg-tertiary);
   border-radius: 16px;
-  border: 2px solid #a855f7;
-  box-shadow: 0 5px 12px -7px rgba(168, 85, 247, 0.40);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
 }
 
@@ -43,8 +43,8 @@
 
 .pc-card:hover {
   transform: translateY(-3px) scale(1.02);
-  border-color: #c084fc;
-  box-shadow: 0 10px 20px -8px rgba(168, 85, 247, 0.50);
+  border-color: var(--border-color);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.10);
 }
 
 .pc-card img,
