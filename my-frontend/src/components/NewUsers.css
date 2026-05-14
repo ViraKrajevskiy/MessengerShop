@@ -95,7 +95,7 @@
 
 .new-users__avatar {
   position: relative;
-  width: min(150px, 100%);
+  width: min(160px, 100%);
   aspect-ratio: 1;
   border-radius: 50%;
   flex-shrink: 0;
