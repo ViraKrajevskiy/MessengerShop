@@ -24,7 +24,7 @@ const TABS = [
   { id: 'tweets',       label: 'Твиты',        icon: '🐦' },
   { id: 'stories',      label: 'Истории',      icon: '🎬' },
   { id: 'comments',     label: 'Комментарии',  icon: '💬' },
-  { id: 'products',     label: 'Продукты',     icon: '🛍️' },
+  { id: 'products',     label: 'Услуги',       icon: '🔧' },
   { id: 'reviews',      label: 'Отзывы',       icon: '⭐' },
   { id: 'complaints',   label: 'Жалобы',       icon: '🚨' },
   { id: 'tariffs',      label: 'Тарифы',       icon: '💎' },
@@ -748,7 +748,7 @@ function BlockableTab({ token, fetchFn, blockFn, renderTitle, renderMeta, render
 }
 
 // ── Feed Tab ──────────────────────────────────────────────────────────────────
-const CONTENT_TYPE_LABELS = { post: '📝 Пост', story: '🎬 История', product: '🛍️ Продукт' }
+const CONTENT_TYPE_LABELS = { post: '📝 Пост', story: '🎬 История', product: '🔧 Услуга' }
 const CONTENT_TYPE_COLORS = { post: 'blue', story: 'teal', product: 'gold' }
 
 function FeedTab({ token }) {
@@ -794,7 +794,7 @@ function FeedTab({ token }) {
   return (
     <div className="mod-tab">
       <div className="mod-tab__filters">
-        {[{ v: '', l: 'Всё' }, { v: 'post', l: '📝 Посты' }, { v: 'story', l: '🎬 Истории' }, { v: 'product', l: '🛍️ Продукты' }].map(f => (
+        {[{ v: '', l: 'Всё' }, { v: 'post', l: '📝 Посты' }, { v: 'story', l: '🎬 Истории' }, { v: 'product', l: '🔧 Услуги' }].map(f => (
           <button key={f.v} className={`mod-filter-btn ${typeFilter === f.v ? 'mod-filter-btn--active' : ''}`} onClick={() => setType(f.v)}>
             {f.l}
           </button>
