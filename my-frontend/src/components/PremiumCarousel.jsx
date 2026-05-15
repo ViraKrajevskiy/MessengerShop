@@ -60,6 +60,16 @@ export default function PremiumCarousel({ businesses = [], onMessage }) {
   const wasDrag   = useRef(false)
   const timerRef  = useRef(null)
 
+  // Mobile scroll dots
+  const mobileRef = useRef(null)
+  const [mobilePage, setMobilePage] = useState(0)
+  const mobileTotalPages = Math.ceil(businesses.length / 4) // 2 cols × 2 rows per page
+  const onMobileScroll = () => {
+    const el = mobileRef.current
+    if (!el) return
+    setMobilePage(Math.round(el.scrollLeft / el.clientWidth))
+  }
+
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth <= MOBILE_BREAKPOINT)
     window.addEventListener('resize', onResize)
@@ -138,7 +148,7 @@ export default function PremiumCarousel({ businesses = [], onMessage }) {
   const items = isMobile ? businesses : slide
 
   const mosaicProps = isMobile
-    ? {}
+    ? { ref: mobileRef, onScroll: onMobileScroll }
     : {
         onMouseDown: e => onDragStart(e.clientX),
         onTouchStart: e => onDragStart(e.touches[0].clientX),
@@ -199,6 +209,20 @@ export default function PremiumCarousel({ businesses = [], onMessage }) {
               key={i}
               className={`premium-carousel__dot${i === page ? ' premium-carousel__dot--active' : ''}`}
               onClick={() => handleDotClick(i)}
+            />
+          ))}
+        </div>
+      )}
+      {isMobile && mobileTotalPages > 1 && (
+        <div className="premium-carousel__dots">
+          {Array.from({ length: mobileTotalPages }).map((_, i) => (
+            <button
+              key={i}
+              className={`premium-carousel__dot${i === mobilePage ? ' premium-carousel__dot--active' : ''}`}
+              onClick={() => {
+                const el = mobileRef.current
+                if (el) el.scrollTo({ left: i * el.clientWidth, behavior: 'smooth' })
+              }}
             />
           ))}
         </div>

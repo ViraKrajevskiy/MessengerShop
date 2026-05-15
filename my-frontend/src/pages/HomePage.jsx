@@ -157,16 +157,6 @@ export default function HomePage() {
   const dragState = useRef({ isDown: false, startX: 0, scrollLeft: 0, moved: false })
   const [postsPage, setPostsPage] = useState(0)
 
-  const allCardsGridRef = useRef(null)
-  const [allCardsPage, setAllCardsPage] = useState(0)
-  const onAllCardsScroll = () => {
-    const el = allCardsGridRef.current
-    if (!el) return
-    setAllCardsPage(Math.round(el.scrollLeft / el.clientWidth))
-  }
-  // 2 cols × 2 rows = 4 cards per page on mobile
-  const allCardsTotalPages = Math.ceil(homeBusinessCards.slice(0, 8).length / 4)
-
   const onDragStart = (clientX) => {
     const el = postsGridRef.current
     if (!el) return
@@ -333,7 +323,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="card-grid card-grid--4 all-cards-grid" ref={allCardsGridRef} onScroll={onAllCardsScroll}>
+            <div className="card-grid card-grid--4">
               {loadingBiz ? (
                 Array.from({ length: 16 }).map((_, i) => (
                   <div key={i} className="vip-card vip-card--skeleton">
@@ -352,20 +342,6 @@ export default function HomePage() {
                 <div className="no-results">{t('home_noCards')}</div>
               )}
             </div>
-            {allCardsTotalPages > 1 && (
-              <div className="all-cards-dots">
-                {Array.from({ length: allCardsTotalPages }).map((_, i) => (
-                  <button
-                    key={i}
-                    className={`all-cards-dot${i === allCardsPage ? ' all-cards-dot--active' : ''}`}
-                    onClick={() => {
-                      const el = allCardsGridRef.current
-                      if (el) el.scrollTo({ left: i * el.clientWidth, behavior: 'smooth' })
-                    }}
-                  />
-                ))}
-              </div>
-            )}
 
           </section>
 
