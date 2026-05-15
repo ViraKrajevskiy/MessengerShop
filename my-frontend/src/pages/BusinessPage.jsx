@@ -662,7 +662,32 @@ export default function BusinessPage() {
                     return visiblePosts.map(post => (
                       <div key={post.id} className="bp__feed-item">
                         <div className="bp__feed-body">
-                          <p className="bp__feed-text">{post.text}</p>
+                          {post.media_display && (
+                            post.media_type === 'VIDEO' ? (
+                              <div
+                                className="bp__feed-media bp__feed-media--video"
+                                onClick={() => setSelectedVideo({ url: post.media_display, title: post.text || '' })}
+                                style={{ position: 'relative', cursor: 'pointer', marginBottom: 8 }}
+                              >
+                                <video
+                                  src={post.media_display}
+                                  muted
+                                  preload="metadata"
+                                  style={{ width: '100%', borderRadius: 8, display: 'block' }}
+                                />
+                                <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30, color: '#fff', textShadow: '0 0 8px rgba(0,0,0,.6)' }}>▶</div>
+                              </div>
+                            ) : (
+                              <img
+                                className="bp__feed-media"
+                                src={post.media_display}
+                                alt=""
+                                loading="lazy"
+                                style={{ width: '100%', borderRadius: 8, display: 'block', marginBottom: 8, objectFit: 'cover' }}
+                              />
+                            )
+                          )}
+                          {post.text && <p className="bp__feed-text">{post.text}</p>}
                           <div className="bp__feed-footer">
                             <span className="bp__feed-date">
                               {new Date(post.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}
