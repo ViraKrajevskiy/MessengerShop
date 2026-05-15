@@ -133,6 +133,20 @@ export async function apiCreateBusinessReview(id, data, token) {
   return res.json()
 }
 
+// Жалоба на публикацию/бизнес/пользователя → попадает модератору в «Жалобы»
+export async function apiCreateComplaint({ post_id, business_id, user_id, reason, description }, token) {
+  const res = await fetch(`${BASE}/complaints/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify({ post_id, business_id, user_id, reason, description }),
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(err.detail || 'Ошибка отправки жалобы')
+  }
+  return res.json()
+}
+
 export async function apiGetProductReviews(id) {
   const res = await fetch(`${BASE}/products/${id}/reviews/`)
   if (!res.ok) throw new Error('Ошибка загрузки отзывов')
