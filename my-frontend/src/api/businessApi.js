@@ -192,7 +192,10 @@ export async function apiDeletePost(bizId, postId, token) {
     method: 'DELETE',
     headers: { 'Authorization': `Bearer ${token}` },
   })
-  if (!res.ok) throw new Error('Ошибка удаления поста')
+  // 204 = удалено, 404 = пост уже отсутствует — в обоих случаях для UI это успех
+  if (!res.ok && res.status !== 204 && res.status !== 404) {
+    throw new Error('Ошибка удаления поста')
+  }
 }
 
 export async function apiDeleteStory(storyId, token) {

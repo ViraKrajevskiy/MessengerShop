@@ -1481,18 +1481,33 @@ export default function BusinessDashboardPage() {
             </svg>
             Новый пост
           </button>
-          {(bizData?.plan_type === 'PRO' || bizData?.plan_type === 'VIP') && (
+          {bizData?.is_pro ? (
             <button
               type="button"
               className="biz-publish-btn biz-publish-btn--tweet"
               onClick={() => setShowTweet(true)}
               disabled={!bizId}
-              title="Доступно для PRO и VIP"
+              title="Доступно для Pro и VIP"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/>
               </svg>
               Новый твит
+            </button>
+          ) : bizData && (
+            <button
+              type="button"
+              className="biz-publish-btn biz-publish-btn--tweet"
+              onClick={() => navigate('/pricing')}
+              title={bizData.plan_type !== 'FREE'
+                ? 'Срок тарифа истёк — продлите подписку, чтобы публиковать твиты'
+                : 'Публикация твитов доступна на тарифах Pro и VIP'}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="5" y="11" width="14" height="10" rx="2"/>
+                <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+              </svg>
+              {bizData.plan_type !== 'FREE' ? 'Тариф истёк — продлить' : 'Твиты — оплатить тариф'}
             </button>
           )}
           <button
@@ -1710,7 +1725,7 @@ export default function BusinessDashboardPage() {
                   📝 Посты
                   {postsLoaded && <span className="biz-content-tab__count">{posts.length}</span>}
                 </button>
-                {(bizData?.plan_type === 'PRO' || bizData?.plan_type === 'VIP') && (
+                {bizData?.is_pro && (
                   <button
                     className={`biz-content-tab ${activeTab === 'tweets' ? 'biz-content-tab--active' : ''}`}
                     onClick={() => setActiveTab('tweets')}

@@ -84,6 +84,21 @@ class BusinessPostListView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class BusinessPostDetailView(APIView):
+    """DELETE /api/businesses/<pk>/posts/<post_id>/ — удалить твит/пост (только владелец)."""
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, pk, post_id):
+        try:
+            post = Post.objects.select_related('business').get(pk=post_id, business_id=pk)
+        except Post.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        if post.business.owner_id != request.user.id:
+            return Response({'detail': 'Нет доступа'}, status=status.HTTP_403_FORBIDDEN)
+        post.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 class ProductInquiryView(APIView):
     permission_classes = [IsAuthenticated]
 
