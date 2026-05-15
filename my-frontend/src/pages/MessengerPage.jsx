@@ -84,7 +84,7 @@ function MentionDropdown({ items, onSelect }) {
 /* ─── Inquiry contact item (existing) ─── */
 function ContactItem({ inquiry, isActive, onClick, isBusiness }) {
   const avatar = inquiry.logo || FALLBACK_AVATAR
-  const name   = isBusiness ? inquiry.sender_name : inquiry.biz_name
+  const name   = inquiry.other_name || (isBusiness ? inquiry.sender_name : inquiry.biz_name)
   return (
     <div className={`msg-contact ${isActive ? 'msg-contact--active' : ''}`} onClick={onClick}>
       <div className="msg-contact__avatar-wrap">
@@ -155,7 +155,7 @@ function ChatView({ inquiry, isBusiness, onBack, onDelete, onProfileClick, getAc
   const mentionTimer = useRef(null)
 
   const avatar = inquiry.logo || FALLBACK_AVATAR
-  const name   = isBusiness ? inquiry.sender_name : inquiry.biz_name
+  const name   = inquiry.other_name || (isBusiness ? inquiry.sender_name : inquiry.biz_name)
 
   useEffect(() => {
     setLoading(true)

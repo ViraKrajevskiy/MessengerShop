@@ -137,15 +137,21 @@ class InquiryListView(APIView):
         is_business = hasattr(user, 'business_profile')
 
         if is_business:
-            # Бизнес видит ОБА типа чатов:
-            # 1) прямые (business=my_biz, product=None)
-            # 2) через продукты (product__business__owner=me, business=None)
+            # Бизнес видит ВСЕ свои чаты:
+            # 1) входящие прямые   (business=my_biz, product=None)
+            # 2) входящие по товару (product__business__owner=me)
+            # 3) исходящие — те, что бизнес сам начал с другим бизнесом (sender=me)
             inquiries = (
                 ProductInquiry.objects
-                .filter(Q(business__owner=user) | Q(product__business__owner=user))
+                .filter(
+                    Q(business__owner=user)
+                    | Q(product__business__owner=user)
+                    | Q(sender=user)
+                )
                 .select_related('business__owner', 'product__business__owner', 'sender')
                 .prefetch_related('messages')
                 .order_by('-created_at')
+                .distinct()
             )
         else:
             inquiries = (
@@ -161,17 +167,26 @@ class InquiryListView(APIView):
             biz = inq.biz  # business or product.business
             if biz is None:
                 continue
-            logo = None
-            if is_business:
+
+            # Кто собеседник зависит от роли В ЭТОМ чате, а не от профиля:
+            # если текущий юзер — владелец бизнеса в этом чате, то собеседник
+            # это отправитель; иначе (юзер сам начал чат) — это владелец бизнеса.
+            viewer_owns_biz = biz.owner_id == user.id
+            if viewer_owns_biz:
+                other_user = inq.sender
                 logo = inq.sender.avatar.url if inq.sender.avatar else None
             else:
+                other_user = biz.owner
                 logo = biz.logo.url if biz.logo else None
 
-            msgs = list(inq.messages.all())
+            msgs = [m for m in inq.messages.all() if not m.is_deleted]
             last_msg = msgs[-1] if msgs else None
 
-            other_user = inq.sender if is_business else biz.owner
             other_online = other_user.is_online if other_user else False
+
+            other_name = (
+                inq.sender.username if viewer_owns_biz else biz.brand_name
+            )
 
             data.append({
                 'id':             inq.id,
@@ -181,6 +196,7 @@ class InquiryListView(APIView):
                 'biz_name':       biz.brand_name,
                 'sender_id':      inq.sender.id,
                 'sender_name':    inq.sender.username,
+                'other_name':     other_name,
                 'message':        last_msg.text if last_msg else inq.message,
                 'last_sender_id': last_msg.sender_id if last_msg else inq.sender_id,
                 'is_read':        inq.is_read,
@@ -202,20 +218,20 @@ class InquiryMessagesView(APIView):
             ).get(pk=pk)
         except ProductInquiry.DoesNotExist:
             return None, None
-        is_business = hasattr(user, 'business_profile')
         biz = inq.biz
-        if is_business and (biz is None or biz.owner != user):
+        is_owner = biz is not None and biz.owner_id == user.id
+        is_sender = inq.sender_id == user.id
+        if not (is_owner or is_sender):
             return None, None
-        if not is_business and inq.sender != user:
-            return None, None
-        return inq, is_business
+        # второе значение = просматривает ли владелец бизнеса (для отметки «прочитано»)
+        return inq, is_owner
 
     def get(self, request, pk):
-        inq, is_business = self._get_inquiry(pk, request.user)
+        inq, is_owner = self._get_inquiry(pk, request.user)
         if inq is None:
             return Response({'detail': 'Не найдено или нет доступа'}, status=status.HTTP_404_NOT_FOUND)
 
-        if is_business and not inq.is_read:
+        if is_owner and not inq.is_read:
             ProductInquiry.objects.filter(pk=pk).update(is_read=True)
 
         messages = inq.messages.select_related('sender').filter(is_deleted=False)
@@ -246,11 +262,10 @@ class InquiryDetailView(APIView):
         except ProductInquiry.DoesNotExist:
             return Response({'detail': 'Не найдено'}, status=status.HTTP_404_NOT_FOUND)
 
-        is_business = hasattr(request.user, 'business_profile')
         biz = inq.biz
-        if is_business and (biz is None or biz.owner != request.user):
-            return Response({'detail': 'Нет доступа'}, status=status.HTTP_403_FORBIDDEN)
-        if not is_business and inq.sender != request.user:
+        is_owner = biz is not None and biz.owner_id == request.user.id
+        is_sender = inq.sender_id == request.user.id
+        if not (is_owner or is_sender):
             return Response({'detail': 'Нет доступа'}, status=status.HTTP_403_FORBIDDEN)
 
         inq.delete()
@@ -268,11 +283,10 @@ class InquiryMessageActionView(APIView):
             ).get(pk=pk)
         except ProductInquiry.DoesNotExist:
             return None, None
-        is_business = hasattr(user, 'business_profile')
         biz = inq.biz
-        if is_business and (biz is None or biz.owner != user):
-            return None, None
-        if not is_business and inq.sender != user:
+        is_owner = biz is not None and biz.owner_id == user.id
+        is_sender = inq.sender_id == user.id
+        if not (is_owner or is_sender):
             return None, None
         try:
             msg = inq.messages.select_related('sender').get(pk=msg_pk)
