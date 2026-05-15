@@ -444,7 +444,10 @@ export async function apiRemoveGroupMember(groupId, memberId, token) {
     method: 'DELETE',
     headers: { 'Authorization': `Bearer ${token}` },
   })
-  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.detail || 'Ошибка') }
+  // 404 = участника уже нет — для UI это успех
+  if (!res.ok && res.status !== 404) {
+    const e = await res.json().catch(() => ({})); throw new Error(e.detail || 'Ошибка')
+  }
 }
 
 export async function apiGetGroupMessages(groupId, token) {

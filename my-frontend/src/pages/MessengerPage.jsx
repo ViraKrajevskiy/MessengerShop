@@ -755,8 +755,10 @@ function MemberPanel({ detail, isAdmin, getAccessToken, onClose, onUpdate }) {
     try {
       const token = await getAccessToken()
       await apiRemoveGroupMember(detail.id, memberId, token)
+    } catch {} finally {
+      // всегда обновляем список — даже если участник уже был удалён
       await onUpdate()
-    } catch {}
+    }
   }
 
   return (
