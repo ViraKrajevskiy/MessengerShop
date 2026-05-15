@@ -196,6 +196,15 @@ CORS_ALLOWED_ORIGINS = [
 
 CORS_ALLOW_CREDENTIALS = True
 
+# Origins allowed to POST (Django admin login etc.) when DEBUG=False.
+# Override per-host via the CSRF_TRUSTED_ORIGINS env var (comma-separated).
+CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[
+    "https://101-school.uz",
+    "https://www.101-school.uz",
+    "https://101school.uz",
+    "https://www.101school.uz",
+])
+
 AUTH_USER_MODEL = 'Shop.User'
 
 SIMPLE_JWT = {
