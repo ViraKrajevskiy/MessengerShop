@@ -71,7 +71,10 @@ class BusinessPostListView(APIView):
         except Business.DoesNotExist:
             return Response({'detail': 'Бизнес не найден или нет доступа'}, status=status.HTTP_403_FORBIDDEN)
 
-        if not business.is_pro:
+        # Твит = текстовый пост без медиа. Твиты — только для платного тарифа.
+        # Обычные посты (с фото/видео) можно публиковать на любом тарифе.
+        has_media = bool(request.FILES.get('media') or request.data.get('media_url'))
+        if not has_media and not business.is_pro:
             return Response(
                 {'detail': 'Публиковать твиты могут только бизнесы с оплаченным тарифом (Pro или VIP).'},
                 status=status.HTTP_403_FORBIDDEN,
