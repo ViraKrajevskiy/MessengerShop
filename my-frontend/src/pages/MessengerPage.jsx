@@ -833,9 +833,9 @@ export default function MessengerPage() {
   const filteredInquiries = inquiries.filter(inq => {
     const q = search.toLowerCase()
     return (
-      inq.biz_name.toLowerCase().includes(q) ||
-      inq.product_name.toLowerCase().includes(q) ||
-      inq.message.toLowerCase().includes(q) ||
+      (inq.biz_name    || '').toLowerCase().includes(q) ||
+      (inq.product_name|| '').toLowerCase().includes(q) ||
+      (inq.message     || '').toLowerCase().includes(q) ||
       (inq.sender_name || '').toLowerCase().includes(q)
     )
   })
@@ -911,7 +911,7 @@ export default function MessengerPage() {
                     <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
                   </svg>
                   <p>Пока нет сообщений</p>
-                  <span>Напишите бизнесу через карточку товара</span>
+                  <span>Напишите бизнесу через его страницу или карточку товара</span>
                 </div>
               )
             ) : (
