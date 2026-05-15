@@ -26,11 +26,25 @@ function buildSlides(businesses) {
   )
 }
 
+const PH_COLORS = [
+  ['#6366f1', '#8b5cf6'], ['#e53935', '#b71c1c'], ['#0891b2', '#0e7490'],
+  ['#059669', '#047857'], ['#d97706', '#b45309'], ['#7c3aed', '#5b21b6'],
+]
+
+// Instant inline-SVG gradient placeholder. Replaces picsum.photos which had
+// ~5.5s resource-load delay and was the LCP element.
+function placeholder(biz) {
+  const [c1, c2] = PH_COLORS[(biz.id || 0) % PH_COLORS.length]
+  const label = (biz.brand_name || biz.name || '').slice(0, 22)
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 400"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient></defs><rect width="500" height="400" fill="url(#g)"/><text x="250" y="210" text-anchor="middle" font-size="32" font-weight="700" fill="rgba(255,255,255,0.92)" font-family="sans-serif">${label}</text></svg>`
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`
+}
+
 function getPhoto(biz) {
   if (biz.logo) {
     return resolveUrl(biz.logo)
   }
-  return `https://picsum.photos/id/${(biz.id % 80) + 10}/500/400`
+  return placeholder(biz)
 }
 
 export default function PremiumCarousel({ businesses = [], onMessage }) {

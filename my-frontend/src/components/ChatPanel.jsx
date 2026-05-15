@@ -3,6 +3,23 @@ import './ChatPanel.css';
 import { v4 as uuidv4 } from 'uuid';
 import { API_ORIGIN } from '../config/api';
 
+// Lazy-load puter.js only when the AI chat is actually opened.
+// Was a render-blocking <script> in index.html (~94 KiB, ~550ms).
+let puterPromise = null;
+function loadPuter() {
+  if (window.puter) return Promise.resolve();
+  if (puterPromise) return puterPromise;
+  puterPromise = new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://js.puter.com/v2/';
+    s.async = true;
+    s.onload = () => resolve();
+    s.onerror = reject;
+    document.body.appendChild(s);
+  });
+  return puterPromise;
+}
+
 function ChatPanel() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
@@ -93,6 +110,7 @@ function ChatPanel() {
       // 2. Получаем ответ от Qwen через Puter.js
       let qwenResponse = '';
 
+      try { await loadPuter() } catch { /* ignore */ }
       if (window.puter && window.puter.ai) {
         try {
           const response = await window.puter.ai.chat(userMessage, {
@@ -146,7 +164,7 @@ function ChatPanel() {
       {/* Плавающая кнопка чата */}
       <button
         className="chat-float-btn"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => { if (!isOpen) loadPuter().catch(() => {}); setIsOpen(!isOpen) }}
         title={isOpen ? 'Закрыть чат' : 'Открыть чат'}
       >
         {isOpen ? '✕' : '💬'}
