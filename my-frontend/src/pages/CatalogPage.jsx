@@ -224,6 +224,22 @@ export default function CatalogPage() {
     return m
   }, [products])
 
+  // Бизнес → список цен его услуг (для прайс-фильтра в каталоге)
+  const bizPricesMap = useMemo(() => {
+    const m = new Map()
+    allServices.forEach(s => {
+      const price = parseFloat(s.price)
+      if (!s.business_id || isNaN(price) || price <= 0) return
+      const arr = m.get(s.business_id) || []
+      arr.push(price)
+      m.set(s.business_id, arr)
+    })
+    return m
+  }, [allServices])
+
+  // Прайс-фильтр считается активным только если юзер сузил диапазон от полного
+  const priceNarrowed = priceRangeSet && dataMax > 0 && (priceMin > dataMin || priceMax < dataMax)
+
   const isNew = (item) => item.created_at && (Date.now() - new Date(item.created_at)) / 3600000 < 24
 
   const passesProductFilter = (p) => {
@@ -248,7 +264,8 @@ export default function CatalogPage() {
     (!filterNew      || isNew(b)) &&
     (!filterCity     || b.city === filterCity) &&
     (!filterCat      || b.category === filterCat) &&
-    (activeTags.length === 0 || activeTags.some(tg => bizTagsMap.get(b.id)?.has(tg)))
+    (activeTags.length === 0 || activeTags.some(tg => bizTagsMap.get(b.id)?.has(tg))) &&
+    (!priceNarrowed || (bizPricesMap.get(b.id)?.some(pr => pr >= priceMin && pr <= priceMax)) === true)
 
   const applySort = (arr) => {
     if (sortOrder === 'date_desc') return [...arr].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
@@ -262,7 +279,7 @@ export default function CatalogPage() {
   const fServices  = applySort(allServices.filter(passesProductFilter))
   const fBiz       = businesses.filter(passesBizFilter)
 
-  const hasFilters = activeTags.length > 0 || filterVip || filterVerified || filterNew || filterCity || filterCat || sortOrder !== 'none' || search
+  const hasFilters = activeTags.length > 0 || filterVip || filterVerified || filterNew || filterCity || filterCat || sortOrder !== 'none' || search || priceNarrowed
 
   const clearFilters = () => {
     setActiveTags([]); setFilterVip(false); setFilterVerified(false)
@@ -329,8 +346,8 @@ export default function CatalogPage() {
               <option value="none">{t('catalog_sort')}</option>
               <option value="date_desc">{t('catalog_newest')}</option>
               <option value="date_asc">{t('catalog_oldest')}</option>
-              {tab !== 'companies' && <option value="price_asc">{t('catalog_priceAsc')}</option>}
-              {tab !== 'companies' && <option value="price_desc">{t('catalog_priceDesc')}</option>}
+              <option value="price_asc">{t('catalog_priceAsc')}</option>
+              <option value="price_desc">{t('catalog_priceDesc')}</option>
             </select>
 
             {allCities.length > 0 && (
@@ -347,8 +364,8 @@ export default function CatalogPage() {
               </select>
             )}
 
-            {/* Price slider — in row for services */}
-            {tab === 'services' && dataMax > 0 && (
+            {/* Price slider — фильтр по ценам услуг бизнеса */}
+            {dataMax > 0 && (
               <div className="cat-price-slider-inline">
               <input
                 type="number"
