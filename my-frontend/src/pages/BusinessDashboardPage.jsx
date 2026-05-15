@@ -8,6 +8,7 @@ import {
   apiDeleteProduct,
   apiUpdateProduct,
   apiGetBusinessStories,
+  invalidateCache,
 } from '../api/businessApi'
 import { timeAgo } from '../utils/timeUtils'
 import { resolveUrl } from '../utils/urlUtils'
@@ -1310,7 +1311,11 @@ export default function BusinessDashboardPage() {
     showToast(msg)
     refreshStats()
     // Invalidate loaded flags and refresh the active list immediately.
-    if (msg.includes('Пост')) {
+    if (msg.includes('Пост') || msg.includes('Твит')) {
+      // Drop the shared list caches so HomePage / feed / shop profile
+      // show the new post immediately instead of a 5-min stale list.
+      invalidateCache('posts')
+      if (bizId) invalidateCache(`biz-posts:${bizId}`)
       postsLoadedRef.current = false
       setPostsLoaded(false)
       setPosts([])
@@ -1338,6 +1343,8 @@ export default function BusinessDashboardPage() {
       if (type === 'post') {
         await apiDeletePost(bizId, id, token)
         setPosts(prev => prev.filter(p => p.id !== id))
+        invalidateCache('posts')
+        if (bizId) invalidateCache(`biz-posts:${bizId}`)
         showToast('Пост удалён')
         refreshStats()
       } else if (type === 'story') {
