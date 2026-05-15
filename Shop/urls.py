@@ -40,7 +40,7 @@ from Shop.servicefunc.views.product.product import (
     ProductSearchView, BusinessStatsView,
 )
 from Shop.servicefunc.views.post.post import (
-    PostListView, BusinessPostListView, ProductInquiryView,
+    PostListView, BusinessPostListView, BusinessPostDetailView, ProductInquiryView,
     BusinessChatView,
     InquiryListView, InquiryDetailView, InquiryMessagesView, InquiryMessageActionView, PostFavoriteView, PostFavoritesListView,
 )
@@ -83,6 +83,7 @@ urlpatterns = [
     path('businesses/<int:pk>/products/', BusinessProductListView.as_view(),      name='business_products'),
     path('businesses/<int:pk>/reviews/',  BusinessReviewListCreateView.as_view(), name='business_reviews'),
     path('businesses/<int:pk>/posts/',    BusinessPostListView.as_view(),         name='business_posts'),
+    path('businesses/<int:pk>/posts/<int:post_id>/', BusinessPostDetailView.as_view(), name='business_post_detail'),
     path('businesses/<int:pk>/news/',     BusinessNewsListView.as_view(),        name='business_news'),
 
     path('products/',                     AllProductsListView.as_view(),          name='all_products'),
