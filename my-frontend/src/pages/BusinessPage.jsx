@@ -7,6 +7,7 @@ import ReviewsSection from '../components/ReviewsSection'
 import VideoModal from '../components/VideoModal'
 import '../components/PremiumCarousel.css'
 import { apiGetBusiness, apiGetBusinessPosts, apiGetBusinesses, apiToggleSubscription, apiJoinGroup, apiCheckGroupMembership, apiDeletePost, apiStartBizChat } from '../api/businessApi'
+import { API_URL } from '../config/api'
 import { resolveUrl } from '../utils/urlUtils'
 import { lastSeenText } from '../utils/timeUtils'
 import './BusinessPage.css'
@@ -368,7 +369,7 @@ export default function BusinessPage() {
         if (user?.role === 'BUSINESS') {
           getAccessToken().then(token => {
             if (!token) return
-            fetch(`${API_BASE}/api/businesses/me/`, {
+            fetch(`${API_URL}/businesses/me/`, {
               headers: { Authorization: `Bearer ${token}` },
             })
               .then(r => r.ok ? r.json() : null)

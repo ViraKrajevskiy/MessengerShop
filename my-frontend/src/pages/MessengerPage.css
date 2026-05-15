@@ -909,19 +909,26 @@
 /* ===== Context menu on messages ===== */
 .msg-context-menu {
   position: absolute;
-  top: 100%;
-  right: 0;
+  top: 0;
   z-index: 50;
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: 10px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
   overflow: hidden;
-  min-width: 140px;
+  min-width: 150px;
   animation: msgIn 0.15s ease-out;
 }
 
-.msg-bubble--them .msg-context-menu { left: 0; right: auto; }
+/* Menu opens to the SIDE of the bubble (not below — it pushed the chat) */
+.msg-bubble--me .msg-context-menu {
+  right: 100%;
+  margin-right: 8px;
+}
+.msg-bubble--them .msg-context-menu {
+  left: 100%;
+  margin-left: 8px;
+}
 
 .msg-context-menu button {
   display: block;
