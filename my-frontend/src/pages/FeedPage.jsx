@@ -223,9 +223,10 @@ export default function FeedPage() {
     (!filterCity || !n.business_id || bizCityMap.get(n.business_id) === filterCity)
   ))
 
-  // Фото / Видео — фильтрация постов по типу медиа (только без текста)
-  const fPhotos = fPosts.filter(p => p.media_display && p.media_type !== 'VIDEO' && !p.text?.trim())
-  const fVideos = fPosts.filter(p => p.media_display && p.media_type === 'VIDEO' && !p.text?.trim())
+  // Фото / Видео — по типу медиа. Подпись (text) не исключает пост:
+  // фото с текстом всё равно фото, видео с текстом — видео.
+  const fPhotos = fPosts.filter(p => p.media_display && p.media_type !== 'VIDEO')
+  const fVideos = fPosts.filter(p => p.media_display && p.media_type === 'VIDEO')
 
   const TABS = [
     { key: 'posts',  label: 'feed_tab_posts'  },
