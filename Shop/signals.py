@@ -41,19 +41,30 @@ def notify_inquiry_message(sender, instance, created, **kwargs):
     if not created:
         return
     inquiry = instance.inquiry
-    business_owner = inquiry.product.business.owner
+    biz = inquiry.biz  # business (direct chat) or product.business
+    if biz is None:
+        return
+    business_owner = biz.owner
     if instance.sender == business_owner:
         recipient = inquiry.sender
-        title = f'Ответ от «{inquiry.product.business.brand_name}»'
+        title = f'Ответ от «{biz.brand_name}»'
     else:
         recipient = business_owner
-        title = f'Новый запрос по товару «{inquiry.product.name}»'
+        if inquiry.product:
+            title = f'Новый запрос по товару «{inquiry.product.name}»'
+        else:
+            title = f'Новое сообщение для «{biz.brand_name}»'
+    if recipient is None:
+        return
     Notification.objects.create(
         recipient=recipient,
         type=Notification.Type.INQUIRY_MSG,
         title=title,
         body=instance.text[:120],
-        data={'inquiry_id': inquiry.id, 'product_id': inquiry.product.id},
+        data={
+            'inquiry_id': inquiry.id,
+            'product_id': inquiry.product.id if inquiry.product else None,
+        },
     )
 
 
