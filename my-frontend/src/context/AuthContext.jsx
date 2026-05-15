@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react'
-import { apiLogin, apiRegister, apiVerifyEmail, apiLogout, apiMe, apiRefreshToken } from '../api/authApi'
+import { apiLogin, apiRegister, apiVerifyEmail, apiLogout, apiMe, apiRefreshToken, apiGoOffline } from '../api/authApi'
 
 const AuthContext = createContext(null)
 
@@ -28,6 +28,23 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     tokensRef.current = tokens
   }, [tokens])
+
+  // ── Мгновенный офлайн при уходе со страницы ───────────────────────────────
+  useEffect(() => {
+    const goOffline = () => {
+      const t = tokensRef.current
+      if (t?.access) apiGoOffline(t.access)
+    }
+    // visibilitychange: вкладка свёрнута / переключена
+    const onVisibility = () => { if (document.hidden) goOffline() }
+    // pagehide: надёжнее beforeunload на мобилках
+    document.addEventListener('visibilitychange', onVisibility)
+    window.addEventListener('pagehide', goOffline)
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility)
+      window.removeEventListener('pagehide', goOffline)
+    }
+  }, [])
 
   // Тихое обновление access-токена при старте (если он есть, но протух)
   useEffect(() => {
