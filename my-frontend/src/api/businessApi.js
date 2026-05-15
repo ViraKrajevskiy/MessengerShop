@@ -497,6 +497,18 @@ export async function apiCheckGroupMembership(groupId, token) {
   return res.json()
 }
 
+export async function apiLeaveGroup(groupId, token) {
+  const res = await fetch(`${BASE}/groups/${groupId}/join/`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${token}` },
+  })
+  if (!res.ok) {
+    const e = await res.json().catch(() => ({}))
+    throw new Error(e.detail || 'Не удалось выйти из группы')
+  }
+  return res.json()
+}
+
 export async function apiSearchProducts(query, token) {
   const res = await fetch(`${BASE}/products/search/?q=${encodeURIComponent(query)}`, {
     headers: { 'Authorization': `Bearer ${token}` },

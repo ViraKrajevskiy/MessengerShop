@@ -912,6 +912,12 @@
 }
 
 /* ===== Context menu on messages ===== */
+.msg-context-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 49;
+}
+
 .msg-context-menu {
   position: absolute;
   top: 0;

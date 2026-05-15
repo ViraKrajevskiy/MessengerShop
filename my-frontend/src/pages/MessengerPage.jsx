@@ -9,7 +9,7 @@ import {
   apiGetGroupMessages, apiSendGroupMessage, apiDeleteGroupMessage,
   apiEditGroupMessage,
   apiAddGroupMember, apiUpdateGroupMember, apiRemoveGroupMember,
-  apiJoinGroup,
+  apiJoinGroup, apiLeaveGroup,
   apiSearchProducts,
 } from '../api/businessApi'
 import { DEFAULT_AVATAR } from '../utils/defaults'
@@ -390,7 +390,7 @@ function ChatView({ inquiry, isBusiness, onBack, onDelete, onProfileClick, getAc
 }
 
 /* ─── Group ChatView ─── */
-function GroupChatView({ group, onBack, getAccessToken, currentUserId }) {
+function GroupChatView({ group, onBack, onLeave, getAccessToken, currentUserId }) {
   const navigate = useNavigate()
   const messagesEndRef = useRef(null)
   const inputRef = useRef(null)
@@ -405,6 +405,8 @@ function GroupChatView({ group, onBack, getAccessToken, currentUserId }) {
   const [mentionResults, setMentionResults] = useState([])
   const [joining, setJoining]   = useState(false)
   const [joinError, setJoinError] = useState('')
+  const [confirmLeave, setConfirmLeave] = useState(false)
+  const [leaving, setLeaving]   = useState(false)
   const mentionTimer = useRef(null)
 
   const myMembership = detail?.members?.find(m => m.user_id === currentUserId)
@@ -413,6 +415,19 @@ function GroupChatView({ group, onBack, getAccessToken, currentUserId }) {
   const canPin    = !!myMembership?.can_pin_messages
   const canSend   = isMember && myMembership?.can_send_messages !== false
   const isAdmin   = !!myMembership && ['OWNER','ADMIN'].includes(myMembership.role)
+  const isOwner   = myMembership?.role === 'OWNER'
+
+  const handleLeaveGroup = async () => {
+    setLeaving(true)
+    try {
+      const token = await getAccessToken()
+      await apiLeaveGroup(group.id, token)
+      onLeave(group.id)
+    } catch {} finally {
+      setLeaving(false)
+      setConfirmLeave(false)
+    }
+  }
 
   // Count online members
   const onlineCount = detail?.members?.filter(m => m.is_online).length || 0
@@ -539,6 +554,22 @@ function GroupChatView({ group, onBack, getAccessToken, currentUserId }) {
 
   return (
     <div className="chat-view">
+      {confirmLeave && (
+        <div className="modal-overlay" onClick={() => setConfirmLeave(false)}>
+          <div className="modal-box" onClick={e => e.stopPropagation()}>
+            <h3>Выйти из группы?</h3>
+            <p style={{color:'var(--text-muted)',fontSize:'14px',margin:'8px 0 20px'}}>
+              Вы перестанете получать сообщения «{group.name}». Вернуться можно будет через страницу группы.
+            </p>
+            <div className="modal-box__actions">
+              <button className="modal-box__cancel" onClick={() => setConfirmLeave(false)}>Отмена</button>
+              <button className="modal-box__ok modal-box__ok--danger" onClick={handleLeaveGroup} disabled={leaving}>
+                {leaving ? 'Выход...' : 'Выйти'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="chat-view__header">
         <button className="chat-view__back" onClick={onBack}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
@@ -569,6 +600,14 @@ function GroupChatView({ group, onBack, getAccessToken, currentUserId }) {
               <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
             </svg>
           </button>
+          {isMember && !isOwner && (
+            <button className="chat-view__action-btn chat-view__action-btn--danger" title="Выйти из группы" onClick={() => setConfirmLeave(true)}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                <polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+              </svg>
+            </button>
+          )}
         </div>
       </div>
 
@@ -605,13 +644,15 @@ function GroupChatView({ group, onBack, getAccessToken, currentUserId }) {
                   {isMe && <svg className="msg-bubble__check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6L9 17l-5-5"/></svg>}
                 </span>
                 {contextMsg === msg.id && (
-                  <div className="msg-context-menu">
-                    {isMe && <button onClick={() => startEdit(msg)}>Редактировать</button>}
-                    {canDeleteThis && (
-                      <button className="msg-context-menu__danger" onClick={() => handleDelete(msg.id)}>Удалить</button>
-                    )}
-                    <button onClick={() => setContextMsg(null)}>Отмена</button>
-                  </div>
+                  <>
+                    <div className="msg-context-backdrop" onClick={() => setContextMsg(null)} />
+                    <div className="msg-context-menu">
+                      {isMe && <button onClick={() => startEdit(msg)}>Редактировать</button>}
+                      {canDeleteThis && (
+                        <button className="msg-context-menu__danger" onClick={() => handleDelete(msg.id)}>Удалить</button>
+                      )}
+                    </div>
+                  </>
                 )}
               </div>
             </div>
@@ -905,6 +946,11 @@ export default function MessengerPage() {
     clearActive()
   }
 
+  const handleGroupLeft = (leftId) => {
+    setGroups(prev => prev.filter(g => g.id !== leftId))
+    clearActive()
+  }
+
   return (
     <div className="messenger-page">
       <Header />
@@ -980,7 +1026,7 @@ export default function MessengerPage() {
           {activeInquiry ? (
             <ChatView inquiry={activeInquiry} isBusiness={isBusiness} onBack={clearActive} onDelete={handleInquiryDeleted} onProfileClick={() => navigate(`/business/${activeInquiry.biz_id}`)} getAccessToken={getAccessToken} currentUserId={user?.id} />
           ) : activeGroup ? (
-            <GroupChatView group={activeGroup} onBack={clearActive} getAccessToken={getAccessToken} currentUserId={user?.id} />
+            <GroupChatView group={activeGroup} onBack={clearActive} onLeave={handleGroupLeft} getAccessToken={getAccessToken} currentUserId={user?.id} />
           ) : (
             <div className="messenger__empty">
               <div className="messenger__empty-icon">

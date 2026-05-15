@@ -300,3 +300,23 @@ class GroupJoinView(APIView):
 
         is_member = group.members.filter(user=request.user).exists()
         return Response({'joined': is_member, 'group_id': group.id, 'group_name': group.name})
+
+    def delete(self, request, pk):
+        """Выйти из группы."""
+        try:
+            group = GroupChat.objects.get(pk=pk)
+        except GroupChat.DoesNotExist:
+            return Response({'detail': 'Группа не найдена'}, status=status.HTTP_404_NOT_FOUND)
+
+        membership = group.members.filter(user=request.user).first()
+        if membership is None:
+            return Response({'detail': 'Вы не состоите в группе'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if membership.role == GroupMember.Role.OWNER:
+            return Response(
+                {'detail': 'Владелец не может выйти из группы. Удалите группу.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        membership.delete()
+        return Response({'detail': 'Вы вышли из группы', 'joined': False}, status=status.HTTP_200_OK)
