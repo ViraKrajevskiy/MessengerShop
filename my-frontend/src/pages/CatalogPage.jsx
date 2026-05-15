@@ -212,6 +212,18 @@ export default function CatalogPage() {
   const verifiedBizIds = useMemo(() => new Set(businesses.filter(b => b.is_verified).map(b => b.id)), [businesses])
   const bizCityMap     = useMemo(() => { const m = new Map(); businesses.forEach(b => m.set(b.id, b.city)); return m }, [businesses])
 
+  // Бизнес → набор тегов его услуг (для фильтра по тегам в каталоге)
+  const bizTagsMap = useMemo(() => {
+    const m = new Map()
+    products.forEach(p => {
+      if (!p.business_id || !p.tags?.length) return
+      const set = m.get(p.business_id) || new Set()
+      p.tags.forEach(tg => set.add(tg))
+      m.set(p.business_id, set)
+    })
+    return m
+  }, [products])
+
   const isNew = (item) => item.created_at && (Date.now() - new Date(item.created_at)) / 3600000 < 24
 
   const passesProductFilter = (p) => {
@@ -235,7 +247,8 @@ export default function CatalogPage() {
     (!filterVerified || b.is_verified) &&
     (!filterNew      || isNew(b)) &&
     (!filterCity     || b.city === filterCity) &&
-    (!filterCat      || b.category === filterCat)
+    (!filterCat      || b.category === filterCat) &&
+    (activeTags.length === 0 || activeTags.some(tg => bizTagsMap.get(b.id)?.has(tg)))
 
   const applySort = (arr) => {
     if (sortOrder === 'date_desc') return [...arr].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
@@ -388,8 +401,8 @@ export default function CatalogPage() {
             )}
           </div>
 
-          {/* Tags (only for products/services) */}
-          {tab !== 'companies' && allTags.length > 0 && (
+          {/* Tags filter */}
+          {allTags.length > 0 && (
             <div className="cat-filters__tags">
               <div className="cat-filters__tags-list">
                 {allTags.map(tag => (
