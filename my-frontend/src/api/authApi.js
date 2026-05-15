@@ -120,3 +120,19 @@ export async function apiGoogleAuth({ credential, role = 'USER' }) {
     body: JSON.stringify({ credential, role }),
   })
 }
+
+/**
+ * POST /api/auth/offline/  — сбрасывает last_seen мгновенно.
+ * Используется с keepalive: true при закрытии вкладки.
+ */
+export function apiGoOffline(accessToken) {
+  // keepalive позволяет завершить запрос даже после выгрузки страницы
+  return fetch(`${BASE_URL}/auth/offline/`, {
+    method: 'POST',
+    keepalive: true,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+  }).catch(() => {})  // fire-and-forget, ошибки игнорируем
+}
