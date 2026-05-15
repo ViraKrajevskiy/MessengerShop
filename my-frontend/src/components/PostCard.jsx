@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useLanguage } from '../context/LanguageContext'
-import { apiToggleSubscription } from '../api/businessApi'
+import { apiToggleSubscription, apiCreateComplaint } from '../api/businessApi'
 import { makeInitialAvatar } from '../utils/defaults'
 import VideoModal from './VideoModal'
 import { timeAgo } from '../utils/timeUtils'
@@ -84,11 +85,91 @@ function getOrExtractPoster(videoUrl) {
   })
 }
 
+function ReportModal({ post, getAccessToken, onClose }) {
+  const { t } = useLanguage()
+  const REASONS = [
+    { v: 'INAPPROPRIATE', l: t('report_inappropriate') },
+    { v: 'SPAM',          l: t('report_spam') },
+    { v: 'FRAUD',         l: t('report_fraud') },
+    { v: 'MISINFORMATION',l: t('report_misinfo') },
+    { v: 'OTHER',         l: t('report_other') },
+  ]
+  const [reason, setReason] = useState('INAPPROPRIATE')
+  const [description, setDescription] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [done, setDone] = useState(false)
+  const [error, setError] = useState('')
+
+  const submit = async () => {
+    if (loading) return
+    setLoading(true); setError('')
+    try {
+      const token = await getAccessToken()
+      if (!token) { setError(t('report_needLogin')); setLoading(false); return }
+      await apiCreateComplaint(
+        { post_id: post.id, business_id: post.business_id, reason, description: description.trim() },
+        token
+      )
+      setDone(true)
+    } catch (e) {
+      setError(e.message || t('report_error'))
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return createPortal(
+    <div className="report-modal" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="report-modal__box" onClick={(e) => e.stopPropagation()}>
+        <button className="report-modal__close" onClick={onClose}>&#10005;</button>
+        {done ? (
+          <div className="report-modal__done">
+            <div className="report-modal__done-icon">&#10003;</div>
+            <h3>{t('report_sentTitle')}</h3>
+            <p>{t('report_sentText')}</p>
+            <button className="report-modal__submit" onClick={onClose}>{t('report_close')}</button>
+          </div>
+        ) : (
+          <>
+            <h3 className="report-modal__title">{t('report_title')}</h3>
+            <p className="report-modal__sub">{t('report_sub')}</p>
+            <div className="report-modal__reasons">
+              {REASONS.map(r => (
+                <button
+                  key={r.v}
+                  className={`report-modal__reason${reason === r.v ? ' report-modal__reason--active' : ''}`}
+                  onClick={() => setReason(r.v)}
+                >
+                  {r.l}
+                </button>
+              ))}
+            </div>
+            <textarea
+              className="report-modal__textarea"
+              placeholder={t('report_descPlaceholder')}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={3}
+              maxLength={500}
+            />
+            {error && <p className="report-modal__error">{error}</p>}
+            <button className="report-modal__submit" onClick={submit} disabled={loading}>
+              {loading ? '…' : t('report_send')}
+            </button>
+          </>
+        )}
+      </div>
+    </div>,
+    document.body
+  )
+}
+
 export default function PostCard({ post, onDelete }) {
   const navigate = useNavigate()
   const { user, getAccessToken } = useAuth()
   const { t } = useLanguage()
   const [deleteLoading, setDeleteLoading] = useState(false)
+  const [showReport, setShowReport] = useState(false)
   const [followed, setFollowed] = useState(post.is_subscribed || false)
   const [subLoading, setSubLoading] = useState(false)
   const [fav, setFav] = useState(false)
@@ -196,6 +277,13 @@ export default function PostCard({ post, onDelete }) {
           onClose={() => setSelectedVideo(null)}
         />
       )}
+      {showReport && (
+        <ReportModal
+          post={post}
+          getAccessToken={getAccessToken}
+          onClose={() => setShowReport(false)}
+        />
+      )}
       <div className="post-card" ref={cardRef} onClick={() => navigate(`/business/${post.business_id}`)}>
       <div className="post-card__header">
         <div className="post-card__avatar-wrap" onClick={(e) => { e.stopPropagation(); navigate(`/business/${post.business_id}`) }}>
@@ -231,14 +319,7 @@ export default function PostCard({ post, onDelete }) {
               onClick={(e) => {
                 e.stopPropagation()
                 if (!user) { navigate('/login'); return }
-                navigate('/messenger', {
-                  state: {
-                    openSupport: true,
-                    reportPostId: post.id,
-                    reportBusinessId: post.business_id,
-                    reportBusinessName: post.business_name,
-                  }
-                })
+                setShowReport(true)
               }}
             >
               {t('post_report')}
