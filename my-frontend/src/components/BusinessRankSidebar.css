@@ -1,12 +1,12 @@
 .brs {
   width: 280px;
   flex-shrink: 0;
-  background: var(--bg-secondary);
+  background: transparent;
   border-radius: var(--radius-lg);
   padding: 18px 16px 14px;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+  box-shadow: none;
 }
 
 .brs__title {
