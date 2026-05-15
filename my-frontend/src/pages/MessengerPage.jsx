@@ -9,7 +9,7 @@ import {
   apiGetGroupMessages, apiSendGroupMessage, apiDeleteGroupMessage,
   apiEditGroupMessage,
   apiAddGroupMember, apiUpdateGroupMember, apiRemoveGroupMember,
-  apiJoinGroup, apiLeaveGroup,
+  apiJoinGroup, apiLeaveGroup, apiDeleteGroup,
   apiSearchProducts,
 } from '../api/businessApi'
 import { DEFAULT_AVATAR } from '../utils/defaults'
@@ -407,6 +407,8 @@ function GroupChatView({ group, onBack, onLeave, getAccessToken, currentUserId }
   const [joinError, setJoinError] = useState('')
   const [confirmLeave, setConfirmLeave] = useState(false)
   const [leaving, setLeaving]   = useState(false)
+  const [confirmDeleteGroup, setConfirmDeleteGroup] = useState(false)
+  const [deletingGroup, setDeletingGroup] = useState(false)
   const mentionTimer = useRef(null)
 
   const myMembership = detail?.members?.find(m => m.user_id === currentUserId)
@@ -426,6 +428,18 @@ function GroupChatView({ group, onBack, onLeave, getAccessToken, currentUserId }
     } catch {} finally {
       setLeaving(false)
       setConfirmLeave(false)
+    }
+  }
+
+  const handleDeleteGroup = async () => {
+    setDeletingGroup(true)
+    try {
+      const token = await getAccessToken()
+      await apiDeleteGroup(group.id, token)
+      onLeave(group.id)
+    } catch {} finally {
+      setDeletingGroup(false)
+      setConfirmDeleteGroup(false)
     }
   }
 
@@ -570,6 +584,22 @@ function GroupChatView({ group, onBack, onLeave, getAccessToken, currentUserId }
           </div>
         </div>
       )}
+      {confirmDeleteGroup && (
+        <div className="modal-overlay" onClick={() => setConfirmDeleteGroup(false)}>
+          <div className="modal-box" onClick={e => e.stopPropagation()}>
+            <h3>Удалить группу?</h3>
+            <p style={{color:'var(--text-muted)',fontSize:'14px',margin:'8px 0 20px'}}>
+              Группа «{group.name}» и вся переписка будут удалены безвозвратно для всех участников.
+            </p>
+            <div className="modal-box__actions">
+              <button className="modal-box__cancel" onClick={() => setConfirmDeleteGroup(false)}>Отмена</button>
+              <button className="modal-box__ok modal-box__ok--danger" onClick={handleDeleteGroup} disabled={deletingGroup}>
+                {deletingGroup ? 'Удаление...' : 'Удалить'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="chat-view__header">
         <button className="chat-view__back" onClick={onBack}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
@@ -605,6 +635,14 @@ function GroupChatView({ group, onBack, onLeave, getAccessToken, currentUserId }
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
                 <polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+              </svg>
+            </button>
+          )}
+          {isOwner && (
+            <button className="chat-view__action-btn chat-view__action-btn--danger" title="Удалить группу" onClick={() => setConfirmDeleteGroup(true)}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                <path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/>
               </svg>
             </button>
           )}

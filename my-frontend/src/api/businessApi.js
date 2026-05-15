@@ -408,7 +408,11 @@ export async function apiDeleteGroup(groupId, token) {
     method: 'DELETE',
     headers: { 'Authorization': `Bearer ${token}` },
   })
-  if (!res.ok) throw new Error('Ошибка удаления группы')
+  // 404 = группа уже удалена — для UI это успех
+  if (!res.ok && res.status !== 404) {
+    const e = await res.json().catch(() => ({}))
+    throw new Error(e.detail || 'Ошибка удаления группы')
+  }
 }
 
 export async function apiGetGroupMembers(groupId, token) {
