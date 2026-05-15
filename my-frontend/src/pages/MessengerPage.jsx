@@ -4,7 +4,7 @@ import Header from '../components/Header'
 import { useAuth } from '../context/AuthContext'
 import {
   apiGetInquiries, apiGetInquiryMessages, apiSendInquiryMessage,
-  apiDeleteInquiryMessage, apiEditInquiryMessage,
+  apiDeleteInquiry, apiDeleteInquiryMessage, apiEditInquiryMessage,
   apiGetGroups, apiCreateGroup, apiGetGroupDetail,
   apiGetGroupMessages, apiSendGroupMessage, apiDeleteGroupMessage,
   apiEditGroupMessage,
@@ -139,7 +139,7 @@ function GroupContactItem({ group, isActive, onClick }) {
 }
 
 /* ─── Inquiry ChatView (existing) ─── */
-function ChatView({ inquiry, isBusiness, onBack, onProfileClick, getAccessToken, currentUserId }) {
+function ChatView({ inquiry, isBusiness, onBack, onDelete, onProfileClick, getAccessToken, currentUserId }) {
   const navigate = useNavigate()
   const messagesEndRef  = useRef(null)
   const inputRef        = useRef(null)
@@ -150,6 +150,8 @@ function ChatView({ inquiry, isBusiness, onBack, onProfileClick, getAccessToken,
   const [contextMsg, setContextMsg] = useState(null)
   const [editingMsg, setEditingMsg] = useState(null)
   const [mentionResults, setMentionResults] = useState([])
+  const [deleting, setDeleting] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
   const mentionTimer = useRef(null)
 
   const avatar = inquiry.logo || FALLBACK_AVATAR
@@ -256,8 +258,40 @@ function ChatView({ inquiry, isBusiness, onBack, onProfileClick, getAccessToken,
     setText('')
   }
 
+  const handleDeleteChat = async () => {
+    setDeleting(true)
+    try {
+      const token = await getAccessToken()
+      await apiDeleteInquiry(inquiry.id, token)
+      onDelete(inquiry.id)
+    } catch {} finally {
+      setDeleting(false)
+      setConfirmDelete(false)
+    }
+  }
+
+  const statusText = inquiry.is_online
+    ? 'в сети'
+    : (inquiry.product_name || inquiry.biz_name || '')
+
   return (
     <div className="chat-view">
+      {confirmDelete && (
+        <div className="modal-overlay" onClick={() => setConfirmDelete(false)}>
+          <div className="modal-box" onClick={e => e.stopPropagation()}>
+            <h3>Удалить чат?</h3>
+            <p style={{color:'var(--text-muted)',fontSize:'14px',margin:'8px 0 20px'}}>
+              Вся переписка будет удалена безвозвратно.
+            </p>
+            <div className="modal-box__actions">
+              <button className="modal-box__cancel" onClick={() => setConfirmDelete(false)}>Отмена</button>
+              <button className="modal-box__ok modal-box__ok--danger" onClick={handleDeleteChat} disabled={deleting}>
+                {deleting ? 'Удаление...' : 'Удалить'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="chat-view__header">
         <button className="chat-view__back" onClick={onBack}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
@@ -270,7 +304,7 @@ function ChatView({ inquiry, isBusiness, onBack, onProfileClick, getAccessToken,
           <div className="chat-view__user-info">
             <span className="chat-view__name">{name}</span>
             <span className="chat-view__status" style={inquiry.is_online ? {} : {color: 'var(--text-muted)'}}>
-              {inquiry.is_online ? 'в сети' : inquiry.product_name}
+              {statusText}
             </span>
           </div>
         </div>
@@ -279,6 +313,12 @@ function ChatView({ inquiry, isBusiness, onBack, onProfileClick, getAccessToken,
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
               <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+          </button>
+          <button className="chat-view__action-btn chat-view__action-btn--danger" title="Удалить чат" onClick={() => setConfirmDelete(true)}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
+              <path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/>
             </svg>
           </button>
         </div>
@@ -860,6 +900,11 @@ export default function MessengerPage() {
   const selectGroup   = (g) => { setActiveGroup(g); setActiveIdx(null) }
   const clearActive    = () => { setActiveIdx(null); setActiveGroup(null) }
 
+  const handleInquiryDeleted = (deletedId) => {
+    setInquiries(prev => prev.filter(inq => inq.id !== deletedId))
+    clearActive()
+  }
+
   return (
     <div className="messenger-page">
       <Header />
@@ -933,7 +978,7 @@ export default function MessengerPage() {
 
         <main className={`messenger__chat ${(activeInquiry || activeGroup) ? 'messenger__chat--visible-mobile' : ''}`}>
           {activeInquiry ? (
-            <ChatView inquiry={activeInquiry} isBusiness={isBusiness} onBack={clearActive} onProfileClick={() => navigate(`/business/${activeInquiry.biz_id}`)} getAccessToken={getAccessToken} currentUserId={user?.id} />
+            <ChatView inquiry={activeInquiry} isBusiness={isBusiness} onBack={clearActive} onDelete={handleInquiryDeleted} onProfileClick={() => navigate(`/business/${activeInquiry.biz_id}`)} getAccessToken={getAccessToken} currentUserId={user?.id} />
           ) : activeGroup ? (
             <GroupChatView group={activeGroup} onBack={clearActive} getAccessToken={getAccessToken} currentUserId={user?.id} />
           ) : (

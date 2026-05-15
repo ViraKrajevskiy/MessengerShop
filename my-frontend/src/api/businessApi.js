@@ -102,6 +102,14 @@ export async function apiGetInquiries(token) {
   return res.json()
 }
 
+export async function apiDeleteInquiry(inquiryId, token) {
+  const res = await fetch(`${BASE}/inquiries/${inquiryId}/`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${token}` },
+  })
+  if (!res.ok && res.status !== 204) throw new Error('Ошибка удаления чата')
+}
+
 export async function apiStartBizChat(bizId, token) {
   const res = await fetch(`${BASE}/businesses/${bizId}/chat/`, {
     method: 'POST',

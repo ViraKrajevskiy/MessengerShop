@@ -437,6 +437,11 @@
   color: var(--text-primary);
 }
 
+.chat-view__action-btn--danger:hover {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+
 /* Messages area */
 .chat-view__messages {
   flex: 1;
@@ -1451,6 +1456,13 @@
 }
 
 .modal-box__ok:disabled { opacity: 0.4; }
+
+.modal-box__ok--danger {
+  background: #ef4444;
+}
+.modal-box__ok--danger:hover:not(:disabled) {
+  background: #dc2626;
+}
 
 /* ===== Responsive ===== */
 @media (max-width: 768px) {

@@ -4,7 +4,6 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from Shop.servicefunc.views.auth.registration import RegisterView
 from Shop.servicefunc.views.auth.login import LoginView
 from Shop.servicefunc.views.auth.logout import LogoutView
-from Shop.servicefunc.views.auth.offline import OfflineView
 from Shop.servicefunc.views.auth.verify_email import VerifyEmailView
 from Shop.servicefunc.views.auth.me import MeView
 from Shop.servicefunc.views.auth.password_reset import PasswordResetRequestView, PasswordResetConfirmView
@@ -43,7 +42,7 @@ from Shop.servicefunc.views.product.product import (
 from Shop.servicefunc.views.post.post import (
     PostListView, BusinessPostListView, ProductInquiryView,
     BusinessChatView,
-    InquiryListView, InquiryMessagesView, InquiryMessageActionView, PostFavoriteView, PostFavoritesListView,
+    InquiryListView, InquiryDetailView, InquiryMessagesView, InquiryMessageActionView, PostFavoriteView, PostFavoritesListView,
 )
 from Shop.servicefunc.views.review.reviews import (
     BusinessReviewListCreateView, ProductReviewListCreateView,
@@ -67,7 +66,6 @@ urlpatterns = [
     path('auth/verify-email/',           VerifyEmailView.as_view(),           name='auth_verify_email'),
     path('auth/login/',                  LoginView.as_view(),                 name='auth_login'),
     path('auth/logout/',                 LogoutView.as_view(),                name='auth_logout'),
-    path('auth/offline/',                OfflineView.as_view(),               name='auth_offline'),
     path('auth/me/',                     MeView.as_view(),                    name='auth_me'),
     path('auth/token/refresh/',          TokenRefreshView.as_view(),          name='token_refresh'),
     path('auth/password-reset/',         PasswordResetRequestView.as_view(),  name='password_reset'),
@@ -93,11 +91,11 @@ urlpatterns = [
     path('products/<int:pk>/',           ProductDetailView.as_view(),            name='product_detail'),
     path('products/<int:pk>/like/',      ProductLikeView.as_view(),              name='product_like'),
     path('products/<int:pk>/inquiry/',   ProductInquiryView.as_view(),           name='product_inquiry'),
-    path('businesses/<int:pk>/chat/',    BusinessChatView.as_view(),             name='business_chat'),
 
     path('businesses/me/stats/',         BusinessStatsView.as_view(),            name='business_stats'),
 
     path('inquiries/',                                InquiryListView.as_view(),          name='inquiry_list'),
+    path('inquiries/<int:pk>/',                       InquiryDetailView.as_view(),        name='inquiry_detail'),
     path('inquiries/<int:pk>/messages/',              InquiryMessagesView.as_view(),      name='inquiry_messages'),
     path('inquiries/<int:pk>/messages/<int:msg_pk>/', InquiryMessageActionView.as_view(), name='inquiry_message_action'),
 
