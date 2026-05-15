@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from django.db.models import Count, Exists, OuterRef
+from django.db.models import Count, Exists, OuterRef, Q
 
 from Shop.models import Post, Product, ProductInquiry, Business, InquiryMessage
 from Shop.models.models import PostFavorite, BusinessSubscription
@@ -137,10 +137,12 @@ class InquiryListView(APIView):
         is_business = hasattr(user, 'business_profile')
 
         if is_business:
-            # Бизнес видит все чаты — и по продуктам, и прямые
+            # Бизнес видит ОБА типа чатов:
+            # 1) прямые (business=my_biz, product=None)
+            # 2) через продукты (product__business__owner=me, business=None)
             inquiries = (
                 ProductInquiry.objects
-                .filter(business__owner=user)
+                .filter(Q(business__owner=user) | Q(product__business__owner=user))
                 .select_related('business__owner', 'product__business__owner', 'sender')
                 .prefetch_related('messages')
                 .order_by('-created_at')
