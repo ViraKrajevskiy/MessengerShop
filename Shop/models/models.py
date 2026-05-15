@@ -49,7 +49,7 @@ class User(AbstractUser, BaseController):
     def is_online(self):
         if not self.last_seen:
             return False
-        return (timezone.now() - self.last_seen).total_seconds() < 300  # 5 минут
+        return (timezone.now() - self.last_seen).total_seconds() < 60  # 1 минута
 
 
 class Business(BaseController):

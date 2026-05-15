@@ -4,6 +4,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from Shop.servicefunc.views.auth.registration import RegisterView
 from Shop.servicefunc.views.auth.login import LoginView
 from Shop.servicefunc.views.auth.logout import LogoutView
+from Shop.servicefunc.views.auth.offline import OfflineView
 from Shop.servicefunc.views.auth.verify_email import VerifyEmailView
 from Shop.servicefunc.views.auth.me import MeView
 from Shop.servicefunc.views.auth.password_reset import PasswordResetRequestView, PasswordResetConfirmView
@@ -65,6 +66,7 @@ urlpatterns = [
     path('auth/verify-email/',           VerifyEmailView.as_view(),           name='auth_verify_email'),
     path('auth/login/',                  LoginView.as_view(),                 name='auth_login'),
     path('auth/logout/',                 LogoutView.as_view(),                name='auth_logout'),
+    path('auth/offline/',                OfflineView.as_view(),               name='auth_offline'),
     path('auth/me/',                     MeView.as_view(),                    name='auth_me'),
     path('auth/token/refresh/',          TokenRefreshView.as_view(),          name='token_refresh'),
     path('auth/password-reset/',         PasswordResetRequestView.as_view(),  name='password_reset'),
