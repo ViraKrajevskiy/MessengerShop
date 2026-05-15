@@ -169,6 +169,7 @@ export default function PremiumCarousel({ businesses = [], onMessage }) {
                   fetchPriority={i < 5 ? 'high' : 'auto'}
                   decoding="async"
                   draggable={false}
+                  onError={e => { e.target.onerror = null; e.target.src = placeholder(biz) }}
                 />
             }
             <div className="pc-card__overlay">

@@ -40,6 +40,7 @@ export default function BusinessRankSidebar({ title, businesses = [], limit = 5 
                   src={logo}
                   alt={name}
                   loading="lazy"
+                  onError={e => { e.target.onerror = null; e.target.src = makeInitialAvatar(name) }}
                 />
                 <div className="brs__body">
                   <span className="brs__name">{name}</span>

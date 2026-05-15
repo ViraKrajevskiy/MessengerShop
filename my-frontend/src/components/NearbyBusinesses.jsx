@@ -1,6 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { resolveUrl } from '../utils/urlUtils'
+import { makeInitialAvatar } from '../utils/defaults'
 import { useLanguage } from '../context/LanguageContext'
 import './NearbyBusinesses.css'
 
@@ -200,7 +201,7 @@ export default function NearbyBusinesses({ businesses = [], posts = [] }) {
                     </div>
                     {img && (
                       <div className="nearby__card-img-wrap">
-                        <img className="nearby__card-img" src={img} alt={biz.brand_name} loading="lazy" decoding="async" />
+                        <img className="nearby__card-img" src={img} alt={biz.brand_name} loading="lazy" decoding="async" onError={e => { e.target.onerror = null; e.target.src = makeInitialAvatar(biz.brand_name) }} />
                       </div>
                     )}
                   </div>
