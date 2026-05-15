@@ -82,7 +82,7 @@ export default function NewUsers({ businesses: businessesProp }) {
               <div className="new-users__avatar">
                 {isVideo
                   ? <video className="new-users__avatar-img" src={logo} muted playsInline preload="metadata" />
-                  : <img className="new-users__avatar-img" src={logo} alt={biz.brand_name} loading="lazy" decoding="async" />
+                  : <img className="new-users__avatar-img" src={logo} alt={biz.brand_name} loading="lazy" decoding="async" onError={e => { e.target.onerror = null; e.target.src = makeInitialAvatar(biz.brand_name) }} />
                 }
                 {biz.owner_is_online && <span className="new-users__online-dot" />}
               </div>

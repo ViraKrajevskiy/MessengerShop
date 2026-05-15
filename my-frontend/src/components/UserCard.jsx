@@ -5,20 +5,8 @@ import { useAuth } from '../context/AuthContext'
 import { useLanguage } from '../context/LanguageContext'
 import { useAuthGate } from './AuthGate'
 import { resolveUrl } from '../utils/urlUtils'
+import { makeCardPlaceholder } from '../utils/defaults'
 import './UserCard.css'
-
-const CARD_PHOTOS = [
-  'https://picsum.photos/id/64/400/530',
-  'https://picsum.photos/id/177/400/530',
-  'https://picsum.photos/id/239/400/530',
-  'https://picsum.photos/id/306/400/530',
-  'https://picsum.photos/id/338/400/530',
-  'https://picsum.photos/id/342/400/530',
-  'https://picsum.photos/id/349/400/530',
-  'https://picsum.photos/id/366/400/530',
-  'https://picsum.photos/id/399/400/530',
-  'https://picsum.photos/id/429/400/530',
-]
 
 function fmtDate(dt) {
   if (!dt) return ''
@@ -58,7 +46,8 @@ export default function UserCard({ id, name = 'Имя', city = 'Город', bad
 
   const videoRef = useRef(null)
 
-  const rawPhoto = logo ? resolveUrl(logo) : CARD_PHOTOS[id % CARD_PHOTOS.length]
+  const placeholder = makeCardPlaceholder(name, id)
+  const rawPhoto = logo ? resolveUrl(logo) : placeholder
   const isVideo = logo && /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(logo)
 
   const handleMouseEnter = () => { if (isVideo && videoRef.current) videoRef.current.play() }
@@ -85,7 +74,7 @@ export default function UserCard({ id, name = 'Имя', city = 'Город', bad
         <div className="user-card__image" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
           {isVideo
             ? <video ref={videoRef} className="user-card__photo" src={rawPhoto} muted loop playsInline preload="metadata" />
-            : <img className="user-card__photo" src={rawPhoto} alt={name} loading="lazy" width="400" height="530" />
+            : <img className="user-card__photo" src={rawPhoto} alt={name} loading="lazy" width="400" height="530" onError={e => { e.target.onerror = null; e.target.src = placeholder }} />
           }
           {planType === 'VIP' ? (
             <span className="user-card__badge user-card__badge--vip">VIP</span>
