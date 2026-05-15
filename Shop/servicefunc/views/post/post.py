@@ -200,6 +200,29 @@ class InquiryMessagesView(APIView):
         return Response(InquiryMessageSerializer(msg, context={'request': request}).data, status=status.HTTP_201_CREATED)
 
 
+class InquiryDetailView(APIView):
+    """DELETE /api/inquiries/<pk>/ — удалить чат (только участник)."""
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, pk):
+        try:
+            inq = ProductInquiry.objects.select_related(
+                'business__owner', 'product__business__owner', 'sender'
+            ).get(pk=pk)
+        except ProductInquiry.DoesNotExist:
+            return Response({'detail': 'Не найдено'}, status=status.HTTP_404_NOT_FOUND)
+
+        is_business = hasattr(request.user, 'business_profile')
+        biz = inq.biz
+        if is_business and (biz is None or biz.owner != request.user):
+            return Response({'detail': 'Нет доступа'}, status=status.HTTP_403_FORBIDDEN)
+        if not is_business and inq.sender != request.user:
+            return Response({'detail': 'Нет доступа'}, status=status.HTTP_403_FORBIDDEN)
+
+        inq.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 class InquiryMessageActionView(APIView):
     """PATCH — редактировать, DELETE — удалить сообщение в чате."""
     permission_classes = [IsAuthenticated]
