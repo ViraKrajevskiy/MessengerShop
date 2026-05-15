@@ -10,7 +10,11 @@ class UpdateLastSeenMiddleware:
     def __call__(self, request):
         response = self.get_response(request)
 
-        if hasattr(request, 'user') and request.user.is_authenticated:
+        if (
+            hasattr(request, 'user')
+            and request.user.is_authenticated
+            and not getattr(request, '_skip_last_seen_update', False)
+        ):
             # Обновляем last_seen без вызова save() — только UPDATE одного поля
             from Shop.models import User
             User.objects.filter(pk=request.user.pk).update(last_seen=timezone.now())

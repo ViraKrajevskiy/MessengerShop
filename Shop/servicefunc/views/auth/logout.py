@@ -6,6 +6,8 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from Shop.models import User
+
 
 @extend_schema(tags=['Auth'])
 class LogoutView(APIView):
@@ -32,4 +34,8 @@ class LogoutView(APIView):
             token.blacklist()
         except TokenError:
             return Response({'error': 'Недействительный токен.'}, status=status.HTTP_400_BAD_REQUEST)
+        # Сбрасываем last_seen, чтобы индикатор онлайна сразу погас.
+        # Помечаем запрос, чтобы middleware не перезаписал None обратно в now().
+        User.objects.filter(pk=request.user.pk).update(last_seen=None)
+        request._skip_last_seen_update = True
         return Response({'message': 'Выход выполнен успешно.'}, status=status.HTTP_205_RESET_CONTENT)
