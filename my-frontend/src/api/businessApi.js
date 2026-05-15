@@ -107,7 +107,10 @@ export async function apiDeleteInquiry(inquiryId, token) {
     method: 'DELETE',
     headers: { 'Authorization': `Bearer ${token}` },
   })
-  if (!res.ok && res.status !== 204) throw new Error('Ошибка удаления чата')
+  // 204 = удалено, 404 = чат уже отсутствует — в обоих случаях для UI это успех
+  if (!res.ok && res.status !== 204 && res.status !== 404) {
+    throw new Error('Ошибка удаления чата')
+  }
 }
 
 export async function apiStartBizChat(bizId, token) {
@@ -502,11 +505,12 @@ export async function apiLeaveGroup(groupId, token) {
     method: 'DELETE',
     headers: { 'Authorization': `Bearer ${token}` },
   })
-  if (!res.ok) {
+  // 404 = группа уже удалена/не существует — для UI это тоже «вышел»
+  if (!res.ok && res.status !== 404) {
     const e = await res.json().catch(() => ({}))
     throw new Error(e.detail || 'Не удалось выйти из группы')
   }
-  return res.json()
+  return res.json().catch(() => ({ joined: false }))
 }
 
 export async function apiSearchProducts(query, token) {
