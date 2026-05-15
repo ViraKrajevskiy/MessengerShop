@@ -1,1 +1,0 @@
-function e(e){return e?e.startsWith(`http`)?e:`${e}`:null}export{e as t};
