@@ -71,6 +71,12 @@ class BusinessPostListView(APIView):
         except Business.DoesNotExist:
             return Response({'detail': 'Бизнес не найден или нет доступа'}, status=status.HTTP_403_FORBIDDEN)
 
+        if not business.is_pro:
+            return Response(
+                {'detail': 'Публиковать твиты могут только бизнесы с оплаченным тарифом (Pro или VIP).'},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
         serializer = PostCreateSerializer(data=request.data)
         if serializer.is_valid():
             post = serializer.save(business=business)

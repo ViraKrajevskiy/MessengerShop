@@ -1,7 +1,7 @@
 /* Плавающая кнопка чата */
 .chat-float-btn {
   position: fixed;
-  bottom: 20px;
+  bottom: 90px;
   right: 20px;
   width: 60px;
   height: 60px;
@@ -28,7 +28,7 @@
 /* Мини-панель */
 .chat-panel {
   position: fixed;
-  bottom: 90px;
+  bottom: 160px;
   right: 20px;
   width: 350px;
   height: 500px;
