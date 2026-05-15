@@ -99,17 +99,49 @@ class ProductInquiryView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class BusinessChatView(APIView):
+    """POST /api/businesses/{pk}/chat/ — открыть или создать прямой чат с бизнесом."""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        try:
+            business = Business.objects.select_related('owner').get(pk=pk)
+        except Business.DoesNotExist:
+            return Response({'detail': 'Бизнес не найден'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Нельзя писать самому себе
+        if business.owner == request.user:
+            return Response({'detail': 'Нельзя писать самому себе'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Ищем существующий прямой чат (product=None, business=business, sender=user)
+        inquiry = ProductInquiry.objects.filter(
+            business=business, sender=request.user, product=None
+        ).first()
+
+        if not inquiry:
+            inquiry = ProductInquiry.objects.create(
+                business=business,
+                sender=request.user,
+                product=None,
+                message='',
+            )
+
+        return Response({'inquiry_id': inquiry.id}, status=status.HTTP_200_OK)
+
+
 class InquiryListView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         user = request.user
+        is_business = hasattr(user, 'business_profile')
 
-        if hasattr(user, 'business_profile'):
+        if is_business:
+            # Бизнес видит все чаты — и по продуктам, и прямые
             inquiries = (
                 ProductInquiry.objects
-                .filter(product__business__owner=user)
-                .select_related('product__business__owner', 'sender')
+                .filter(business__owner=user)
+                .select_related('business__owner', 'product__business__owner', 'sender')
                 .prefetch_related('messages')
                 .order_by('-created_at')
             )
@@ -117,43 +149,42 @@ class InquiryListView(APIView):
             inquiries = (
                 ProductInquiry.objects
                 .filter(sender=user)
-                .select_related('product__business__owner', 'sender')
+                .select_related('business__owner', 'product__business__owner', 'sender')
                 .prefetch_related('messages')
                 .order_by('-created_at')
             )
 
-        is_business = hasattr(user, 'business_profile')
         data = []
         for inq in inquiries:
-            biz = inq.product.business
+            biz = inq.biz  # business or product.business
+            if biz is None:
+                continue
             logo = None
             if is_business:
                 logo = inq.sender.avatar.url if inq.sender.avatar else None
             else:
                 logo = biz.logo.url if biz.logo else None
 
-            # Use prefetched messages cache instead of .last() query
             msgs = list(inq.messages.all())
             last_msg = msgs[-1] if msgs else None
 
-            # Определяем онлайн-статус собеседника
             other_user = inq.sender if is_business else biz.owner
             other_online = other_user.is_online if other_user else False
 
             data.append({
-                'id':           inq.id,
-                'product_id':   inq.product.id,
-                'product_name': inq.product.name,
-                'biz_id':       biz.id,
-                'biz_name':     biz.brand_name,
-                'sender_id':    inq.sender.id,
-                'sender_name':  inq.sender.username,
-                'message':      last_msg.text if last_msg else inq.message,
+                'id':             inq.id,
+                'product_id':     inq.product.id if inq.product else None,
+                'product_name':   inq.product.name if inq.product else None,
+                'biz_id':         biz.id,
+                'biz_name':       biz.brand_name,
+                'sender_id':      inq.sender.id,
+                'sender_name':    inq.sender.username,
+                'message':        last_msg.text if last_msg else inq.message,
                 'last_sender_id': last_msg.sender_id if last_msg else inq.sender_id,
-                'is_read':      inq.is_read,
-                'is_online':    other_online,
-                'created_at':   inq.created_at.isoformat(),
-                'logo':         request.build_absolute_uri(logo) if logo else None,
+                'is_read':        inq.is_read,
+                'is_online':      other_online,
+                'created_at':     inq.created_at.isoformat(),
+                'logo':           request.build_absolute_uri(logo) if logo else None,
             })
 
         return Response(data)
@@ -165,12 +196,13 @@ class InquiryMessagesView(APIView):
     def _get_inquiry(self, pk, user):
         try:
             inq = ProductInquiry.objects.select_related(
-                'product__business__owner', 'sender'
+                'business__owner', 'product__business__owner', 'sender'
             ).get(pk=pk)
         except ProductInquiry.DoesNotExist:
             return None, None
         is_business = hasattr(user, 'business_profile')
-        if is_business and inq.product.business.owner != user:
+        biz = inq.biz
+        if is_business and (biz is None or biz.owner != user):
             return None, None
         if not is_business and inq.sender != user:
             return None, None
@@ -206,11 +238,14 @@ class InquiryMessageActionView(APIView):
 
     def _get_message(self, pk, msg_pk, user):
         try:
-            inq = ProductInquiry.objects.select_related('product__business__owner', 'sender').get(pk=pk)
+            inq = ProductInquiry.objects.select_related(
+                'business__owner', 'product__business__owner', 'sender'
+            ).get(pk=pk)
         except ProductInquiry.DoesNotExist:
             return None, None
         is_business = hasattr(user, 'business_profile')
-        if is_business and inq.product.business.owner != user:
+        biz = inq.biz
+        if is_business and (biz is None or biz.owner != user):
             return None, None
         if not is_business and inq.sender != user:
             return None, None

@@ -42,6 +42,7 @@ from Shop.servicefunc.views.product.product import (
 )
 from Shop.servicefunc.views.post.post import (
     PostListView, BusinessPostListView, ProductInquiryView,
+    BusinessChatView,
     InquiryListView, InquiryMessagesView, InquiryMessageActionView, PostFavoriteView, PostFavoritesListView,
 )
 from Shop.servicefunc.views.review.reviews import (
@@ -92,6 +93,7 @@ urlpatterns = [
     path('products/<int:pk>/',           ProductDetailView.as_view(),            name='product_detail'),
     path('products/<int:pk>/like/',      ProductLikeView.as_view(),              name='product_like'),
     path('products/<int:pk>/inquiry/',   ProductInquiryView.as_view(),           name='product_inquiry'),
+    path('businesses/<int:pk>/chat/',    BusinessChatView.as_view(),             name='business_chat'),
 
     path('businesses/me/stats/',         BusinessStatsView.as_view(),            name='business_stats'),
 
