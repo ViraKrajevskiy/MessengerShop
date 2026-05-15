@@ -7,6 +7,7 @@ import { useLanguage } from '../context/LanguageContext'
 import { apiGetProducts, apiGetBusinesses, CATEGORY_LABELS } from '../api/businessApi'
 import { makeInitialAvatar } from '../utils/defaults'
 import { resolveUrl } from '../utils/urlUtils'
+import UserCard from '../components/UserCard'
 import '../components/UserCard.css'
 import './CatalogPage.css'
 
@@ -140,11 +141,11 @@ export default function CatalogPage() {
   const { t }     = useLanguage()
 
   const TABS = [
-    { key: 'services',  label: `🔧 ${t('catalog_services')}` },
+    { key: 'companies', label: `🏢 ${t('catalog_companies')}` },
   ]
 
   const [searchParams] = useSearchParams()
-  const [tab, setTab]           = useState(() => searchParams.get('tab') || 'services')
+  const [tab, setTab]           = useState(() => searchParams.get('tab') || 'companies')
   const [products, setProducts] = useState([])
   const [businesses, setBiz]    = useState([])
   const [loading, setLoading]   = useState(true)
@@ -414,47 +415,32 @@ export default function CatalogPage() {
               </div>
             ) : (
               <>
-                {/* ── Services ── */}
-                {tab === 'services' && (
+                {/* ── Все карточки бизнесов (как на главной) ── */}
+                {fBiz.length === 0 ? (
+                  <div className="cat-empty">
+                    <div className="cat-empty__icon">🏢</div>
+                    <p>{hasFilters ? t('nothing_found') : t('catalog_companies')}</p>
+                    {hasFilters && <button className="cat-empty__reset" onClick={clearFilters}>{t('reset_filters')}</button>}
+                  </div>
+                ) : (
                   <>
-                    {fServices.length === 0 ? (
-                      <div className="cat-empty">
-                        <div className="cat-empty__icon">🔧</div>
-                        <p>{hasFilters ? t('nothing_found') : t('catalog_services')}</p>
-                        {hasFilters && <button className="cat-empty__reset" onClick={clearFilters}>{t('reset_filters')}</button>}
-                      </div>
-                    ) : (
-                      <>
-                        <div className="cat-results-count">{fServices.length}</div>
-                        <div className="card-grid card-grid--5">
-                          {fServices.map(s => (
-                            <ServiceCard key={s.id} product={s} onTagClick={toggleTag} />
-                          ))}
-                        </div>
-                      </>
-                    )}
-                  </>
-                )}
-
-                {/* ── Companies ── */}
-                {tab === 'companies' && (
-                  <>
-                    {fBiz.length === 0 ? (
-                      <div className="cat-empty">
-                        <div className="cat-empty__icon">🏢</div>
-                        <p>{t('catalog_companies')}</p>
-                        {hasFilters && <button className="cat-empty__reset" onClick={clearFilters}></button>}
-                      </div>
-                    ) : (
-                      <>
-                        <div className="cat-results-count">{fBiz.length}</div>
-                        <div className="card-grid card-grid--5">
-                          {fBiz.map(b => (
-                            <BizCard key={b.id} biz={b} />
-                          ))}
-                        </div>
-                      </>
-                    )}
+                    <div className="cat-results-count">{fBiz.length}</div>
+                    <div className="card-grid card-grid--4">
+                      {fBiz.map(b => (
+                        <UserCard
+                          key={b.id}
+                          id={b.id}
+                          name={b.brand_name}
+                          city={b.city || ''}
+                          logo={b.logo}
+                          planType={b.plan_type || 'FREE'}
+                          type="all"
+                          isOnline={!!b.owner_is_online}
+                          isVerified={!!b.is_verified}
+                          verifiedAt={b.verified_at}
+                        />
+                      ))}
+                    </div>
                   </>
                 )}
               </>
