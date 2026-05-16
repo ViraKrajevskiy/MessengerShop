@@ -385,6 +385,76 @@
   }
 }
 
+/* Mobile: show the 3 side panels (Твиты + рейтинги) as horizontal
+   scrollers, like the «Публикации» section. Descendant selectors
+   out-specify the `display:none` hides in the component CSS files. */
+@media (max-width: 768px) {
+  .home-page__layout {
+    flex-direction: column;
+  }
+  .home-page__layout .home-page__sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    width: 100%;
+    margin-top: 4px;
+  }
+
+  /* ТВИТЫ */
+  .home-page__sidebar .tweets-sidebar {
+    display: flex;
+    width: 100%;
+    height: auto;
+    margin-top: 0;
+  }
+  .home-page__sidebar .tweets-sidebar__list {
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .home-page__sidebar .tweets-sidebar__list::-webkit-scrollbar {
+    display: none;
+  }
+  .home-page__sidebar .tweet-item {
+    flex: 0 0 78%;
+    border-bottom: none;
+    border-right: 1px solid var(--border-light);
+    scroll-snap-align: start;
+  }
+  .home-page__sidebar .tweet-item:last-child {
+    border-right: none;
+  }
+
+  /* Рейтинги бизнесов (популярные / просматриваемые) */
+  .home-page__sidebar .brs {
+    display: flex;
+    width: 100%;
+  }
+  .home-page__sidebar .brs__list {
+    flex-direction: row;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 12px;
+    padding-bottom: 4px;
+  }
+  .home-page__sidebar .brs__list::-webkit-scrollbar {
+    display: none;
+  }
+  .home-page__sidebar .brs__item {
+    flex: 0 0 72%;
+    scroll-snap-align: start;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 12px;
+  }
+}
+
 @media (max-width: 480px) {
   .home-page__layout,
   .home-page__hero-full,
