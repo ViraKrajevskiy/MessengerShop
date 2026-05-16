@@ -189,14 +189,13 @@ export default function HomePage() {
     if (!el) return
     const { scrollLeft, clientWidth, scrollWidth } = el
     if (clientWidth === 0) return
-    const pages = Math.max(1, Math.round(scrollWidth / clientWidth))
-    const atEnd = scrollLeft + clientWidth >= scrollWidth - 2
-    const page = atEnd
-      ? pages - 1
-      : Math.min(pages - 1, Math.max(0, Math.round(scrollLeft / clientWidth)))
-    setPostsTotalPages(pages)
+    const total = Math.max(1, Math.ceil(homePosts.length / 3))
+    const maxScroll = scrollWidth - clientWidth
+    const ratio = maxScroll > 2 ? scrollLeft / maxScroll : 0
+    const page = Math.min(total - 1, Math.max(0, Math.round(ratio * (total - 1))))
+    setPostsTotalPages(total)
     setPostsPage(page)
-  }, [])
+  }, [homePosts.length])
 
   useEffect(() => {
     recomputePostsPaging()
@@ -284,7 +283,9 @@ export default function HomePage() {
                         className={`home-posts-dot${i === postsPage ? ' home-posts-dot--active' : ''}`}
                         onClick={() => {
                           const el = postsGridRef.current
-                          if (el) el.scrollTo({ left: i * el.clientWidth, behavior: 'smooth' })
+                          if (!el) return
+                          const denom = Math.max(1, postsTotalPages - 1)
+                          el.scrollTo({ left: (i / denom) * (el.scrollWidth - el.clientWidth), behavior: 'smooth' })
                         }}
                       />
                     ))}
