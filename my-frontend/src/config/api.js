@@ -3,9 +3,9 @@
 const PROD_DOMAIN = import.meta.env.VITE_API_DOMAIN || 'api.101-school.uz'
 
 export const API_URL = import.meta.env.PROD
-  ? `https://${PROD_DOMAIN}/api`
+  ? `http://${PROD_DOMAIN}/api`
   : 'http://127.0.0.1:8000/api'
 
 export const API_ORIGIN = import.meta.env.PROD
-  ? `https://${PROD_DOMAIN}`
+  ? `http://${PROD_DOMAIN}`
   : 'http://127.0.0.1:8000'
