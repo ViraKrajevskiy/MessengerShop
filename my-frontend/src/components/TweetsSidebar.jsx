@@ -7,14 +7,14 @@ import './TweetsSidebar.css'
 
 
 const FALLBACK_IMGS = [
-  'https://picsum.photos/id/342/80/80',
-  'https://picsum.photos/id/1025/80/80',
-  'https://picsum.photos/id/177/80/80',
-  'https://picsum.photos/id/1062/80/80',
-  'https://picsum.photos/id/239/80/80',
-  'https://picsum.photos/id/1074/80/80',
-  'https://picsum.photos/id/306/80/80',
-  'https://picsum.photos/id/338/80/80',
+  'https://picsum.photos/id/342/600/340',
+  'https://picsum.photos/id/1025/600/340',
+  'https://picsum.photos/id/177/600/340',
+  'https://picsum.photos/id/1062/600/340',
+  'https://picsum.photos/id/239/600/340',
+  'https://picsum.photos/id/1074/600/340',
+  'https://picsum.photos/id/306/600/340',
+  'https://picsum.photos/id/338/600/340',
 ]
 
 const PAGE_SIZE = 8
