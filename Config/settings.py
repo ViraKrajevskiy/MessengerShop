@@ -63,21 +63,14 @@ SPECTACULAR_SETTINGS = {
 }
 
 
-# ── Email configuration (Brevo SMTP) ────────────────────────────────────────
-# Get credentials from .env:
-# EMAIL_HOST=smtp-relay.brevo.com
-# EMAIL_PORT=587
-# EMAIL_USE_TLS=True
-# EMAIL_HOST_USER=your-brevo-login@example.com
-# EMAIL_HOST_PASSWORD=your-smtp-password
-# DEFAULT_FROM_EMAIL=your-email@example.com
+# ── Email configuration (Brevo API v3) ────────────────────────────────────────
+# Uses Brevo API instead of SMTP - works immediately without account activation!
+# Get API key from https://app.brevo.com/settings/keys/api
+# EMAIL_HOST_PASSWORD = Brevo API key (starts with xsmtpsib-)
+# DEFAULT_FROM_EMAIL = sender email address
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = env('EMAIL_HOST', default='smtp-relay.brevo.com')
-EMAIL_PORT = env('EMAIL_PORT', default=587)
-EMAIL_USE_TLS = env('EMAIL_USE_TLS', default=True)
-EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
+EMAIL_BACKEND = 'Shop.email_backend.BrevoEmailBackend'
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')  # Brevo API key
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='БизнесТурция <noreply@example.com>')
 
 MIDDLEWARE = [
