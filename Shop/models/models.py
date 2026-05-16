@@ -711,3 +711,37 @@ class Notification(models.Model):
 
     def __str__(self):
         return f'[{self.type}] → {self.recipient.email}'
+
+
+class EmailVerificationCode(models.Model):
+    """Временные коды для верификации email при регистрации и сбросе пароля."""
+    class CodeType(models.TextChoices):
+        REGISTRATION = 'REGISTRATION', 'Registration'
+        PASSWORD_RESET = 'PASSWORD_RESET', 'Password Reset'
+
+    email = models.EmailField()
+    code = models.CharField(max_length=6)
+    code_type = models.CharField(max_length=20, choices=CodeType.choices, default=CodeType.REGISTRATION)
+    is_used = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Email Verification Code'
+        verbose_name_plural = 'Email Verification Codes'
+        indexes = [
+            models.Index(fields=['email', 'code']),
+            models.Index(fields=['code_type', 'is_used']),
+        ]
+
+    def __str__(self):
+        return f'{self.code_type} code for {self.email}'
+
+    @property
+    def is_expired(self):
+        return timezone.now() > self.expires_at
+
+    @property
+    def is_valid(self):
+        return not self.is_used and not self.is_expired

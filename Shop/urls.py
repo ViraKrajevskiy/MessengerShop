@@ -9,6 +9,8 @@ from Shop.servicefunc.views.auth.me import MeView
 from Shop.servicefunc.views.auth.password_reset import PasswordResetRequestView, PasswordResetConfirmView
 from Shop.servicefunc.views.auth.qr_login import QRTokenView, QRLoginView
 from Shop.servicefunc.views.auth.google_auth import GoogleAuthView
+from Shop.servicefunc.views.auth.email_registration import SendRegistrationCodeView, VerifyRegistrationCodeView
+from Shop.servicefunc.views.auth.email_password_reset import SendPasswordResetCodeView, VerifyPasswordResetCodeView
 from Shop.servicefunc.views.moderator.auth import ModeratorLoginView
 from Shop.servicefunc.views.moderator.posts import ModeratorPostListView, ModeratorPostBlockView
 from Shop.servicefunc.views.moderator.complaints import ComplaintCreateView, ComplaintReasonListView, ModeratorComplaintListView, ModeratorComplaintDetailView
@@ -62,17 +64,25 @@ urlpatterns = [
     path('chat/', ChatAPIView.as_view(), name='chat-api'),
     path('chat/<str:session_id>/', ChatHistoryAPIView.as_view(), name='chat-history'),
 
-    path('auth/register/',               RegisterView.as_view(),              name='auth_register'),
-    path('auth/verify-email/',           VerifyEmailView.as_view(),           name='auth_verify_email'),
-    path('auth/login/',                  LoginView.as_view(),                 name='auth_login'),
-    path('auth/logout/',                 LogoutView.as_view(),                name='auth_logout'),
-    path('auth/me/',                     MeView.as_view(),                    name='auth_me'),
-    path('auth/token/refresh/',          TokenRefreshView.as_view(),          name='token_refresh'),
-    path('auth/password-reset/',         PasswordResetRequestView.as_view(),  name='password_reset'),
-    path('auth/password-reset/confirm/', PasswordResetConfirmView.as_view(),  name='password_reset_confirm'),
-    path('auth/qr-token/',               QRTokenView.as_view(),               name='qr_token'),
-    path('auth/qr-login/',               QRLoginView.as_view(),               name='qr_login'),
-    path('auth/google/',                 GoogleAuthView.as_view(),            name='google_auth'),
+    path('auth/register/',                           RegisterView.as_view(),                    name='auth_register'),
+    path('auth/verify-email/',                       VerifyEmailView.as_view(),                  name='auth_verify_email'),
+    path('auth/login/',                              LoginView.as_view(),                        name='auth_login'),
+    path('auth/logout/',                             LogoutView.as_view(),                       name='auth_logout'),
+    path('auth/me/',                                 MeView.as_view(),                           name='auth_me'),
+    path('auth/token/refresh/',                      TokenRefreshView.as_view(),                 name='token_refresh'),
+    path('auth/password-reset/',                     PasswordResetRequestView.as_view(),         name='password_reset'),
+    path('auth/password-reset/confirm/',             PasswordResetConfirmView.as_view(),         name='password_reset_confirm'),
+    path('auth/qr-token/',                           QRTokenView.as_view(),                      name='qr_token'),
+    path('auth/qr-login/',                           QRLoginView.as_view(),                      name='qr_login'),
+    path('auth/google/',                             GoogleAuthView.as_view(),                   name='google_auth'),
+
+    # ── Email registration with code verification ──────────────────────────────
+    path('auth/send-registration-code/',             SendRegistrationCodeView.as_view(),        name='send_registration_code'),
+    path('auth/verify-registration-code/',           VerifyRegistrationCodeView.as_view(),      name='verify_registration_code'),
+
+    # ── Email password reset with code verification ────────────────────────────
+    path('auth/send-password-reset-code/',           SendPasswordResetCodeView.as_view(),       name='send_password_reset_code'),
+    path('auth/verify-password-reset-code/',         VerifyPasswordResetCodeView.as_view(),     name='verify_password_reset_code'),
 
     path('businesses/',                  BusinessListView.as_view(),          name='business_list'),
     path('businesses/create/',           BusinessCreateView.as_view(),        name='business_create'),
