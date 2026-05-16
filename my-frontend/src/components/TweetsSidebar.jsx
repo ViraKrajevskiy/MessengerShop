@@ -1,21 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { apiGetPosts } from '../api/businessApi'
-import { resolveUrl } from '../utils/urlUtils'
 import './TweetsSidebar.css'
-
-
-
-const FALLBACK_IMGS = [
-  'https://picsum.photos/id/342/600/340',
-  'https://picsum.photos/id/1025/600/340',
-  'https://picsum.photos/id/177/600/340',
-  'https://picsum.photos/id/1062/600/340',
-  'https://picsum.photos/id/239/600/340',
-  'https://picsum.photos/id/1074/600/340',
-  'https://picsum.photos/id/306/600/340',
-  'https://picsum.photos/id/338/600/340',
-]
 
 const PAGE_SIZE = 8
 
@@ -47,7 +33,6 @@ export default function TweetsSidebar({ posts: postsProp }) {
         {visible.length === 0 ? (
           Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className="tweet-item tweet-item--skeleton">
-              <div className="tweet-item__img-skeleton" />
               <div className="tweet-item__body">
                 <div className="sk-line" style={{ width: '90%', height: 11 }} />
                 <div className="sk-line" style={{ width: '60%', height: 11, marginTop: 5 }} />
@@ -56,24 +41,20 @@ export default function TweetsSidebar({ posts: postsProp }) {
             </div>
           ))
         ) : (
-          visible.map(post => {
-            const img = resolveUrl(post.media_display) || FALLBACK_IMGS[post.id % FALLBACK_IMGS.length]
-            return (
-              <div
-                key={post.id}
-                className="tweet-item"
-                onClick={() => navigate(`/business/${post.business_id}`)}
-              >
-                <img className="tweet-item__img" src={img} alt={post.business_name} loading="lazy" decoding="async" />
-                <div className="tweet-item__body">
-                  <p className="tweet-item__text">
-                    {post.text?.length > 60 ? post.text.slice(0, 60) + '...' : post.text}
-                  </p>
-                  <span className="tweet-item__city">{post.business_name}</span>
-                </div>
+          visible.map(post => (
+            <div
+              key={post.id}
+              className="tweet-item"
+              onClick={() => navigate(`/business/${post.business_id}`)}
+            >
+              <div className="tweet-item__body">
+                <span className="tweet-item__city">{post.business_name}</span>
+                <p className="tweet-item__text">
+                  {post.text?.length > 60 ? post.text.slice(0, 60) + '...' : post.text}
+                </p>
               </div>
-            )
-          })
+            </div>
+          ))
         )}
       </div>
 
