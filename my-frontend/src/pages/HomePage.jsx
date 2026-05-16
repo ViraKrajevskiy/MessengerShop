@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from 'react'
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Header from '../components/Header'
@@ -156,6 +156,7 @@ export default function HomePage() {
   const postsGridRef = useRef(null)
   const dragState = useRef({ isDown: false, startX: 0, scrollLeft: 0, moved: false })
   const [postsPage, setPostsPage] = useState(0)
+  const [postsTotalPages, setPostsTotalPages] = useState(1)
 
   const onDragStart = (clientX) => {
     const el = postsGridRef.current
@@ -183,14 +184,26 @@ export default function HomePage() {
     }
   }
 
-  const onPostsScroll = () => {
+  const recomputePostsPaging = useCallback(() => {
     const el = postsGridRef.current
     if (!el) return
-    const page = Math.round(el.scrollLeft / el.clientWidth)
+    const { scrollLeft, clientWidth, scrollWidth } = el
+    if (clientWidth === 0) return
+    const pages = Math.max(1, Math.round(scrollWidth / clientWidth))
+    const atEnd = scrollLeft + clientWidth >= scrollWidth - 2
+    const page = atEnd
+      ? pages - 1
+      : Math.min(pages - 1, Math.max(0, Math.round(scrollLeft / clientWidth)))
+    setPostsTotalPages(pages)
     setPostsPage(page)
-  }
+  }, [])
 
-  const postsTotalPages = Math.ceil(homePosts.length / 3)
+  useEffect(() => {
+    recomputePostsPaging()
+    const onResize = () => recomputePostsPaging()
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [recomputePostsPaging, homePosts.length, loadingPosts])
 
   return (
     <div className="home-page">
@@ -253,7 +266,7 @@ export default function HomePage() {
                 <div
                   className="home-posts-grid"
                   ref={postsGridRef}
-                  onScroll={onPostsScroll}
+                  onScroll={recomputePostsPaging}
                   onMouseDown={e => onDragStart(e.clientX)}
                   onMouseMove={e => onDragMove(e.clientX)}
                   onMouseUp={onDragEnd}
