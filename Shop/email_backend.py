@@ -26,6 +26,13 @@ class BrevoEmailBackend(BaseEmailBackend):
         self.api_url = 'https://api.brevo.com/v3/smtp/email'
         self.fail_silently = fail_silently
 
+        # Debug logging
+        if not self.api_key:
+            logger.warning('[EMAIL CONFIG] EMAIL_HOST_PASSWORD is empty!')
+        else:
+            key_display = self.api_key[:15] + '...' + self.api_key[-5:] if len(self.api_key) > 20 else '***'
+            logger.info(f'[EMAIL CONFIG] Using Brevo API key: {key_display}')
+
     def send_messages(self, email_messages):
         """Send one or more EmailMessage objects and return the number sent."""
         if not email_messages:
@@ -46,7 +53,9 @@ class BrevoEmailBackend(BaseEmailBackend):
     def send_message(self, message):
         """Send a single EmailMessage object."""
         if not self.api_key:
-            raise ValueError('Brevo API key (EMAIL_HOST_PASSWORD) is not configured')
+            error_msg = 'Brevo API key (EMAIL_HOST_PASSWORD) is not configured in .env'
+            logger.error(f'[EMAIL ERROR] {error_msg}')
+            raise ValueError(error_msg)
 
         # Prepare recipients
         to_emails = [{'email': addr, 'name': ''} for addr in message.to]
@@ -89,12 +98,22 @@ class BrevoEmailBackend(BaseEmailBackend):
             return True
         except requests.exceptions.RequestException as e:
             error_msg = str(e)
-            if hasattr(e.response, 'text'):
+            status_code = 'Unknown'
+
+            if hasattr(e, 'response') and e.response is not None:
+                status_code = e.response.status_code
                 try:
                     error_data = e.response.json()
-                    error_msg = error_data.get('message', str(e))
+                    error_msg = f"[{status_code}] {error_data.get('message', str(e))}"
                 except:
-                    error_msg = e.response.text
+                    error_msg = f"[{status_code}] {e.response.text}"
 
-            logger.error(f'[EMAIL ERROR] Failed to send email to {", ".join(message.to)}: {error_msg}')
+            log_msg = f'[EMAIL ERROR] Failed to send email to {", ".join(message.to)}: {error_msg}'
+            logger.error(log_msg)
+
+            # Check for common issues
+            if status_code == 401:
+                logger.error('[EMAIL CONFIG] ❌ Authentication failed! Check your Brevo API key in .env')
+                logger.error('[EMAIL CONFIG] ⚠ Key should start with "xsmtpsib-" and be valid from https://app.brevo.com/settings/keys/api')
+
             raise
