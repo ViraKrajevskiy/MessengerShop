@@ -605,6 +605,21 @@ class PostFavorite(models.Model):
         return f'{self.user.email} → {self.post.id}'
 
 
+class ComplaintReason(BaseController):
+    """Причины жалобы — редактируются из Django-админки."""
+    label     = models.CharField(max_length=120)
+    order     = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['order', 'id']
+        verbose_name = 'Complaint reason'
+        verbose_name_plural = 'Complaint reasons'
+
+    def __str__(self):
+        return self.label
+
+
 class Complaint(BaseController):
     class Reason(models.TextChoices):
         SPAM           = 'SPAM',          'Спам'
@@ -624,7 +639,7 @@ class Complaint(BaseController):
     target_user  = models.ForeignKey(
         User, null=True, blank=True, on_delete=models.CASCADE, related_name='complaints_received',
     )
-    reason       = models.CharField(max_length=20, choices=Reason.choices, default=Reason.OTHER)
+    reason       = models.CharField(max_length=120, blank=True, default='OTHER')
     description  = models.TextField(blank=True)
     status       = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
     resolved_by  = models.ForeignKey(

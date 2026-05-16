@@ -19,6 +19,7 @@ const RegisterPage          = lazy(() => import('./pages/RegisterPage'))
 const ForgotPasswordPage    = lazy(() => import('./pages/ForgotPasswordPage'))
 const ResetPasswordPage     = lazy(() => import('./pages/ResetPasswordPage'))
 const VerificationPage      = lazy(() => import('./pages/VerificationPage'))
+const ComplaintPage         = lazy(() => import('./pages/ComplaintPage'))
 const MessengerPage         = lazy(() => import('./pages/MessengerPage'))
 const MyProfilePage         = lazy(() => import('./pages/MyProfilePage'))
 const BusinessDashboardPage = lazy(() => import('./pages/BusinessDashboardPage'))
@@ -82,6 +83,7 @@ function AppContent() {
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
                 <Route path="/verification"   element={<VerificationPage />} />
+                <Route path="/complaint"      element={<ComplaintPage />} />
                 <Route path="/messenger" element={<PrivateRoute><MessengerPage /></PrivateRoute>} />
                 <Route path="/me"        element={<PrivateRoute><MyProfilePage /></PrivateRoute>} />
                 <Route path="/dashboard" element={<PrivateRoute><BusinessDashboardPage /></PrivateRoute>} />

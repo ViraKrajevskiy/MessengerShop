@@ -3,8 +3,17 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from Shop.models import Complaint, Post, Business, User
+from Shop.models import Complaint, ComplaintReason, Post, Business, User
 from Shop.servicefunc.views.verification.verification import IsModerator
+
+
+class ComplaintReasonListView(APIView):
+    """GET /api/complaint-reasons/ — список причин жалоб (управляется в Django-админке)."""
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        reasons = ComplaintReason.objects.filter(is_active=True).order_by('order', 'id')
+        return Response([{'id': r.id, 'label': r.label} for r in reasons])
 
 
 class ComplaintCreateView(APIView):
@@ -19,7 +28,7 @@ class ComplaintCreateView(APIView):
         post_id     = request.data.get('post_id')
         business_id = request.data.get('business_id')
         user_id     = request.data.get('user_id')
-        reason      = request.data.get('reason', 'OTHER')
+        reason      = (request.data.get('reason') or 'OTHER').strip()[:120]
         description = request.data.get('description', '')
 
         if not post_id and not business_id and not user_id:
@@ -49,8 +58,7 @@ class ComplaintCreateView(APIView):
             if target_user == request.user:
                 return Response({'detail': 'Нельзя жаловаться на себя.'}, status=400)
 
-        valid_reasons = [r.value for r in Complaint.Reason]
-        if reason not in valid_reasons:
+        if not reason:
             reason = 'OTHER'
 
         complaint = Complaint.objects.create(

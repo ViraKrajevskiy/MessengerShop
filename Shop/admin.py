@@ -5,6 +5,7 @@ from Shop.models import (
     User, Business, Product, Story, StoryView,
     Comment, Post, ProductInquiry,
     VerificationRequest, VerificationMessage, News,
+    Complaint, ComplaintReason,
 )
 
 # ── News ──────────────────────────────────────────────────────────────────────
@@ -141,6 +142,21 @@ class VerificationRequestAdmin(admin.ModelAdmin):
     list_display  = ('business', 'status', 'created_at')
     list_filter   = ('status',)
     search_fields = ('business__brand_name',)
+    ordering      = ('-created_at',)
+
+
+@admin.register(ComplaintReason)
+class ComplaintReasonAdmin(admin.ModelAdmin):
+    list_display  = ('label', 'order', 'is_active', 'created_at')
+    list_editable = ('order', 'is_active')
+    ordering      = ('order', 'id')
+
+
+@admin.register(Complaint)
+class ComplaintAdmin(admin.ModelAdmin):
+    list_display  = ('id', 'reason', 'status', 'reporter', 'post', 'business', 'created_at')
+    list_filter   = ('status',)
+    search_fields = ('reason', 'description', 'reporter__email')
     ordering      = ('-created_at',)
 
 
