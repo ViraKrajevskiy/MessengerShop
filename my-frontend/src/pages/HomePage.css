@@ -404,7 +404,7 @@
     margin-top: 4px;
   }
 
-  /* ТВИТЫ */
+  /* ── ТВИТЫ: горизонтальная лента вертикальных мини-карточек ── */
   .home-page__sidebar .tweets-sidebar {
     display: flex;
     width: 100%;
@@ -418,21 +418,37 @@
     scroll-snap-type: x proximity;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+    gap: 12px;
+    padding: 14px;
   }
   .home-page__sidebar .tweets-sidebar__list::-webkit-scrollbar {
     display: none;
   }
   .home-page__sidebar .tweet-item {
-    flex: 0 0 78%;
+    flex: 0 0 150px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 8px;
     border-bottom: none;
-    border-right: 1px solid var(--border-light);
+    border-radius: 12px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
     scroll-snap-align: start;
   }
-  .home-page__sidebar .tweet-item:last-child {
-    border-right: none;
+  .home-page__sidebar .tweet-item__img {
+    width: 100%;
+    height: 92px;
+    border-radius: 8px;
+  }
+  .home-page__sidebar .tweet-item__body {
+    gap: 4px;
+  }
+  .home-page__sidebar .tweet-item__text {
+    -webkit-line-clamp: 2;
   }
 
-  /* Рейтинги бизнесов (популярные / просматриваемые) */
+  /* ── Рейтинги бизнесов: лента вертикальных карточек ── */
   .home-page__sidebar .brs {
     display: flex;
     width: 100%;
@@ -450,12 +466,34 @@
     display: none;
   }
   .home-page__sidebar .brs__item {
-    flex: 0 0 72%;
+    flex: 0 0 132px;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
     scroll-snap-align: start;
     background: var(--bg-secondary);
     border: 1px solid var(--border-color);
-    border-radius: 10px;
-    padding: 12px;
+    border-radius: 12px;
+    padding: 14px 10px;
+  }
+  .home-page__sidebar .brs__avatar {
+    width: 52px;
+    height: 52px;
+  }
+  .home-page__sidebar .brs__body {
+    align-items: center;
+    width: 100%;
+  }
+  .home-page__sidebar .brs__name {
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    text-align: center;
+  }
+  .home-page__sidebar .brs__meta {
+    justify-content: center;
   }
 }
 
