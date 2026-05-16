@@ -7,6 +7,15 @@ import { resolveUrl } from '../utils/urlUtils'
 import { makeInitialAvatar } from '../utils/defaults'
 import './ComplaintPage.css'
 
+// Запасные причины, если эндпоинт недоступен (бэкенд ещё не мигрирован и т.п.)
+const FALLBACK_REASONS = [
+  { id: 'spam',    label: 'Спам' },
+  { id: 'inappr',  label: 'Неприемлемый контент' },
+  { id: 'fraud',   label: 'Мошенничество' },
+  { id: 'misinfo', label: 'Дезинформация' },
+  { id: 'other',   label: 'Другое' },
+]
+
 export default function ComplaintPage() {
   const navigate = useNavigate()
   const location = useLocation()
@@ -29,11 +38,14 @@ export default function ComplaintPage() {
   useEffect(() => {
     apiGetComplaintReasons()
       .then(list => {
-        const arr = Array.isArray(list) ? list : []
+        const arr = Array.isArray(list) && list.length ? list : FALLBACK_REASONS
         setReasons(arr)
-        if (arr.length) setReason(arr[0].label)
+        setReason(arr[0].label)
       })
-      .catch(() => setReasons([]))
+      .catch(() => {
+        setReasons(FALLBACK_REASONS)
+        setReason(FALLBACK_REASONS[0].label)
+      })
   }, [])
 
   if (!user) return null
