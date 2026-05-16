@@ -122,6 +122,54 @@ export async function apiGoogleAuth({ credential, role = 'USER' }) {
 }
 
 /**
+ * POST /api/auth/send-registration-code/
+ * Body: { email }
+ * → 200: { message }
+ */
+export async function apiSendRegistrationCode(email) {
+  return request('/auth/send-registration-code/', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  })
+}
+
+/**
+ * POST /api/auth/verify-registration-code/
+ * Body: { email, code, username, password, role }
+ * → 201: { message, user }
+ */
+export async function apiVerifyRegistrationCode({ email, code, username, password, role = 'USER' }) {
+  return request('/auth/verify-registration-code/', {
+    method: 'POST',
+    body: JSON.stringify({ email, code, username, password, role }),
+  })
+}
+
+/**
+ * POST /api/auth/send-password-reset-code/
+ * Body: { email }
+ * → 200: { message }
+ */
+export async function apiSendPasswordResetCode(email) {
+  return request('/auth/send-password-reset-code/', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  })
+}
+
+/**
+ * POST /api/auth/verify-password-reset-code/
+ * Body: { email, code, new_password }
+ * → 200: { message }
+ */
+export async function apiVerifyPasswordResetCode({ email, code, new_password }) {
+  return request('/auth/verify-password-reset-code/', {
+    method: 'POST',
+    body: JSON.stringify({ email, code, new_password }),
+  })
+}
+
+/**
  * POST /api/auth/offline/  — сбрасывает last_seen мгновенно.
  * Используется с keepalive: true при закрытии вкладки.
  */

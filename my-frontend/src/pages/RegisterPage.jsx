@@ -4,7 +4,7 @@ import { useGoogleLogin } from '@react-oauth/google'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
 import { useLanguage } from '../context/LanguageContext'
-import { apiGoogleAuth } from '../api/authApi'
+import { apiGoogleAuth, apiSendRegistrationCode, apiVerifyRegistrationCode, apiLogin } from '../api/authApi'
 import './AuthPage.css'
 
 const CITIES = ['Стамбул', 'Анкара', 'Анталья', 'Измир', 'Бурса', 'Алматы', 'Ташкент', 'Другой']
@@ -125,24 +125,20 @@ export default function RegisterPage() {
     setStep(2)
   }
 
-  // ── Шаг 2 → 3: отправка регистрации на бэкенд ─────────────────────────────
+  // ── Шаг 2 → 3: отправка кода регистрации ─────────────────────────────────
   const handleRegister = async (e) => {
     e.preventDefault()
     const errs = validateStep2()
     if (Object.keys(errs).length) { setErrors(errs); return }
     setLoading(true)
-    const result = await register(form)
-    setLoading(false)
-    if (result.ok) {
+    try {
+      await apiSendRegistrationCode(form.email)
       setStep(3)
-    } else {
-      // Если ошибка связана с email — вернуть на шаг 1
-      if (result.error?.toLowerCase().includes('email')) {
-        setErrors({ email: result.error })
-        setStep(1)
-      } else {
-        setErrors({ general: result.error })
-      }
+      setErrors({})
+    } catch (err) {
+      setErrors({ general: err.message })
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -171,18 +167,28 @@ export default function RegisterPage() {
     codeRefs.current[Math.min(paste.length, 5)]?.focus()
   }
 
-  // ── Шаг 3: подтверждение кода ──────────────────────────────────────────────
+  // ── Шаг 3: подтверждение кода и создание аккаунта ──────────────────────────
   const handleVerify = async (e) => {
     e.preventDefault()
     const codeStr = code.join('')
     if (codeStr.length < 6) { setCodeError(t('reg_codeFull')); return }
     setLoading(true)
-    const result = await verifyEmail(form.email, codeStr, form.password)
-    setLoading(false)
-    if (result.ok) {
+    try {
+      const result = await apiVerifyRegistrationCode({
+        email: form.email,
+        code: codeStr,
+        username: form.username,
+        password: form.password,
+        role: form.role,
+      })
+      // После регистрации логинимся автоматически
+      const loginResult = await apiLogin({ email: form.email, password: form.password })
+      loginWithData(loginResult)
       navigate(form.role === 'BUSINESS' ? '/dashboard' : '/')
-    } else {
-      setCodeError(result.error)
+    } catch (err) {
+      setCodeError(err.message)
+    } finally {
+      setLoading(false)
     }
   }
 

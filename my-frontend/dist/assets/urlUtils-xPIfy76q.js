@@ -1,0 +1,1 @@
+import{s as e}from"./index-BbfUsjMs.js";function t(t){return t?t.startsWith(`http`)?t:`${e}${t}`:null}export{t};
