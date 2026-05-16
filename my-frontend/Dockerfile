@@ -9,9 +9,12 @@ RUN npm ci
 
 COPY . .
 
-# Передаём Google Client ID во время сборки
+# Передаём переменные во время сборки
 ARG VITE_GOOGLE_CLIENT_ID
 ENV VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID
+
+ARG VITE_API_DOMAIN
+ENV VITE_API_DOMAIN=$VITE_API_DOMAIN
 
 RUN npm run build
 

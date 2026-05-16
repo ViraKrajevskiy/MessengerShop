@@ -181,6 +181,10 @@ CACHES = {
     }
 }
 
+# Домен сайта — задаётся в .env как SITE_DOMAIN (например: mysite.com)
+SITE_DOMAIN = env('SITE_DOMAIN', default='101-school.uz')
+FRONTEND_URL = f'https://{SITE_DOMAIN}'
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
@@ -188,10 +192,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5173",
     "http://localhost:5174",
     "http://127.0.0.1:5174",
-    "https://101-school.uz",
-    "https://www.101-school.uz",
-    "https://101school.uz",
-    "https://www.101school.uz",
+    f"https://{SITE_DOMAIN}",
+    f"https://www.{SITE_DOMAIN}",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -199,10 +201,8 @@ CORS_ALLOW_CREDENTIALS = True
 # Origins allowed to POST (Django admin login etc.) when DEBUG=False.
 # Override per-host via the CSRF_TRUSTED_ORIGINS env var (comma-separated).
 CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[
-    "https://101-school.uz",
-    "https://www.101-school.uz",
-    "https://101school.uz",
-    "https://www.101school.uz",
+    f"https://{SITE_DOMAIN}",
+    f"https://www.{SITE_DOMAIN}",
 ])
 
 AUTH_USER_MODEL = 'Shop.User'

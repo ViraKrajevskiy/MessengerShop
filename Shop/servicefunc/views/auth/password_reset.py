@@ -11,7 +11,7 @@ from rest_framework.views import APIView
 
 User = get_user_model()
 
-FRONTEND_URL = getattr(settings, 'FRONTEND_URL', 'https://101-school.uz')
+FRONTEND_URL = getattr(settings, 'FRONTEND_URL', 'https://101-school.uz')  # берётся из settings.py → .env SITE_DOMAIN
 
 
 class PasswordResetRequestView(APIView):

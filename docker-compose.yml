@@ -39,6 +39,7 @@ services:
       dockerfile: Dockerfile
       args:
         VITE_GOOGLE_CLIENT_ID: ${VITE_GOOGLE_CLIENT_ID:-}
+        VITE_API_DOMAIN: ${VITE_API_DOMAIN:-}
     restart: unless-stopped
     ports:
       - "80:80"
