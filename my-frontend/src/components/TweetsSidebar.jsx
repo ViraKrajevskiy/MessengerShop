@@ -24,7 +24,8 @@ export default function TweetsSidebar({ posts: postsProp }) {
   const visible = posts.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE)
 
   return (
-    <aside className="tweets-sidebar">
+    <div className="tweets-sidebar-wrap">
+      <aside className="tweets-sidebar">
       <div className="tweets-sidebar__header">
         <span>ТВИТЫ</span>
       </div>
@@ -57,6 +58,7 @@ export default function TweetsSidebar({ posts: postsProp }) {
           ))
         )}
       </div>
+      </aside>
 
       {totalPages > 1 && (
         <div className="tweets-sidebar__pagination">
@@ -76,6 +78,6 @@ export default function TweetsSidebar({ posts: postsProp }) {
           )}
         </div>
       )}
-    </aside>
+    </div>
   )
 }
