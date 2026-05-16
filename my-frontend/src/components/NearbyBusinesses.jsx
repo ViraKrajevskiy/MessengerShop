@@ -167,9 +167,6 @@ export default function NearbyBusinesses({ businesses = [], posts = [] }) {
             onMouseMove={e => onDragMove(e.clientX)}
             onMouseUp={onDragEnd}
             onMouseLeave={onDragEnd}
-            onTouchStart={e => onDragStart(e.touches[0].clientX)}
-            onTouchMove={e => onDragMove(e.touches[0].clientX)}
-            onTouchEnd={onDragEnd}
           >
             {filtered.map(biz => {
               const img = postImageMap[biz.id] || resolveUrl(biz.cover) || null

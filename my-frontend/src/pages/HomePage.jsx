@@ -258,9 +258,6 @@ export default function HomePage() {
                   onMouseMove={e => onDragMove(e.clientX)}
                   onMouseUp={onDragEnd}
                   onMouseLeave={onDragEnd}
-                  onTouchStart={e => onDragStart(e.touches[0].clientX)}
-                  onTouchMove={e => onDragMove(e.touches[0].clientX)}
-                  onTouchEnd={onDragEnd}
                 >
                   {homePosts.map(p => (
                     <PostCard key={p.id} post={p} />
