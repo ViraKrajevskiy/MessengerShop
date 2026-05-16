@@ -11,7 +11,7 @@ from Shop.servicefunc.views.auth.qr_login import QRTokenView, QRLoginView
 from Shop.servicefunc.views.auth.google_auth import GoogleAuthView
 from Shop.servicefunc.views.moderator.auth import ModeratorLoginView
 from Shop.servicefunc.views.moderator.posts import ModeratorPostListView, ModeratorPostBlockView
-from Shop.servicefunc.views.moderator.complaints import ComplaintCreateView, ModeratorComplaintListView, ModeratorComplaintDetailView
+from Shop.servicefunc.views.moderator.complaints import ComplaintCreateView, ComplaintReasonListView, ModeratorComplaintListView, ModeratorComplaintDetailView
 from Shop.servicefunc.views.moderator.tariffs import ModeratorBusinessListView, ModeratorTariffAssignView, ModeratorVerifyBusinessView
 from Shop.servicefunc.views.moderator.payments import (
     PaymentRequestCreateView, PaymentRequestStatusView,
@@ -136,6 +136,7 @@ urlpatterns = [
     path('tags/',                      TagListView.as_view(),           name='tag_list'),
 
     # ── Complaints (any authenticated user) ──────────────────────────────────
+    path('complaint-reasons/',         ComplaintReasonListView.as_view(),          name='complaint_reasons'),
     path('complaints/',                ComplaintCreateView.as_view(),              name='complaint_create'),
 
     # ── Moderator panel ──────────────────────────────────────────────────────

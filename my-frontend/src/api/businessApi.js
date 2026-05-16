@@ -158,6 +158,13 @@ export async function apiCreateComplaint({ post_id, business_id, user_id, reason
   return res.json()
 }
 
+// Причины жалобы — управляются в Django-админке
+export async function apiGetComplaintReasons() {
+  const res = await fetch(`${BASE}/complaint-reasons/`)
+  if (!res.ok) throw new Error('Ошибка загрузки причин')
+  return res.json()
+}
+
 export async function apiGetProductReviews(id) {
   const res = await fetch(`${BASE}/products/${id}/reviews/`)
   if (!res.ok) throw new Error('Ошибка загрузки отзывов')
