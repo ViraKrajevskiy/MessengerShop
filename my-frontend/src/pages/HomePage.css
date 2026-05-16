@@ -419,6 +419,9 @@
     padding: 18px 16px 14px;
   }
   .home-page__sidebar .tweets-sidebar__header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     background: none;
     color: var(--text-primary);
     font-size: 16px;
@@ -426,6 +429,22 @@
     letter-spacing: normal;
     text-transform: none;
     padding: 0 0 14px;
+  }
+  /* Полоска-акцент в заголовках всех 3 разделов, как у «.section-title» */
+  .home-page__sidebar .tweets-sidebar__header::before,
+  .home-page__sidebar .brs__title::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 22px;
+    background: var(--accent-gradient);
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+  .home-page__sidebar .brs__title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
   .home-page__sidebar .tweets-sidebar__list {
     flex-direction: row;
