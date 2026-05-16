@@ -1,1 +1,0 @@
-import{i as e}from"./index-N9px3LTv.js";function t(t){return t?t.startsWith(`http`)?t:`${e}${t}`:null}export{t};
