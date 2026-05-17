@@ -11,6 +11,9 @@ node_modules
 dist-ssr
 *.local
 
+# Generated at build time from src/i18n/locales by scripts/sync-locales.mjs
+public/locales/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
