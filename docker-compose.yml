@@ -44,6 +44,10 @@ services:
     restart: unless-stopped
     ports:
       - "80:80"
+    volumes:
+      # Site owner edits these JSON files directly on the host; nginx serves
+      # them at /locales/<lang>.json with no rebuild and no container restart.
+      - ./my-frontend/src/i18n/locales:/usr/share/nginx/html/locales:ro
     depends_on:
       - backend
 
