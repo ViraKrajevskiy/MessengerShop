@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { apiGetPosts } from '../api/businessApi'
+import { resolveUrl } from '../utils/urlUtils'
+import { makeInitialAvatar } from '../utils/defaults'
 import './TweetsSidebar.css'
 
 const PAGE_SIZE = 8
@@ -34,6 +36,7 @@ export default function TweetsSidebar({ posts: postsProp }) {
         {visible.length === 0 ? (
           Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className="tweet-item tweet-item--skeleton">
+              <div className="tweet-item__avatar-skeleton" />
               <div className="tweet-item__body">
                 <div className="sk-line" style={{ width: '90%', height: 11 }} />
                 <div className="sk-line" style={{ width: '60%', height: 11, marginTop: 5 }} />
@@ -48,6 +51,15 @@ export default function TweetsSidebar({ posts: postsProp }) {
               className="tweet-item"
               onClick={() => navigate(`/business/${post.business_id}`)}
             >
+              <img
+                className="tweet-item__avatar"
+                src={post.business_logo ? resolveUrl(post.business_logo) : makeInitialAvatar(post.business_name)}
+                alt={post.business_name}
+                width="38"
+                height="38"
+                loading="lazy"
+                onError={(e) => { e.currentTarget.src = makeInitialAvatar(post.business_name) }}
+              />
               <div className="tweet-item__body">
                 <span className="tweet-item__city">{post.business_name}</span>
                 <p className="tweet-item__text">
