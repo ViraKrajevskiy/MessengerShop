@@ -18,8 +18,11 @@ RUN pip install --no-cache-dir -r requirements.txt \
 # Код
 COPY . .
 
-# Собираем статику
-RUN python manage.py collectstatic --noinput
+# Собираем статику. collectstatic выполняется на этапе сборки образа, где нет
+# .env и переменных окружения. Запускаем его в dev-режиме (DEBUG=True), чтобы
+# settings не требовали обязательных секретов на билде. В рантайме DEBUG=False
+# и реальные SECRET_KEY/MODERATOR_SECRET_KEY приходят из .env (fail-closed).
+RUN DEBUG=True python manage.py collectstatic --noinput
 
 EXPOSE 8000
 
