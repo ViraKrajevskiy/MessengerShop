@@ -3,12 +3,14 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useLanguage } from '../context/LanguageContext'
 import Header from '../components/Header'
+import Seo from '../components/Seo'
 import ReviewsSection from '../components/ReviewsSection'
 import VideoModal from '../components/VideoModal'
 import '../components/PremiumCarousel.css'
 import { apiGetBusiness, apiGetBusinessPosts, apiGetBusinesses, apiToggleSubscription, apiJoinGroup, apiCheckGroupMembership, apiDeletePost, apiStartBizChat } from '../api/businessApi'
 import { API_URL } from '../config/api'
 import { resolveUrl } from '../utils/urlUtils'
+import { metaText } from '../utils/seo'
 import { lastSeenText } from '../utils/timeUtils'
 import './BusinessPage.css'
 
@@ -416,6 +418,7 @@ export default function BusinessPage() {
 
   if (error || !biz) return (
     <div className="bp">
+      <Seo title={t('biz_notFound')} noindex />
       <Header />
       <div className="bp__error-state">
         <div style={{ fontSize: 48 }}>🏢</div>
@@ -461,8 +464,39 @@ export default function BusinessPage() {
     } catch {} finally { setSubLoading(false) }
   }
 
+  const seoImage = resolveUrl(biz.logo) && !logoIsVideo ? resolveUrl(biz.logo) : undefined
+  const seoDesc = metaText(
+    biz.description ||
+    [biz.category_label, biz.city].filter(Boolean).join(' · ') ||
+    biz.brand_name
+  )
+  const seoJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    name: biz.brand_name,
+    ...(biz.description ? { description: metaText(biz.description, 400) } : {}),
+    ...(seoImage ? { image: seoImage } : {}),
+    ...(biz.phone ? { telephone: biz.phone } : {}),
+    ...(biz.website ? { url: biz.website } : {}),
+    ...((biz.address || biz.city) ? {
+      address: {
+        '@type': 'PostalAddress',
+        ...(biz.address ? { streetAddress: biz.address } : {}),
+        ...(biz.city ? { addressLocality: biz.city } : {}),
+      },
+    } : {}),
+  }
+
   return (
     <div className="bp">
+      <Seo
+        title={biz.brand_name}
+        description={seoDesc}
+        path={`/business/${id}`}
+        image={seoImage}
+        type="profile"
+        jsonLd={seoJsonLd}
+      />
       <Header />
 
       {/* Avatar video modal */}

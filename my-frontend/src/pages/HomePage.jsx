@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Header from '../components/Header'
+import Seo from '../components/Seo'
 import Stories from '../components/Stories'
 import NewUsers from '../components/NewUsers'
 import UserCard from '../components/UserCard'
@@ -14,6 +15,8 @@ import NearbyBusinesses from '../components/NearbyBusinesses'
 import { apiGetBusinesses, apiGetPosts, CATEGORY_LABELS } from '../api/businessApi'
 import { useLanguage } from '../context/LanguageContext'
 import { resolveUrl } from '../utils/urlUtils'
+import { metaText } from '../utils/seo'
+import { SITE_NAME, absoluteUrl } from '../config/site'
 import './HomePage.css'
 
 const DESC_KEYS = {
@@ -206,6 +209,17 @@ export default function HomePage() {
 
   return (
     <div className="home-page">
+      <Seo
+        title={desc.title}
+        description={metaText(desc.text)}
+        path="/"
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'WebSite',
+          name: SITE_NAME,
+          url: absoluteUrl('/'),
+        }}
+      />
       <Header />
 
       {/* Hero + слайдер — полная ширина, вне двухколоночного layout */}
@@ -312,15 +326,15 @@ export default function HomePage() {
               <div className="ac-filters__row">
                 <button
                   className={`ac-chip${cardFilter.planType === 'VIP' ? ' ac-chip--active' : ''}`}
-                  onClick={() => { setCardFilter(f => ({ ...f, planType: f.planType === 'VIP' ? null : 'VIP' })); setCardPage(1) }}
+                  onClick={() => setCardFilter(f => ({ ...f, planType: f.planType === 'VIP' ? null : 'VIP' }))}
                 >⭐ VIP</button>
                 <button
                   className={`ac-chip${cardFilter.verified ? ' ac-chip--active' : ''}`}
-                  onClick={() => { setCardFilter(f => ({ ...f, verified: !f.verified })); setCardPage(1) }}
+                  onClick={() => setCardFilter(f => ({ ...f, verified: !f.verified }))}
                 >{t('filter_verified') || 'Проверенные'}</button>
                 <button
                   className={`ac-chip${cardFilter.sortNew ? ' ac-chip--active' : ''}`}
-                  onClick={() => { setCardFilter(f => ({ ...f, sortNew: !f.sortNew })); setCardPage(1) }}
+                  onClick={() => setCardFilter(f => ({ ...f, sortNew: !f.sortNew }))}
                 >{t('filter_new') || 'Новые'}</button>
               </div>
               <div className="ac-filters__row ac-filters__row--cats">
@@ -328,7 +342,7 @@ export default function HomePage() {
                   <button
                     key={key}
                     className={`ac-chip ac-chip--sm${cardFilter.category === label ? ' ac-chip--active' : ''}`}
-                    onClick={() => { setCardFilter(f => ({ ...f, category: f.category === label ? null : label })); setCardPage(1) }}
+                    onClick={() => setCardFilter(f => ({ ...f, category: f.category === label ? null : label }))}
                   >{label}</button>
                 ))}
               </div>

@@ -12,6 +12,7 @@ from Shop.servicefunc.serializers.auth_serializer.user import UserSerializer
 @extend_schema(tags=['Auth'])
 class LoginView(APIView):
     permission_classes = [AllowAny]
+    throttle_scope = 'auth'
 
     @extend_schema(
         summary='Вход в систему',

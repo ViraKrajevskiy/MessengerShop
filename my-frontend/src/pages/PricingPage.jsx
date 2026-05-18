@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
+import Seo from '../components/Seo'
 import { useAuth } from '../context/AuthContext'
 import { useLanguage } from '../context/LanguageContext'
 import './PricingPage.css'
@@ -94,6 +95,7 @@ export default function PricingPage() {
 
   return (
     <div className="pricing">
+      <Seo title={t('pricing_title')} description={t('pricing_sub')} path="/pricing" />
       <Header />
       <main className="pricing__main">
         <div className="pricing__hero">

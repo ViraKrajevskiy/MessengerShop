@@ -277,6 +277,7 @@
   "myprofile_subscribers": "Подписчики",
   "myprofile_subscriptions": "Подписки",
   "feed_title": "Лента",
+  "feed_sub": "Свежие публикации, новости и предложения компаний",
   "feed_noPosts": "Постов пока нет",
   "feed_loadMore": "Загрузить ещё",
   "feed_filter_all": "Все",

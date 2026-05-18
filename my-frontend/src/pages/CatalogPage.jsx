@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
+import Seo from '../components/Seo'
 import { useAuth } from '../context/AuthContext'
 import { useLanguage } from '../context/LanguageContext'
 import { apiGetProducts, apiGetBusinesses, CATEGORY_LABELS } from '../api/businessApi'
@@ -291,6 +292,7 @@ export default function CatalogPage() {
 
   return (
     <div className="cat-page">
+      <Seo title={t('catalog_title')} description={t('catalog_sub')} path="/catalog" />
       <Header />
 
       <main className="cat-page__main">

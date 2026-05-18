@@ -20,6 +20,7 @@ class SendPasswordResetCodeView(APIView):
     }
     """
     permission_classes = [AllowAny]
+    throttle_scope = 'code'
 
     @extend_schema(
         summary='Отправить код сброса пароля',
@@ -66,6 +67,7 @@ class VerifyPasswordResetCodeView(APIView):
     }
     """
     permission_classes = [AllowAny]
+    throttle_scope = 'verify'
 
     @extend_schema(
         summary='Проверить код и установить новый пароль',

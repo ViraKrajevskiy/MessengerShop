@@ -2,8 +2,15 @@ User-agent: *
 Allow: /
 Disallow: /api/
 Disallow: /admin/
+Disallow: /moderator
 Disallow: /messenger
 Disallow: /dashboard
 Disallow: /me
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /verification
+Disallow: /complaint
 
-Sitemap: https://101-school.uz/sitemap.xml
+Sitemap: /sitemap.xml

@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
+import Seo from '../components/Seo'
 import { useAuth } from '../context/AuthContext'
 import { useLanguage } from '../context/LanguageContext'
 import { apiSendProductInquiry } from '../api/businessApi'
 import { DEFAULT_AVATAR } from '../utils/defaults'
 import { resolveUrl } from '../utils/urlUtils'
+import { metaText } from '../utils/seo'
 import { API_URL as BASE } from '../config/api'
 import './ProductDetailPage.css'
 
@@ -87,6 +89,7 @@ export default function ProductDetailPage() {
   if (!product) {
     return (
       <div className="pdp">
+        <Seo title={t('product_notFound')} noindex />
         <Header />
         <main className="pdp__main">
           <div className="pdp__not-found">{t('product_notFound')}</div>
@@ -103,8 +106,37 @@ export default function ProductDetailPage() {
   const isService = product.product_type === 'SERVICE'
   const tags = product.tags || []
 
+  const seoImage = product.image_display || undefined
+  const seoDesc = metaText(
+    product.description ||
+    [product.name, business?.brand_name, priceStr].filter(Boolean).join(' · ')
+  )
+  const seoJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    ...(product.description ? { description: metaText(product.description, 400) } : {}),
+    ...(seoImage ? { image: seoImage } : {}),
+    ...(business?.brand_name ? { brand: { '@type': 'Brand', name: business.brand_name } } : {}),
+    ...(product.price != null ? {
+      offers: {
+        '@type': 'Offer',
+        price: Number(product.price),
+        priceCurrency: product.currency || 'TRY',
+        availability: 'https://schema.org/InStock',
+      },
+    } : {}),
+  }
+
   return (
     <div className="pdp">
+      <Seo
+        title={product.name}
+        description={seoDesc}
+        path={`/product/${id}`}
+        image={seoImage}
+        jsonLd={seoJsonLd}
+      />
       <Header />
       <main className="pdp__main">
         <button className="pdp__back" onClick={() => navigate(-1)}>
