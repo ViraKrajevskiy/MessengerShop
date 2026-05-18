@@ -74,6 +74,24 @@ export default function NearbyBusinesses({ businesses = [], posts = [] }) {
     setScrollPage(0)
   }, [selectedCity, geoCity])
 
+  // Vertical mouse-wheel → horizontal scroll, but release to the page at the
+  // track edges so the wheel never traps page scrolling. Native non-passive
+  // listener: React's onWheel is passive and can't preventDefault.
+  useEffect(() => {
+    const el = trackRef.current
+    if (!el) return
+    const onWheel = (e) => {
+      if (e.deltaY === 0 || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return
+      const atStart = el.scrollLeft <= 0
+      const atEnd = Math.ceil(el.scrollLeft + el.clientWidth) >= el.scrollWidth
+      if ((e.deltaY < 0 && atStart) || (e.deltaY > 0 && atEnd)) return
+      e.preventDefault()
+      el.scrollLeft += e.deltaY
+    }
+    el.addEventListener('wheel', onWheel, { passive: false })
+    return () => el.removeEventListener('wheel', onWheel)
+  }, [filtered.length])
+
   const onScroll = () => {
     const el = trackRef.current
     if (!el) return
@@ -167,6 +185,7 @@ export default function NearbyBusinesses({ businesses = [], posts = [] }) {
             onMouseMove={e => onDragMove(e.clientX)}
             onMouseUp={onDragEnd}
             onMouseLeave={onDragEnd}
+            onDragStart={e => e.preventDefault()}
           >
             {filtered.map(biz => {
               const img = postImageMap[biz.id] || resolveUrl(biz.cover) || null

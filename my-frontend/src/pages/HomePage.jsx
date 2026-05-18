@@ -207,6 +207,23 @@ export default function HomePage() {
     return () => window.removeEventListener('resize', onResize)
   }, [recomputePostsPaging, homePosts.length, loadingPosts])
 
+  // Vertical mouse-wheel → horizontal scroll, releasing to the page at the
+  // track edges. Native non-passive listener (React onWheel is passive).
+  useEffect(() => {
+    const el = postsGridRef.current
+    if (!el) return
+    const onWheel = (e) => {
+      if (e.deltaY === 0 || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return
+      const atStart = el.scrollLeft <= 0
+      const atEnd = Math.ceil(el.scrollLeft + el.clientWidth) >= el.scrollWidth
+      if ((e.deltaY < 0 && atStart) || (e.deltaY > 0 && atEnd)) return
+      e.preventDefault()
+      el.scrollLeft += e.deltaY
+    }
+    el.addEventListener('wheel', onWheel, { passive: false })
+    return () => el.removeEventListener('wheel', onWheel)
+  }, [homePosts.length, loadingPosts])
+
   return (
     <div className="home-page">
       <Seo
@@ -284,6 +301,7 @@ export default function HomePage() {
                   onMouseMove={e => onDragMove(e.clientX)}
                   onMouseUp={onDragEnd}
                   onMouseLeave={onDragEnd}
+                  onDragStart={e => e.preventDefault()}
                 >
                   {homePosts.map(p => (
                     <PostCard key={p.id} post={p} />

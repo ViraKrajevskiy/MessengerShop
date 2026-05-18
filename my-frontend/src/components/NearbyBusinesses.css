@@ -105,15 +105,25 @@
   display: flex;
   gap: 16px;
   overflow-x: auto;
-  scroll-snap-type: x proximity;
+  /* scroll-snap removed: it fought the manual drag (jerky snap-back). */
+  scroll-snap-type: none;
+  overscroll-behavior-x: contain;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
   padding: 4px 2px 8px;
   cursor: grab;
+  user-select: none;
 }
 
 .nearby__track::-webkit-scrollbar {
   display: none;
+}
+
+/* Stop the browser's native image ghost-drag from eating the grab-scroll. */
+.nearby__track img {
+  -webkit-user-drag: none;
+  user-select: none;
+  pointer-events: none;
 }
 
 .nearby__card {
