@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth import get_user_model
 from rest_framework import status
@@ -8,6 +10,7 @@ from drf_spectacular.utils import extend_schema, OpenApiResponse
 from Shop.servicefunc.verification_service import send_verification_code, verify_code
 
 User = get_user_model()
+logger = logging.getLogger(__name__)
 
 
 @extend_schema(tags=['Auth'])
@@ -21,6 +24,7 @@ class SendRegistrationCodeView(APIView):
     }
     """
     permission_classes = [AllowAny]
+    throttle_scope = 'code'
 
     @extend_schema(
         summary='Отправить код подтверждения на email',
@@ -66,6 +70,7 @@ class VerifyRegistrationCodeView(APIView):
     }
     """
     permission_classes = [AllowAny]
+    throttle_scope = 'verify'
 
     @extend_schema(
         summary='Проверить код и завершить регистрацию',
@@ -124,5 +129,11 @@ class VerifyRegistrationCodeView(APIView):
                     'role': user.role,
                 }
             }, status=status.HTTP_201_CREATED)
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            # Don't leak internal exception text (DB constraint names, etc.)
+            # to the client — log it server-side, return a generic message.
+            logger.exception('Registration failed for email=%s', email)
+            return Response(
+                {'error': 'Registration failed. Please try again.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )

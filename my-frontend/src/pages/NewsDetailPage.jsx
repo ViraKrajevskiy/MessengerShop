@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import Seo from '../components/Seo';
 import { useLanguage } from '../context/LanguageContext';
 import { API_URL } from '../config/api';
+import { metaText } from '../utils/seo';
 import './NewsDetailPage.css';
 
 export default function NewsDetailPage() {
@@ -30,7 +32,12 @@ export default function NewsDetailPage() {
   }, [id]);
 
   if (loading) return <div className="news-loading">{t('loading')}</div>;
-  if (!item) return <div className="news-error">{t('news_notFound')}</div>;
+  if (!item) return (
+    <>
+      <Seo title={t('news_notFound')} noindex />
+      <div className="news-error">{t('news_notFound')}</div>
+    </>
+  );
 
   const getTimeAgo = (dateStr) => {
     const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
@@ -40,8 +47,28 @@ export default function NewsDetailPage() {
     return `${Math.floor(diff / 86400)} ${t('dAgo')}`;
   };
 
+  const seoImage = item.media_display || undefined;
+  const seoDesc = metaText(item.text || item.title);
+  const seoJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: metaText(item.title, 110),
+    ...(seoDesc ? { description: seoDesc } : {}),
+    ...(seoImage ? { image: seoImage } : {}),
+    ...(item.created_at ? { datePublished: item.created_at } : {}),
+    author: { '@type': 'Organization', name: item.business_name || t('administration') },
+  };
+
   return (
     <div className="news-page">
+      <Seo
+        title={item.title}
+        description={seoDesc}
+        path={`/news/${id}`}
+        image={seoImage}
+        type="article"
+        jsonLd={seoJsonLd}
+      />
       <Header />
 
       <main className="news-container">

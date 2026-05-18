@@ -5,6 +5,8 @@ import os
 import environ
 from pathlib import Path
 
+from django.core.exceptions import ImproperlyConfigured
+
 # 1. BASE_DIR - корень проекта (где manage.py)
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -22,10 +24,30 @@ else:
     print(f"--- WARNING: .env not found at {ENV_PATH} ---")
 
 
-SECRET_KEY = env('SECRET_KEY', default='fallback-key-if-env-fails-12345')
-DEBUG = env('DEBUG', default=True)
+# DEBUG must default to False: a missing or misconfigured .env must never
+# expose tracebacks, settings and SQL to the public.
+DEBUG = env.bool('DEBUG', default=False)
+
+
+def _required_secret(name, dev_fallback):
+    """Secrets must be supplied by the environment in production. Only when
+    DEBUG=True do we fall back to an obviously-insecure value so local dev
+    works without a .env. With DEBUG=False a missing secret is fatal — far
+    safer than silently running with a publicly-known key."""
+    value = env(name, default='')
+    if value:
+        return value
+    if DEBUG:
+        return dev_fallback
+    raise ImproperlyConfigured(
+        f"{name} is not set. Refusing to start with an insecure default "
+        f"while DEBUG=False. Set {name} in the environment/.env."
+    )
+
+
+SECRET_KEY = _required_secret('SECRET_KEY', 'django-insecure-dev-only-change-me')
+MODERATOR_SECRET_KEY = _required_secret('MODERATOR_SECRET_KEY', 'dev-only-moderator-key')
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['127.0.0.1', 'localhost'])
-MODERATOR_SECRET_KEY = env('MODERATOR_SECRET_KEY', default='mod-secret-2024')
 INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
@@ -48,6 +70,21 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
+    # Rate limiting. Global rates are deliberately generous so normal
+    # browsing / the AI chat are unaffected; the tight 'auth' and 'code'
+    # scopes (opt-in per view) stop brute-force on login and email codes.
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+        'rest_framework.throttling.ScopedRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '120/min',
+        'user': '600/min',
+        'auth': '10/min',     # login / moderator login
+        'code': '5/min',      # request an email code (registration / reset)
+        'verify': '15/min',   # submit a code for verification
+    },
 }
 
 SPECTACULAR_SETTINGS = {
@@ -223,3 +260,27 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': True,
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
+
+# ── Security hardening ───────────────────────────────────────────────────────
+# These are safe over plain HTTP (current IP deploy) and don't break anything.
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+X_FRAME_OPTIONS = 'DENY'
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SAMESITE = 'Lax'
+
+# HTTPS-only protections. Off by default because the site currently runs on
+# plain HTTP via IP — enabling these without TLS would make it unreachable.
+# When a domain + certificate are in place, set SECURE_SSL=True in .env and
+# everything below activates with no code change.
+ENABLE_HTTPS_SECURITY = env.bool('SECURE_SSL', default=False)
+if ENABLE_HTTPS_SECURITY:
+    # nginx terminates TLS and forwards X-Forwarded-Proto.
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
