@@ -46,7 +46,6 @@ def _required_secret(name, dev_fallback):
 
 
 SECRET_KEY = _required_secret('SECRET_KEY', 'django-insecure-dev-only-change-me')
-MODERATOR_SECRET_KEY = _required_secret('MODERATOR_SECRET_KEY', 'dev-only-moderator-key')
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['127.0.0.1', 'localhost'])
 INSTALLED_APPS = [
     'corsheaders',

@@ -17,10 +17,10 @@ async function request(endpoint, options = {}) {
 const auth = (token) => ({ Authorization: `Bearer ${token}` })
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
-export async function apiModeratorLogin({ email, password, secret_key }) {
+export async function apiModeratorLogin({ email, password }) {
   return request('/moderator/login/', {
     method: 'POST',
-    body: JSON.stringify({ email, password, secret_key }),
+    body: JSON.stringify({ email, password }),
   })
 }
 

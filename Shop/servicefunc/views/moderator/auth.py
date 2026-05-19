@@ -1,6 +1,3 @@
-import secrets
-
-from django.conf import settings
 from django.contrib.auth.hashers import check_password
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -21,26 +18,25 @@ _DUMMY_PASSWORD_HASH = (
 class ModeratorLoginView(APIView):
     """
     POST /api/moderator/login/
-    Body: { email, password, secret_key }
+    Body: { email, password }
     → 200: { access, refresh, user }
+
+    Access requires an active account with role=MODERATOR. The previous
+    extra shared secret_key gate was removed by request.
     """
     permission_classes = [AllowAny]
     throttle_scope = 'auth'
 
     def post(self, request):
-        email      = request.data.get('email', '').strip()
-        password   = request.data.get('password', '')
-        secret_key = request.data.get('secret_key', '').strip()
+        email    = request.data.get('email', '').strip()
+        password = request.data.get('password', '')
 
-        if not email or not password or not secret_key:
+        if not email or not password:
             return Response({'detail': 'Заполните все поля.'}, status=400)
 
-        # Single generic failure for every credential mismatch: don't reveal
-        # whether the secret key, the email, the password or the role was the
-        # problem (prevents account / secret-key enumeration).
+        # Single generic failure for every mismatch: don't reveal whether the
+        # email, the password or the role was the problem (anti-enumeration).
         invalid = Response({'detail': 'Неверные учётные данные.'}, status=401)
-
-        secret_ok = secrets.compare_digest(secret_key, settings.MODERATOR_SECRET_KEY)
 
         user = User.objects.filter(email=email).first()
         if user is not None:
@@ -50,7 +46,7 @@ class ModeratorLoginView(APIView):
             check_password(password, _DUMMY_PASSWORD_HASH)
             password_ok = False
 
-        if not (secret_ok and user is not None and password_ok
+        if not (user is not None and password_ok
                 and user.role == User.Role.MODERATOR and user.is_active):
             return invalid
 
