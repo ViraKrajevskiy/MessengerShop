@@ -11,7 +11,7 @@ const EMPTY = {
   survey_type: 'SINGLE',
   priority: 0,
   is_active: true,
-  options: [{ text: '', is_correct: false }, { text: '', is_correct: false }],
+  options: [{ text: '' }, { text: '' }],
 }
 
 const box = { background: 'var(--bg-secondary,#1b1b2f)', border: '1px solid var(--border-color,#333)', borderRadius: 10, padding: 16, marginBottom: 14 }
@@ -40,17 +40,14 @@ export default function ModeratorSurveysTab({ token }) {
 
   const setOpt = (i, patch) =>
     setForm(f => ({ ...f, options: f.options.map((o, idx) => idx === i ? { ...o, ...patch } : o) }))
-  const addOpt = () => setForm(f => ({ ...f, options: [...f.options, { text: '', is_correct: false }] }))
+  const addOpt = () => setForm(f => ({ ...f, options: [...f.options, { text: '' }] }))
   const delOpt = (i) => setForm(f => ({ ...f, options: f.options.filter((_, idx) => idx !== i) }))
 
   const submit = async () => {
     setErr('')
-    const opts = form.options.map(o => ({ text: o.text.trim(), is_correct: !!o.is_correct })).filter(o => o.text)
+    const opts = form.options.map(o => ({ text: o.text.trim() })).filter(o => o.text)
     if (!form.question.trim()) return setErr('Введите вопрос.')
     if (opts.length < 2) return setErr('Нужно минимум 2 варианта ответа.')
-    if (!opts.some(o => o.is_correct)) return setErr('Отметьте хотя бы один правильный вариант.')
-    if (form.survey_type === 'SINGLE' && opts.filter(o => o.is_correct).length > 1)
-      return setErr('Для одиночного выбора правильный вариант должен быть один.')
 
     const payload = {
       question: form.question.trim(),
@@ -76,7 +73,7 @@ export default function ModeratorSurveysTab({ token }) {
       survey_type: s.survey_type,
       priority: s.priority,
       is_active: s.is_active,
-      options: s.options.map(o => ({ text: o.text, is_correct: o.is_correct })),
+      options: s.options.map(o => ({ text: o.text })),
     })
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -149,10 +146,6 @@ export default function ModeratorSurveysTab({ token }) {
                 value={o.text}
                 onChange={e => setOpt(i, { text: e.target.value })}
               />
-              <label style={{ display: 'flex', alignItems: 'center', gap: 4, whiteSpace: 'nowrap' }}>
-                <input type="checkbox" checked={o.is_correct} onChange={e => setOpt(i, { is_correct: e.target.checked })} />
-                верный
-              </label>
               <button
                 style={{ ...btn, background: '#7a2222', color: '#fff' }}
                 onClick={() => delOpt(i)}
@@ -189,9 +182,7 @@ export default function ModeratorSurveysTab({ token }) {
             </div>
             <ul style={{ margin: '8px 0', paddingLeft: 18 }}>
               {s.options.map(o => (
-                <li key={o.id} style={{ color: o.is_correct ? '#4caf50' : 'inherit' }}>
-                  {o.text}{o.is_correct ? ' ✓' : ''}
-                </li>
+                <li key={o.id}>{o.text}</li>
               ))}
             </ul>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
