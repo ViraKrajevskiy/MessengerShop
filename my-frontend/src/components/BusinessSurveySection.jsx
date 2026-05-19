@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback } from 'react'
 import { apiGetSurveys, apiRespondSurvey } from '../api/profileApi'
+import { useLanguage } from '../context/LanguageContext'
 
 const card = { background: 'var(--bg-secondary,#1b1b2f)', border: '1px solid var(--border-color,#333)', borderRadius: 12, padding: 18, marginBottom: 16 }
 const btn = { padding: '9px 18px', borderRadius: 8, border: 'none', cursor: 'pointer', fontWeight: 600, background: '#2e7d32', color: '#fff' }
 
 function SurveyCard({ survey, getAccessToken, onAnswered }) {
+  const { t } = useLanguage()
   const multi = survey.survey_type === 'MULTIPLE'
   const [picked, setPicked] = useState([])
   const [sending, setSending] = useState(false)
@@ -20,7 +22,7 @@ function SurveyCard({ survey, getAccessToken, onAnswered }) {
   }
 
   const submit = async () => {
-    if (picked.length === 0) { setErr('Выберите вариант ответа.'); return }
+    if (picked.length === 0) { setErr(t('survey_pickAnswer')); return }
     setSending(true); setErr('')
     try {
       const token = await getAccessToken()
@@ -34,7 +36,7 @@ function SurveyCard({ survey, getAccessToken, onAnswered }) {
     <div style={card}>
       <h3 style={{ marginBottom: 4 }}>{survey.question}</h3>
       <div style={{ fontSize: 12, opacity: 0.65, marginBottom: 12 }}>
-        {multi ? 'Можно выбрать несколько' : 'Выберите один вариант'}
+        {multi ? t('survey_pickMultiple') : t('survey_pickOne')}
       </div>
 
       {survey.options.map(o => {
@@ -61,11 +63,11 @@ function SurveyCard({ survey, getAccessToken, onAnswered }) {
 
       {result ? (
         <div style={{ marginTop: 12, fontWeight: 600, color: '#4caf50' }}>
-          ✓ Ответ отправлен
+          ✓ {t('survey_sent')}
         </div>
       ) : (
         <button style={{ ...btn, marginTop: 12, opacity: sending ? 0.6 : 1 }} onClick={submit} disabled={sending}>
-          {sending ? 'Отправка…' : 'Ответить'}
+          {sending ? t('survey_submitting') : t('survey_submit')}
         </button>
       )}
     </div>
@@ -73,6 +75,7 @@ function SurveyCard({ survey, getAccessToken, onAnswered }) {
 }
 
 export default function BusinessSurveySection({ getAccessToken }) {
+  const { t } = useLanguage()
   const [surveys, setSurveys] = useState([])
   const [loading, setLoading] = useState(true)
   const [err, setErr] = useState('')
@@ -93,9 +96,9 @@ export default function BusinessSurveySection({ getAccessToken }) {
     setSurveys(prev => prev.map(s =>
       s.id === id ? { ...s, answered: true, my_result: myResult } : s))
 
-  if (loading) return <p style={{ padding: 16 }}>Загрузка опросов…</p>
+  if (loading) return <p style={{ padding: 16 }}>{t('survey_loading')}</p>
   if (err) return <p style={{ padding: 16, color: '#e53935' }}>{err}</p>
-  if (surveys.length === 0) return <p style={{ padding: 16, opacity: 0.7 }}>Опросов пока нет.</p>
+  if (surveys.length === 0) return <p style={{ padding: 16, opacity: 0.7 }}>{t('survey_empty')}</p>
 
   return (
     <div>
