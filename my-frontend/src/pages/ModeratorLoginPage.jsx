@@ -7,11 +7,10 @@ import './ModeratorLoginPage.css'
 export default function ModeratorLoginPage() {
   const navigate = useNavigate()
   const { t } = useLanguage()
-  const [form, setForm] = useState({ email: '', password: '', secret_key: '' })
+  const [form, setForm] = useState({ email: '', password: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [showPass, setShowPass] = useState(false)
-  const [showKey, setShowKey] = useState(false)
 
   const handleChange = (e) => {
     setForm(f => ({ ...f, [e.target.name]: e.target.value }))
@@ -20,7 +19,7 @@ export default function ModeratorLoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!form.email || !form.password || !form.secret_key) {
+    if (!form.email || !form.password) {
       setError(t('auth_fillAll'))
       return
     }
@@ -97,33 +96,6 @@ export default function ModeratorLoginPage() {
               />
               <button type="button" className="mod-field__eye" onClick={() => setShowPass(s => !s)}>
                 {showPass
-                  ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-                  : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                }
-              </button>
-            </div>
-          </div>
-
-          {/* Secret key */}
-          <div className="mod-field">
-            <label className="mod-field__label">{t('mod_secretKey')}</label>
-            <div className="mod-field__wrap">
-              <span className="mod-field__icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
-                </svg>
-              </span>
-              <input
-                className="mod-field__input"
-                type={showKey ? 'text' : 'password'}
-                name="secret_key"
-                placeholder={t('mod_secretKey')}
-                value={form.secret_key}
-                onChange={handleChange}
-                autoComplete="off"
-              />
-              <button type="button" className="mod-field__eye" onClick={() => setShowKey(s => !s)}>
-                {showKey
                   ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
                   : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                 }
