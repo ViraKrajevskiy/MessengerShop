@@ -72,10 +72,12 @@ REST_FRAMEWORK = {
     # Rate limiting. Global rates are deliberately generous so normal
     # browsing / the AI chat are unaffected; the tight 'auth' and 'code'
     # scopes (opt-in per view) stop brute-force on login and email codes.
+    # Bound to a LocMem cache (see Shop.throttling) — must NOT depend on the
+    # DatabaseCache table, or a missing django_cache table 500s the whole API.
     'DEFAULT_THROTTLE_CLASSES': [
-        'rest_framework.throttling.AnonRateThrottle',
-        'rest_framework.throttling.UserRateThrottle',
-        'rest_framework.throttling.ScopedRateThrottle',
+        'Shop.throttling.AnonThrottle',
+        'Shop.throttling.UserThrottle',
+        'Shop.throttling.ScopedThrottle',
     ],
     'DEFAULT_THROTTLE_RATES': {
         'anon': '120/min',
@@ -224,7 +226,14 @@ CACHES = {
         'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
         'LOCATION': 'django_cache',
         'TIMEOUT': 120,           # 2 минуты по умолчанию
-    }
+    },
+    # Throttling only. In-memory & per-process so a missing django_cache
+    # table can never 500 the whole API (see Shop.throttling). Per-worker
+    # counters are an acceptable trade for abuse protection.
+    'throttle': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'throttle',
+    },
 }
 
 # Домен сайта — задаётся в .env как SITE_DOMAIN (например: mysite.com)

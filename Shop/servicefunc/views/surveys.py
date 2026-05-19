@@ -52,6 +52,16 @@ def _parse_options(raw):
     return cleaned, None
 
 
+def _validate_correct(options, survey_type):
+    """At least one correct option is mandatory; SINGLE allows exactly one."""
+    correct = sum(1 for o in options if o['is_correct'])
+    if correct < 1:
+        return 'Отметьте хотя бы один правильный вариант.'
+    if survey_type == Survey.SurveyType.SINGLE and correct > 1:
+        return 'Для одиночного выбора должен быть ровно один правильный вариант.'
+    return None
+
+
 # ── Moderator: CRUD + priority ───────────────────────────────────────────────
 class ModeratorSurveyListView(APIView):
     permission_classes = [IsAuthenticated, IsModerator]
@@ -73,12 +83,9 @@ class ModeratorSurveyListView(APIView):
         options, err = _parse_options(request.data.get('options'))
         if err:
             return Response({'detail': err}, status=400)
-        if survey_type == Survey.SurveyType.SINGLE and \
-                sum(o['is_correct'] for o in options) > 1:
-            return Response(
-                {'detail': 'Для одиночного выбора не больше одного правильного варианта.'},
-                status=400,
-            )
+        err = _validate_correct(options, survey_type)
+        if err:
+            return Response({'detail': err}, status=400)
 
         with transaction.atomic():
             survey = Survey.objects.create(
@@ -133,6 +140,9 @@ class ModeratorSurveyDetailView(APIView):
         new_options = None
         if 'options' in request.data:
             new_options, err = _parse_options(request.data.get('options'))
+            if err:
+                return Response({'detail': err}, status=400)
+            err = _validate_correct(new_options, survey.survey_type)
             if err:
                 return Response({'detail': err}, status=400)
 
