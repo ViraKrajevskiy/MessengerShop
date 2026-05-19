@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.hashers import make_password
 from django.core.cache import cache
 from drf_spectacular.utils import extend_schema, OpenApiResponse
@@ -9,6 +10,7 @@ from rest_framework.views import APIView
 from Shop.models.models import User
 from Shop.servicefunc.serializers.auth_serializer.registration import RegisterSerializer
 from Shop.servicefunc.email_utils import send_verification_email
+from Shop.servicefunc.verification_service import generate_code
 
 _GENERIC_OK = 'Если этот email не зарегистрирован — аккаунт создан. Проверьте почту.'
 
@@ -16,6 +18,7 @@ _GENERIC_OK = 'Если этот email не зарегистрирован — �
 @extend_schema(tags=['Auth'])
 class RegisterView(APIView):
     permission_classes = [AllowAny]
+    throttle_scope = 'code'
 
     @extend_schema(
         summary='Регистрация нового пользователя',
@@ -41,7 +44,7 @@ class RegisterView(APIView):
         # Удаляем старые неактивированные аккаунты с тем же email (зомби)
         User.objects.filter(email=email, is_active=False).delete()
 
-        code      = '123456'  # TODO: заменить на случайный после настройки email
+        code      = generate_code()  # криптослучайный 6-значный код (secrets)
         cache_key = f'pending_reg_{email}'
         cache.set(cache_key, {
             'username':      username,
@@ -53,7 +56,9 @@ class RegisterView(APIView):
         }, timeout=900)  # 15 минут
 
         sent = send_verification_email(to_email=email, code=code, username=username)
-        if not sent:
+        if not sent and settings.DEBUG:
+            # Only in DEBUG — never leak a real verification code into
+            # production logs.
             print(f'[DEV] Код для {email}: {code}')
 
         return Response({'message': _GENERIC_OK, 'role': role}, status=status.HTTP_201_CREATED)

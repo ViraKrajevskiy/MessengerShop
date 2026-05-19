@@ -12,6 +12,7 @@ from Shop.models.models import User
 @extend_schema(tags=['Auth'])
 class VerifyEmailView(APIView):
     permission_classes = [AllowAny]
+    throttle_scope = 'verify'
 
     @extend_schema(
         summary='Подтверждение email по коду',
@@ -35,11 +36,17 @@ class VerifyEmailView(APIView):
         if not email or not code:
             return Response({'error': 'email и code обязательны.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        cache_key = f'pending_reg_{email}'
-        pending   = cache.get(cache_key)
+        cache_key    = f'pending_reg_{email}'
+        attempts_key = f'verify_email_attempts_{email}'
 
-        if settings.DEBUG:
-            print(f'[VERIFY] email={email!r} code={code!r} cache_key={cache_key!r} pending={pending}')
+        # Brute-force cap: a 6-digit code is only 1,000,000 combinations.
+        if cache.get(attempts_key, 0) >= 5:
+            return Response(
+                {'error': 'Слишком много попыток. Зарегистрируйтесь заново позже.'},
+                status=status.HTTP_429_TOO_MANY_REQUESTS,
+            )
+
+        pending = cache.get(cache_key)
 
         if not pending:
             return Response(
@@ -48,6 +55,7 @@ class VerifyEmailView(APIView):
             )
 
         if pending['code'] != code:
+            cache.set(attempts_key, cache.get(attempts_key, 0) + 1, 900)
             return Response({'error': 'Неверный код подтверждения.'}, status=status.HTTP_400_BAD_REQUEST)
 
         # Создаём пользователя только после верного кода
@@ -68,6 +76,7 @@ class VerifyEmailView(APIView):
             )
 
         cache.delete(cache_key)
+        cache.delete(attempts_key)
 
         return Response(
             {'message': 'Аккаунт успешно активирован. Теперь вы можете войти.'},
