@@ -185,3 +185,31 @@ export async function apiModeratorBlockUser(token, id, { blocked, deactivate = f
     body: JSON.stringify({ blocked, deactivate }),
   })
 }
+
+// ── Surveys (опросники) ───────────────────────────────────────────────────────
+export async function apiModeratorGetSurveys(token) {
+  return request('/moderator/surveys/', { headers: auth(token) })
+}
+
+export async function apiModeratorCreateSurvey(token, payload) {
+  return request('/moderator/surveys/', {
+    method: 'POST',
+    headers: auth(token),
+    body: JSON.stringify(payload),
+  })
+}
+
+export async function apiModeratorUpdateSurvey(token, id, payload) {
+  return request(`/moderator/surveys/${id}/`, {
+    method: 'PATCH',
+    headers: auth(token),
+    body: JSON.stringify(payload),
+  })
+}
+
+export async function apiModeratorDeleteSurvey(token, id) {
+  return request(`/moderator/surveys/${id}/`, {
+    method: 'DELETE',
+    headers: auth(token),
+  })
+}

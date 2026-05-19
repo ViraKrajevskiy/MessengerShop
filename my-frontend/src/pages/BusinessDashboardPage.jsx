@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
+import BusinessSurveySection from '../components/BusinessSurveySection'
 import { useAuth } from '../context/AuthContext'
 import {
   apiDeletePost,
@@ -1765,7 +1766,17 @@ export default function BusinessDashboardPage() {
                 >
                   ✏️ Профиль
                 </button>
+                <button
+                  className={`biz-content-tab ${activeTab === 'survey' ? 'biz-content-tab--active' : ''}`}
+                  onClick={() => setActiveTab('survey')}
+                >
+                  📋 Опрос
+                </button>
               </div>
+
+              {activeTab === 'survey' && (
+                <BusinessSurveySection getAccessToken={getAccessToken} />
+              )}
 
               {/* ── Products tab ── */}
               {activeTab === 'products' && (

@@ -33,3 +33,16 @@ export async function apiPatchMe(accessToken, formData) {
     body: formData,
   })
 }
+
+/** GET /api/surveys/ — активные опросники для бизнесмена */
+export async function apiGetSurveys(accessToken) {
+  return authRequest('/surveys/', accessToken)
+}
+
+/** POST /api/surveys/<id>/respond/ — отправить ответы */
+export async function apiRespondSurvey(accessToken, id, selected) {
+  return authRequest(`/surveys/${id}/respond/`, accessToken, {
+    method: 'POST',
+    body: JSON.stringify({ selected }),
+  })
+}

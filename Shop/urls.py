@@ -59,6 +59,10 @@ from Shop.servicefunc.views.news.newses import BusinessNewsListView, NewsListVie
 from Shop.servicefunc.views.tags import TagListView
 from Shop.servicefunc.views.moderator.feed import ModeratorFeedView
 from Shop.servicefunc.views.chat_views.chat import ChatAPIView,ChatHistoryAPIView
+from Shop.servicefunc.views.surveys import (
+    ModeratorSurveyListView, ModeratorSurveyDetailView,
+    SurveyListView, SurveyRespondView,
+)
 
 urlpatterns = [
     path('chat/', ChatAPIView.as_view(), name='chat-api'),
@@ -144,6 +148,12 @@ urlpatterns = [
     path('posts/<int:pk>/favorite/',   PostFavoriteView.as_view(),      name='post_favorite'),
 
     path('tags/',                      TagListView.as_view(),           name='tag_list'),
+
+    # ── Surveys (опросники) ───────────────────────────────────────────────────
+    path('surveys/',                   SurveyListView.as_view(),        name='survey_list'),
+    path('surveys/<int:pk>/respond/',  SurveyRespondView.as_view(),     name='survey_respond'),
+    path('moderator/surveys/',         ModeratorSurveyListView.as_view(),   name='moderator_survey_list'),
+    path('moderator/surveys/<int:pk>/', ModeratorSurveyDetailView.as_view(), name='moderator_survey_detail'),
 
     # ── Complaints (any authenticated user) ──────────────────────────────────
     path('complaint-reasons/',         ComplaintReasonListView.as_view(),          name='complaint_reasons'),

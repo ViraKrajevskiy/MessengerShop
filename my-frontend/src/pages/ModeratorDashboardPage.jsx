@@ -62,6 +62,7 @@ import {
   apiModeratorGetUsers, apiModeratorBlockUser,
   apiModeratorGetFeed,
 } from '../api/moderatorApi'
+import ModeratorSurveysTab from '../components/ModeratorSurveysTab'
 import './ModeratorDashboardPage.css'
 
 const TABS = [
@@ -77,6 +78,7 @@ const TABS = [
   { id: 'tariffs',      label: 'Тарифы',       icon: '💎' },
   { id: 'payments',     label: 'Оплаты',       icon: '💳' },
   { id: 'profiles',     label: 'Профили',      icon: '👤' },
+  { id: 'surveys',      label: 'Опросы',       icon: '📋' },
 ]
 
 const PLAN_LABELS = { FREE: 'Бесплатный', PRO: 'Pro', VIP: 'VIP' }
@@ -1301,6 +1303,7 @@ export default function ModeratorDashboardPage() {
           {tab === 'tweets'       && <TweetsTab       token={token} />}
           {tab === 'complaints'   && <ComplaintsTab   token={token} />}
           {tab === 'tariffs'      && <TariffsTab      token={token} />}
+          {tab === 'surveys'      && <ModeratorSurveysTab token={token} />}
           {tab === 'stories' && (
             <BlockableTab
               token={token}

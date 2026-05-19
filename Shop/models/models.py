@@ -745,3 +745,71 @@ class EmailVerificationCode(models.Model):
     @property
     def is_valid(self):
         return not self.is_used and not self.is_expired
+
+
+# ── Surveys (опросники) ──────────────────────────────────────────────────────
+# Создаются только модератором. Один вопрос, N вариантов ответа, N правильных.
+# Тип: одиночный или множественный выбор. Приоритет — порядок показа
+# бизнесмену (модератор может менять).
+class Survey(BaseController):
+    class SurveyType(models.TextChoices):
+        SINGLE   = 'SINGLE',   'Один выбор'
+        MULTIPLE = 'MULTIPLE', 'Множественный выбор'
+
+    question     = models.CharField(max_length=500)
+    survey_type  = models.CharField(
+        max_length=10, choices=SurveyType.choices, default=SurveyType.SINGLE,
+    )
+    # Выше приоритет → выше в списке у бизнесмена. Модератор меняет.
+    priority     = models.PositiveIntegerField(default=0)
+    is_active    = models.BooleanField(default=True)
+    created_by   = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='surveys_created',
+        limit_choices_to={'role': User.Role.MODERATOR},
+    )
+
+    class Meta:
+        ordering = ['-priority', '-created_at']
+        verbose_name = 'Survey'
+        verbose_name_plural = 'Surveys'
+
+    def __str__(self):
+        return f'Survey #{self.id}: {self.question[:50]}'
+
+
+class SurveyOption(models.Model):
+    survey     = models.ForeignKey(
+        Survey, on_delete=models.CASCADE, related_name='options',
+    )
+    text       = models.CharField(max_length=300)
+    is_correct = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['id']
+        verbose_name = 'Survey Option'
+        verbose_name_plural = 'Survey Options'
+
+    def __str__(self):
+        return f'Option #{self.id} (survey {self.survey_id})'
+
+
+class SurveyResponse(BaseController):
+    survey      = models.ForeignKey(
+        Survey, on_delete=models.CASCADE, related_name='responses',
+    )
+    user        = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='survey_responses',
+    )
+    # ID выбранных вариантов (список int).
+    selected    = models.JSONField(default=list)
+    is_correct  = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('survey', 'user')
+        ordering = ['-created_at']
+        verbose_name = 'Survey Response'
+        verbose_name_plural = 'Survey Responses'
+
+    def __str__(self):
+        return f'Response by {self.user_id} to survey {self.survey_id}'
