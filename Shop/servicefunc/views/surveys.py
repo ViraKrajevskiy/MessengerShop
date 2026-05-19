@@ -1,8 +1,9 @@
-"""Surveys (опросники).
+"""Surveys (опросы).
 
-Created/managed only by moderators (one question, N options, N correct,
-SINGLE or MULTIPLE choice, moderator-editable priority). Businessmen see
-active surveys (ordered by priority) in their dashboard and submit answers.
+Plain polls — there is NO correct/incorrect answer. Created/managed only
+by moderators (one question, N options, SINGLE or MULTIPLE choice,
+moderator-editable priority). Businessmen see active surveys (ordered by
+priority) in their dashboard and submit their choice.
 """
 from django.db import transaction
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -17,14 +18,7 @@ VALID_TYPES = {c[0] for c in Survey.SurveyType.choices}
 
 
 # ── Serialization helpers ────────────────────────────────────────────────────
-def _option_dict(opt, include_correct):
-    d = {'id': opt.id, 'text': opt.text}
-    if include_correct:
-        d['is_correct'] = opt.is_correct
-    return d
-
-
-def _survey_dict(survey, include_correct):
+def _survey_dict(survey):
     return {
         'id':          survey.id,
         'question':    survey.question,
@@ -33,33 +27,23 @@ def _survey_dict(survey, include_correct):
         'is_active':   survey.is_active,
         'created_at':  survey.created_at,
         'responses_count': survey.responses.count(),
-        'options': [_option_dict(o, include_correct) for o in survey.options.all()],
+        'options': [{'id': o.id, 'text': o.text} for o in survey.options.all()],
     }
 
 
 def _parse_options(raw):
-    """raw: [{text, is_correct}] → cleaned list. Returns (options, error)."""
+    """raw: [{text}] → cleaned list of texts. Returns (options, error)."""
     if not isinstance(raw, list) or not raw:
         return None, 'Нужен хотя бы один вариант ответа.'
     cleaned = []
     for item in raw:
-        if not isinstance(item, dict):
-            return None, 'Неверный формат вариантов.'
-        text = str(item.get('text', '')).strip()
+        text = str((item or {}).get('text', '') if isinstance(item, dict) else item).strip()
         if not text:
             return None, 'Текст варианта не может быть пустым.'
-        cleaned.append({'text': text, 'is_correct': bool(item.get('is_correct'))})
+        cleaned.append(text)
+    if len(cleaned) < 2:
+        return None, 'Нужно минимум 2 варианта ответа.'
     return cleaned, None
-
-
-def _validate_correct(options, survey_type):
-    """At least one correct option is mandatory; SINGLE allows exactly one."""
-    correct = sum(1 for o in options if o['is_correct'])
-    if correct < 1:
-        return 'Отметьте хотя бы один правильный вариант.'
-    if survey_type == Survey.SurveyType.SINGLE and correct > 1:
-        return 'Для одиночного выбора должен быть ровно один правильный вариант.'
-    return None
 
 
 # ── Moderator: CRUD + priority ───────────────────────────────────────────────
@@ -70,7 +54,7 @@ class ModeratorSurveyListView(APIView):
         qs = (Survey.objects
               .prefetch_related('options', 'responses')
               .order_by('-priority', '-created_at'))
-        return Response([_survey_dict(s, include_correct=True) for s in qs])
+        return Response([_survey_dict(s) for s in qs])
 
     def post(self, request):
         question = str(request.data.get('question', '')).strip()
@@ -78,12 +62,9 @@ class ModeratorSurveyListView(APIView):
         if not question:
             return Response({'detail': 'Вопрос обязателен.'}, status=400)
         if survey_type not in VALID_TYPES:
-            return Response({'detail': 'Неверный тип опросника.'}, status=400)
+            return Response({'detail': 'Неверный тип опроса.'}, status=400)
 
         options, err = _parse_options(request.data.get('options'))
-        if err:
-            return Response({'detail': err}, status=400)
-        err = _validate_correct(options, survey_type)
         if err:
             return Response({'detail': err}, status=400)
 
@@ -96,10 +77,9 @@ class ModeratorSurveyListView(APIView):
                 created_by=request.user,
             )
             SurveyOption.objects.bulk_create([
-                SurveyOption(survey=survey, text=o['text'], is_correct=o['is_correct'])
-                for o in options
+                SurveyOption(survey=survey, text=t) for t in options
             ])
-        return Response(_survey_dict(survey, include_correct=True), status=201)
+        return Response(_survey_dict(survey), status=201)
 
 
 class ModeratorSurveyDetailView(APIView):
@@ -111,13 +91,13 @@ class ModeratorSurveyDetailView(APIView):
     def get(self, request, pk):
         survey = self._get(pk)
         if not survey:
-            return Response({'detail': 'Опросник не найден.'}, status=404)
-        return Response(_survey_dict(survey, include_correct=True))
+            return Response({'detail': 'Опрос не найден.'}, status=404)
+        return Response(_survey_dict(survey))
 
     def patch(self, request, pk):
         survey = self._get(pk)
         if not survey:
-            return Response({'detail': 'Опросник не найден.'}, status=404)
+            return Response({'detail': 'Опрос не найден.'}, status=404)
 
         if 'question' in request.data:
             q = str(request.data.get('question', '')).strip()
@@ -127,7 +107,7 @@ class ModeratorSurveyDetailView(APIView):
         if 'survey_type' in request.data:
             st = request.data.get('survey_type')
             if st not in VALID_TYPES:
-                return Response({'detail': 'Неверный тип опросника.'}, status=400)
+                return Response({'detail': 'Неверный тип опроса.'}, status=400)
             survey.survey_type = st
         if 'priority' in request.data:
             try:
@@ -142,25 +122,21 @@ class ModeratorSurveyDetailView(APIView):
             new_options, err = _parse_options(request.data.get('options'))
             if err:
                 return Response({'detail': err}, status=400)
-            err = _validate_correct(new_options, survey.survey_type)
-            if err:
-                return Response({'detail': err}, status=400)
 
         with transaction.atomic():
             survey.save()
             if new_options is not None:
                 survey.options.all().delete()
                 SurveyOption.objects.bulk_create([
-                    SurveyOption(survey=survey, text=o['text'], is_correct=o['is_correct'])
-                    for o in new_options
+                    SurveyOption(survey=survey, text=t) for t in new_options
                 ])
         survey.refresh_from_db()
-        return Response(_survey_dict(survey, include_correct=True))
+        return Response(_survey_dict(survey))
 
     def delete(self, request, pk):
         survey = self._get(pk)
         if not survey:
-            return Response({'detail': 'Опросник не найден.'}, status=404)
+            return Response({'detail': 'Опрос не найден.'}, status=404)
         survey.delete()
         return Response(status=204)
 
@@ -181,16 +157,10 @@ class SurveyListView(APIView):
         data = []
         for s in qs:
             resp = answered.get(s.id)
-            entry = _survey_dict(s, include_correct=False)
+            entry = _survey_dict(s)
             entry['answered'] = resp is not None
             if resp is not None:
-                entry['my_result'] = {
-                    'selected': resp.selected,
-                    'is_correct': resp.is_correct,
-                    'correct_option_ids': [
-                        o.id for o in s.options.all() if o.is_correct
-                    ],
-                }
+                entry['my_result'] = {'selected': resp.selected}
             data.append(entry)
         return Response(data)
 
@@ -204,7 +174,7 @@ class SurveyRespondView(APIView):
                   .prefetch_related('options')
                   .first())
         if not survey:
-            return Response({'detail': 'Опросник не найден или неактивен.'}, status=404)
+            return Response({'detail': 'Опрос не найден или неактивен.'}, status=404)
 
         if SurveyResponse.objects.filter(survey=survey, user=request.user).exists():
             return Response({'detail': 'Вы уже проходили этот опрос.'}, status=400)
@@ -223,20 +193,12 @@ class SurveyRespondView(APIView):
         if survey.survey_type == Survey.SurveyType.SINGLE and len(selected_ids) != 1:
             return Response({'detail': 'Для этого опроса нужен ровно один ответ.'}, status=400)
 
-        correct_ids = {o.id for o in survey.options.all() if o.is_correct}
-        is_correct = selected_ids == correct_ids
-
         response = SurveyResponse.objects.create(
             survey=survey,
             user=request.user,
             selected=sorted(selected_ids),
-            is_correct=is_correct,
         )
-        return Response({
-            'id': response.id,
-            'is_correct': is_correct,
-            'correct_option_ids': sorted(correct_ids),
-        }, status=201)
+        return Response({'id': response.id, 'selected': response.selected}, status=201)
 
 
 # ── Public: a business's survey answers (shop profile «О бизнесе») ────────────

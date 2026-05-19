@@ -783,7 +783,6 @@ class SurveyOption(models.Model):
         Survey, on_delete=models.CASCADE, related_name='options',
     )
     text       = models.CharField(max_length=300)
-    is_correct = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['id']
@@ -803,7 +802,6 @@ class SurveyResponse(BaseController):
     )
     # ID выбранных вариантов (список int).
     selected    = models.JSONField(default=list)
-    is_correct  = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ('survey', 'user')

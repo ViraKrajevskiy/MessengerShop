@@ -24,12 +24,8 @@ function SurveyCard({ survey, getAccessToken, onAnswered }) {
     setSending(true); setErr('')
     try {
       const token = await getAccessToken()
-      const res = await apiRespondSurvey(token, survey.id, picked)
-      onAnswered(survey.id, {
-        selected: picked,
-        is_correct: res.is_correct,
-        correct_option_ids: res.correct_option_ids,
-      })
+      await apiRespondSurvey(token, survey.id, picked)
+      onAnswered(survey.id, { selected: picked })
     } catch (e) { setErr(e.message) }
     finally { setSending(false) }
   }
@@ -43,12 +39,7 @@ function SurveyCard({ survey, getAccessToken, onAnswered }) {
 
       {survey.options.map(o => {
         const chosen = result ? result.selected.includes(o.id) : picked.includes(o.id)
-        const isRight = result?.correct_option_ids?.includes(o.id)
-        let bg = 'transparent'
-        if (result) {
-          if (isRight) bg = 'rgba(76,175,80,0.18)'
-          else if (chosen) bg = 'rgba(229,57,53,0.18)'
-        } else if (chosen) bg = 'rgba(33,150,243,0.15)'
+        const bg = chosen ? 'rgba(33,150,243,0.15)' : 'transparent'
         return (
           <label
             key={o.id}
@@ -62,7 +53,6 @@ function SurveyCard({ survey, getAccessToken, onAnswered }) {
               onChange={() => toggle(o.id)}
             />
             <span>{o.text}</span>
-            {result && isRight && <span style={{ marginLeft: 'auto', color: '#4caf50' }}>верный</span>}
           </label>
         )
       })}
@@ -70,8 +60,8 @@ function SurveyCard({ survey, getAccessToken, onAnswered }) {
       {err && <div style={{ color: '#e53935', marginTop: 8 }}>{err}</div>}
 
       {result ? (
-        <div style={{ marginTop: 12, fontWeight: 600, color: result.is_correct ? '#4caf50' : '#e53935' }}>
-          {result.is_correct ? '✓ Ответ верный' : '✗ Ответ неверный'}
+        <div style={{ marginTop: 12, fontWeight: 600, color: '#4caf50' }}>
+          ✓ Ответ отправлен
         </div>
       ) : (
         <button style={{ ...btn, marginTop: 12, opacity: sending ? 0.6 : 1 }} onClick={submit} disabled={sending}>
