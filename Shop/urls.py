@@ -61,7 +61,7 @@ from Shop.servicefunc.views.moderator.feed import ModeratorFeedView
 from Shop.servicefunc.views.chat_views.chat import ChatAPIView,ChatHistoryAPIView
 from Shop.servicefunc.views.surveys import (
     ModeratorSurveyListView, ModeratorSurveyDetailView,
-    SurveyListView, SurveyRespondView,
+    SurveyListView, SurveyRespondView, BusinessSurveyAnswersView,
 )
 
 urlpatterns = [
@@ -150,6 +150,7 @@ urlpatterns = [
     path('tags/',                      TagListView.as_view(),           name='tag_list'),
 
     # ── Surveys (опросники) ───────────────────────────────────────────────────
+    path('businesses/<int:pk>/surveys/', BusinessSurveyAnswersView.as_view(), name='business_survey_answers'),
     path('surveys/',                   SurveyListView.as_view(),        name='survey_list'),
     path('surveys/<int:pk>/respond/',  SurveyRespondView.as_view(),     name='survey_respond'),
     path('moderator/surveys/',         ModeratorSurveyListView.as_view(),   name='moderator_survey_list'),

@@ -5,11 +5,11 @@ SINGLE or MULTIPLE choice, moderator-editable priority). Businessmen see
 active surveys (ordered by priority) in their dashboard and submit answers.
 """
 from django.db import transaction
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from Shop.models import Survey, SurveyOption, SurveyResponse
+from Shop.models import Survey, SurveyOption, SurveyResponse, Business
 from Shop.permissions.role_businessman_permission import IsBusinessman
 from Shop.servicefunc.views.verification.verification import IsModerator
 
@@ -227,3 +227,35 @@ class SurveyRespondView(APIView):
             'is_correct': is_correct,
             'correct_option_ids': sorted(correct_ids),
         }, status=201)
+
+
+# ── Public: a business's survey answers (shop profile «О бизнесе») ────────────
+class BusinessSurveyAnswersView(APIView):
+    """Public — what this business answered in moderator surveys.
+    Shown on the public shop profile between «О нас» and «Характеристики»."""
+    permission_classes = [AllowAny]
+
+    def get(self, request, pk):
+        business = Business.objects.filter(pk=pk).select_related('owner').first()
+        if not business or not business.owner_id:
+            return Response([])
+
+        responses = (SurveyResponse.objects
+                     .filter(user_id=business.owner_id, survey__is_active=True)
+                     .select_related('survey')
+                     .prefetch_related('survey__options')
+                     .order_by('-survey__priority', '-survey__created_at'))
+
+        data = []
+        for r in responses:
+            opts = {o.id: o.text for o in r.survey.options.all()}
+            answers = [opts[i] for i in (r.selected or []) if i in opts]
+            if not answers:
+                continue
+            data.append({
+                'survey_id':   r.survey_id,
+                'question':    r.survey.question,
+                'survey_type': r.survey.survey_type,
+                'answers':     answers,
+            })
+        return Response(data)
