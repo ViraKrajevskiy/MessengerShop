@@ -7,7 +7,7 @@ import Seo from '../components/Seo'
 import ReviewsSection from '../components/ReviewsSection'
 import VideoModal from '../components/VideoModal'
 import '../components/PremiumCarousel.css'
-import { apiGetBusiness, apiGetBusinessPosts, apiGetBusinesses, apiToggleSubscription, apiJoinGroup, apiCheckGroupMembership, apiDeletePost, apiStartBizChat } from '../api/businessApi'
+import { apiGetBusiness, apiGetBusinessPosts, apiGetBusinesses, apiToggleSubscription, apiJoinGroup, apiCheckGroupMembership, apiDeletePost, apiStartBizChat, apiGetBusinessSurveyAnswers } from '../api/businessApi'
 import { API_URL } from '../config/api'
 import { resolveUrl } from '../utils/urlUtils'
 import { metaText } from '../utils/seo'
@@ -330,6 +330,7 @@ export default function BusinessPage() {
   const [toast, setToast]           = useState('')
   const [faq, setFaq]               = useState([])
   const [services, setServices]     = useState([])
+  const [surveyAnswers, setSurveyAnswers] = useState([])
   const [postsPage, setPostsPage]   = useState(0)
   const POSTS_PER_PAGE = 8
   const [selectedVideo, setSelectedVideo] = useState(null)
@@ -345,6 +346,10 @@ export default function BusinessPage() {
     setError('')
     setBiz(null)
     setSimilar([])
+    setSurveyAnswers([])
+    apiGetBusinessSurveyAnswers(id)
+      .then(d => setSurveyAnswers(Array.isArray(d) ? d : []))
+      .catch(() => setSurveyAnswers([]))
     Promise.all([apiGetBusiness(id), apiGetBusinessPosts(id)])
       .then(([bizData, postsData]) => {
         setBiz(bizData)
@@ -673,6 +678,20 @@ export default function BusinessPage() {
                 )}
               </div>
             </section>
+
+            {surveyAnswers.length > 0 && (
+              <section className="bp__card" id="section-about-business">
+                <h2 className="bp__card-title">{t('biz_aboutBusiness')}</h2>
+                <div className="bp__props">
+                  {surveyAnswers.map(s => (
+                    <div className="bp__prop" key={s.survey_id}>
+                      <span>{s.question}</span>
+                      <span>{s.answers.join(', ')}</span>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
 
             <InfoTabs
               biz={biz}

@@ -54,6 +54,13 @@ export async function apiGetBusinessProducts(id) {
   })
 }
 
+/** Публичные ответы бизнеса на опросники (блок «О бизнесе» в профиле). */
+export async function apiGetBusinessSurveyAnswers(id) {
+  const res = await fetch(`${BASE}/businesses/${id}/surveys/`)
+  if (!res.ok) return []
+  return res.json()
+}
+
 export async function apiGetStories() {
   return cached('stories', async () => {
     const res = await fetch(`${BASE}/stories/`)
