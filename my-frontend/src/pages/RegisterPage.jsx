@@ -7,6 +7,7 @@ import { useLanguage } from '../context/LanguageContext'
 import { apiGoogleAuth, apiSendRegistrationCode, apiVerifyRegistrationCode, apiLogin } from '../api/authApi'
 import './AuthPage.css'
 
+const CITIES = ['Стамбул', 'Анкара', 'Анталья', 'Измир', 'Бурса', 'Алматы', 'Ташкент', 'Другой']
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || ''
 
 function GoogleRegisterSection({ setErrors }) {
@@ -80,7 +81,7 @@ export default function RegisterPage() {
   const [step, setStep] = useState(1)
   const [form, setForm] = useState({
     username: '', email: '', password: '', confirm: '',
-    role: 'USER', agree: false,
+    role: 'USER', city: '', agree: false,
   })
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
@@ -107,19 +108,32 @@ export default function RegisterPage() {
     if (!form.password) errs.password = t('reg_enterPassword')
     else if (form.password.length < 6) errs.password = t('reg_min6')
     if (form.password !== form.confirm) errs.confirm = t('reg_pwdMismatch')
+    return errs
+  }
+
+  const validateStep2 = () => {
+    const errs = {}
+    if (!form.city) errs.city = t('reg_selectCity')
     if (!form.agree) errs.agree = t('reg_needAgree')
     return errs
   }
 
-  // ── Шаг 1 → 2: отправка кода регистрации ─────────────────────────────────
+  // ── Шаг 1 → 2 ─────────────────────────────────────────────────────────────
+  const handleNext = () => {
+    const errs = validateStep1()
+    if (Object.keys(errs).length) { setErrors(errs); return }
+    setStep(2)
+  }
+
+  // ── Шаг 2 → 3: отправка кода регистрации ─────────────────────────────────
   const handleRegister = async (e) => {
     e.preventDefault()
-    const errs = validateStep1()
+    const errs = validateStep2()
     if (Object.keys(errs).length) { setErrors(errs); return }
     setLoading(true)
     try {
       await apiSendRegistrationCode(form.email)
-      setStep(2)
+      setStep(3)
       setErrors({})
     } catch (err) {
       setErrors({ general: err.message })
@@ -181,6 +195,7 @@ export default function RegisterPage() {
   // ── Рендер шагов ──────────────────────────────────────────────────────────
   const stepsConfig = [
     { label: t('reg_step_account') },
+    { label: t('reg_step_profile') },
     { label: t('reg_step_code') },
   ]
 
@@ -233,9 +248,9 @@ export default function RegisterPage() {
             ))}
           </div>
 
-          {/* ── Шаг 1: Аккаунт + роль ── */}
+          {/* ── Шаг 1: Аккаунт ── */}
           {step === 1 && (
-            <form className="auth-card__form" onSubmit={handleRegister}>
+            <div className="auth-card__form">
 
               {/* Username */}
               <div className="auth-field">
@@ -299,6 +314,20 @@ export default function RegisterPage() {
                 {errors.confirm && <span className="auth-field__error">{errors.confirm}</span>}
               </div>
 
+              <button className="auth-card__submit auth-card__submit--purple" type="button" onClick={handleNext}>
+                {t('reg_continue')} →
+              </button>
+
+              {GOOGLE_CLIENT_ID && <GoogleRegisterSection setErrors={setErrors} />}
+
+              {errors.general && <div className="auth-card__error">{errors.general}</div>}
+            </div>
+          )}
+
+          {/* ── Шаг 2: Профиль ── */}
+          {step === 2 && (
+            <form className="auth-card__form" onSubmit={handleRegister}>
+
               {/* Роль */}
               <div className="auth-field">
                 <label className="auth-field__label">{t('reg_step3_title')}</label>
@@ -318,6 +347,22 @@ export default function RegisterPage() {
                 </div>
               </div>
 
+              {/* City */}
+              <div className="auth-field">
+                <label className="auth-field__label">{t('reg_city')}</label>
+                <div className="auth-field__wrap">
+                  <span className="auth-field__icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                  </span>
+                  <select className={`auth-field__input auth-field__input--select ${errors.city ? 'auth-field__input--error' : ''}`}
+                    name="city" value={form.city} onChange={handleChange}>
+                    <option value="">{t('reg_selectCity')}</option>
+                    {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
+                {errors.city && <span className="auth-field__error">{errors.city}</span>}
+              </div>
+
               {/* Agree */}
               <label className="auth-checkbox">
                 <input type="checkbox" name="agree" checked={form.agree} onChange={handleChange} className="auth-checkbox__input" />
@@ -328,18 +373,19 @@ export default function RegisterPage() {
               </label>
               {errors.agree && <span className="auth-field__error">{errors.agree}</span>}
 
-              <button className="auth-card__submit auth-card__submit--purple" type="submit" disabled={loading}>
-                {loading ? <span className="auth-card__spinner" /> : <>{t('reg_createAccount')} →</>}
-              </button>
-
-              {GOOGLE_CLIENT_ID && <GoogleRegisterSection setErrors={setErrors} />}
-
               {errors.general && <div className="auth-card__error">{errors.general}</div>}
+
+              <div className="auth-card__two-btns">
+                <button type="button" className="auth-card__back" onClick={() => setStep(1)}>← {t('reg_back')}</button>
+                <button className="auth-card__submit auth-card__submit--purple" type="submit" disabled={loading}>
+                  {loading ? <span className="auth-card__spinner" /> : t('reg_createAccount')}
+                </button>
+              </div>
             </form>
           )}
 
-          {/* ── Шаг 2: Подтверждение email ── */}
-          {step === 2 && (
+          {/* ── Шаг 3: Подтверждение email ── */}
+          {step === 3 && (
             <form className="auth-card__form" onSubmit={handleVerify}>
               <div className="auth-verify">
                 <div className="auth-verify__icon">
@@ -378,7 +424,7 @@ export default function RegisterPage() {
 
               <p className="auth-verify__resend">
                 {t('reg_codeNotReceived')}{' '}
-                <span className="auth-card__switch-link" onClick={() => setStep(1)}>{t('reg_codeResend')}</span>
+                <span className="auth-card__switch-link" onClick={() => setStep(2)}>{t('reg_codeResend')}</span>
               </p>
             </form>
           )}

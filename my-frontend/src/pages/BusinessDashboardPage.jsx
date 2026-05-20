@@ -809,7 +809,7 @@ export default function BusinessDashboardPage() {
   const [setupError, setSetupError] = useState('')
 
   // Tab
-  const [activeTab, setActiveTab] = useState('profile')
+  const [activeTab, setActiveTab] = useState('services')
 
   // Services management
   const [bizServices, setBizServices]     = useState([])
@@ -929,10 +929,6 @@ export default function BusinessDashboardPage() {
 
   // ── Save profile handler ───────────────────────────────────────────────────
   const handleSaveProfile = async () => {
-    if (!editDesc.trim() || !editCity.trim() || !editPhone.trim()) {
-      showToast('❌ Заполните «О нас», город и телефон — они обязательны')
-      return
-    }
     setSavingProfile(true)
     try {
       const token = await getAccessToken()
@@ -1090,26 +1086,6 @@ export default function BusinessDashboardPage() {
   }, [stories, storySearch, storyType, storySort])
 
   const needsStoreSetup = profileChecked && !loading && !error && bizId == null
-
-  // ── Required profile fields: must be filled before other tabs unlock ────────
-  const profileComplete = useMemo(() => {
-    if (!bizData) return false
-    return Boolean(
-      (bizData.city || '').trim() &&
-      (bizData.phone || '').trim() &&
-      (bizData.description || '').trim()
-    )
-  }, [bizData])
-
-  // Keep businessman on the profile tab until required fields are filled
-  useEffect(() => {
-    if (!profileComplete && activeTab !== 'profile') setActiveTab('profile')
-  }, [profileComplete, activeTab])
-
-  const tryChangeTab = (tab) => {
-    if (!profileComplete && tab !== 'profile') return
-    setActiveTab(tab)
-  }
 
   // ── Load stats + biz data ──────────────────────────────────────────────────
   useEffect(() => {
@@ -1485,7 +1461,7 @@ export default function BusinessDashboardPage() {
           </button>
         </div>
 
-        {!needsStoreSetup && profileComplete && (
+        {!needsStoreSetup && (
         <div className="biz-publish-btns">
           <button
             type="button"
@@ -1749,29 +1725,20 @@ export default function BusinessDashboardPage() {
 
             {/* ── Content Tabs ── */}
             <div className="biz-dashboard__section">
-              {!profileComplete && (
-                <div className="biz-profile-lock-banner">
-                  ⚠️ Заполните обязательные поля профиля (Город, Телефон, «О нас»), чтобы открыть остальные разделы.
-                </div>
-              )}
               <div className="biz-content-tabs">
                 <button
-                  className={`biz-content-tab ${activeTab === 'posts' ? 'biz-content-tab--active' : ''} ${!profileComplete ? 'biz-content-tab--locked' : ''}`}
-                  onClick={() => tryChangeTab('posts')}
-                  disabled={!profileComplete}
-                  title={!profileComplete ? 'Сначала заполните профиль' : undefined}
+                  className={`biz-content-tab ${activeTab === 'posts' ? 'biz-content-tab--active' : ''}`}
+                  onClick={() => setActiveTab('posts')}
                 >
-                  {!profileComplete && '🔒 '}📝 Посты
+                  📝 Посты
                   {postsLoaded && <span className="biz-content-tab__count">{posts.length}</span>}
                 </button>
                 {bizData?.is_pro && (
                   <button
-                    className={`biz-content-tab ${activeTab === 'tweets' ? 'biz-content-tab--active' : ''} ${!profileComplete ? 'biz-content-tab--locked' : ''}`}
-                    onClick={() => tryChangeTab('tweets')}
-                    disabled={!profileComplete}
-                    title={!profileComplete ? 'Сначала заполните профиль' : undefined}
+                    className={`biz-content-tab ${activeTab === 'tweets' ? 'biz-content-tab--active' : ''}`}
+                    onClick={() => setActiveTab('tweets')}
                   >
-                    {!profileComplete && '🔒 '}🐦 Твиты
+                    🐦 Твиты
                     {postsLoaded && (
                       <span className="biz-content-tab__count">
                         {posts.filter(p => !p.media_display).length}
@@ -1780,36 +1747,30 @@ export default function BusinessDashboardPage() {
                   </button>
                 )}
                 <button
-                  className={`biz-content-tab ${activeTab === 'stories' ? 'biz-content-tab--active' : ''} ${!profileComplete ? 'biz-content-tab--locked' : ''}`}
-                  onClick={() => tryChangeTab('stories')}
-                  disabled={!profileComplete}
-                  title={!profileComplete ? 'Сначала заполните профиль' : undefined}
+                  className={`biz-content-tab ${activeTab === 'stories' ? 'biz-content-tab--active' : ''}`}
+                  onClick={() => setActiveTab('stories')}
                 >
-                  {!profileComplete && '🔒 '}🎬 Истории
+                  🎬 Истории
                   {storiesLoaded && <span className="biz-content-tab__count">{stories.length}</span>}
                 </button>
                 <button
-                  className={`biz-content-tab ${activeTab === 'services' ? 'biz-content-tab--active' : ''} ${!profileComplete ? 'biz-content-tab--locked' : ''}`}
-                  onClick={() => tryChangeTab('services')}
-                  disabled={!profileComplete}
-                  title={!profileComplete ? 'Сначала заполните профиль' : undefined}
+                  className={`biz-content-tab ${activeTab === 'services' ? 'biz-content-tab--active' : ''}`}
+                  onClick={() => setActiveTab('services')}
                 >
-                  {!profileComplete && '🔒 '}🔧 Услуги
+                  🔧 Услуги
                   <span className="biz-content-tab__count">{bizServices.length}</span>
                 </button>
                 <button
                   className={`biz-content-tab ${activeTab === 'profile' ? 'biz-content-tab--active' : ''}`}
-                  onClick={() => tryChangeTab('profile')}
+                  onClick={() => setActiveTab('profile')}
                 >
                   ✏️ Профиль
                 </button>
                 <button
-                  className={`biz-content-tab ${activeTab === 'survey' ? 'biz-content-tab--active' : ''} ${!profileComplete ? 'biz-content-tab--locked' : ''}`}
-                  onClick={() => tryChangeTab('survey')}
-                  disabled={!profileComplete}
-                  title={!profileComplete ? 'Сначала заполните профиль' : undefined}
+                  className={`biz-content-tab ${activeTab === 'survey' ? 'biz-content-tab--active' : ''}`}
+                  onClick={() => setActiveTab('survey')}
                 >
-                  {!profileComplete && '🔒 '}📋 Опрос
+                  📋 Опрос
                 </button>
               </div>
 
@@ -2239,7 +2200,7 @@ export default function BusinessDashboardPage() {
 
                     {/* Description */}
                     <div className="biz-profile-edit__row">
-                      <label className="biz-profile-edit__label">О нас <span style={{ color: '#e53935' }}>*</span></label>
+                      <label className="biz-profile-edit__label">О нас</label>
                       <textarea
                         className="biz-profile-edit__textarea"
                         placeholder="Расскажите о вашем бизнесе..."
@@ -2251,7 +2212,7 @@ export default function BusinessDashboardPage() {
 
                     {/* City */}
                     <div className="biz-profile-edit__row">
-                      <label className="biz-profile-edit__label">Город <span style={{ color: '#e53935' }}>*</span></label>
+                      <label className="biz-profile-edit__label">Город</label>
                       <select
                         className="biz-profile-edit__input"
                         value={editCity}
@@ -2266,7 +2227,7 @@ export default function BusinessDashboardPage() {
 
                     {/* Phone */}
                     <div className="biz-profile-edit__row">
-                      <label className="biz-profile-edit__label">Телефон <span style={{ color: '#e53935' }}>*</span></label>
+                      <label className="biz-profile-edit__label">Телефон</label>
                       <input
                         className="biz-profile-edit__input"
                         placeholder="+90 555 000 00 00"
