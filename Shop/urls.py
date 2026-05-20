@@ -1,6 +1,6 @@
 from django.urls import path
-from rest_framework_simplejwt.views import TokenRefreshView
 
+from Shop.servicefunc.views.auth.token_refresh import SafeTokenRefreshView
 from Shop.servicefunc.views.auth.registration import RegisterView
 from Shop.servicefunc.views.auth.login import LoginView
 from Shop.servicefunc.views.auth.logout import LogoutView
@@ -73,7 +73,7 @@ urlpatterns = [
     path('auth/login/',                              LoginView.as_view(),                        name='auth_login'),
     path('auth/logout/',                             LogoutView.as_view(),                       name='auth_logout'),
     path('auth/me/',                                 MeView.as_view(),                           name='auth_me'),
-    path('auth/token/refresh/',                      TokenRefreshView.as_view(),                 name='token_refresh'),
+    path('auth/token/refresh/',                      SafeTokenRefreshView.as_view(),             name='token_refresh'),
     path('auth/password-reset/',                     PasswordResetRequestView.as_view(),         name='password_reset'),
     path('auth/password-reset/confirm/',             PasswordResetConfirmView.as_view(),         name='password_reset_confirm'),
     path('auth/qr-token/',                           QRTokenView.as_view(),                      name='qr_token'),
