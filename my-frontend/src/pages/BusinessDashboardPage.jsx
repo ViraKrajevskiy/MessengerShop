@@ -809,7 +809,7 @@ export default function BusinessDashboardPage() {
   const [setupError, setSetupError] = useState('')
 
   // Tab
-  const [activeTab, setActiveTab] = useState('services')
+  const [activeTab, setActiveTab] = useState('profile')
 
   // Services management
   const [bizServices, setBizServices]     = useState([])
@@ -1447,12 +1447,10 @@ export default function BusinessDashboardPage() {
             Назад
           </button>
           <div>
-            <h1 className="biz-dashboard__title">
-              {needsStoreSetup ? 'Создайте страницу магазина' : 'Панель управления'}
-            </h1>
+            <h1 className="biz-dashboard__title">Панель управления</h1>
             <p className="biz-dashboard__sub">
               {needsStoreSetup
-                ? 'Без профиля магазина нельзя публиковать сторис, посты и услуги'
+                ? 'Заполните данные магазина в разделе «Профиль» — без них остальные разделы недоступны'
                 : 'Статистика вашего бизнеса'}
             </p>
           </div>
@@ -1542,91 +1540,123 @@ export default function BusinessDashboardPage() {
         ) : error ? (
           <div className="biz-dashboard__error">{error}</div>
         ) : needsStoreSetup ? (
-          <form className="biz-store-setup" onSubmit={handleCreateStore}>
-            <p className="biz-store-setup__lead">
-              Заполните основные данные — после сохранения откроются сторис, посты и каталог.
-            </p>
-            <div className="biz-store-setup__grid">
-              <label className="biz-store-setup__field">
-                <span>Название магазина / бренда *</span>
-                <input
-                  type="text"
-                  value={setupBrandName}
-                  onChange={(e) => setSetupBrandName(e.target.value)}
-                  placeholder="Как вас видят клиенты"
-                  maxLength={200}
-                  autoComplete="organization"
-                />
-              </label>
-              <label className="biz-store-setup__field">
-                <span>Категория *</span>
-                <select
-                  value={setupCategory}
-                  onChange={(e) => setSetupCategory(e.target.value)}
-                >
-                  {BIZ_CATEGORY_OPTIONS.map((o) => (
-                    <option key={o.value} value={o.value}>{o.label}</option>
-                  ))}
-                </select>
-              </label>
-              <label className="biz-store-setup__field">
-                <span>Город *</span>
-                <select
-                  value={setupCity}
-                  onChange={(e) => setSetupCity(e.target.value)}
-                >
-                  <option value="">— выберите —</option>
-                  {CITY_OPTIONS.map((c) => (
-                    <option key={c.value} value={c.value}>{c.label}</option>
-                  ))}
-                </select>
-              </label>
-              <label className="biz-store-setup__field">
-                <span>Телефон</span>
-                <input
-                  type="tel"
-                  value={setupPhone}
-                  onChange={(e) => setSetupPhone(e.target.value)}
-                  placeholder="+90 …"
-                  autoComplete="tel"
-                />
-              </label>
-              <label className="biz-store-setup__field biz-store-setup__field--wide">
-                <span>Адрес (необязательно)</span>
-                <input
-                  type="text"
-                  value={setupAddress}
-                  onChange={(e) => setSetupAddress(e.target.value)}
-                  placeholder="Улица, район"
-                />
-              </label>
-              <label className="biz-store-setup__field biz-store-setup__field--wide">
-                <span>Описание магазина * (мин. 20 символов)</span>
-                <textarea
-                  value={setupDescription}
-                  onChange={(e) => setSetupDescription(e.target.value)}
-                  placeholder="Чем вы занимаетесь, что предлагаете клиентам"
-                  rows={4}
-                />
-              </label>
-              <label className="biz-store-setup__field biz-store-setup__field--wide">
-                <span>Логотип (необязательно)</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => setSetupLogo(e.target.files?.[0] || null)}
-                />
-              </label>
+          <div className="biz-dashboard__section">
+            <div className="biz-profile-lock-banner">
+              ⚠️ Заполните данные магазина — без них остальные разделы заблокированы
             </div>
-            {setupError && <p className="biz-form__error biz-store-setup__error">{setupError}</p>}
-            <button
-              type="submit"
-              className="biz-store-setup__submit"
-              disabled={setupSubmitting}
-            >
-              {setupSubmitting ? <span className="biz-form__spinner" /> : 'Создать магазин и продолжить'}
-            </button>
-          </form>
+            <div className="biz-content-tabs">
+              {[
+                ['posts', '📝 Посты'],
+                ['tweets', '🐦 Твиты'],
+                ['stories', '🎬 Истории'],
+                ['services', '🔧 Услуги'],
+              ].map(([key, label]) => (
+                <button
+                  key={key}
+                  className="biz-content-tab biz-content-tab--locked"
+                  disabled
+                  title="Сначала заполните данные магазина"
+                >
+                  🔒 {label}
+                </button>
+              ))}
+              <button className="biz-content-tab biz-content-tab--active">
+                ✏️ Профиль
+              </button>
+              <button
+                className="biz-content-tab biz-content-tab--locked"
+                disabled
+                title="Сначала заполните данные магазина"
+              >
+                🔒 📋 Опрос
+              </button>
+            </div>
+            <form className="biz-store-setup" onSubmit={handleCreateStore}>
+              <p className="biz-store-setup__lead">
+                Заполните основные данные магазина — после сохранения откроются сторис, посты и услуги.
+              </p>
+              <div className="biz-store-setup__grid">
+                <label className="biz-store-setup__field">
+                  <span>Название магазина / бренда *</span>
+                  <input
+                    type="text"
+                    value={setupBrandName}
+                    onChange={(e) => setSetupBrandName(e.target.value)}
+                    placeholder="Как вас видят клиенты"
+                    maxLength={200}
+                    autoComplete="organization"
+                  />
+                </label>
+                <label className="biz-store-setup__field">
+                  <span>Категория *</span>
+                  <select
+                    value={setupCategory}
+                    onChange={(e) => setSetupCategory(e.target.value)}
+                  >
+                    {BIZ_CATEGORY_OPTIONS.map((o) => (
+                      <option key={o.value} value={o.value}>{o.label}</option>
+                    ))}
+                  </select>
+                </label>
+                <label className="biz-store-setup__field">
+                  <span>Город *</span>
+                  <select
+                    value={setupCity}
+                    onChange={(e) => setSetupCity(e.target.value)}
+                  >
+                    <option value="">— выберите —</option>
+                    {CITY_OPTIONS.map((c) => (
+                      <option key={c.value} value={c.value}>{c.label}</option>
+                    ))}
+                  </select>
+                </label>
+                <label className="biz-store-setup__field">
+                  <span>Телефон</span>
+                  <input
+                    type="tel"
+                    value={setupPhone}
+                    onChange={(e) => setSetupPhone(e.target.value)}
+                    placeholder="+90 …"
+                    autoComplete="tel"
+                  />
+                </label>
+                <label className="biz-store-setup__field biz-store-setup__field--wide">
+                  <span>Адрес (необязательно)</span>
+                  <input
+                    type="text"
+                    value={setupAddress}
+                    onChange={(e) => setSetupAddress(e.target.value)}
+                    placeholder="Улица, район"
+                  />
+                </label>
+                <label className="biz-store-setup__field biz-store-setup__field--wide">
+                  <span>Описание магазина * (мин. 20 символов)</span>
+                  <textarea
+                    value={setupDescription}
+                    onChange={(e) => setSetupDescription(e.target.value)}
+                    placeholder="Чем вы занимаетесь, что предлагаете клиентам"
+                    rows={4}
+                  />
+                </label>
+                <label className="biz-store-setup__field biz-store-setup__field--wide">
+                  <span>Логотип (необязательно)</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setSetupLogo(e.target.files?.[0] || null)}
+                  />
+                </label>
+              </div>
+              {setupError && <p className="biz-form__error biz-store-setup__error">{setupError}</p>}
+              <button
+                type="submit"
+                className="biz-store-setup__submit"
+                disabled={setupSubmitting}
+              >
+                {setupSubmitting ? <span className="biz-form__spinner" /> : 'Сохранить и открыть разделы'}
+              </button>
+            </form>
+          </div>
         ) : stats ? (
           <>
             {/* ── Stat Cards ── */}
