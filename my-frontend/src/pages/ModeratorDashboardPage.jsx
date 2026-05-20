@@ -156,7 +156,7 @@ function VerificationTab({ token }) {
   const handleReview = async (action) => {
     setSaving(true)
     try {
-      await apiModeratorReviewVerification(token, detail.id, { status: action, comment })
+      await apiModeratorReviewVerification(token, detail.id, { action, comment })
       const updated = await apiModeratorGetVerificationDetail(token, detail.id)
       setDetail(updated)
       load()
@@ -283,10 +283,10 @@ function VerificationTab({ token }) {
                       rows={2}
                     />
                     <div className="mod-modal__actions">
-                      <button className="mod-btn mod-btn--green" disabled={saving} onClick={() => handleReview('APPROVED')}>
+                      <button className="mod-btn mod-btn--green" disabled={saving} onClick={() => handleReview('approve')}>
                         {saving ? '…' : '✅ Одобрить'}
                       </button>
-                      <button className="mod-btn mod-btn--red" disabled={saving} onClick={() => handleReview('REJECTED')}>
+                      <button className="mod-btn mod-btn--red" disabled={saving} onClick={() => handleReview('reject')}>
                         {saving ? '…' : '❌ Отклонить'}
                       </button>
                     </div>
