@@ -73,7 +73,7 @@
   "auth_qrExpired": "QR code is expired",
   "auth_loginNormal": "Sign in normally",
   "reg_step1_title": "Create an account",
-  "reg_step1_sub": "Step 1 of 3 — Sign-in method",
+  "reg_step1_sub": "Step 1 of 2 — Account and role",
   "reg_googleBtn": "Continue with Google",
   "reg_orEmail": "or with email",
   "reg_step2_title": "Account details",

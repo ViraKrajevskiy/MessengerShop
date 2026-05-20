@@ -73,7 +73,7 @@
   "auth_qrExpired": "QR kod süresi dolmuş",
   "auth_loginNormal": "Normal şekilde giriş yap",
   "reg_step1_title": "Hesap oluştur",
-  "reg_step1_sub": "Adım 1/3 — Giriş yöntemi",
+  "reg_step1_sub": "Adım 1/2 — Hesap ve rol",
   "reg_googleBtn": "Google ile devam et",
   "reg_orEmail": "veya e-posta ile",
   "reg_step2_title": "Hesap bilgileri",

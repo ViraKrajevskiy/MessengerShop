@@ -73,7 +73,7 @@
   "auth_qrExpired": "QR-код недействителен",
   "auth_loginNormal": "Войти обычным способом",
   "reg_step1_title": "Создать аккаунт",
-  "reg_step1_sub": "Шаг 1 из 3 — Способ входа",
+  "reg_step1_sub": "Шаг 1 из 2 — Аккаунт и роль",
   "reg_googleBtn": "Продолжить через Google",
   "reg_orEmail": "или через email",
   "reg_step2_title": "Данные аккаунта",
