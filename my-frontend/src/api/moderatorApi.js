@@ -78,11 +78,11 @@ export async function apiModeratorGetVerifications(token, { status } = {}) {
   return request(`/verification/${params}`, { headers: auth(token) })
 }
 
-export async function apiModeratorReviewVerification(token, id, { status, comment }) {
+export async function apiModeratorReviewVerification(token, id, { action, comment }) {
   return request(`/verification/${id}/`, {
     method: 'PATCH',
     headers: auth(token),
-    body: JSON.stringify({ status, comment }),
+    body: JSON.stringify({ action, comment }),
   })
 }
 
