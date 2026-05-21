@@ -147,13 +147,24 @@ function Gallery({ posts, onVideoSelect, onPhotoSelect, isPremium }) {
             onClick={() => p.media_type === 'VIDEO' ? onVideoSelect({ url: p.media_display, title: '' }) : onPhotoSelect(p.media_display)}
           >
             {p.media_type === 'VIDEO' ? (
-              <div className="bp__gallery-video-placeholder">
-                <div className="bp__gallery-video-icon">▶</div>
-              </div>
+              <video
+                src={p.media_display + '#t=0.5'}
+                className="bp__gallery-video-thumb"
+                preload="metadata"
+                muted
+                playsInline
+              />
             ) : (
               <img src={p.media_display} alt="" loading="lazy" />
             )}
-            {p.media_type === 'VIDEO' && <div className="bp__play">▶</div>}
+            {p.media_type === 'VIDEO' && (
+              <div className="bp__play">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                  <circle cx="16" cy="16" r="16" fill="rgba(0,0,0,0.45)"/>
+                  <polygon points="13,10 24,16 13,22" fill="white"/>
+                </svg>
+              </div>
+            )}
           </div>
         ))}
       </div>
