@@ -265,8 +265,9 @@
 @media (max-width: 768px) {
   .nearby__track {
     scroll-snap-type: x mandatory;
-    padding-inline: 8%;
-    scroll-padding-inline: 8%;
+    padding-left: 8%;
+    padding-right: 8%;
+    scroll-padding-left: 8%;
   }
 
   .nearby__card {
@@ -299,12 +300,14 @@
   .nearby__cities::-webkit-scrollbar { display: none; }
 
   .nearby__track {
-    padding-inline: 8vw;
-    scroll-padding-inline: 8vw;
+    padding-left: 8vw;
+    padding-right: 8vw;
+    scroll-padding-left: 8vw;
   }
 
   .nearby__card {
     flex: 0 0 84vw;
+    scroll-snap-align: center;
   }
 
   .nearby__card-img-wrap {
