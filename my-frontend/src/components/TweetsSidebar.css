@@ -36,8 +36,8 @@
 /* Tweet item */
 .tweet-item {
   display: flex;
-  gap: 10px;
-  padding: 12px 14px;
+  gap: 12px;
+  padding: 14px 16px;
   border-bottom: 1px solid var(--border-light);
   cursor: pointer;
   transition: background 0.18s;
@@ -53,9 +53,9 @@
 }
 
 .tweet-item__img {
-  width: 56px;
-  height: 56px;
-  border-radius: 8px;
+  width: 70px;
+  height: 70px;
+  border-radius: 10px;
   object-fit: cover;
   flex-shrink: 0;
   box-shadow: 0 2px 8px rgba(0,0,0,0.12);
@@ -116,9 +116,9 @@
 }
 
 .tweet-item__img-skeleton {
-  width: 56px;
-  height: 56px;
-  border-radius: 8px;
+  width: 70px;
+  height: 70px;
+  border-radius: 10px;
   background: var(--border-light);
   flex-shrink: 0;
   animation: tweetSkPulse 1.4s ease-in-out infinite;
