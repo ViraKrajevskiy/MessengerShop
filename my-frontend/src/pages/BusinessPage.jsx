@@ -121,7 +121,7 @@ function BusinessAudioPlayer({ audioUrl }) {
   )
 }
 
-function Gallery({ posts, onVideoSelect, isPremium }) {
+function Gallery({ posts, onVideoSelect, onPhotoSelect, isPremium }) {
   const { t } = useLanguage()
   const [tab, setTab] = useState('all')
   const images = posts.filter(p => p.media_display && p.media_type !== 'VIDEO')
@@ -144,7 +144,7 @@ function Gallery({ posts, onVideoSelect, isPremium }) {
           <div
             key={p.id}
             className={`bp__gallery-cell${p.media_type === 'VIDEO' ? ' bp__gallery-cell--video' : ''}`}
-            onClick={() => p.media_type === 'VIDEO' && onVideoSelect({ url: p.media_display, title: '' })}
+            onClick={() => p.media_type === 'VIDEO' ? onVideoSelect({ url: p.media_display, title: '' }) : onPhotoSelect(p.media_display)}
           >
             {p.media_type === 'VIDEO' ? (
               <div className="bp__gallery-video-placeholder">
@@ -334,6 +334,7 @@ export default function BusinessPage() {
   const [postsPage, setPostsPage]   = useState(0)
   const POSTS_PER_PAGE = 8
   const [selectedVideo, setSelectedVideo] = useState(null)
+  const [selectedPhoto, setSelectedPhoto] = useState(null)
   const [avatarVideoOpen, setAvatarVideoOpen] = useState(false)
 
   const showToast = (msg) => {
@@ -521,6 +522,25 @@ export default function BusinessPage() {
         />
       )}
 
+      {/* Photo Modal */}
+      {selectedPhoto && (
+        <div
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.92)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10000, cursor: 'zoom-out' }}
+          onClick={() => setSelectedPhoto(null)}
+        >
+          <img
+            src={selectedPhoto}
+            alt=""
+            style={{ maxWidth: '95vw', maxHeight: '92vh', objectFit: 'contain', borderRadius: 10, display: 'block' }}
+            onClick={e => e.stopPropagation()}
+          />
+          <button
+            style={{ position: 'absolute', top: 16, right: 16, background: 'rgba(255,255,255,0.15)', border: 'none', color: '#fff', fontSize: 22, width: 40, height: 40, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}
+            onClick={() => setSelectedPhoto(null)}
+          >✕</button>
+        </div>
+      )}
+
       {/* Toast */}
       {toast && (
         <div style={{
@@ -701,7 +721,7 @@ export default function BusinessPage() {
               navigate={navigate}
             />
 
-            <Gallery posts={posts} onVideoSelect={setSelectedVideo} isPremium={biz.is_vip} />
+            <Gallery posts={posts} onVideoSelect={setSelectedVideo} onPhotoSelect={setSelectedPhoto} isPremium={biz.is_vip} />
 
             {posts.length > 0 && (
               <section className="bp__card" id="section-posts">

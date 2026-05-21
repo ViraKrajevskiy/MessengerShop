@@ -667,7 +667,7 @@
 
 /* Posts section — без отдельного «контейнера», фон как у страницы */
 .home-posts-section {
-  margin: 32px 0;
+  margin: 10px 0 32px;
   min-height: 0;
   background: transparent;
   border: none;
