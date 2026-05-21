@@ -263,8 +263,15 @@
 }
 
 @media (max-width: 768px) {
+  .nearby__track {
+    scroll-snap-type: x mandatory;
+    padding-inline: 8%;
+    scroll-padding-inline: 8%;
+  }
+
   .nearby__card {
-    flex: 0 0 calc(100% - 8px);
+    flex: 0 0 84%;
+    scroll-snap-align: center;
   }
 
   .nearby__card-img-wrap {
@@ -290,6 +297,15 @@
     -webkit-overflow-scrolling: touch;
   }
   .nearby__cities::-webkit-scrollbar { display: none; }
+
+  .nearby__track {
+    padding-inline: 8vw;
+    scroll-padding-inline: 8vw;
+  }
+
+  .nearby__card {
+    flex: 0 0 84vw;
+  }
 
   .nearby__card-img-wrap {
     width: 110px;
