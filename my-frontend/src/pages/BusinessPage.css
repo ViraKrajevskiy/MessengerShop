@@ -479,14 +479,28 @@
   cursor: pointer;
   background: var(--bg-tertiary);
 }
-.bp__gallery-cell img {
+/* Размытый фон — то же фото, покрывает всю ячейку */
+.bp__gallery-img-bg {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  filter: blur(14px) brightness(0.65);
+  transform: scale(1.12);
+  display: block;
+}
+/* Основное фото поверх — без обрезки */
+.bp__gallery-img-main {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
   display: block;
   transition: transform 0.3s;
 }
-.bp__gallery-cell:hover img { transform: scale(1.05); }
+.bp__gallery-cell:hover .bp__gallery-img-main { transform: scale(1.04); }
 .bp__gallery-cell--video {
   cursor: pointer;
 }

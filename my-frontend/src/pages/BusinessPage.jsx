@@ -160,7 +160,10 @@ function Gallery({ posts, onVideoSelect, onPhotoSelect, isPremium }) {
                 playsInline
               />
             ) : (
-              <img src={p.media_display} alt="" loading="lazy" />
+              <>
+                <img src={p.media_display} aria-hidden="true" className="bp__gallery-img-bg" />
+                <img src={p.media_display} alt="" loading="lazy" className="bp__gallery-img-main" />
+              </>
             )}
             {p.media_type === 'VIDEO' && (
               <div className="bp__play">
