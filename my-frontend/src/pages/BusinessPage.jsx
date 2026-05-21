@@ -475,7 +475,20 @@ export default function BusinessPage() {
   const handleJoinGroup = async () => {
     if (!user) { navigate('/login'); return }
     if (!biz.group_id) return
-    navigate('/messenger', { state: { openGroup: { id: biz.group_id, name: biz.name, member_count: 0 } } })
+    if (groupLoading) return
+    try {
+      if (!inGroup) {
+        setGroupLoading(true)
+        const token = await getAccessToken()
+        await apiJoinGroup(biz.group_id, token)
+        setInGroup(true)
+      }
+      navigate('/messenger', { state: { openGroup: { id: biz.group_id, name: biz.group_name || biz.brand_name, member_count: 0 } } })
+    } catch (e) {
+      showToast('❌ ' + (e.message || 'Ошибка при вступлении'))
+    } finally {
+      setGroupLoading(false)
+    }
   }
 
   const handleSubscribe = async () => {

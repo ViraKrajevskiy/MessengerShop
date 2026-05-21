@@ -62,6 +62,7 @@ class BusinessDetailSerializer(serializers.ModelSerializer):
     is_vip            = serializers.BooleanField(read_only=True)
     is_pro            = serializers.BooleanField(read_only=True)
     tags              = serializers.SerializerMethodField()
+    group_name        = serializers.SerializerMethodField()
 
     class Meta:
         model = Business
@@ -74,7 +75,7 @@ class BusinessDetailSerializer(serializers.ModelSerializer):
             'owner_username', 'owner_email', 'owner_avatar',
             'owner_is_online', 'owner_last_seen',
             'subscribers_count', 'is_subscribed',
-            'products', 'group_id', 'faq', 'services', 'tags',
+            'products', 'group_id', 'group_name', 'faq', 'services', 'tags',
             'social_telegram', 'social_whatsapp', 'social_instagram',
             'social_youtube', 'social_tiktok', 'social_facebook',
         ]
@@ -82,6 +83,9 @@ class BusinessDetailSerializer(serializers.ModelSerializer):
 
     def get_owner_is_online(self, obj):
         return bool(obj.owner and obj.owner.is_online)
+
+    def get_group_name(self, obj):
+        return obj.group.name if obj.group_id else None
 
     def get_tags(self, obj):
         return [t.name for t in obj.tags.all()]
@@ -121,6 +125,12 @@ class BusinessCreateUpdateSerializer(serializers.ModelSerializer):
     # Accept video files in addition to images
     logo  = serializers.FileField(required=False, allow_null=True)
     cover = serializers.FileField(required=False, allow_null=True)
+    # Public group that appears on the business profile page
+    group = serializers.PrimaryKeyRelatedField(
+        queryset=GroupChat.objects.all(),
+        required=False,
+        allow_null=True,
+    )
 
     class Meta:
         model = Business
@@ -129,8 +139,19 @@ class BusinessCreateUpdateSerializer(serializers.ModelSerializer):
             'city', 'address', 'phone', 'website', 'logo', 'cover', 'audio', 'faq', 'services',
             'social_telegram', 'social_whatsapp', 'social_instagram',
             'social_youtube', 'social_tiktok', 'social_facebook',
-            'tags', 'remove_audio',
+            'tags', 'remove_audio', 'group',
         ]
+
+    def validate_group(self, value):
+        """Only allow groups where the requesting user is OWNER."""
+        if value is None:
+            return value
+        request = self.context.get('request')
+        if request and not value.members.filter(
+            user=request.user, role=GroupMember.Role.OWNER
+        ).exists():
+            raise serializers.ValidationError('Вы не являетесь владельцем этой группы.')
+        return value
 
     def validate_website(self, value):
         if value and not value.startswith(('http://', 'https://')):
@@ -189,6 +210,7 @@ class BusinessCreateUpdateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         tag_names = validated_data.pop('tags', [])
         validated_data.pop('remove_audio', False)
+        validated_data.pop('group', None)   # auto-created below
         user = self.context['request'].user
         try:
             with transaction.atomic():

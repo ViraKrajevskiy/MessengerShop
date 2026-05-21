@@ -37,6 +37,13 @@ class RegisterView(APIView):
         username = serializer.validated_data['username']
         role     = serializer.validated_data['role']
 
+        # Имя пользователя уже занято — говорим сразу, до отправки письма
+        if User.objects.filter(username=username).exists():
+            return Response(
+                {'username': ['Это имя пользователя уже занято.']},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         # Активный аккаунт с таким email — не раскрываем, просто говорим ОК
         if User.objects.filter(email=email, is_active=True).exists():
             return Response({'message': _GENERIC_OK, 'role': role}, status=status.HTTP_201_CREATED)

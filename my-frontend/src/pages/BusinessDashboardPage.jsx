@@ -938,6 +938,12 @@ export default function BusinessDashboardPage() {
   const [editTiktok,    setEditTiktok]    = useState('')
   const [editFacebook,  setEditFacebook]  = useState('')
 
+  // Public group selector
+  const [myGroups,        setMyGroups]        = useState([])
+  const [selectedGroupId, setSelectedGroupId] = useState(null)
+  const [savingGroup,     setSavingGroup]     = useState(false)
+  const [groupMsg,        setGroupMsg]        = useState('')
+
   // FAQ edit
   const [bizFaq,      setBizFaq]      = useState([])
   const [faqQuestion, setFaqQuestion] = useState('')
@@ -991,6 +997,7 @@ export default function BusinessDashboardPage() {
     setEditAudio(null)
     setRemoveAudio(false)
     if (audioInputRef.current) audioInputRef.current.value = ''
+    setSelectedGroupId(bizData.group_id || null)
   }, [bizData])
 
   // ── Save profile handler ───────────────────────────────────────────────────
@@ -1211,6 +1218,52 @@ export default function BusinessDashboardPage() {
       })
       .finally(() => setLoading(false))
   }, [user, navigate, getAccessToken])
+
+  // ── Load my groups (for public group selector) ─────────────────────────────
+  useEffect(() => {
+    if (!user) return
+    ;(async () => {
+      try {
+        const token = await getAccessToken()
+        const res = await fetch(`${BASE}/groups/`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        if (!res.ok) return
+        const data = await res.json()
+        // Only show groups where I am OWNER
+        setMyGroups(Array.isArray(data) ? data.filter(g => g.my_role === 'OWNER') : [])
+      } catch {}
+    })()
+  }, [user, getAccessToken])
+
+  // ── Save public group ──────────────────────────────────────────────────────
+  const handleSavePublicGroup = async () => {
+    setSavingGroup(true)
+    setGroupMsg('')
+    try {
+      const token = await getAccessToken()
+      const res = await fetch(`${BASE}/businesses/me/`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ group: selectedGroupId }),
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => null)
+        throw new Error((err && (err.detail || err.group)) || 'Ошибка')
+      }
+      const updated = await res.json()
+      setBizData(updated)
+      setGroupMsg('✅ Публичная группа сохранена!')
+    } catch (e) {
+      setGroupMsg('❌ ' + (e.message || 'Ошибка при сохранении'))
+    } finally {
+      setSavingGroup(false)
+      setTimeout(() => setGroupMsg(''), 3500)
+    }
+  }
 
   const handleCreateStore = async (e) => {
     e?.preventDefault?.()
@@ -2457,6 +2510,46 @@ export default function BusinessDashboardPage() {
 
                     <div className="biz-svc-hint" style={{ marginTop: 4 }}>
                       Ссылки отображаются на странице вашего магазина. Сохраните через кнопку «💾 Сохранить профиль» выше.
+                    </div>
+                  </div>
+
+                  {/* ── Public group section ── */}
+                  <div className="biz-profile-edit biz-profile-edit--section">
+                    <div className="biz-profile-edit__section-title">👥 Публичная группа</div>
+                    <p className="biz-svc-hint">
+                      Выберите группу, в которую пользователи смогут вступить прямо со страницы вашего магазина.
+                      Отображается кнопка «Вступить в группу».
+                    </p>
+
+                    <div className="biz-profile-edit__row">
+                      <label className="biz-profile-edit__label">Группа</label>
+                      <select
+                        className="biz-profile-edit__input"
+                        value={selectedGroupId ?? ''}
+                        onChange={e => setSelectedGroupId(e.target.value ? Number(e.target.value) : null)}
+                      >
+                        <option value="">— Не выбрана —</option>
+                        {myGroups.map(g => (
+                          <option key={g.id} value={g.id}>{g.name}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {myGroups.length === 0 && (
+                      <p className="biz-svc-hint" style={{ color: '#888' }}>
+                        У вас пока нет созданных групп. Создайте группу в разделе «Мессенджер».
+                      </p>
+                    )}
+
+                    <div className="biz-svc-save-row">
+                      <button
+                        className="biz-svc-save-btn"
+                        onClick={handleSavePublicGroup}
+                        disabled={savingGroup}
+                      >
+                        {savingGroup ? <span className="biz-form__spinner" /> : '💾 Сохранить группу'}
+                      </button>
+                      {groupMsg && <span className="biz-svc-hint">{groupMsg}</span>}
                     </div>
                   </div>
 

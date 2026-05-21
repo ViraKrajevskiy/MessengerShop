@@ -104,9 +104,22 @@ class GroupMembersView(APIView):
         username = request.data.get('username', '').strip()
         if not username:
             return Response({'detail': 'username обязателен'}, status=status.HTTP_400_BAD_REQUEST)
-        try:
-            target_user = User.objects.get(username=username)
-        except User.DoesNotExist:
+
+        # Try exact username first, then by business brand_name
+        target_user = User.objects.filter(username=username).first()
+        if not target_user:
+            from Shop.models import Business
+            biz = Business.objects.filter(
+                brand_name__iexact=username
+            ).select_related('owner').first()
+            if not biz:
+                biz = Business.objects.filter(
+                    brand_name__icontains=username
+                ).select_related('owner').first()
+            if biz:
+                target_user = biz.owner
+
+        if not target_user:
             return Response({'detail': 'Пользователь не найден'}, status=status.HTTP_404_NOT_FOUND)
 
         if group.members.filter(user=target_user).exists():
