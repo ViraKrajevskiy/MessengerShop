@@ -136,9 +136,14 @@ function Gallery({ posts, onVideoSelect, onPhotoSelect, isPremium }) {
         <div className="bp__gallery-tabs">
           <button className={`bp__tab ${tab === 'all'   ? 'bp__tab--on' : ''}`} onClick={() => setTab('all')}>{t('biz_galleryAll')}</button>
           {images.length > 0 && <button className={`bp__tab ${tab === 'photo' ? 'bp__tab--on' : ''}`} onClick={() => setTab('photo')}>{t('biz_galleryPhoto')}</button>}
-          {videos.length > 0 && <button className={`bp__tab ${tab === 'video' ? 'bp__tab--on' : ''}`} onClick={() => setTab('video')}>{t('biz_galleryVideo')}</button>}
+          <button className={`bp__tab ${tab === 'video' ? 'bp__tab--on' : ''}`} onClick={() => setTab('video')}>{t('biz_galleryVideo')}</button>
         </div>
       </div>
+      {tab === 'video' && videos.length === 0 ? (
+        <div style={{ padding: '32px 0', textAlign: 'center', color: 'var(--text-muted)', fontSize: 14 }}>
+          🎬 Видео пока нет
+        </div>
+      ) : (
       <div className={`bp__gallery${isPremium ? ' bp__gallery--premium' : ''}`}>
         {items.map(p => (
           <div
@@ -168,6 +173,7 @@ function Gallery({ posts, onVideoSelect, onPhotoSelect, isPremium }) {
           </div>
         ))}
       </div>
+      )}
     </section>
   )
 }
