@@ -14,7 +14,7 @@ from Shop.servicefunc.views.auth.email_password_reset import SendPasswordResetCo
 from Shop.servicefunc.views.moderator.auth import ModeratorLoginView
 from Shop.servicefunc.views.moderator.posts import ModeratorPostListView, ModeratorPostBlockView
 from Shop.servicefunc.views.moderator.complaints import ComplaintCreateView, ComplaintReasonListView, ModeratorComplaintListView, ModeratorComplaintDetailView
-from Shop.servicefunc.views.moderator.tariffs import ModeratorBusinessListView, ModeratorTariffAssignView, ModeratorVerifyBusinessView
+from Shop.servicefunc.views.moderator.tariffs import ModeratorBusinessListView, ModeratorTariffAssignView, ModeratorVerifyBusinessView, ModeratorBusinessBlockView, ModeratorBusinessProductsView
 from Shop.servicefunc.views.moderator.payments import (
     PaymentRequestCreateView, PaymentRequestStatusView,
     ModeratorPaymentListView, ModeratorPaymentDetailView,
@@ -169,6 +169,8 @@ urlpatterns = [
     path('moderator/businesses/',      ModeratorBusinessListView.as_view(),        name='moderator_business_list'),
     path('moderator/businesses/<int:pk>/tariff/', ModeratorTariffAssignView.as_view(), name='moderator_tariff_assign'),
     path('moderator/businesses/<int:pk>/verify/', ModeratorVerifyBusinessView.as_view(), name='moderator_verify_business'),
+    path('moderator/businesses/<int:pk>/block/',  ModeratorBusinessBlockView.as_view(),  name='moderator_business_block'),
+    path('moderator/businesses/<int:pk>/products/', ModeratorBusinessProductsView.as_view(), name='moderator_business_products'),
 
     path('moderator/stories/',                      ModeratorStoryListView.as_view(),    name='moderator_story_list'),
     path('moderator/stories/<int:pk>/block/',        ModeratorStoryBlockView.as_view(),   name='moderator_story_block'),

@@ -114,6 +114,13 @@ class Business(BaseController):
     social_tiktok    = models.CharField(max_length=200, blank=True)
     social_facebook  = models.CharField(max_length=200, blank=True)
 
+    # Moderator block
+    is_blocked   = models.BooleanField(default=False)
+    blocked_by   = models.ForeignKey(
+        'User', null=True, blank=True, on_delete=models.SET_NULL, related_name='blocked_businesses',
+    )
+    blocked_at   = models.DateTimeField(null=True, blank=True)
+
     @property
     def is_vip(self):
         if self.plan_type != self.PlanType.VIP:

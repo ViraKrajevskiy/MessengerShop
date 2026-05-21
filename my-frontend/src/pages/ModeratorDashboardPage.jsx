@@ -54,6 +54,7 @@ import {
   apiModeratorGetPosts, apiModeratorBlockPost,
   apiModeratorGetComplaints, apiModeratorResolveComplaint,
   apiModeratorGetBusinesses, apiModeratorAssignTariff, apiModeratorToggleVerify,
+  apiModeratorBlockBusiness, apiModeratorGetBusinessProducts,
   apiModeratorGetStories, apiModeratorBlockStory,
   apiModeratorGetComments, apiModeratorBlockComment,
   apiModeratorGetProducts, apiModeratorBlockProduct,
@@ -584,6 +585,10 @@ function TariffsTab({ token }) {
   const [planPeriod, setPlanPeriod] = useState('MONTH')
   const [saving, setSaving] = useState(false)
   const [verifying, setVerifying] = useState(false)
+  const [blocking, setBlocking] = useState(false)
+  const [products, setProducts] = useState([])
+  const [productsLoading, setProductsLoading] = useState(false)
+  const [blockingProduct, setBlockingProduct] = useState(null)
   const [search, setSearch] = useState('')
 
   const load = useCallback(async () => {
@@ -596,6 +601,18 @@ function TariffsTab({ token }) {
   }, [token])
 
   useEffect(() => { load() }, [load])
+
+  const openBusiness = (b) => {
+    setSelected(b)
+    setPlanType(b.plan_type || 'PRO')
+    setPlanPeriod('MONTH')
+    setProducts([])
+    setProductsLoading(true)
+    apiModeratorGetBusinessProducts(token, b.id)
+      .then(data => setProducts(data))
+      .catch(() => setProducts([]))
+      .finally(() => setProductsLoading(false))
+  }
 
   const handleAssign = async () => {
     setSaving(true)
@@ -618,6 +635,25 @@ function TariffsTab({ token }) {
     finally { setVerifying(false) }
   }
 
+  const handleToggleBlock = async () => {
+    setBlocking(true)
+    try {
+      const res = await apiModeratorBlockBusiness(token, selected.id, !selected.is_blocked)
+      setSelected(s => ({ ...s, is_blocked: res.is_blocked }))
+      setItems(prev => prev.map(b => b.id === selected.id ? { ...b, is_blocked: res.is_blocked } : b))
+    } catch { /* ignore */ }
+    finally { setBlocking(false) }
+  }
+
+  const handleToggleProduct = async (product) => {
+    setBlockingProduct(product.id)
+    try {
+      await apiModeratorBlockProduct(token, product.id, !product.is_blocked)
+      setProducts(prev => prev.map(p => p.id === product.id ? { ...p, is_blocked: !p.is_blocked } : p))
+    } catch { /* ignore */ }
+    finally { setBlockingProduct(null) }
+  }
+
   const filtered = items.filter(b => b.brand_name.toLowerCase().includes(search.toLowerCase()))
 
   return (
@@ -638,7 +674,7 @@ function TariffsTab({ token }) {
         <div className="mod-list">
           {filtered.length === 0 && <div className="mod-empty">Нет бизнесов</div>}
           {filtered.map(b => (
-            <div key={b.id} className="mod-card" onClick={() => { setSelected(b); setPlanType(b.plan_type || 'PRO'); setPlanPeriod('MONTH') }}>
+            <div key={b.id} className="mod-card" onClick={() => openBusiness(b)}>
               <div className="mod-card__row">
                 <div className="mod-card__biz">
                   {b.logo && <img src={b.logo} alt="" className="mod-card__logo" />}
@@ -652,6 +688,7 @@ function TariffsTab({ token }) {
                     {PLAN_LABELS[b.plan_type] || b.plan_type}
                   </span>
                   {b.is_verified && <span className="mod-badge mod-badge--teal">✓ Верифицирован</span>}
+                  {b.is_blocked && <span className="mod-badge mod-badge--red">🚫 Заблокирован</span>}
                 </div>
               </div>
               {b.plan_expires_at && (
@@ -668,10 +705,46 @@ function TariffsTab({ token }) {
         <div className="mod-modal" onClick={() => setSelected(null)}>
           <div className="mod-modal__box" onClick={e => e.stopPropagation()}>
             <div className="mod-modal__header">
-              <h3>Тариф: {selected.brand_name}</h3>
-              <button className="mod-modal__close" onClick={() => setSelected(null)}>✕</button>
+              <h3>{selected.brand_name}</h3>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <button
+                  className="mod-btn mod-btn--gray"
+                  style={{ fontSize: 12, padding: '4px 10px' }}
+                  onClick={() => window.open(`/business/${selected.id}`, '_blank')}
+                  title="Открыть профиль"
+                >
+                  👁 Профиль
+                </button>
+                <button className="mod-modal__close" onClick={() => setSelected(null)}>✕</button>
+              </div>
             </div>
             <div className="mod-modal__body">
+
+              {/* ── Блокировка бизнеса ── */}
+              <div style={{ marginBottom: 16, padding: '10px 14px', background: selected.is_blocked ? 'rgba(229,57,53,0.08)' : 'var(--bg-tertiary)', borderRadius: 10, border: selected.is_blocked ? '1px solid rgba(229,57,53,0.3)' : '1px solid var(--border-color)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 14 }}>
+                      {selected.is_blocked ? '🚫 Бизнес заблокирован' : '✅ Бизнес активен'}
+                    </div>
+                    {selected.is_blocked && selected.blocked_at && (
+                      <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
+                        с {new Date(selected.blocked_at).toLocaleDateString('ru')}
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    className={`mod-btn ${selected.is_blocked ? 'mod-btn--green' : 'mod-btn--red'}`}
+                    disabled={blocking}
+                    onClick={handleToggleBlock}
+                    style={{ minWidth: 140 }}
+                  >
+                    {blocking ? '…' : selected.is_blocked ? '🔓 Разблокировать' : '🚫 Заблокировать'}
+                  </button>
+                </div>
+              </div>
+
+              {/* ── Тариф ── */}
               <p><b>Текущий тариф:</b> {PLAN_LABELS[selected.plan_type]}</p>
 
               <label className="mod-field__label" style={{ marginTop: 12 }}>Новый тариф</label>
@@ -717,6 +790,41 @@ function TariffsTab({ token }) {
                   {verifying ? '…' : selected.is_verified ? '✓ Снять верификацию' : '✓ Верифицировать'}
                 </button>
               </div>
+
+              {/* ── Услуги / Продукты ── */}
+              <div style={{ marginTop: 20, borderTop: '1px solid var(--border-color)', paddingTop: 16 }}>
+                <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 10 }}>🔧 Услуги / Продукты</div>
+                {productsLoading ? (
+                  <div style={{ color: 'var(--text-muted)', fontSize: 13 }}>Загрузка…</div>
+                ) : products.length === 0 ? (
+                  <div style={{ color: 'var(--text-muted)', fontSize: 13 }}>Нет услуг</div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {products.map(p => (
+                      <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: 'var(--bg-tertiary)', borderRadius: 8, border: p.is_blocked ? '1px solid rgba(229,57,53,0.3)' : '1px solid var(--border-color)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          {p.image && <img src={p.image} alt="" style={{ width: 36, height: 36, objectFit: 'cover', borderRadius: 6 }} />}
+                          <div>
+                            <div style={{ fontSize: 13, fontWeight: 600, color: p.is_blocked ? 'var(--text-muted)' : 'var(--text-primary)' }}>
+                              {p.is_blocked && '🚫 '}{p.name}
+                            </div>
+                            <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{p.price}</div>
+                          </div>
+                        </div>
+                        <button
+                          className={`mod-btn ${p.is_blocked ? 'mod-btn--green' : 'mod-btn--red'}`}
+                          style={{ fontSize: 12, padding: '4px 10px' }}
+                          disabled={blockingProduct === p.id}
+                          onClick={() => handleToggleProduct(p)}
+                        >
+                          {blockingProduct === p.id ? '…' : p.is_blocked ? '🔓' : '🚫'}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
             </div>
           </div>
         </div>

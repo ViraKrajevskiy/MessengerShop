@@ -72,6 +72,20 @@ export async function apiModeratorToggleVerify(token, businessId) {
   })
 }
 
+export async function apiModeratorBlockBusiness(token, businessId, blocked) {
+  return request(`/moderator/businesses/${businessId}/block/`, {
+    method: 'PATCH',
+    headers: auth(token),
+    body: JSON.stringify({ blocked }),
+  })
+}
+
+export async function apiModeratorGetBusinessProducts(token, businessId) {
+  return request(`/moderator/businesses/${businessId}/products/`, {
+    headers: auth(token),
+  })
+}
+
 // ── Verification (reuses existing endpoints) ─────────────────────────────────
 export async function apiModeratorGetVerifications(token, { status } = {}) {
   const params = status ? `?status=${status}` : ''

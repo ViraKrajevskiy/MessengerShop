@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 
 from Shop.models import Business
 from Shop.servicefunc.views.verification.verification import IsModerator
+from Shop.models import Product
 
 PERIOD_DAYS = {
     'MONTH':   30,
@@ -44,6 +45,8 @@ class ModeratorBusinessListView(APIView):
                 'is_verified':     b.is_verified,
                 'is_vip':          b.is_vip,
                 'is_pro':          b.is_pro,
+                'is_blocked':      b.is_blocked,
+                'blocked_at':      b.blocked_at,
             })
 
         return Response(data)
@@ -111,3 +114,65 @@ class ModeratorVerifyBusinessView(APIView):
         business.save(update_fields=['is_verified', 'verified_at'])
 
         return Response({'id': business.id, 'is_verified': business.is_verified, 'verified_at': business.verified_at})
+
+
+class ModeratorBusinessBlockView(APIView):
+    """
+    PATCH /api/moderator/businesses/<pk>/block/
+    Body: { blocked: true|false }
+    Blocks or unblocks a business.
+    """
+    permission_classes = [IsAuthenticated, IsModerator]
+
+    def patch(self, request, pk):
+        try:
+            business = Business.objects.get(pk=pk)
+        except Business.DoesNotExist:
+            return Response({'detail': 'Бизнес не найден.'}, status=404)
+
+        blocked = request.data.get('blocked')
+        if blocked is None:
+            return Response({'detail': 'Укажите поле blocked: true или false.'}, status=400)
+
+        business.is_blocked = bool(blocked)
+        business.blocked_by = request.user if blocked else None
+        business.blocked_at = timezone.now() if blocked else None
+        business.save(update_fields=['is_blocked', 'blocked_by', 'blocked_at'])
+
+        return Response({
+            'id':         business.id,
+            'is_blocked': business.is_blocked,
+            'blocked_at': business.blocked_at,
+        })
+
+
+class ModeratorBusinessProductsView(APIView):
+    """
+    GET /api/moderator/businesses/<pk>/products/
+    Returns all products/services of a specific business.
+    """
+    permission_classes = [IsAuthenticated, IsModerator]
+
+    def get(self, request, pk):
+        try:
+            business = Business.objects.get(pk=pk)
+        except Business.DoesNotExist:
+            return Response({'detail': 'Бизнес не найден.'}, status=404)
+
+        products = Product.objects.filter(business=business).order_by('-created_at')
+        data = []
+        for p in products:
+            img = None
+            if p.image:
+                try:
+                    img = request.build_absolute_uri(p.image.url)
+                except Exception:
+                    pass
+            data.append({
+                'id':         p.id,
+                'name':       p.name,
+                'price':      str(p.price),
+                'is_blocked': p.is_blocked,
+                'image':      img,
+            })
+        return Response(data)
