@@ -584,6 +584,7 @@ function TariffsTab({ token }) {
   const [planType, setPlanType] = useState('PRO')
   const [planPeriod, setPlanPeriod] = useState('MONTH')
   const [saving, setSaving] = useState(false)
+  const [assignMsg, setAssignMsg] = useState(null) // { ok: bool, text: string }
   const [verifying, setVerifying] = useState(false)
   const [blocking, setBlocking] = useState(false)
   const [blockDuration, setBlockDuration] = useState('permanent')
@@ -620,12 +621,17 @@ function TariffsTab({ token }) {
 
   const handleAssign = async () => {
     setSaving(true)
+    setAssignMsg(null)
     try {
       const payload = planType === 'FREE' ? { plan_type: 'FREE' } : { plan_type: planType, plan_period: planPeriod }
-      await apiModeratorAssignTariff(token, selected.id, payload)
-      setSelected(null)
+      const res = await apiModeratorAssignTariff(token, selected.id, payload)
+      setSelected(s => ({ ...s, plan_type: res.plan_type, plan_period: res.plan_period, plan_expires_at: res.plan_expires_at }))
+      setItems(prev => prev.map(b => b.id === selected.id ? { ...b, plan_type: res.plan_type } : b))
+      setAssignMsg({ ok: true, text: `✅ Тариф ${res.plan_type} назначен!` })
       load()
-    } catch { /* ignore */ }
+    } catch (e) {
+      setAssignMsg({ ok: false, text: `❌ ${e.message || 'Ошибка при назначении тарифа'}` })
+    }
     finally { setSaving(false) }
   }
 
@@ -865,6 +871,11 @@ function TariffsTab({ token }) {
                   {verifying ? '…' : selected.is_verified ? '✓ Снять верификацию' : '✓ Верифицировать'}
                 </button>
               </div>
+              {assignMsg && (
+                <p style={{ marginTop: 8, fontSize: 13, fontWeight: 600, color: assignMsg.ok ? '#4caf50' : '#ef4444' }}>
+                  {assignMsg.text}
+                </p>
+              )}
 
               {/* ── Услуги / Продукты ── */}
               <div style={{ marginTop: 20, borderTop: '1px solid var(--border-color)', paddingTop: 16 }}>

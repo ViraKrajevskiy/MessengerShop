@@ -11,6 +11,7 @@ from Shop.servicefunc.views.auth.qr_login import QRTokenView, QRLoginView
 from Shop.servicefunc.views.auth.google_auth import GoogleAuthView
 from Shop.servicefunc.views.auth.email_registration import SendRegistrationCodeView, VerifyRegistrationCodeView
 from Shop.servicefunc.views.auth.email_password_reset import SendPasswordResetCodeView, VerifyPasswordResetCodeView
+from Shop.servicefunc.views.auth.offline import OfflineView
 from Shop.servicefunc.views.moderator.auth import ModeratorLoginView
 from Shop.servicefunc.views.moderator.posts import ModeratorPostListView, ModeratorPostBlockView
 from Shop.servicefunc.views.moderator.complaints import ComplaintCreateView, ComplaintReasonListView, ModeratorComplaintListView, ModeratorComplaintDetailView
@@ -72,6 +73,7 @@ urlpatterns = [
     path('auth/verify-email/',                       VerifyEmailView.as_view(),                  name='auth_verify_email'),
     path('auth/login/',                              LoginView.as_view(),                        name='auth_login'),
     path('auth/logout/',                             LogoutView.as_view(),                       name='auth_logout'),
+    path('auth/offline/',                            OfflineView.as_view(),                      name='auth_offline'),
     path('auth/me/',                                 MeView.as_view(),                           name='auth_me'),
     path('auth/token/refresh/',                      SafeTokenRefreshView.as_view(),             name='token_refresh'),
     path('auth/password-reset/',                     PasswordResetRequestView.as_view(),         name='password_reset'),
