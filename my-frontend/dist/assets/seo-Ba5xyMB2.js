@@ -1,0 +1,1 @@
+function e(e,t=160){if(!e)return``;let n=String(e).replace(/\s+/g,` `).trim();return n.length<=t?n:n.slice(0,t-1).trimEnd()+`…`}export{e as t};
