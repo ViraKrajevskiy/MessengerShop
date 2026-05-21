@@ -1,0 +1,1 @@
+var e=`api.101-school.uz`,t=`http://${e}/api`,n=`http://${e}`;export{t as n,n as t};

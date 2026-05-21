@@ -1,0 +1,177 @@
+.gp__page {
+  min-height: 100vh;
+  background: var(--bg-primary, #0e0e0e);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 16px 60px;
+}
+
+.gp__back {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: var(--text-muted, #888);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 8px 0;
+  margin-bottom: 24px;
+  align-self: flex-start;
+  transition: color 0.18s;
+}
+.gp__back:hover { color: var(--text-primary, #fff); }
+
+/* ── Card ── */
+.gp__card {
+  background: var(--bg-card, #1a1a1a);
+  border-radius: 20px;
+  padding: 40px 32px 36px;
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  border: 1px solid var(--border-color, #2a2a2a);
+}
+
+/* ── Avatar ── */
+.gp__avatar-wrap {
+  margin-bottom: 20px;
+}
+.gp__avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+.gp__avatar--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #e53935, #b71c1c);
+  color: #fff;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+/* ── Name ── */
+.gp__name {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary, #fff);
+  text-align: center;
+  margin: 0 0 8px;
+  line-height: 1.3;
+}
+
+/* ── Meta (member count) ── */
+.gp__meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted, #888);
+  font-size: 13px;
+  margin: 0 0 18px;
+}
+.gp__meta svg { flex-shrink: 0; }
+
+/* ── Description ── */
+.gp__desc {
+  color: var(--text-secondary, #bbb);
+  font-size: 14px;
+  text-align: center;
+  line-height: 1.6;
+  margin: 0 0 28px;
+  max-width: 340px;
+}
+
+/* ── Buttons ── */
+.gp__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 280px;
+  padding: 14px 24px;
+  border-radius: 14px;
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s, opacity 0.15s;
+  margin-bottom: 14px;
+}
+.gp__btn:hover:not(:disabled) { transform: scale(1.02); }
+.gp__btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.gp__btn--join {
+  background: var(--accent-1, #e53935);
+  color: #fff;
+}
+.gp__btn--open {
+  background: var(--bg-surface, #252525);
+  color: var(--text-primary, #fff);
+  border: 1px solid var(--border-color, #333);
+}
+
+/* ── Hint ── */
+.gp__hint {
+  color: var(--text-muted, #666);
+  font-size: 12px;
+  text-align: center;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 280px;
+}
+
+/* ── Loading / Error ── */
+.gp__loading,
+.gp__error {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: var(--text-muted, #888);
+  background: var(--bg-primary, #0e0e0e);
+}
+.gp__error p { font-size: 15px; margin: 0; }
+.gp__back-btn {
+  background: none;
+  border: 1px solid var(--border-color, #333);
+  color: var(--text-muted, #888);
+  padding: 8px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.gp__back-btn:hover { color: var(--text-primary, #fff); }
+
+/* ── Spinner ── */
+.gp__spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--border-color, #333);
+  border-top-color: var(--accent-1, #e53935);
+  border-radius: 50%;
+  animation: gp-spin .7s linear infinite;
+  display: block;
+}
+.gp__spinner--sm {
+  width: 18px;
+  height: 18px;
+  border-width: 2px;
+}
+@keyframes gp-spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 480px) {
+  .gp__card { padding: 32px 20px 28px; }
+  .gp__name { font-size: 20px; }
+}

@@ -29,6 +29,7 @@ const PricingPage             = lazy(() => import('./pages/PricingPage'))
 const CatalogPage             = lazy(() => import('./pages/CatalogPage'))
 const ModeratorLoginPage      = lazy(() => import('./pages/ModeratorLoginPage'))
 const ModeratorDashboardPage  = lazy(() => import('./pages/ModeratorDashboardPage'))
+const GroupPreviewPage        = lazy(() => import('./pages/GroupPreviewPage'))
 
 /* ─── Skeleton loader для Suspense ─── */
 function PageFallback() {
@@ -94,6 +95,7 @@ function AppContent() {
                 <Route path="/vip" element={<Navigate to="/pricing" replace />} />
                 <Route path="/moderator/login" element={<ModeratorLoginPage />} />
                 <Route path="/moderator" element={<ModeratorDashboardPage />} />
+                <Route path="/group/:id" element={<PrivateRoute><GroupPreviewPage /></PrivateRoute>} />
               </Routes>
             </Suspense>
           </ViewedProvider>

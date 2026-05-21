@@ -7,7 +7,7 @@ from django.db.models import Count, Prefetch, Subquery, OuterRef
 from Shop.models import GroupChat, GroupMember, GroupMessage
 from Shop.servicefunc.serializers.group_serializer import (
     GroupChatListSerializer, GroupChatDetailSerializer,
-    GroupMemberSerializer, GroupMessageSerializer,
+    GroupMemberSerializer, GroupMessageSerializer, GroupPublicSerializer,
 )
 
 User = get_user_model()
@@ -52,9 +52,18 @@ class GroupDetailView(APIView):
         return group, membership
 
     def get(self, request, pk):
-        group, membership = self._get_group(pk, request.user)
-        if not group or not membership:
+        try:
+            group = GroupChat.objects.annotate(
+                _member_count=Count('members', distinct=True)
+            ).get(pk=pk)
+        except GroupChat.DoesNotExist:
             return Response({'detail': 'Не найдено'}, status=status.HTTP_404_NOT_FOUND)
+
+        membership = group.members.filter(user=request.user).first()
+        if not membership:
+            # Non-members see a public preview (no messages, no member list)
+            return Response(GroupPublicSerializer(group, context={'request': request}).data)
+
         return Response(GroupChatDetailSerializer(group, context={'request': request}).data)
 
     def patch(self, request, pk):

@@ -80,6 +80,35 @@ class GroupChatDetailSerializer(GroupChatListSerializer):
         fields = GroupChatListSerializer.Meta.fields + ['members']
 
 
+class GroupPublicSerializer(serializers.ModelSerializer):
+    """Minimal read-only info visible to non-members (preview page)."""
+    member_count = serializers.SerializerMethodField()
+    is_member    = serializers.SerializerMethodField()
+    my_role      = serializers.SerializerMethodField()
+
+    class Meta:
+        model  = GroupChat
+        fields = ['id', 'name', 'description', 'photo_url', 'member_count', 'is_member', 'my_role', 'created_at']
+
+    def get_member_count(self, obj):
+        if hasattr(obj, '_member_count'):
+            return obj._member_count
+        return obj.members.count()
+
+    def get_is_member(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.members.filter(user=request.user).exists()
+        return False
+
+    def get_my_role(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            m = obj.members.filter(user=request.user).first()
+            return m.role if m else None
+        return None
+
+
 class GroupMessageSerializer(serializers.ModelSerializer):
     sender_id     = serializers.IntegerField(source='sender.id', read_only=True)
     sender_name   = serializers.CharField(source='sender.username', read_only=True)

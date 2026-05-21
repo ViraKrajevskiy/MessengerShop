@@ -472,23 +472,11 @@ export default function BusinessPage() {
     '#messengershop',
   ]
 
-  const handleJoinGroup = async () => {
+  const handleJoinGroup = () => {
     if (!user) { navigate('/login'); return }
     if (!biz.group_id) return
-    if (groupLoading) return
-    try {
-      if (!inGroup) {
-        setGroupLoading(true)
-        const token = await getAccessToken()
-        await apiJoinGroup(biz.group_id, token)
-        setInGroup(true)
-      }
-      navigate('/messenger', { state: { openGroup: { id: biz.group_id, name: biz.group_name || biz.brand_name, member_count: 0 } } })
-    } catch (e) {
-      showToast('❌ ' + (e.message || 'Ошибка при вступлении'))
-    } finally {
-      setGroupLoading(false)
-    }
+    // Navigate to group preview page — user decides to join there (like Telegram)
+    navigate(`/group/${biz.group_id}`)
   }
 
   const handleSubscribe = async () => {

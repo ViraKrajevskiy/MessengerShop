@@ -1,0 +1,1 @@
+import{t as e}from"./api-Ba_OsLuw.js";function t(t){return t?t.startsWith(`http`)?t:`${e}${t}`:null}export{t};
