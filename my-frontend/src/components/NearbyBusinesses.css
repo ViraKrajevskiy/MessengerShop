@@ -206,10 +206,10 @@
 }
 
 .nearby__card-img-wrap {
-  width: 260px;
+  width: 200px;
   flex-shrink: 0;
   overflow: hidden;
-  min-height: 260px;
+  min-height: 200px;
 }
 
 .nearby__card-img {
@@ -257,8 +257,8 @@
 /* ── Responsive ─────────────────────────────────────────────────── */
 @media (max-width: 900px) {
   .nearby__card-img-wrap {
-    width: 210px;
-    min-height: 210px;
+    width: 160px;
+    min-height: 160px;
   }
 }
 
