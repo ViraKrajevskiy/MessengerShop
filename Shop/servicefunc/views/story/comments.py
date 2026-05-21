@@ -65,6 +65,15 @@ class CommentListCreateView(APIView):
         if not story:
             return Response({'detail': 'Сторис не найден.'}, status=status.HTTP_404_NOT_FOUND)
 
+        try:
+            if hasattr(request.user, 'business_profile') and request.user.business_profile.is_currently_blocked:
+                return Response(
+                    {'detail': 'Ваш бизнес заблокирован. Комментирование недоступно.'},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
+        except Exception:
+            pass
+
         data = request.data.copy()
         data['story'] = story.pk
 

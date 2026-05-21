@@ -55,6 +55,16 @@ class StoryListCreateView(APIView):
         },
     )
     def post(self, request):
+        try:
+            biz = request.user.business_profile
+            if biz.is_currently_blocked:
+                return Response(
+                    {'detail': 'Ваш бизнес заблокирован. Публикация сторис недоступна.'},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
+        except Exception:
+            pass
+
         serializer = StoryCreateSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             story = serializer.save()

@@ -48,6 +48,11 @@ class BusinessProductListView(APIView):
             return Response({'detail': 'Бизнес не найден.'}, status=status.HTTP_404_NOT_FOUND)
         if biz.owner != request.user:
             return Response({'detail': 'Только владелец может добавлять товары.'}, status=status.HTTP_403_FORBIDDEN)
+        if biz.is_currently_blocked:
+            return Response(
+                {'detail': 'Ваш бизнес заблокирован. Добавление товаров недоступно.'},
+                status=status.HTTP_403_FORBIDDEN,
+            )
         serializer = ProductCreateUpdateSerializer(data=request.data)
         if serializer.is_valid():
             product = serializer.save(business=biz)
@@ -84,6 +89,11 @@ class ProductDetailView(APIView):
             return Response({'detail': 'Не найден.'}, status=status.HTTP_404_NOT_FOUND)
         if product.business.owner != request.user:
             return Response({'detail': 'Нет прав.'}, status=status.HTTP_403_FORBIDDEN)
+        if product.business.is_currently_blocked:
+            return Response(
+                {'detail': 'Ваш бизнес заблокирован. Редактирование товаров недоступно.'},
+                status=status.HTTP_403_FORBIDDEN,
+            )
         serializer = ProductCreateUpdateSerializer(product, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
