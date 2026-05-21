@@ -90,7 +90,7 @@ class BusinessDetailView(APIView):
 
     def get_object(self, pk, user=None):
         try:
-            qs = Business.objects.select_related('owner').prefetch_related(
+            qs = Business.objects.select_related('owner', 'group').prefetch_related(
                 'products'
             ).annotate(
                 _subscribers_count=Count('subscribers', distinct=True),
@@ -165,7 +165,7 @@ class MyBusinessView(APIView):
     )
     def get(self, request):
         try:
-            biz = request.user.business_profile
+            biz = Business.objects.select_related('owner', 'group').get(owner=request.user)
         except Business.DoesNotExist:
             return Response({'detail': 'Профиль не создан.'}, status=status.HTTP_404_NOT_FOUND)
         return Response(BusinessDetailSerializer(biz, context={'request': request}).data)

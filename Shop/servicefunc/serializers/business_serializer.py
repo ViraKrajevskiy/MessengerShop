@@ -85,7 +85,12 @@ class BusinessDetailSerializer(serializers.ModelSerializer):
         return bool(obj.owner and obj.owner.is_online)
 
     def get_group_name(self, obj):
-        return obj.group.name if obj.group_id else None
+        if not obj.group_id:
+            return None
+        try:
+            return obj.group.name
+        except Exception:
+            return None
 
     def get_tags(self, obj):
         return [t.name for t in obj.tags.all()]
