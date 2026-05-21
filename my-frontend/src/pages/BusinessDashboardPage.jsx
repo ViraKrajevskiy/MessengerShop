@@ -515,6 +515,42 @@ function CreatePostModal({ getAccessToken, bizId, onClose, onSuccess }) {
   const [error, setError]     = useState('')
   const inputRef = useRef()
 
+  // Hashtag picker state
+  const [tagInput, setTagInput]         = useState('')
+  const [tagSuggests, setTagSuggests]   = useState([])
+  const [tagLoading, setTagLoading]     = useState(false)
+  const [popularTags, setPopularTags]   = useState([])
+  const tagTimerRef = useRef(null)
+
+  // Load popular tags on mount
+  useEffect(() => {
+    fetch(`${BASE}/tags/?q=`)
+      .then(r => r.ok ? r.json() : [])
+      .then(data => setPopularTags((Array.isArray(data) ? data : []).slice(0, 20)))
+      .catch(() => {})
+  }, [])
+
+  const searchTags = (q) => {
+    clearTimeout(tagTimerRef.current)
+    const clean = q.replace(/^#/, '').trim()
+    if (!clean) { setTagSuggests([]); setTagLoading(false); return }
+    setTagLoading(true)
+    tagTimerRef.current = setTimeout(() => {
+      fetch(`${BASE}/tags/?q=${encodeURIComponent(clean)}`)
+        .then(r => r.ok ? r.json() : [])
+        .then(data => setTagSuggests(Array.isArray(data) ? data.slice(0, 15) : []))
+        .catch(() => setTagSuggests([]))
+        .finally(() => setTagLoading(false))
+    }, 280)
+  }
+
+  const insertTag = (tagName) => {
+    const tag = `#${tagName} `
+    setText(prev => (prev.endsWith(' ') || prev === '' ? prev + tag : prev + ' ' + tag))
+    setTagInput('')
+    setTagSuggests([])
+  }
+
   const handleFile = e => {
     const f = e.target.files[0]
     if (!f) return
@@ -580,6 +616,36 @@ function CreatePostModal({ getAccessToken, bizId, onClose, onSuccess }) {
           }
           <input ref={inputRef} type="file" accept="image/*,video/*" onChange={handleFile} hidden />
         </div>
+        {/* ── Hashtag picker ── */}
+        <div className="post-tag-picker">
+          <div className="post-tag-picker__label">🏷 Хештеги</div>
+          <div className="post-tag-picker__search-wrap">
+            <input
+              type="text"
+              className="post-tag-picker__input"
+              placeholder="Введите хештег для поиска..."
+              value={tagInput}
+              onChange={e => { setTagInput(e.target.value); searchTags(e.target.value) }}
+            />
+            {tagLoading && <span className="post-tag-picker__spinner" />}
+          </div>
+          <div className="post-tag-picker__chips">
+            {(tagInput.trim() ? tagSuggests : popularTags).map(tag => (
+              <button
+                key={tag.name || tag}
+                type="button"
+                className="post-tag-picker__chip"
+                onClick={() => insertTag(tag.name || tag)}
+              >
+                #{tag.name || tag}
+              </button>
+            ))}
+            {tagInput.trim() && !tagLoading && tagSuggests.length === 0 && (
+              <span className="post-tag-picker__empty">Теги не найдены</span>
+            )}
+          </div>
+        </div>
+
         {error && <p className="biz-form__error">{error}</p>}
         <button className="biz-form__submit" onClick={handleSubmit} disabled={loading}>
           {loading ? <span className="biz-form__spinner" /> : 'Опубликовать'}

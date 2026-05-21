@@ -120,7 +120,7 @@ export default function FeedPage() {
   const [businesses, setBiz]    = useState([])
   const [news, setNews]         = useState([])
   const [loading, setLoading]   = useState(true)
-  const [tab, setTab]           = useState('posts') // posts | photos | videos | news | tweets
+  const [tab, setTab]           = useState('posts') // posts | news | tweets
   const [activeTags, setActiveTags] = useState([])
   const [filterVip, setFilterVip] = useState(false)
   const [filterVerified, setFilterVerified] = useState(false)
@@ -231,8 +231,6 @@ export default function FeedPage() {
 
   const TABS = [
     { key: 'posts',  label: 'feed_tab_posts'  },
-    { key: 'photos', label: 'feed_tab_photos' },
-    { key: 'videos', label: 'feed_tab_videos' },
     { key: 'news',   label: 'feed_tab_news'   },
     { key: 'tweets', label: 'feed_tab_tweets' },
   ]
@@ -372,74 +370,6 @@ export default function FeedPage() {
                         </>
                       )
                     })()}
-                  </>
-                )}
-
-                {/* ── Фото ── */}
-                {tab === 'photos' && (
-                  <>
-                    {(() => {
-                      const allPhotos = fPhotos
-                      const totalPages = Math.ceil(allPhotos.length / CARDS_PER_PAGE)
-                      const paginatedPhotos = allPhotos.slice(page * CARDS_PER_PAGE, (page + 1) * CARDS_PER_PAGE)
-                      return (
-                        <>
-                          <div className="post-cards-grid post-cards-grid--5">
-                            {paginatedPhotos.map(post => (
-                              <PostCard key={`photo-${post.id}`} post={post} />
-                            ))}
-                          </div>
-                          {totalPages > 1 && (
-                            <div className="feed-pagination">
-                              {Array.from({ length: totalPages }).map((_, i) => (
-                                <button
-                                  key={i}
-                                  className={`feed-pagination__btn ${i === page ? 'feed-pagination__btn--active' : ''}`}
-                                  onClick={() => { setPage(i); window.scrollTo(0, 0) }}
-                                >
-                                  {i + 1}
-                                </button>
-                              ))}
-                            </div>
-                          )}
-                        </>
-                      )
-                    })()}
-                    {fPhotos.length === 0 && <div className="feed-page__empty">{t('feed_noPhotos')}</div>}
-                  </>
-                )}
-
-                {/* ── Видео ── */}
-                {tab === 'videos' && (
-                  <>
-                    {(() => {
-                      const allVideos = fVideos
-                      const totalPages = Math.ceil(allVideos.length / CARDS_PER_PAGE)
-                      const paginatedVideos = allVideos.slice(page * CARDS_PER_PAGE, (page + 1) * CARDS_PER_PAGE)
-                      return (
-                        <>
-                          <div className="post-cards-grid post-cards-grid--5">
-                            {paginatedVideos.map(post => (
-                              <PostCard key={`video-${post.id}`} post={post} />
-                            ))}
-                          </div>
-                          {totalPages > 1 && (
-                            <div className="feed-pagination">
-                              {Array.from({ length: totalPages }).map((_, i) => (
-                                <button
-                                  key={i}
-                                  className={`feed-pagination__btn ${i === page ? 'feed-pagination__btn--active' : ''}`}
-                                  onClick={() => { setPage(i); window.scrollTo(0, 0) }}
-                                >
-                                  {i + 1}
-                                </button>
-                              ))}
-                            </div>
-                          )}
-                        </>
-                      )
-                    })()}
-                    {fVideos.length === 0 && <div className="feed-page__empty">{t('feed_noVideos')}</div>}
                   </>
                 )}
 
