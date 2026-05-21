@@ -48,6 +48,7 @@ function bizToCard(b) {
     city: b.city || '',
     category: b.category_label || CATEGORY_LABELS[b.category] || b.category,
     logo: b.logo,
+    cover: b.cover || null,
     is_verified: b.is_verified,
     verified_at: b.verified_at || null,
     is_vip: b.is_vip,
@@ -379,7 +380,7 @@ export default function HomePage() {
                 ))
               ) : filteredAll.length > 0 ? (
                 homeBusinessCards.slice(0, 8).map(u => (
-                  <UserCard key={u.id} id={u.id} name={u.name} city={u.city} logo={u.logo} planType={u.plan_type} type="all" isOnline={!!u.owner_is_online} isVerified={!!u.is_verified} verifiedAt={u.verified_at} />
+                  <UserCard key={u.id} id={u.id} name={u.name} city={u.city} logo={u.logo} cover={u.cover} planType={u.plan_type} type="all" isOnline={!!u.owner_is_online} isVerified={!!u.is_verified} verifiedAt={u.verified_at} />
                 ))
               ) : (
                 <div className="no-results">{t('home_noCards')}</div>

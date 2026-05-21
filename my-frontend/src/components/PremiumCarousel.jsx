@@ -41,9 +41,9 @@ function placeholder(biz) {
 }
 
 function getPhoto(biz) {
-  if (biz.logo) {
-    return resolveUrl(biz.logo)
-  }
+  // Prefer dedicated cover photo; fall back to logo
+  const src = biz.cover || biz.logo
+  if (src) return resolveUrl(src)
   return placeholder(biz)
 }
 
@@ -170,8 +170,8 @@ export default function PremiumCarousel({ businesses = [], onMessage }) {
             onMouseEnter={onImgEnter}
             onMouseLeave={onImgLeave}
           >
-            {isVideoSrc(biz.logo)
-              ? <video src={resolveUrl(biz.logo)} muted loop playsInline preload="metadata" draggable={false} />
+            {isVideoSrc(biz.cover || biz.logo)
+              ? <video src={resolveUrl(biz.cover || biz.logo)} muted loop playsInline preload="metadata" draggable={false} />
               : <img
                   src={getPhoto(biz)}
                   alt={biz.brand_name || biz.name}
