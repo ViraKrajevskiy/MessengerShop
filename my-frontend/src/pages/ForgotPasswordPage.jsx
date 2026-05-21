@@ -10,49 +10,45 @@ export default function ForgotPasswordPage() {
   const { t } = useLanguage()
   const { theme, toggleTheme } = useTheme()
 
-  const [step, setStep] = useState(1) // 1: email+password | 2: code verification
-  const [email, setEmail] = useState('')
-  const [newPassword, setNewPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [showPass, setShowPass] = useState(false)
-  const [errors, setErrors] = useState({})
-  const [loading, setLoading] = useState(false)
+  // 1: email  |  2: код  |  3: новый пароль
+  const [step, setStep] = useState(1)
 
-  // Шаг 2 — верификация кода
+  // Шаг 1
+  const [email, setEmail] = useState('')
+  const [emailError, setEmailError] = useState('')
+
+  // Шаг 2
   const [code, setCode] = useState(['', '', '', '', '', ''])
   const codeRefs = useRef([])
   const [codeError, setCodeError] = useState('')
 
-  // ── Валидация шага 1 ────────────────────────────────────────────────────────
-  const validateStep1 = () => {
-    const errs = {}
-    if (!email.trim()) errs.email = t('reg_enterEmail')
-    else if (!/\S+@\S+\.\S+/.test(email)) errs.email = t('reg_invalidEmail')
-    if (!newPassword) errs.newPassword = t('reg_enterPassword')
-    else if (newPassword.length < 6) errs.newPassword = t('reg_min6')
-    if (newPassword !== confirmPassword) errs.confirmPassword = t('reg_pwdMismatch')
-    return errs
-  }
+  // Шаг 3
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPass, setShowPass] = useState(false)
+  const [pwdErrors, setPwdErrors] = useState({})
 
-  // ── Шаг 1: Отправка кода на email ────────────────────────────────────────
+  const [loading, setLoading] = useState(false)
+
+  // ── Шаг 1: отправить код ─────────────────────────────────────────────────────
   const handleSendCode = async (e) => {
     e.preventDefault()
-    const errs = validateStep1()
-    if (Object.keys(errs).length) { setErrors(errs); return }
+    if (!email.trim()) { setEmailError(t('reg_enterEmail')); return }
+    if (!/\S+@\S+\.\S+/.test(email)) { setEmailError(t('reg_invalidEmail')); return }
 
     setLoading(true)
-    setErrors({})
+    setEmailError('')
     try {
       await apiSendPasswordResetCode(email)
       setStep(2)
     } catch (err) {
-      setErrors({ general: err.message })
+      setEmailError(err.message)
     } finally {
       setLoading(false)
     }
   }
 
-  // ── Ввод кода верификации ──────────────────────────────────────────────────
+  // ── Ввод кода ────────────────────────────────────────────────────────────────
   const handleCodeChange = (i, val) => {
     if (!/^\d?$/.test(val)) return
     const next = [...code]
@@ -77,23 +73,41 @@ export default function ForgotPasswordPage() {
     codeRefs.current[Math.min(paste.length, 5)]?.focus()
   }
 
-  // ── Шаг 2: Подтверждение кода и сброс пароля ─────────────────────────────
-  const handleVerifyCode = async (e) => {
+  // ── Шаг 2: проверить что код заполнен, перейти к паролю ──────────────────────
+  const handleCodeSubmit = (e) => {
     e.preventDefault()
-    const codeStr = code.join('')
-    if (codeStr.length < 6) { setCodeError(t('reg_codeFull')); return }
+    if (code.join('').length < 6) { setCodeError(t('reg_codeFull')); return }
+    setStep(3)
+  }
+
+  // ── Шаг 3: валидация пароля и финальный запрос ───────────────────────────────
+  const handleSetPassword = async (e) => {
+    e.preventDefault()
+    const errs = {}
+    if (!newPassword) errs.newPassword = t('reg_enterPassword')
+    else if (newPassword.length < 6) errs.newPassword = t('reg_min6')
+    if (newPassword !== confirmPassword) errs.confirmPassword = t('reg_pwdMismatch')
+    if (Object.keys(errs).length) { setPwdErrors(errs); return }
 
     setLoading(true)
+    setPwdErrors({})
     try {
       await apiVerifyPasswordResetCode({
         email,
-        code: codeStr,
+        code: code.join(''),
         new_password: newPassword,
       })
-      // Успешно, переходим на login
       navigate('/login', { state: { message: t('pwd_reset_success') } })
     } catch (err) {
-      setCodeError(err.message)
+      const msg = err.message || ''
+      // Если ошибка связана с кодом — возвращаем на шаг 2
+      const isCodeErr = /code|код|неверн|истёк|истек|expired|invalid/i.test(msg)
+      if (isCodeErr) {
+        setCodeError(msg)
+        setStep(2)
+      } else {
+        setPwdErrors({ general: msg })
+      }
     } finally {
       setLoading(false)
     }
@@ -120,79 +134,39 @@ export default function ForgotPasswordPage() {
 
           <div className="auth-card__header">
             <div className="auth-card__icon">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="3" y="11" width="18" height="11" rx="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
             </div>
             <h1 className="auth-card__title">{t('pwd_reset_title')}</h1>
             <p className="auth-card__subtitle">{t('pwd_reset_sub')}</p>
           </div>
 
-          {/* ── Шаг 1: Email и новый пароль ── */}
+          {/* ── Шаг 1: Email ── */}
           {step === 1 && (
             <form className="auth-card__form" onSubmit={handleSendCode}>
-              {/* Email */}
               <div className="auth-field">
                 <label className="auth-field__label">{t('auth_email')}</label>
                 <div className="auth-field__wrap">
                   <span className="auth-field__icon">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                      <polyline points="22,6 12,13 2,6"/>
+                    </svg>
                   </span>
                   <input
-                    className={`auth-field__input ${errors.email ? 'auth-field__input--error' : ''}`}
+                    className={`auth-field__input ${emailError ? 'auth-field__input--error' : ''}`}
                     type="email"
                     placeholder="your@email.com"
                     value={email}
-                    onChange={e => { setEmail(e.target.value); setErrors(er => ({ ...er, email: '' })) }}
+                    onChange={e => { setEmail(e.target.value); setEmailError('') }}
                     autoComplete="email"
+                    autoFocus
                   />
                 </div>
-                {errors.email && <span className="auth-field__error">{errors.email}</span>}
+                {emailError && <span className="auth-field__error">{emailError}</span>}
               </div>
-
-              {/* New Password */}
-              <div className="auth-field">
-                <label className="auth-field__label">{t('reg_newPassword')}</label>
-                <div className="auth-field__wrap">
-                  <span className="auth-field__icon">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                  </span>
-                  <input
-                    className={`auth-field__input ${errors.newPassword ? 'auth-field__input--error' : ''}`}
-                    type={showPass ? 'text' : 'password'}
-                    placeholder={t('reg_min6')}
-                    value={newPassword}
-                    onChange={e => { setNewPassword(e.target.value); setErrors(er => ({ ...er, newPassword: '' })) }}
-                    autoComplete="new-password"
-                  />
-                  <button type="button" className="auth-field__eye" onClick={() => setShowPass(s => !s)}>
-                    {showPass
-                      ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-                      : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                    }
-                  </button>
-                </div>
-                {errors.newPassword && <span className="auth-field__error">{errors.newPassword}</span>}
-              </div>
-
-              {/* Confirm Password */}
-              <div className="auth-field">
-                <label className="auth-field__label">{t('reg_confirmPwd')}</label>
-                <div className="auth-field__wrap">
-                  <span className="auth-field__icon">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                  </span>
-                  <input
-                    className={`auth-field__input ${errors.confirmPassword ? 'auth-field__input--error' : ''}`}
-                    type="password"
-                    placeholder="••••••••"
-                    value={confirmPassword}
-                    onChange={e => { setConfirmPassword(e.target.value); setErrors(er => ({ ...er, confirmPassword: '' })) }}
-                    autoComplete="new-password"
-                  />
-                </div>
-                {errors.confirmPassword && <span className="auth-field__error">{errors.confirmPassword}</span>}
-              </div>
-
-              {errors.general && <div className="auth-card__error">{errors.general}</div>}
 
               <button className="auth-card__submit auth-card__submit--purple" type="submit" disabled={loading}>
                 {loading ? <span className="auth-card__spinner" /> : t('pwd_sendLink')}
@@ -200,12 +174,15 @@ export default function ForgotPasswordPage() {
             </form>
           )}
 
-          {/* ── Шаг 2: Верификация кода ── */}
+          {/* ── Шаг 2: Код из письма ── */}
           {step === 2 && (
-            <form className="auth-card__form" onSubmit={handleVerifyCode}>
+            <form className="auth-card__form" onSubmit={handleCodeSubmit}>
               <div className="auth-verify">
                 <div className="auth-verify__icon">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                    <polyline points="22,6 12,13 2,6"/>
+                  </svg>
                 </div>
                 <p className="auth-verify__text">
                   {t('reg_codeSent')}<br />
@@ -214,7 +191,6 @@ export default function ForgotPasswordPage() {
                 <p className="auth-verify__hint">{t('reg_codeHint')}</p>
               </div>
 
-              {/* Code inputs */}
               <div className="auth-code-inputs" onPaste={handleCodePaste}>
                 {code.map((digit, i) => (
                   <input
@@ -235,13 +211,75 @@ export default function ForgotPasswordPage() {
               {codeError && <div className="auth-card__error">{codeError}</div>}
 
               <button className="auth-card__submit auth-card__submit--purple" type="submit" disabled={loading}>
-                {loading ? <span className="auth-card__spinner" /> : t('pwd_reset_title')}
+                {loading ? <span className="auth-card__spinner" /> : t('reg_confirm') || 'Подтвердить'}
               </button>
 
               <p className="auth-verify__resend">
                 {t('reg_codeNotReceived')}{' '}
-                <span className="auth-card__switch-link" onClick={() => setStep(1)}>{t('reg_codeResend')}</span>
+                <span className="auth-card__switch-link" onClick={() => { setStep(1); setCode(['','','','','','']) }}>
+                  {t('reg_codeResend')}
+                </span>
               </p>
+            </form>
+          )}
+
+          {/* ── Шаг 3: Новый пароль ── */}
+          {step === 3 && (
+            <form className="auth-card__form" onSubmit={handleSetPassword}>
+              <div className="auth-field">
+                <label className="auth-field__label">{t('reg_newPassword')}</label>
+                <div className="auth-field__wrap">
+                  <span className="auth-field__icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="3" y="11" width="18" height="11" rx="2"/>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                  </span>
+                  <input
+                    className={`auth-field__input ${pwdErrors.newPassword ? 'auth-field__input--error' : ''}`}
+                    type={showPass ? 'text' : 'password'}
+                    placeholder={t('reg_min6')}
+                    value={newPassword}
+                    onChange={e => { setNewPassword(e.target.value); setPwdErrors(er => ({ ...er, newPassword: '' })) }}
+                    autoComplete="new-password"
+                    autoFocus
+                  />
+                  <button type="button" className="auth-field__eye" onClick={() => setShowPass(s => !s)}>
+                    {showPass
+                      ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                      : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    }
+                  </button>
+                </div>
+                {pwdErrors.newPassword && <span className="auth-field__error">{pwdErrors.newPassword}</span>}
+              </div>
+
+              <div className="auth-field">
+                <label className="auth-field__label">{t('reg_confirmPwd')}</label>
+                <div className="auth-field__wrap">
+                  <span className="auth-field__icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="3" y="11" width="18" height="11" rx="2"/>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                  </span>
+                  <input
+                    className={`auth-field__input ${pwdErrors.confirmPassword ? 'auth-field__input--error' : ''}`}
+                    type="password"
+                    placeholder="••••••••"
+                    value={confirmPassword}
+                    onChange={e => { setConfirmPassword(e.target.value); setPwdErrors(er => ({ ...er, confirmPassword: '' })) }}
+                    autoComplete="new-password"
+                  />
+                </div>
+                {pwdErrors.confirmPassword && <span className="auth-field__error">{pwdErrors.confirmPassword}</span>}
+              </div>
+
+              {pwdErrors.general && <div className="auth-card__error">{pwdErrors.general}</div>}
+
+              <button className="auth-card__submit auth-card__submit--purple" type="submit" disabled={loading}>
+                {loading ? <span className="auth-card__spinner" /> : t('pwd_savePwd') || 'Сохранить пароль'}
+              </button>
             </form>
           )}
 
