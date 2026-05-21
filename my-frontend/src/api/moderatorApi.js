@@ -72,11 +72,13 @@ export async function apiModeratorToggleVerify(token, businessId) {
   })
 }
 
-export async function apiModeratorBlockBusiness(token, businessId, blocked) {
+export async function apiModeratorBlockBusiness(token, businessId, blocked, blocked_until = undefined) {
+  const body = { blocked }
+  if (blocked && blocked_until !== undefined) body.blocked_until = blocked_until
   return request(`/moderator/businesses/${businessId}/block/`, {
     method: 'PATCH',
     headers: auth(token),
-    body: JSON.stringify({ blocked }),
+    body: JSON.stringify(body),
   })
 }
 

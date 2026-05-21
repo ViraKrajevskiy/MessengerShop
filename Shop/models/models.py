@@ -119,7 +119,16 @@ class Business(BaseController):
     blocked_by   = models.ForeignKey(
         'User', null=True, blank=True, on_delete=models.SET_NULL, related_name='blocked_businesses',
     )
-    blocked_at   = models.DateTimeField(null=True, blank=True)
+    blocked_at     = models.DateTimeField(null=True, blank=True)
+    blocked_until  = models.DateTimeField(null=True, blank=True)  # None = бессрочно
+
+    @property
+    def is_currently_blocked(self):
+        if not self.is_blocked:
+            return False
+        if self.blocked_until and self.blocked_until < timezone.now():
+            return False
+        return True
 
     @property
     def is_vip(self):

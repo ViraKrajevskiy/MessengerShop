@@ -1,4 +1,5 @@
 from datetime import timedelta
+from dateutil import parser as dateutil_parser
 
 from django.utils import timezone
 from rest_framework.permissions import IsAuthenticated
@@ -45,8 +46,10 @@ class ModeratorBusinessListView(APIView):
                 'is_verified':     b.is_verified,
                 'is_vip':          b.is_vip,
                 'is_pro':          b.is_pro,
-                'is_blocked':      b.is_blocked,
-                'blocked_at':      b.blocked_at,
+                'is_blocked':          b.is_blocked,
+                'is_currently_blocked': b.is_currently_blocked,
+                'blocked_at':          b.blocked_at,
+                'blocked_until':       b.blocked_until,
             })
 
         return Response(data)
@@ -119,8 +122,9 @@ class ModeratorVerifyBusinessView(APIView):
 class ModeratorBusinessBlockView(APIView):
     """
     PATCH /api/moderator/businesses/<pk>/block/
-    Body: { blocked: true|false }
-    Blocks or unblocks a business.
+    Body: { blocked: true|false, blocked_until?: ISO-datetime or null }
+    Blocks or unblocks a business. blocked_until=null means permanent.
+    Also auto-clears expired blocks when fetched.
     """
     permission_classes = [IsAuthenticated, IsModerator]
 
@@ -134,15 +138,29 @@ class ModeratorBusinessBlockView(APIView):
         if blocked is None:
             return Response({'detail': 'Укажите поле blocked: true или false.'}, status=400)
 
-        business.is_blocked = bool(blocked)
-        business.blocked_by = request.user if blocked else None
-        business.blocked_at = timezone.now() if blocked else None
-        business.save(update_fields=['is_blocked', 'blocked_by', 'blocked_at'])
+        blocked_until = None
+        if blocked:
+            raw_until = request.data.get('blocked_until')
+            if raw_until:
+                try:
+                    blocked_until = dateutil_parser.parse(raw_until)
+                    if blocked_until.tzinfo is None:
+                        blocked_until = timezone.make_aware(blocked_until)
+                except (ValueError, TypeError):
+                    return Response({'detail': 'Неверный формат blocked_until.'}, status=400)
+
+        business.is_blocked   = bool(blocked)
+        business.blocked_by   = request.user if blocked else None
+        business.blocked_at   = timezone.now() if blocked else None
+        business.blocked_until = blocked_until
+        business.save(update_fields=['is_blocked', 'blocked_by', 'blocked_at', 'blocked_until'])
 
         return Response({
-            'id':         business.id,
-            'is_blocked': business.is_blocked,
-            'blocked_at': business.blocked_at,
+            'id':                  business.id,
+            'is_blocked':          business.is_blocked,
+            'is_currently_blocked': business.is_currently_blocked,
+            'blocked_at':          business.blocked_at,
+            'blocked_until':       business.blocked_until,
         })
 
 

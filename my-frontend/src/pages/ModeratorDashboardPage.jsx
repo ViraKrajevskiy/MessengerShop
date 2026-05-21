@@ -586,6 +586,8 @@ function TariffsTab({ token }) {
   const [saving, setSaving] = useState(false)
   const [verifying, setVerifying] = useState(false)
   const [blocking, setBlocking] = useState(false)
+  const [blockDuration, setBlockDuration] = useState('permanent')
+  const [customBlockDate, setCustomBlockDate] = useState('')
   const [products, setProducts] = useState([])
   const [productsLoading, setProductsLoading] = useState(false)
   const [blockingProduct, setBlockingProduct] = useState(null)
@@ -606,6 +608,8 @@ function TariffsTab({ token }) {
     setSelected(b)
     setPlanType(b.plan_type || 'PRO')
     setPlanPeriod('MONTH')
+    setBlockDuration('permanent')
+    setCustomBlockDate('')
     setProducts([])
     setProductsLoading(true)
     apiModeratorGetBusinessProducts(token, b.id)
@@ -638,9 +642,34 @@ function TariffsTab({ token }) {
   const handleToggleBlock = async () => {
     setBlocking(true)
     try {
-      const res = await apiModeratorBlockBusiness(token, selected.id, !selected.is_blocked)
-      setSelected(s => ({ ...s, is_blocked: res.is_blocked }))
-      setItems(prev => prev.map(b => b.id === selected.id ? { ...b, is_blocked: res.is_blocked } : b))
+      let blockedUntil = undefined
+      if (!selected.is_blocked) {
+        if (blockDuration === 'permanent') {
+          blockedUntil = null
+        } else if (blockDuration === '1w') {
+          blockedUntil = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+        } else if (blockDuration === '1m') {
+          blockedUntil = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+        } else if (blockDuration === '3m') {
+          blockedUntil = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString()
+        } else if (blockDuration === 'custom') {
+          blockedUntil = customBlockDate ? new Date(customBlockDate + 'T23:59:59').toISOString() : null
+        }
+      }
+      const res = await apiModeratorBlockBusiness(token, selected.id, !selected.is_blocked, blockedUntil)
+      setSelected(s => ({
+        ...s,
+        is_blocked: res.is_blocked,
+        blocked_at: res.blocked_at,
+        blocked_until: res.blocked_until,
+        is_currently_blocked: res.is_currently_blocked,
+      }))
+      setItems(prev => prev.map(b => b.id === selected.id ? {
+        ...b,
+        is_blocked: res.is_blocked,
+        blocked_until: res.blocked_until,
+        is_currently_blocked: res.is_currently_blocked,
+      } : b))
     } catch { /* ignore */ }
     finally { setBlocking(false) }
   }
@@ -721,27 +750,73 @@ function TariffsTab({ token }) {
             <div className="mod-modal__body">
 
               {/* ── Блокировка бизнеса ── */}
-              <div style={{ marginBottom: 16, padding: '10px 14px', background: selected.is_blocked ? 'rgba(229,57,53,0.08)' : 'var(--bg-tertiary)', borderRadius: 10, border: selected.is_blocked ? '1px solid rgba(229,57,53,0.3)' : '1px solid var(--border-color)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ marginBottom: 16, padding: '12px 14px', background: selected.is_blocked ? 'rgba(229,57,53,0.08)' : 'var(--bg-tertiary)', borderRadius: 10, border: selected.is_blocked ? '1px solid rgba(229,57,53,0.3)' : '1px solid var(--border-color)' }}>
+                <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 8 }}>
+                  {selected.is_blocked ? '🚫 Бизнес заблокирован' : '✅ Бизнес активен'}
+                </div>
+
+                {selected.is_blocked ? (
                   <div>
-                    <div style={{ fontWeight: 700, fontSize: 14 }}>
-                      {selected.is_blocked ? '🚫 Бизнес заблокирован' : '✅ Бизнес активен'}
-                    </div>
-                    {selected.is_blocked && selected.blocked_at && (
-                      <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
-                        с {new Date(selected.blocked_at).toLocaleDateString('ru')}
+                    {selected.blocked_at && (
+                      <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>
+                        Заблокирован с {new Date(selected.blocked_at).toLocaleDateString('ru')}
                       </div>
                     )}
+                    <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 10, color: selected.blocked_until ? '#f8a04e' : '#f87171' }}>
+                      {selected.blocked_until
+                        ? `Блок до: ${new Date(selected.blocked_until).toLocaleDateString('ru', { day: 'numeric', month: 'long', year: 'numeric' })}`
+                        : 'Блок: Бессрочно'}
+                    </div>
+                    <button
+                      className="mod-btn mod-btn--green"
+                      disabled={blocking}
+                      onClick={handleToggleBlock}
+                      style={{ minWidth: 160 }}
+                    >
+                      {blocking ? '…' : '🔓 Разблокировать'}
+                    </button>
                   </div>
-                  <button
-                    className={`mod-btn ${selected.is_blocked ? 'mod-btn--green' : 'mod-btn--red'}`}
-                    disabled={blocking}
-                    onClick={handleToggleBlock}
-                    style={{ minWidth: 140 }}
-                  >
-                    {blocking ? '…' : selected.is_blocked ? '🔓 Разблокировать' : '🚫 Заблокировать'}
-                  </button>
-                </div>
+                ) : (
+                  <div>
+                    <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 8 }}>Срок блокировки:</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
+                      {[
+                        { v: '1w',       l: '1 неделя' },
+                        { v: '1m',       l: '1 месяц' },
+                        { v: '3m',       l: '3 месяца' },
+                        { v: 'permanent', l: 'Постоянно' },
+                        { v: 'custom',   l: 'Своя дата' },
+                      ].map(opt => (
+                        <button
+                          key={opt.v}
+                          className={`mod-plan-btn ${blockDuration === opt.v ? 'mod-plan-btn--active' : ''}`}
+                          style={{ fontSize: 12 }}
+                          onClick={() => setBlockDuration(opt.v)}
+                        >
+                          {opt.l}
+                        </button>
+                      ))}
+                    </div>
+                    {blockDuration === 'custom' && (
+                      <input
+                        type="date"
+                        className="mod-search-input"
+                        style={{ marginBottom: 10, padding: '6px 10px', width: '100%', boxSizing: 'border-box' }}
+                        value={customBlockDate}
+                        min={new Date().toISOString().split('T')[0]}
+                        onChange={e => setCustomBlockDate(e.target.value)}
+                      />
+                    )}
+                    <button
+                      className="mod-btn mod-btn--red"
+                      disabled={blocking || (blockDuration === 'custom' && !customBlockDate)}
+                      onClick={handleToggleBlock}
+                      style={{ minWidth: 160 }}
+                    >
+                      {blocking ? '…' : '🚫 Заблокировать'}
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* ── Тариф ── */}
