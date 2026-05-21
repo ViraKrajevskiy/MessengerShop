@@ -249,7 +249,8 @@ export default function PostCard({ post, onDelete }) {
           }
         }}
       >
-        <img src={media} alt="" loading="lazy" width="400" height="300" draggable={false} />
+        <img src={media} aria-hidden="true" className="post-card__img-bg" draggable={false} />
+        <img src={media} alt="" loading="lazy" className="post-card__img-main" draggable={false} />
         {post.media_type === 'VIDEO' && <div className="post-card__play">▶</div>}
       </div>
 

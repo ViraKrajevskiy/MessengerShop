@@ -294,22 +294,39 @@
   width: 100%;
   aspect-ratio: 1/1;
   overflow: hidden;
+  position: relative;
 }
 
-.post-card__image img {
+/* Blurred background fill (portrait-safe) */
+.post-card__img-bg {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  filter: blur(14px) brightness(0.62);
+  transform: scale(1.14);
+  display: block;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Main image — contained so portrait shots are never cropped */
+.post-card__img-main {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
   display: block;
   transition: transform 0.35s;
 }
 
-.post-card:hover .post-card__image img {
+.post-card:hover .post-card__img-main {
   transform: scale(1.05);
 }
 
 .post-card__image--video {
-  position: relative;
   cursor: pointer;
 }
 
