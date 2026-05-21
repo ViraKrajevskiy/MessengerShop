@@ -390,7 +390,7 @@ function ChatView({ inquiry, isBusiness, onBack, onDelete, onProfileClick, getAc
 }
 
 /* ─── Group ChatView ─── */
-function GroupChatView({ group, onBack, onLeave, getAccessToken, currentUserId }) {
+function GroupChatView({ group, onBack, onLeave, onJoin, getAccessToken, currentUserId }) {
   const navigate = useNavigate()
   const messagesEndRef = useRef(null)
   const inputRef = useRef(null)
@@ -559,6 +559,7 @@ function GroupChatView({ group, onBack, onLeave, getAccessToken, currentUserId }
       await apiJoinGroup(group.id, token)
       const det = await apiGetGroupDetail(group.id, token)
       setDetail(det)
+      onJoin?.()   // refresh parent groups list so sidebar shows this group
     } catch (err) {
       setJoinError(err?.message || 'Не удалось вступить')
     } finally {
@@ -923,6 +924,15 @@ export default function MessengerPage() {
 
   const isBusiness = user?.role === 'BUSINESS'
 
+  // Re-fetch groups list (called after joining a group so sidebar updates)
+  const refreshGroups = async () => {
+    try {
+      const token = await getAccessToken()
+      const grps = await apiGetGroups(token)
+      setGroups(grps || [])
+    } catch {}
+  }
+
   useEffect(() => {
     if (!user) { setLoading(false); return }
     setLoading(true)
@@ -935,7 +945,16 @@ export default function MessengerPage() {
         ])
         const loadedInqs = inqs || []
         setInquiries(loadedInqs)
-        setGroups(grps || [])
+
+        // If we just navigated here after joining a group, ensure it appears
+        // in the list even if the API response somehow missed it
+        let loadedGroups = grps || []
+        if (locationState?.openGroup &&
+            !loadedGroups.some(g => g.id === locationState.openGroup.id)) {
+          loadedGroups = [locationState.openGroup, ...loadedGroups]
+        }
+        setGroups(loadedGroups)
+
         if (locationState?.openInquiryId) {
           const idx = loadedInqs.findIndex(i => i.id === locationState.openInquiryId)
           if (idx !== -1) setActiveIdx(idx)
@@ -1066,7 +1085,7 @@ export default function MessengerPage() {
           {activeInquiry ? (
             <ChatView inquiry={activeInquiry} isBusiness={isBusiness} onBack={clearActive} onDelete={handleInquiryDeleted} onProfileClick={() => navigate(`/business/${activeInquiry.biz_id}`)} getAccessToken={getAccessToken} currentUserId={user?.id} />
           ) : activeGroup ? (
-            <GroupChatView group={activeGroup} onBack={clearActive} onLeave={handleGroupLeft} getAccessToken={getAccessToken} currentUserId={user?.id} />
+            <GroupChatView group={activeGroup} onBack={clearActive} onLeave={handleGroupLeft} onJoin={refreshGroups} getAccessToken={getAccessToken} currentUserId={user?.id} />
           ) : (
             <div className="messenger__empty">
               <div className="messenger__empty-icon">
