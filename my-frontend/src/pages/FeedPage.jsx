@@ -31,7 +31,6 @@ function TweetCard({ post, onTagClick }) {
   const logo = post.business_logo
     ? resolveUrl(post.business_logo)
     : makeInitialAvatar(post.business_name)
-  const media = post.media_display || null
 
   return (
     <div className="feed-tweet" onClick={() => navigate(`/business/${post.business_id}`)}>
@@ -48,9 +47,8 @@ function TweetCard({ post, onTagClick }) {
           </span>
           <span className="feed-tweet__time">{timeAgo(post.created_at)}</span>
         </div>
-        <p className="feed-tweet__text">{post.text?.length > 140 ? post.text.slice(0, 140) + '...' : post.text}</p>
+        <p className="feed-tweet__text">{post.text}</p>
         <TagPills tags={post.tags} onTagClick={onTagClick} />
-        {media && <img className="feed-tweet__media" src={media} alt="" loading="lazy" />}
       </div>
     </div>
   )
@@ -385,17 +383,20 @@ export default function FeedPage() {
                   </>
                 )}
 
-                {/* ── Твиты ── */}
-                {tab === 'tweets' && (
-                  <>
-                    <div className="feed-tweets-list">
-                      {fPosts.map(post => (
-                        <TweetCard key={`tweet-${post.id}`} post={post} onTagClick={handleTagClick} />
-                      ))}
-                    </div>
-                    {fPosts.length === 0 && <div className="feed-page__empty">{t('feed_noTweets')}</div>}
-                  </>
-                )}
+                {/* ── Твиты (text-only posts) ── */}
+                {tab === 'tweets' && (() => {
+                  const fTweets = fPosts.filter(p => !p.media_display)
+                  return (
+                    <>
+                      <div className="feed-tweets-list">
+                        {fTweets.map(post => (
+                          <TweetCard key={`tweet-${post.id}`} post={post} onTagClick={handleTagClick} />
+                        ))}
+                      </div>
+                      {fTweets.length === 0 && <div className="feed-page__empty">{t('feed_noTweets')}</div>}
+                    </>
+                  )
+                })()}
 
                 {hasActiveFilters && fPosts.length === 0 && fNews.length === 0 && tab !== 'news' && tab !== 'tweets' && (
                   <div className="feed-page__empty">

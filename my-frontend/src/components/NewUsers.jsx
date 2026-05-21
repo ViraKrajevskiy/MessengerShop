@@ -42,7 +42,9 @@ export default function NewUsers({ businesses: businessesProp }) {
     return () => media.removeEventListener('change', update)
   }, [])
 
-  const displayed = isMobile ? businesses.slice(0, MOBILE_BUSINESS_LIMIT) : businesses.slice(0, DESKTOP_BUSINESS_LIMIT)
+  // Only show businesses that have uploaded a logo/avatar
+  const withLogo = businesses.filter(b => b.logo)
+  const displayed = isMobile ? withLogo.slice(0, MOBILE_BUSINESS_LIMIT) : withLogo.slice(0, DESKTOP_BUSINESS_LIMIT)
 
   const handleClick = (biz) => {
     addViewed({ id: biz.id, name: biz.brand_name, city: biz.city, badge: null, type: 'business' })

@@ -376,6 +376,33 @@
 .bp__contact-chip--web svg   { stroke: #3b82f6; }
 .bp__contact-chip--map svg   { stroke: #f59e0b; }
 
+/* Social media icon buttons */
+.bp__socials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+.bp__social-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  text-decoration: none;
+  transition: transform 0.18s, opacity 0.18s;
+  flex-shrink: 0;
+}
+.bp__social-btn:hover { transform: scale(1.1); opacity: 0.88; }
+.bp__social-btn--telegram  { background: #26a5e4; }
+.bp__social-btn--whatsapp  { background: #25d366; }
+.bp__social-btn--instagram { background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285aeb 90%); }
+.bp__social-btn--youtube   { background: #ff0000; }
+.bp__social-btn--tiktok    { background: #000; }
+.bp__social-btn--facebook  { background: #1877f2; }
+
 .bp__verified-stamp {
   display: inline-flex;
   align-items: center;
