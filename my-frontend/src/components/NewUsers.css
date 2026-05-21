@@ -243,8 +243,8 @@
     margin-bottom: 8px;
   }
   /* === [РџР›РђРќРЁР•Рў в‰¤768px] Р РђР—РњР•Р  РўР•РљРЎРўРђ === */
-  .new-users__name { font-size: 13px; margin-bottom: 2px; }
-  .new-users__city { font-size: 11.5px; max-width: 96px; }
+  .new-users__name { font-size: 15px; margin-bottom: 2px; }
+  .new-users__city { font-size: 12.5px; max-width: 96px; }
 }
 
 @media (max-width: 480px) {
@@ -299,7 +299,7 @@
   }
 
   .new-users__name {
-    font-size: 11px;
+    font-size: 13px;
     margin-bottom: 1px;
     padding: 0;
   }
