@@ -205,9 +205,8 @@ class GroupMessagesView(APIView):
             group = GroupChat.objects.get(pk=pk)
         except GroupChat.DoesNotExist:
             return Response({'detail': 'Не найдено'}, status=status.HTTP_404_NOT_FOUND)
-        if not group.members.filter(user=request.user).exists():
-            return Response({'detail': 'Нет доступа'}, status=status.HTTP_403_FORBIDDEN)
-
+        # Any authenticated user can READ messages (non-members get read-only view)
+        # POST (sending) still requires membership
         messages = group.group_messages.select_related('sender').filter(is_deleted=False)
         return Response(GroupMessageSerializer(messages, many=True, context={'request': request}).data)
 
