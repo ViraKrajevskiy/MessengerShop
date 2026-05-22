@@ -485,7 +485,7 @@
     color: var(--text-secondary);
   }
 
-  /* ── Рейтинги бизнесов: лента вертикальных карточек ── */
+  /* ── Рейтинги бизнесов: сетка 2 колонки, без скролла ── */
   .home-page__sidebar .brs {
     display: flex;
     width: 100%;
@@ -497,29 +497,35 @@
     padding: 0;
   }
   .home-page__sidebar .brs__list {
-    flex-direction: row;
-    overflow-x: auto;
-    scroll-snap-type: x proximity;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    gap: 12px;
-    padding-bottom: 4px;
-  }
-  .home-page__sidebar .brs__list::-webkit-scrollbar {
-    display: none;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    overflow: visible;
+    gap: 10px;
+    padding-bottom: 0;
   }
   .home-page__sidebar .brs__item {
-    flex: 0 0 100%;
-    gap: 14px;
-    scroll-snap-align: start;
+    flex: unset;
+    gap: 10px;
     background: var(--bg-secondary);
     border: 1px solid var(--border-color);
     border-radius: 12px;
-    padding: 16px;
+    padding: 12px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .home-page__sidebar .brs__body {
+    flex: 1;
+    min-width: 0;
+  }
+  .home-page__sidebar .brs__meta {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 8px;
+    margin-top: 4px;
   }
   .home-page__sidebar .brs__avatar {
-    width: 52px;
-    height: 52px;
+    width: 44px;
+    height: 44px;
   }
 }
 
