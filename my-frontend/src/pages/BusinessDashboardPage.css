@@ -1904,10 +1904,12 @@
 }
 
 .biz-social-row__icon {
-  font-size: 18px;
   flex-shrink: 0;
   width: 26px;
-  text-align: center;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .biz-social-row__label {
