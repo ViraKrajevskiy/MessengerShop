@@ -9,7 +9,6 @@ const PREVIEW_SIZE = 5
 
 export default function TweetsSidebar({ posts: postsProp }) {
   const [posts, setPosts] = useState(postsProp || [])
-  const [showAll, setShowAll] = useState(false)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -22,7 +21,7 @@ export default function TweetsSidebar({ posts: postsProp }) {
       .catch(() => setPosts([]))
   }, [postsProp])
 
-  const visible = showAll ? posts : posts.slice(0, PREVIEW_SIZE)
+  const visible = posts.slice(0, PREVIEW_SIZE)
   const hasMore = posts.length > PREVIEW_SIZE
 
   return (
@@ -74,15 +73,11 @@ export default function TweetsSidebar({ posts: postsProp }) {
         {hasMore && (
           <button
             className="tweets-sidebar__show-all"
-            onClick={() => setShowAll(v => !v)}
+            onClick={() => navigate('/feed')}
           >
-            {showAll ? 'Свернуть' : `Все твиты (${posts.length})`}
-            <svg
-              width="14" height="14" viewBox="0 0 24 24"
-              fill="none" stroke="currentColor" strokeWidth="2.5"
-              style={{ transform: showAll ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}
-            >
-              <path d="M6 9l6 6 6-6"/>
+            Все твиты ({posts.length})
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
             </svg>
           </button>
         )}
