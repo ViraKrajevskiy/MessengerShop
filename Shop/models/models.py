@@ -90,6 +90,7 @@ class Business(BaseController):
     website      = models.URLField(blank=True)
     logo         = models.ImageField(upload_to='logos/', blank=True, null=True)
     cover        = models.ImageField(upload_to='covers/', blank=True, null=True)
+    card_media   = models.FileField(upload_to='card_media/', blank=True, null=True)
     is_verified  = models.BooleanField(default=False)
     verified_at  = models.DateTimeField(null=True, blank=True)
     plan_type    = models.CharField(max_length=10, choices=PlanType.choices, default=PlanType.FREE)

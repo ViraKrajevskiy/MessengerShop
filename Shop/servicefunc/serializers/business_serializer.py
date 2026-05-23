@@ -34,7 +34,7 @@ class BusinessListSerializer(serializers.ModelSerializer):
         model = Business
         fields = [
             'id', 'brand_name', 'description', 'category', 'category_label',
-            'city', 'logo', 'cover', 'is_verified', 'verified_at', 'is_vip', 'is_pro',
+            'city', 'logo', 'cover', 'card_media', 'is_verified', 'verified_at', 'is_vip', 'is_pro',
             'plan_type',
             'rating', 'views_count', 'subscribers_count',
             'owner_username', 'owner_avatar', 'owner_is_online',
@@ -69,7 +69,7 @@ class BusinessDetailSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'brand_name', 'description', 'category', 'category_label',
             'city', 'address', 'phone', 'website',
-            'logo', 'cover', 'audio', 'is_verified', 'verified_at', 'is_vip', 'is_pro',
+            'logo', 'cover', 'card_media', 'audio', 'is_verified', 'verified_at', 'is_vip', 'is_pro',
             'plan_type', 'plan_period', 'plan_expires_at',
             'rating', 'views_count', 'created_at',
             'owner_username', 'owner_email', 'owner_avatar',
@@ -128,8 +128,9 @@ class BusinessCreateUpdateSerializer(serializers.ModelSerializer):
     )
     remove_audio = serializers.BooleanField(required=False, write_only=True, default=False)
     # Accept video files in addition to images
-    logo  = serializers.FileField(required=False, allow_null=True)
-    cover = serializers.FileField(required=False, allow_null=True)
+    logo       = serializers.FileField(required=False, allow_null=True)
+    cover      = serializers.FileField(required=False, allow_null=True)
+    card_media = serializers.FileField(required=False, allow_null=True)
     # Public group that appears on the business profile page
     group = serializers.PrimaryKeyRelatedField(
         queryset=GroupChat.objects.all(),
@@ -141,7 +142,7 @@ class BusinessCreateUpdateSerializer(serializers.ModelSerializer):
         model = Business
         fields = [
             'brand_name', 'description', 'category',
-            'city', 'address', 'phone', 'website', 'logo', 'cover', 'audio', 'faq', 'services',
+            'city', 'address', 'phone', 'website', 'logo', 'cover', 'card_media', 'audio', 'faq', 'services',
             'social_telegram', 'social_whatsapp', 'social_instagram',
             'social_youtube', 'social_tiktok', 'social_facebook',
             'tags', 'remove_audio', 'group',
