@@ -196,26 +196,7 @@ function VipPromo({ user, navigate }) {
   )
 }
 
-const CURRENCY_SYMBOL = { TRY: '₺', USD: '$', EUR: '€', RUB: '₽' }
 
-function ServiceCard({ item, navigate }) {
-  const img = item.image_url || (item.image ? resolveUrl(item.image) : null) || `https://picsum.photos/id/${(item.id % 100) + 50}/400/300`
-  const symbol = CURRENCY_SYMBOL[item.currency] || item.currency
-  return (
-    <div className="bp__service-card" onClick={() => navigate(`/products/${item.id}`)}>
-      <div className="bp__service-img">
-        <img src={img} alt={item.name} loading="lazy" />
-      </div>
-      <div className="bp__service-body">
-        <p className="bp__service-name">{item.name}</p>
-        {item.description && <p className="bp__service-desc">{item.description}</p>}
-        {item.price && (
-          <p className="bp__service-price">{Number(item.price).toLocaleString()} {symbol}</p>
-        )}
-      </div>
-    </div>
-  )
-}
 
 function InfoTabs({ biz, categoryIcon, faq, navigate }) {
   const { t } = useLanguage()
@@ -313,7 +294,6 @@ export default function BusinessPage() {
   const [deletingPost, setDeletingPost] = useState(null)
   const [toast, setToast]           = useState('')
   const [faq, setFaq]               = useState([])
-  const [services, setServices]     = useState([])
   const [surveyAnswers, setSurveyAnswers] = useState([])
   const [postsPage, setPostsPage]   = useState(0)
   const POSTS_PER_PAGE = 8
@@ -340,8 +320,7 @@ export default function BusinessPage() {
         setBiz(bizData)
         setPosts(postsData)
         setFaq(Array.isArray(bizData.faq) ? bizData.faq : [])
-        setServices(Array.isArray(bizData.services) ? bizData.services : [])
-        setSubscribed(bizData.is_subscribed || false)
+setSubscribed(bizData.is_subscribed || false)
         setSubCount(bizData.subscribers_count || 0)
         if (bizData.group_id) {
           getAccessToken().then(token => {

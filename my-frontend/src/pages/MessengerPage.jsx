@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import Header from '../components/Header'
 import { useAuth } from '../context/AuthContext'
+import { API_URL as BASE } from '../config/api'
 import {
   apiGetInquiries, apiGetInquiryMessages, apiSendInquiryMessage,
   apiDeleteInquiry, apiDeleteInquiryMessage, apiEditInquiryMessage,
@@ -888,6 +889,153 @@ function MemberPanel({ detail, isAdmin, getAccessToken, onClose, onUpdate }) {
   )
 }
 
+/* ─── Support (Verification) Chat View ─── */
+function SupportChatView({ onBack, getAccessToken }) {
+  const messagesEndRef = useRef(null)
+  const [messages, setMessages] = useState([])
+  const [loading, setLoading]   = useState(true)
+  const [text, setText]         = useState('')
+  const [sending, setSending]   = useState(false)
+  const [verReqExists, setVerReqExists] = useState(false)
+  const [creating, setCreating] = useState(false)
+
+  const load = async () => {
+    const token = await getAccessToken()
+    if (!token) { setLoading(false); return }
+    try {
+      const res = await fetch(`${BASE}/verification/my/`, { headers: { Authorization: `Bearer ${token}` } })
+      if (res.ok) {
+        const data = await res.json()
+        if (data && data.exists !== false) {
+          setVerReqExists(true)
+          setMessages(data.messages || [])
+        }
+      }
+    } catch { /* ignore */ }
+    finally { setLoading(false) }
+  }
+
+  useEffect(() => { load() }, [])
+  useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
+
+  const handleCreate = async () => {
+    setCreating(true)
+    const token = await getAccessToken()
+    if (!token) { setCreating(false); return }
+    try {
+      const res = await fetch(`${BASE}/verification/my/`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (res.ok) {
+        setVerReqExists(true)
+        const data = await res.json()
+        setMessages(data.messages || [])
+      }
+    } catch { /* ignore */ }
+    finally { setCreating(false) }
+  }
+
+  const send = async (e) => {
+    e.preventDefault()
+    const trimmed = text.trim()
+    if (!trimmed || sending) return
+    setSending(true)
+    setText('')
+    try {
+      const token = await getAccessToken()
+      const res = await fetch(`${BASE}/verification/chat/`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: trimmed }),
+      })
+      if (res.ok) {
+        const msg = await res.json()
+        setMessages(prev => [...prev, msg])
+      }
+    } catch { setText(trimmed) }
+    finally { setSending(false) }
+  }
+
+  return (
+    <div className="chat-view">
+      <div className="chat-view__header">
+        <button className="chat-view__back" onClick={onBack}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </button>
+        <div className="chat-view__avatar-wrap">
+          <div className="msg-contact__group-icon" style={{ width: 42, height: 42, background: 'var(--accent-1)', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            🛡️
+          </div>
+        </div>
+        <div className="chat-view__user-info">
+          <span className="chat-view__name">Поддержка / Модератор</span>
+          <span className="chat-view__status">Верификация и тарифы</span>
+        </div>
+      </div>
+
+      <div className="chat-view__messages">
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-muted)' }}>Загрузка...</div>
+        ) : !verReqExists ? (
+          <div style={{ textAlign: 'center', padding: 40 }}>
+            <div style={{ fontSize: 48, marginBottom: 12 }}>🛡️</div>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: 16 }}>Начните чат с модератором для верификации или вопросов по тарифам</p>
+            <button
+              style={{ background: 'var(--accent-1)', color: '#fff', border: 'none', borderRadius: 10, padding: '10px 24px', fontWeight: 600, cursor: 'pointer' }}
+              onClick={handleCreate}
+              disabled={creating}
+            >
+              {creating ? 'Создание...' : 'Начать чат'}
+            </button>
+          </div>
+        ) : messages.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-muted)' }}>
+            Напишите сообщение — модератор ответит вам здесь
+          </div>
+        ) : messages.map(msg => {
+          const isMe = msg.is_mine
+          return (
+            <div key={msg.id} className={`msg-bubble-row ${isMe ? 'msg-bubble-row--me' : 'msg-bubble-row--them'}`}>
+              {!isMe && (
+                <div className="msg-bubble__avatar-wrap">
+                  <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--accent-1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>🛡️</div>
+                </div>
+              )}
+              <div className={`msg-bubble ${isMe ? 'msg-bubble--me' : 'msg-bubble--them'}`}>
+                {!isMe && <span className="msg-bubble__author">Модератор</span>}
+                <p className="msg-bubble__text">{msg.text}</p>
+                <span className="msg-bubble__time">
+                  {new Date(msg.created_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              </div>
+            </div>
+          )
+        })}
+        <div ref={messagesEndRef} />
+      </div>
+
+      {verReqExists && (
+        <div className="chat-view__input-wrap">
+          <form className="chat-view__input-bar" onSubmit={send}>
+            <input
+              type="text"
+              className="chat-view__input"
+              placeholder="Написать модератору..."
+              value={text}
+              onChange={e => setText(e.target.value)}
+              disabled={sending}
+            />
+            <button type="submit" className="chat-view__send-btn" disabled={!text.trim() || sending}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+            </button>
+          </form>
+        </div>
+      )}
+    </div>
+  )
+}
+
 /* ─── Create Group Modal ─── */
 function CreateGroupModal({ onClose, onCreate }) {
   const [name, setName] = useState('')
@@ -919,6 +1067,7 @@ export default function MessengerPage() {
   const [loading, setLoading]       = useState(true)
   const [activeIdx, setActiveIdx]   = useState(null)
   const [activeGroup, setActiveGroup] = useState(null)
+  const [activeSupportChat, setActiveSupportChat] = useState(false)
   const [search, setSearch]         = useState('')
   const [showCreate, setShowCreate] = useState(false)
 
@@ -984,6 +1133,7 @@ export default function MessengerPage() {
 
   const activeInquiry = tab === 'chats' && activeIdx !== null ? filteredInquiries[activeIdx] : null
   const unreadCount   = inquiries.filter(i => !i.is_read).length
+  const anyActive = activeInquiry || activeGroup || activeSupportChat
 
   const handleCreateGroup = async (data) => {
     try {
@@ -996,9 +1146,10 @@ export default function MessengerPage() {
     } catch {}
   }
 
-  const selectInquiry = (i) => { setActiveIdx(i); setActiveGroup(null) }
-  const selectGroup   = (g) => { setActiveGroup(g); setActiveIdx(null) }
-  const clearActive    = () => { setActiveIdx(null); setActiveGroup(null) }
+  const selectInquiry = (i) => { setActiveIdx(i); setActiveGroup(null); setActiveSupportChat(false) }
+  const selectGroup   = (g) => { setActiveGroup(g); setActiveIdx(null); setActiveSupportChat(false) }
+  const selectSupport = () => { setActiveSupportChat(true); setActiveIdx(null); setActiveGroup(null) }
+  const clearActive    = () => { setActiveIdx(null); setActiveGroup(null); setActiveSupportChat(false) }
 
   const handleInquiryDeleted = (deletedId) => {
     setInquiries(prev => prev.filter(inq => inq.id !== deletedId))
@@ -1014,7 +1165,7 @@ export default function MessengerPage() {
     <div className="messenger-page">
       <Header />
       <div className="messenger">
-        <aside className={`messenger__sidebar ${(activeInquiry || activeGroup) ? 'messenger__sidebar--hidden-mobile' : ''}`}>
+        <aside className={`messenger__sidebar ${anyActive ? 'messenger__sidebar--hidden-mobile' : ''}`}>
           <div className="messenger__sidebar-header">
             <h2 className="messenger__title">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
@@ -1050,6 +1201,27 @@ export default function MessengerPage() {
           )}
 
           <div className="messenger__contacts">
+            {/* Pinned support chat for business users */}
+            {!loading && isBusiness && tab === 'chats' && (
+              <div
+                className={`msg-contact ${activeSupportChat ? 'msg-contact--active' : ''}`}
+                onClick={selectSupport}
+              >
+                <div className="msg-contact__avatar-wrap">
+                  <div style={{ width: 42, height: 42, borderRadius: '50%', background: 'var(--accent-1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>
+                    🛡️
+                  </div>
+                </div>
+                <div className="msg-contact__info">
+                  <div className="msg-contact__top">
+                    <span className="msg-contact__name">Поддержка</span>
+                  </div>
+                  <div className="msg-contact__bottom">
+                    <span className="msg-contact__preview">Верификация и тарифы</span>
+                  </div>
+                </div>
+              </div>
+            )}
             {loading ? (
               <div className="messenger__no-chats" style={{padding:'32px 20px'}}><p style={{color:'var(--text-muted)'}}>Загрузка...</p></div>
             ) : tab === 'chats' ? (
@@ -1081,11 +1253,13 @@ export default function MessengerPage() {
           </div>
         </aside>
 
-        <main className={`messenger__chat ${(activeInquiry || activeGroup) ? 'messenger__chat--visible-mobile' : ''}`}>
+        <main className={`messenger__chat ${anyActive ? 'messenger__chat--visible-mobile' : ''}`}>
           {activeInquiry ? (
             <ChatView inquiry={activeInquiry} isBusiness={isBusiness} onBack={clearActive} onDelete={handleInquiryDeleted} onProfileClick={() => navigate(`/business/${activeInquiry.biz_id}`)} getAccessToken={getAccessToken} currentUserId={user?.id} />
           ) : activeGroup ? (
             <GroupChatView group={activeGroup} onBack={clearActive} onLeave={handleGroupLeft} onJoin={refreshGroups} getAccessToken={getAccessToken} currentUserId={user?.id} />
+          ) : activeSupportChat ? (
+            <SupportChatView onBack={clearActive} getAccessToken={getAccessToken} />
           ) : (
             <div className="messenger__empty">
               <div className="messenger__empty-icon">
