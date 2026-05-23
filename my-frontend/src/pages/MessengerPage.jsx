@@ -892,12 +892,14 @@ function MemberPanel({ detail, isAdmin, getAccessToken, onClose, onUpdate }) {
 /* ─── Support (Verification) Chat View ─── */
 function SupportChatView({ onBack, getAccessToken }) {
   const messagesEndRef = useRef(null)
-  const [messages, setMessages] = useState([])
-  const [loading, setLoading]   = useState(true)
-  const [text, setText]         = useState('')
-  const [sending, setSending]   = useState(false)
+  const fileRef        = useRef(null)
+  const [messages, setMessages]       = useState([])
+  const [loading, setLoading]         = useState(true)
+  const [text, setText]               = useState('')
+  const [sending, setSending]         = useState(false)
+  const [uploading, setUploading]     = useState(false)
   const [verReqExists, setVerReqExists] = useState(false)
-  const [creating, setCreating] = useState(false)
+  const [creating, setCreating]       = useState(false)
 
   const load = async () => {
     const token = await getAccessToken()
@@ -957,6 +959,36 @@ function SupportChatView({ onBack, getAccessToken }) {
     finally { setSending(false) }
   }
 
+  const handleFileChange = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    e.target.value = ''
+    setUploading(true)
+    try {
+      const token = await getAccessToken()
+      const fd = new FormData()
+      fd.append('file', file)
+      const res = await fetch(`${BASE}/verification/upload/`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: fd,
+      })
+      if (res.ok) {
+        const doc = await res.json()
+        const fakeMsg = {
+          id: Date.now(),
+          is_mine: true,
+          text: '',
+          file: doc.file || doc.url || '',
+          file_name: doc.name || file.name,
+          created_at: new Date().toISOString(),
+        }
+        setMessages(prev => [...prev, fakeMsg])
+      }
+    } catch { /* ignore */ }
+    finally { setUploading(false) }
+  }
+
   return (
     <div className="chat-view">
       <div className="chat-view__header">
@@ -970,7 +1002,7 @@ function SupportChatView({ onBack, getAccessToken }) {
         </div>
         <div className="chat-view__user-info">
           <span className="chat-view__name">Поддержка / Модератор</span>
-          <span className="chat-view__status">Верификация и тарифы</span>
+          <span className="chat-view__status">Верификация, тарифы, оплата</span>
         </div>
       </div>
 
@@ -980,7 +1012,7 @@ function SupportChatView({ onBack, getAccessToken }) {
         ) : !verReqExists ? (
           <div style={{ textAlign: 'center', padding: 40 }}>
             <div style={{ fontSize: 48, marginBottom: 12 }}>🛡️</div>
-            <p style={{ color: 'var(--text-secondary)', marginBottom: 16 }}>Начните чат с модератором для верификации или вопросов по тарифам</p>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: 16 }}>Начните чат с модератором — здесь можно скинуть чек об оплате, задать вопрос по тарифу или верификации</p>
             <button
               style={{ background: 'var(--accent-1)', color: '#fff', border: 'none', borderRadius: 10, padding: '10px 24px', fontWeight: 600, cursor: 'pointer' }}
               onClick={handleCreate}
@@ -991,10 +1023,11 @@ function SupportChatView({ onBack, getAccessToken }) {
           </div>
         ) : messages.length === 0 ? (
           <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-muted)' }}>
-            Напишите сообщение — модератор ответит вам здесь
+            Напишите сообщение или прикрепите чек об оплате 📎
           </div>
         ) : messages.map(msg => {
           const isMe = msg.is_mine
+          const isImage = msg.file && /\.(jpg|jpeg|png|gif|webp)(\?|$)/i.test(msg.file)
           return (
             <div key={msg.id} className={`msg-bubble-row ${isMe ? 'msg-bubble-row--me' : 'msg-bubble-row--them'}`}>
               {!isMe && (
@@ -1004,7 +1037,19 @@ function SupportChatView({ onBack, getAccessToken }) {
               )}
               <div className={`msg-bubble ${isMe ? 'msg-bubble--me' : 'msg-bubble--them'}`}>
                 {!isMe && <span className="msg-bubble__author">Модератор</span>}
-                <p className="msg-bubble__text">{msg.text}</p>
+                {msg.text && <p className="msg-bubble__text">{msg.text}</p>}
+                {msg.file && (
+                  isImage ? (
+                    <a href={msg.file} target="_blank" rel="noopener noreferrer">
+                      <img src={msg.file} alt={msg.file_name || 'файл'} style={{ maxWidth: 220, borderRadius: 8, display: 'block', marginTop: msg.text ? 6 : 0 }} />
+                    </a>
+                  ) : (
+                    <a href={msg.file} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'inherit', textDecoration: 'none', marginTop: msg.text ? 6 : 0, fontSize: 13 }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                      {msg.file_name || 'Файл'}
+                    </a>
+                  )
+                )}
                 <span className="msg-bubble__time">
                   {new Date(msg.created_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
                 </span>
@@ -1017,11 +1062,25 @@ function SupportChatView({ onBack, getAccessToken }) {
 
       {verReqExists && (
         <div className="chat-view__input-wrap">
+          <input ref={fileRef} type="file" style={{ display: 'none' }} onChange={handleFileChange} accept="image/*,.pdf,.doc,.docx" />
           <form className="chat-view__input-bar" onSubmit={send}>
+            <button
+              type="button"
+              className="chat-view__attach-btn"
+              onClick={() => fileRef.current?.click()}
+              disabled={uploading}
+              title="Прикрепить чек / файл"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0 8px', color: 'var(--text-muted)', flexShrink: 0 }}
+            >
+              {uploading
+                ? <span style={{ fontSize: 12 }}>...</span>
+                : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+              }
+            </button>
             <input
               type="text"
               className="chat-view__input"
-              placeholder="Написать модератору..."
+              placeholder="Написать модератору или прикрепить чек..."
               value={text}
               onChange={e => setText(e.target.value)}
               disabled={sending}
