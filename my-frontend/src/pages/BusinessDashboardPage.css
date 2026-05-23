@@ -757,26 +757,28 @@
 
 .biz-dashboard__actions {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
 .biz-dashboard__action-btn {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 10px 20px;
-  border: 1.5px solid var(--border-color);
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
   border-radius: 10px;
-  background: var(--bg-secondary);
-  color: var(--text-primary);
+  background: transparent;
+  color: var(--text-secondary);
   font-size: 14px;
   cursor: pointer;
   transition: all 0.2s;
   position: relative;
 }
 .biz-dashboard__action-btn:hover {
-  border-color: var(--accent-1);
+  background: var(--bg-secondary);
   color: var(--accent-1);
 }
 
