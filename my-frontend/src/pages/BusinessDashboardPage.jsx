@@ -923,11 +923,12 @@ export default function BusinessDashboardPage() {
   const [savingProfile, setSavingProfile] = useState(false)
 
   // Hashtags
-  const [bizTags,      setBizTags]      = useState([])
-  const [tagInput,     setTagInput]     = useState('')
-  const [tagSuggests,  setTagSuggests]  = useState([])
-  const [tagsLoading,  setTagsLoading]  = useState(false)
-  const [savingTags,   setSavingTags]   = useState(false)
+  const [bizTags,       setBizTags]       = useState([])
+  const [tagInput,      setTagInput]      = useState('')
+  const [tagSuggests,   setTagSuggests]   = useState([])
+  const [tagsLoading,   setTagsLoading]   = useState(false)
+  const [savingTags,    setSavingTags]    = useState(false)
+  const [bizPopularTags, setBizPopularTags] = useState([])
 
   const TAG_LIMITS = { FREE: 5, PRO: 15, VIP: null }
   const tagLimit = TAG_LIMITS[bizData?.plan_type] ?? 5
@@ -1086,6 +1087,13 @@ export default function BusinessDashboardPage() {
   }
 
   // ── Hashtag handlers ──────────────────────────────────────────────────────
+  useEffect(() => {
+    fetch(`${BASE}/tags/?q=`)
+      .then(r => r.ok ? r.json() : [])
+      .then(data => setBizPopularTags(Array.isArray(data) ? data.slice(0, 40) : []))
+      .catch(() => {})
+  }, [])
+
   const searchTags = async (q) => {
     setTagInput(q)
     const clean = q.trim().replace(/^#+/, '')
@@ -2602,6 +2610,36 @@ export default function BusinessDashboardPage() {
                           Улучшить тариф →
                         </button>
                       </p>
+                    )}
+
+                    {/* Popular tags panel */}
+                    {(tagLimit === null || bizTags.length < tagLimit) && (
+                      <div className="biz-tags-panel">
+                        <div className="biz-tags-panel__label">
+                          {tagInput.trim() && tagSuggests.length > 0
+                            ? `Результаты поиска:`
+                            : `Популярные теги — нажмите чтобы добавить:`}
+                        </div>
+                        <div className="biz-tags-panel__chips">
+                          {(tagInput.trim() ? tagSuggests : bizPopularTags).map(tag => {
+                            const already = bizTags.includes(tag)
+                            return (
+                              <button
+                                key={tag}
+                                className={`biz-tags-panel__chip${already ? ' biz-tags-panel__chip--added' : ''}`}
+                                onClick={() => !already && handleSelectTag(tag)}
+                                disabled={already}
+                              >
+                                #{tag}
+                                {already && <span className="biz-tags-panel__chip-check">✓</span>}
+                              </button>
+                            )
+                          })}
+                          {tagInput.trim() && !tagsLoading && tagSuggests.length === 0 && (
+                            <span className="biz-tags-panel__empty">Теги не найдены</span>
+                          )}
+                        </div>
+                      </div>
                     )}
 
                     <div className="biz-svc-save-row">
