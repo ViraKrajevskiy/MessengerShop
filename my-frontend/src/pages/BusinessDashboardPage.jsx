@@ -317,7 +317,11 @@ function PostRow({ post, onDelete, deleting }) {
   const media = post.media_display || post.media
   return (
     <div className="biz-content-row">
-      <div className="biz-content-row__thumb">
+      <div
+        className="biz-content-row__thumb"
+        style={media ? { cursor: 'pointer' } : undefined}
+        onClick={media ? () => window.open(media, '_blank') : undefined}
+      >
         {media
           ? <img src={media} alt="" />
           : <div className="biz-content-row__thumb-placeholder">📝</div>
@@ -1623,19 +1627,6 @@ export default function BusinessDashboardPage() {
               {bizData.plan_type !== 'FREE' ? 'Тариф истёк — продлить' : 'Твиты — оплатить тариф'}
             </button>
           )}
-          <button
-            type="button"
-            className="biz-publish-btn biz-publish-btn--product"
-            onClick={() => setShowProduct(true)}
-            disabled={!bizId}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
-              <line x1="3" y1="6" x2="21" y2="6"/>
-              <path d="M16 10a4 4 0 01-8 0"/>
-            </svg>
-            Новая услуга
-          </button>
         </div>
         )}
 
@@ -1656,7 +1647,6 @@ export default function BusinessDashboardPage() {
                 ['posts', '📝 Посты'],
                 ['tweets', '🐦 Твиты'],
                 ['stories', '🎬 Истории'],
-                ['services', '🔧 Услуги'],
               ].map(([key, label]) => (
                 <button
                   key={key}
@@ -1675,7 +1665,7 @@ export default function BusinessDashboardPage() {
                 disabled
                 title="Сначала заполните данные магазина"
               >
-                🔒 📋 Опрос
+                🔒 🔧 Услуги
               </button>
             </div>
             <form className="biz-store-setup" onSubmit={handleCreateStore}>
@@ -1891,13 +1881,6 @@ export default function BusinessDashboardPage() {
                   {storiesLoaded && <span className="biz-content-tab__count">{stories.length}</span>}
                 </button>
                 <button
-                  className={`biz-content-tab ${activeTab === 'services' ? 'biz-content-tab--active' : ''}`}
-                  onClick={() => setActiveTab('services')}
-                >
-                  🔧 Услуги
-                  <span className="biz-content-tab__count">{bizServices.length}</span>
-                </button>
-                <button
                   className={`biz-content-tab ${activeTab === 'profile' ? 'biz-content-tab--active' : ''}`}
                   onClick={() => setActiveTab('profile')}
                 >
@@ -1907,7 +1890,7 @@ export default function BusinessDashboardPage() {
                   className={`biz-content-tab ${activeTab === 'survey' ? 'biz-content-tab--active' : ''}`}
                   onClick={() => setActiveTab('survey')}
                 >
-                  📋 Опрос
+                  🔧 Услуги
                 </button>
               </div>
 

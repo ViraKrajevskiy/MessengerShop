@@ -50,24 +50,22 @@
 
 /* Layout */
 .my-profile__layout {
-  display: grid;
-  grid-template-columns: 280px 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 24px;
-  align-items: start;
+  align-items: stretch;
 }
 
 /* ── Sidebar ── */
 .my-profile__sidebar {
-  background: var(--bg-secondary);
-  border-radius: 20px;
-  border: 1.5px solid var(--border-color);
-  padding: 28px 20px 24px;
+  background: transparent;
+  border: none;
+  padding: 0;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 16px;
-  position: sticky;
-  top: 80px;
+  gap: 20px;
 }
 
 /* Avatar */
@@ -458,15 +456,6 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .my-profile__layout {
-    grid-template-columns: 1fr;
-  }
-
-  .my-profile__sidebar {
-    position: static;
-    padding: 20px 16px;
-    border-radius: 16px;
-  }
 
   .my-profile__content-header {
     flex-direction: column;
