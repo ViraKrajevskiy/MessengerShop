@@ -1240,6 +1240,12 @@
 }
 .bp__vstamp-wrap { display: flex; align-items: center; justify-content: center; }
 
+/* ── About tab content ── */
+.bp__about-tab {
+  display: flex;
+  flex-direction: column;
+}
+
 /* ── Объединённый блок "О нас + Контакты" ── */
 .bp__about-divider {
   height: 1px;
