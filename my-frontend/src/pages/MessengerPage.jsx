@@ -11,7 +11,6 @@ import {
   apiEditGroupMessage,
   apiAddGroupMember, apiUpdateGroupMember, apiRemoveGroupMember,
   apiJoinGroup, apiLeaveGroup, apiDeleteGroup,
-  apiSearchProducts,
 } from '../api/businessApi'
 import { DEFAULT_AVATAR } from '../utils/defaults'
 import { timeAgoShort as timeAgo } from '../utils/timeUtils'
@@ -19,68 +18,6 @@ import './MessengerPage.css'
 
 const FALLBACK_AVATAR = DEFAULT_AVATAR
 const ROLE_LABELS = { OWNER: 'Владелец', ADMIN: 'Админ', MODERATOR: 'Модератор', MEMBER: 'Участник' }
-const CURRENCY_SYMBOLS = { TRY: '₺', USD: '$', EUR: '€', RUB: '₽' }
-
-/* ─── Render message text with product mention cards ─── */
-function MessageContent({ text, mentionedProducts, navigate }) {
-  if (!mentionedProducts || mentionedProducts.length === 0) {
-    return <p className="msg-bubble__text">{text}</p>
-  }
-  // Replace #id in text with styled tags
-  const parts = text.split(/(#\d+)/g)
-  const productMap = {}
-  mentionedProducts.forEach(p => { productMap[p.id] = p })
-
-  return (
-    <>
-      <p className="msg-bubble__text">
-        {parts.map((part, i) => {
-          const match = part.match(/^#(\d+)$/)
-          if (match) {
-            const pId = parseInt(match[1])
-            const prod = productMap[pId]
-            if (prod) return <span key={i} className="msg-mention-tag">#{pId} {prod.name}</span>
-          }
-          return <span key={i}>{part}</span>
-        })}
-      </p>
-      {/* Product preview cards */}
-      <div className="msg-product-cards">
-        {mentionedProducts.map(p => (
-          <div key={p.id} className="msg-product-card" onClick={() => navigate && navigate(`/product/${p.id}`)}>
-            {p.image && <img className="msg-product-card__img" src={p.image} alt={p.name} />}
-            <div className="msg-product-card__info">
-              <span className="msg-product-card__name">{p.name}</span>
-              {p.price && (
-                <span className="msg-product-card__price">
-                  {p.price} {CURRENCY_SYMBOLS[p.currency] || p.currency}
-                </span>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-    </>
-  )
-}
-
-/* ─── Product mention autocomplete dropdown ─── */
-function MentionDropdown({ items, onSelect }) {
-  if (!items || items.length === 0) return null
-  return (
-    <div className="mention-dropdown">
-      {items.map(p => (
-        <div key={p.id} className="mention-dropdown__item" onClick={() => onSelect(p)}>
-          {p.image_display && <img className="mention-dropdown__img" src={p.image_display} alt="" />}
-          <div className="mention-dropdown__info">
-            <span className="mention-dropdown__name">{p.name}</span>
-            <span className="mention-dropdown__id">#{p.id}</span>
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-}
 
 /* ─── Inquiry contact item (existing) ─── */
 function ContactItem({ inquiry, isActive, onClick, isBusiness }) {
@@ -150,10 +87,8 @@ function ChatView({ inquiry, isBusiness, onBack, onDelete, onProfileClick, getAc
   const [sending, setSending]   = useState(false)
   const [contextMsg, setContextMsg] = useState(null)
   const [editingMsg, setEditingMsg] = useState(null)
-  const [mentionResults, setMentionResults] = useState([])
   const [deleting, setDeleting] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
-  const mentionTimer = useRef(null)
 
   const avatar = inquiry.logo || FALLBACK_AVATAR
   const name   = inquiry.other_name || (isBusiness ? inquiry.sender_name : inquiry.biz_name)
@@ -173,31 +108,6 @@ function ChatView({ inquiry, isBusiness, onBack, onDelete, onProfileClick, getAc
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  // Product mention autocomplete
-  const handleTextChange = (val) => {
-    setText(val)
-    clearTimeout(mentionTimer.current)
-    const hashMatch = val.match(/#(\S*)$/)
-    if (hashMatch && hashMatch[1].length >= 1) {
-      mentionTimer.current = setTimeout(async () => {
-        try {
-          const token = await getAccessToken()
-          const results = await apiSearchProducts(hashMatch[1], token)
-          setMentionResults(results)
-        } catch { setMentionResults([]) }
-      }, 300)
-    } else {
-      setMentionResults([])
-    }
-  }
-
-  const selectMention = (product) => {
-    const newText = text.replace(/#\S*$/, `#${product.id} `)
-    setText(newText)
-    setMentionResults([])
-    inputRef.current?.focus()
-  }
-
   const send = async (e) => {
     e.preventDefault()
     const trimmed = text.trim()
@@ -210,11 +120,9 @@ function ChatView({ inquiry, isBusiness, onBack, onDelete, onProfileClick, getAc
         setMessages(prev => prev.map(m => m.id === editingMsg.id ? updated : m))
         setEditingMsg(null)
         setText('')
-        setMentionResults([])
       } catch {} finally { setSending(false) }
       return
     }
-    // Optimistic: show message immediately
     const tempId = `tmp-${Date.now()}`
     const optimistic = {
       id: tempId,
@@ -222,12 +130,10 @@ function ChatView({ inquiry, isBusiness, onBack, onDelete, onProfileClick, getAc
       text: trimmed,
       created_at: new Date().toISOString(),
       is_edited: false,
-      mentioned_products: [],
       _pending: true,
     }
     setMessages(prev => [...prev, optimistic])
     setText('')
-    setMentionResults([])
     try {
       const token = await getAccessToken()
       const msg = await apiSendInquiryMessage(inquiry.id, trimmed, token)
@@ -271,9 +177,7 @@ function ChatView({ inquiry, isBusiness, onBack, onDelete, onProfileClick, getAc
     }
   }
 
-  const statusText = inquiry.is_online
-    ? 'в сети'
-    : (inquiry.product_name || inquiry.biz_name || '')
+  const statusText = inquiry.is_online ? 'в сети' : (inquiry.biz_name || '')
 
   return (
     <div className="chat-view">
@@ -348,7 +252,7 @@ function ChatView({ inquiry, isBusiness, onBack, onDelete, onProfileClick, getAc
               )}
               <div className={`msg-bubble ${isMe ? 'msg-bubble--me' : 'msg-bubble--them'}`}>
                 {!isMe && <span className="msg-bubble__author">{msg.sender_name}</span>}
-                <MessageContent text={msg.text} mentionedProducts={msg.mentioned_products} navigate={navigate} />
+                <p className="msg-bubble__text">{msg.text}</p>
                 <span className="msg-bubble__time">
                   {msg.is_edited && <span className="msg-bubble__edited">ред.</span>}
                   {new Date(msg.created_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
@@ -378,9 +282,8 @@ function ChatView({ inquiry, isBusiness, onBack, onDelete, onProfileClick, getAc
         </div>
       )}
       <div className="chat-view__input-wrap">
-        <MentionDropdown items={mentionResults} onSelect={selectMention} />
         <form className="chat-view__input-bar" onSubmit={send}>
-          <input ref={inputRef} type="text" className="chat-view__input" placeholder={editingMsg ? 'Редактировать сообщение...' : 'Напишите # для упоминания товара...'} value={text} onChange={e => handleTextChange(e.target.value)} disabled={sending} />
+          <input ref={inputRef} type="text" className="chat-view__input" placeholder={editingMsg ? 'Редактировать сообщение...' : 'Написать сообщение...'} value={text} onChange={e => setText(e.target.value)} disabled={sending} />
           <button type="submit" className="chat-view__send-btn" disabled={!text.trim() || sending}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
           </button>
@@ -403,15 +306,12 @@ function GroupChatView({ group, onBack, onLeave, onJoin, getAccessToken, current
   const [showPanel, setShowPanel] = useState(false)
   const [contextMsg, setContextMsg] = useState(null)
   const [editingMsg, setEditingMsg] = useState(null)
-  const [mentionResults, setMentionResults] = useState([])
   const [joining, setJoining]   = useState(false)
   const [joinError, setJoinError] = useState('')
   const [confirmLeave, setConfirmLeave] = useState(false)
   const [leaving, setLeaving]   = useState(false)
   const [confirmDeleteGroup, setConfirmDeleteGroup] = useState(false)
   const [deletingGroup, setDeletingGroup] = useState(false)
-  const mentionTimer = useRef(null)
-
   const myMembership = detail?.members?.find(m => m.user_id === currentUserId)
   const isMember  = !!myMembership
   const canDelete = !!myMembership?.can_delete_messages
@@ -466,31 +366,6 @@ function GroupChatView({ group, onBack, onLeave, onJoin, getAccessToken, current
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  // Product mention autocomplete
-  const handleTextChange = (val) => {
-    setText(val)
-    clearTimeout(mentionTimer.current)
-    const hashMatch = val.match(/#(\S*)$/)
-    if (hashMatch && hashMatch[1].length >= 1) {
-      mentionTimer.current = setTimeout(async () => {
-        try {
-          const token = await getAccessToken()
-          const results = await apiSearchProducts(hashMatch[1], token)
-          setMentionResults(results)
-        } catch { setMentionResults([]) }
-      }, 300)
-    } else {
-      setMentionResults([])
-    }
-  }
-
-  const selectMention = (product) => {
-    const newText = text.replace(/#\S*$/, `#${product.id} `)
-    setText(newText)
-    setMentionResults([])
-    inputRef.current?.focus()
-  }
-
   const send = async (e) => {
     e.preventDefault()
     const trimmed = text.trim()
@@ -503,7 +378,6 @@ function GroupChatView({ group, onBack, onLeave, onJoin, getAccessToken, current
         setMessages(prev => prev.map(m => m.id === editingMsg.id ? updated : m))
         setEditingMsg(null)
         setText('')
-        setMentionResults([])
       } catch {} finally { setSending(false) }
       return
     }
@@ -515,12 +389,10 @@ function GroupChatView({ group, onBack, onLeave, onJoin, getAccessToken, current
       text: trimmed,
       created_at: new Date().toISOString(),
       is_edited: false,
-      mentioned_products: [],
       _pending: true,
     }
     setMessages(prev => [...prev, optimistic])
     setText('')
-    setMentionResults([])
     try {
       const token = await getAccessToken()
       const msg = await apiSendGroupMessage(group.id, trimmed, token)
@@ -677,7 +549,7 @@ function GroupChatView({ group, onBack, onLeave, onJoin, getAccessToken, current
               )}
               <div className={`msg-bubble ${isMe ? 'msg-bubble--me' : 'msg-bubble--them'}`}>
                 {!isMe && <span className="msg-bubble__author">{msg.sender_name}</span>}
-                <MessageContent text={msg.text} mentionedProducts={msg.mentioned_products} navigate={navigate} />
+                <p className="msg-bubble__text">{msg.text}</p>
                 <span className="msg-bubble__time">
                   {msg.is_edited && <span className="msg-bubble__edited">ред.</span>}
                   {new Date(msg.created_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
@@ -736,9 +608,8 @@ function GroupChatView({ group, onBack, onLeave, onJoin, getAccessToken, current
         </div>
       ) : canSend ? (
         <div className="chat-view__input-wrap">
-          <MentionDropdown items={mentionResults} onSelect={selectMention} />
           <form className="chat-view__input-bar" onSubmit={send}>
-            <input ref={inputRef} type="text" className="chat-view__input" placeholder={editingMsg ? 'Редактировать сообщение...' : 'Напишите # для упоминания товара...'} value={text} onChange={e => handleTextChange(e.target.value)} disabled={sending} />
+            <input ref={inputRef} type="text" className="chat-view__input" placeholder={editingMsg ? 'Редактировать сообщение...' : 'Написать сообщение...'} value={text} onChange={e => setText(e.target.value)} disabled={sending} />
             <button type="submit" className="chat-view__send-btn" disabled={!text.trim() || sending}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
             </button>
@@ -1182,7 +1053,6 @@ export default function MessengerPage() {
     const q = search.toLowerCase()
     return (
       (inq.biz_name    || '').toLowerCase().includes(q) ||
-      (inq.product_name|| '').toLowerCase().includes(q) ||
       (inq.message     || '').toLowerCase().includes(q) ||
       (inq.sender_name || '').toLowerCase().includes(q)
     )
@@ -1292,7 +1162,7 @@ export default function MessengerPage() {
                     <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
                   </svg>
                   <p>Пока нет сообщений</p>
-                  <span>Напишите бизнесу через его страницу или карточку товара</span>
+                  <span>Напишите бизнесу через его страницу</span>
                 </div>
               )
             ) : (

@@ -2505,6 +2505,17 @@ export default function BusinessDashboardPage() {
                       {tagLimit !== null && ` Тариф ${bizData?.plan_type} — до ${tagLimit} тегов.`}
                     </p>
 
+                    {/* Auto-generated tags (read-only) */}
+                    <div className="biz-tags-auto">
+                      <span className="biz-tags-auto__label">Авто:</span>
+                      <span className="biz-tag-chip biz-tag-chip--auto">#messengershop</span>
+                      {bizData?.category && <span className="biz-tag-chip biz-tag-chip--auto">#{bizData.category}</span>}
+                      {bizData?.city && <span className="biz-tag-chip biz-tag-chip--auto">#{bizData.city}</span>}
+                      {bizData?.is_verified && <span className="biz-tag-chip biz-tag-chip--auto">#verified</span>}
+                      {bizData?.plan_type === 'PRO' && <span className="biz-tag-chip biz-tag-chip--auto">#pro</span>}
+                      {bizData?.plan_type === 'VIP' && <span className="biz-tag-chip biz-tag-chip--auto">#vip</span>}
+                    </div>
+
                     {/* Current tags */}
                     {bizTags.length > 0 && (
                       <div className="biz-tags-list">
