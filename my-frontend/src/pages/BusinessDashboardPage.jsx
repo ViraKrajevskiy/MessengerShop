@@ -2706,31 +2706,6 @@ export default function BusinessDashboardPage() {
                 </>
               )}
             </div>
-
-            {/* ── Action Buttons ── */}
-            <div className="biz-dashboard__actions">
-              <button className="biz-dashboard__action-btn" onClick={() => navigate('/messenger')}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-                </svg>
-                Сообщения
-                {stats.unread_inquiries > 0 && (
-                  <span className="biz-dashboard__action-badge">{stats.unread_inquiries}</span>
-                )}
-              </button>
-              <button className="biz-dashboard__action-btn" onClick={() => navigate('/verification')}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                </svg>
-                Верификация
-              </button>
-              <button className="biz-dashboard__action-btn" onClick={() => navigate('/me')}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-                </svg>
-                Профиль
-              </button>
-            </div>
           </>
         ) : null}
       </main>
