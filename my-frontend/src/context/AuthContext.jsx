@@ -124,9 +124,18 @@ export function AuthProvider({ children }) {
   // ── getAccessToken (с авто-рефрешем) ──────────────────────────────────────
   const getAccessToken = useCallback(async () => {
     const currentTokens = tokensRef.current
-    if (!currentTokens?.refresh) return currentTokens?.access || null
+    if (!currentTokens?.access) return null
+
+    // Проверяем exp access-токена — рефрешим только если истекает через <30с
     try {
-      // Пробуем обновить токен (в проде — проверять exp)
+      const payload = JSON.parse(atob(currentTokens.access.split('.')[1]))
+      if (payload.exp && payload.exp * 1000 > Date.now() + 30_000) {
+        return currentTokens.access
+      }
+    } catch { /* невалидный JWT — идём на рефреш */ }
+
+    if (!currentTokens.refresh) return currentTokens.access
+    try {
       const data = await apiRefreshToken(currentTokens.refresh)
       setTokens(t => ({ ...t, ...data }))
       return data.access
