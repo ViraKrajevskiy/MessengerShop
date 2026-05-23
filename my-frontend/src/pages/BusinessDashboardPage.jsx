@@ -963,10 +963,6 @@ export default function BusinessDashboardPage() {
   const [prodStatus, setProdStatus]   = useState('all')   // all | active | hidden
   const [prodSort,   setProdSort]     = useState('default') // default | views | likes | inquiries | price_asc | price_desc
 
-  // ── Filters: Posts ─────────────────────────────────────────────────────────
-  const [postSearch, setPostSearch]   = useState('')
-  const [postMedia,  setPostMedia]    = useState('all')   // all | with | without
-  const [postSort,   setPostSort]     = useState('newest') // newest | oldest
 
   // ── Filters: Stories ───────────────────────────────────────────────────────
   const [storySearch, setStorySearch] = useState('')
@@ -1141,14 +1137,6 @@ export default function BusinessDashboardPage() {
     return list
   }, [stats?.products, prodSearch, prodType, prodStatus, prodSort])
 
-  const filteredPosts = useMemo(() => {
-    let list = [...posts]
-    if (postSearch.trim()) list = list.filter(p => p.text?.toLowerCase().includes(postSearch.toLowerCase()))
-    if (postMedia === 'with')    list = list.filter(p => p.media_display || p.media)
-    if (postMedia === 'without') list = list.filter(p => !p.media_display && !p.media)
-    if (postSort === 'oldest') list.reverse()
-    return list
-  }, [posts, postSearch, postMedia, postSort])
 
   const filteredStories = useMemo(() => {
     let list = [...stories]
@@ -2042,44 +2030,6 @@ export default function BusinessDashboardPage() {
                   </div>
 
                   {/* Post filters */}
-                  <div className="biz-filter-bar">
-                    <div className="biz-filter-bar__search">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                      </svg>
-                      <input
-                        type="text"
-                        className="biz-filter-bar__input"
-                        placeholder="Поиск по тексту..."
-                        value={postSearch}
-                        onChange={e => setPostSearch(e.target.value)}
-                      />
-                      {postSearch && (
-                        <button className="biz-filter-bar__clear" onClick={() => setPostSearch('')}>✕</button>
-                      )}
-                    </div>
-                    <div className="biz-filter-bar__chips">
-                      {[['all','Все'],['with','С медиа'],['without','Только текст']].map(([v, l]) => (
-                        <button key={v}
-                          className={`biz-filter-chip ${postMedia === v ? 'biz-filter-chip--active' : ''}`}
-                          onClick={() => setPostMedia(v)}
-                        >{l}</button>
-                      ))}
-                    </div>
-                    <select className="biz-filter-bar__select" value={postSort} onChange={e => setPostSort(e.target.value)}>
-                      <option value="newest">Сначала новые</option>
-                      <option value="oldest">Сначала старые</option>
-                    </select>
-                  </div>
-
-                  {(postSearch || postMedia !== 'all') && (
-                    <div className="biz-filter-bar__result">
-                      Найдено: <strong>{filteredPosts.length}</strong> из {posts.length}
-                      <button className="biz-filter-bar__reset" onClick={() => { setPostSearch(''); setPostMedia('all'); setPostSort('newest') }}>
-                        Сбросить
-                      </button>
-                    </div>
-                  )}
 
                   {postsLoading ? (
                     <div className="biz-content-loading"><div className="biz-dashboard__spinner" /></div>
@@ -2090,16 +2040,9 @@ export default function BusinessDashboardPage() {
                       </svg>
                       <p>Нет постов. Нажмите «Новый пост» чтобы опубликовать.</p>
                     </div>
-                  ) : filteredPosts.length === 0 ? (
-                    <div className="biz-dashboard__empty">
-                      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.3">
-                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                      </svg>
-                      <p>Ничего не найдено. Попробуйте изменить фильтры.</p>
-                    </div>
                   ) : (
                     <div className="biz-content-list">
-                      {filteredPosts.map(post => (
+                      {posts.map(post => (
                         <PostRow
                           key={post.id}
                           post={post}
