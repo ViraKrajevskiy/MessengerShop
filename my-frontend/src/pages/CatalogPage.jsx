@@ -466,6 +466,7 @@ export default function CatalogPage() {
                           city={b.city || ''}
                           logo={b.logo}
                           cover={b.cover || null}
+                          cardMedia={b.card_media || null}
                           planType={b.plan_type || 'FREE'}
                           type="all"
                           isOnline={!!b.owner_is_online}

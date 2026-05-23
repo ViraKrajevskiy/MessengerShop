@@ -915,7 +915,8 @@ export default function BusinessDashboardPage() {
   const [editAddress, setEditAddress] = useState('')
   const [editCity,    setEditCity]    = useState('')
   const [editLogo,    setEditLogo]    = useState(null)
-  const [editCover,   setEditCover]   = useState(null)
+  const [editCover,     setEditCover]     = useState(null)
+  const [editCardMedia, setEditCardMedia] = useState(null)
   const [editAudio,   setEditAudio]   = useState(null)
   const [removeAudio, setRemoveAudio] = useState(false)
   const audioInputRef = useRef(null)
@@ -1022,7 +1023,8 @@ export default function BusinessDashboardPage() {
       fd.append('social_tiktok',    editTiktok)
       fd.append('social_facebook',  editFacebook)
       if (editLogo)  fd.append('logo',  editLogo)
-      if (editCover) fd.append('cover', editCover)
+      if (editCover)     fd.append('cover', editCover)
+      if (editCardMedia) fd.append('card_media', editCardMedia)
       if (editAudio) fd.append('audio', editAudio)
       if (removeAudio && !editAudio) fd.append('remove_audio', 'true')
       const res = await fetch(`${BASE}/businesses/me/`, {
@@ -1039,6 +1041,7 @@ export default function BusinessDashboardPage() {
       setBizData(updated)
       setEditLogo(null)
       setEditCover(null)
+      setEditCardMedia(null)
       setEditAudio(null)
       setRemoveAudio(false)
       if (audioInputRef.current) audioInputRef.current.value = ''
@@ -2274,6 +2277,36 @@ export default function BusinessDashboardPage() {
                           🖼️ Сменить обложку
                           <input type="file" accept="image/*" hidden onChange={e => setEditCover(e.target.files[0] || null)} />
                         </label>
+                      </div>
+                    </div>
+
+                    {/* Card media */}
+                    <div className="biz-profile-edit__row">
+                      <label className="biz-profile-edit__label">Медиа для карточки</label>
+                      <div className="biz-profile-edit__cover-wrap">
+                        {editCardMedia ? (
+                          /\.(mp4|webm|mov)(\?|$)/i.test(editCardMedia.name)
+                            ? <video src={URL.createObjectURL(editCardMedia)} className="biz-profile-edit__cover-preview" muted controls />
+                            : <img src={URL.createObjectURL(editCardMedia)} className="biz-profile-edit__cover-preview" alt="card preview" />
+                        ) : bizData?.card_media ? (
+                          /\.(mp4|webm|mov)(\?|$)/i.test(bizData.card_media)
+                            ? <video src={resolveUrl(bizData.card_media)} className="biz-profile-edit__cover-preview" muted controls />
+                            : <img src={resolveUrl(bizData.card_media)} className="biz-profile-edit__cover-preview" alt="card media" />
+                        ) : (
+                          <div className="biz-profile-edit__cover-placeholder">Нет медиа</div>
+                        )}
+                        <p className="biz-svc-hint" style={{marginTop:6,marginBottom:4}}>
+                          Фото или видео, которое видят все пользователи на главной странице в вашей карточке
+                        </p>
+                        <label className="biz-profile-edit__upload-btn">
+                          🎬 Загрузить фото / видео
+                          <input type="file" accept="image/*,video/*" hidden onChange={e => setEditCardMedia(e.target.files[0] || null)} />
+                        </label>
+                        {editCardMedia && (
+                          <button className="biz-profile-edit__upload-btn" style={{marginLeft:8,background:'rgba(239,68,68,0.1)',color:'#ef4444',border:'1.5px solid rgba(239,68,68,0.3)'}} onClick={() => setEditCardMedia(null)}>
+                            ✕ Убрать
+                          </button>
+                        )}
                       </div>
                     </div>
 
