@@ -49,6 +49,7 @@ function bizToCard(b) {
     category: b.category_label || CATEGORY_LABELS[b.category] || b.category,
     logo: b.logo,
     cover: b.cover || null,
+    card_media: b.card_media || null,
     is_verified: b.is_verified,
     verified_at: b.verified_at || null,
     is_vip: b.is_vip,
