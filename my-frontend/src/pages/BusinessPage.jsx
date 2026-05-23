@@ -214,7 +214,7 @@ function InfoTabs({ biz, categoryIcon, faq, navigate, audioUrl }) {
         <button
           className={`bp__info-tab${tab === 'about' ? ' bp__info-tab--active' : ''}`}
           onClick={() => setTab('about')}
-        >{t('biz_about')}</button>
+        >{t('biz_aboutBusiness')}</button>
         <button
           className={`bp__info-tab${tab === 'faq' ? ' bp__info-tab--active' : ''}`}
           onClick={() => setTab('faq')}
