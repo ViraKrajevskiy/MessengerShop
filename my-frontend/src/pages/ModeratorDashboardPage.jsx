@@ -54,10 +54,9 @@ import {
   apiModeratorGetPosts, apiModeratorBlockPost,
   apiModeratorGetComplaints, apiModeratorResolveComplaint,
   apiModeratorGetBusinesses, apiModeratorAssignTariff, apiModeratorToggleVerify,
-  apiModeratorBlockBusiness, apiModeratorGetBusinessProducts,
+  apiModeratorBlockBusiness,
   apiModeratorGetStories, apiModeratorBlockStory,
   apiModeratorGetComments, apiModeratorBlockComment,
-  apiModeratorGetProducts, apiModeratorBlockProduct,
   apiModeratorGetReviews, apiModeratorBlockReview,
   apiModeratorGetPayments, apiModeratorReviewPayment,
   apiModeratorGetUsers, apiModeratorBlockUser,
@@ -73,7 +72,6 @@ const TABS = [
   { id: 'tweets',       label: 'Твиты',        icon: '🐦' },
   { id: 'stories',      label: 'Истории',      icon: '🎬' },
   { id: 'comments',     label: 'Комментарии',  icon: '💬' },
-  { id: 'products',     label: 'Услуги',       icon: '🔧' },
   { id: 'reviews',      label: 'Отзывы',       icon: '⭐' },
   { id: 'complaints',   label: 'Жалобы',       icon: '🚨' },
   { id: 'tariffs',      label: 'Тарифы',       icon: '💎' },
@@ -589,9 +587,6 @@ function TariffsTab({ token }) {
   const [blocking, setBlocking] = useState(false)
   const [blockDuration, setBlockDuration] = useState('permanent')
   const [customBlockDate, setCustomBlockDate] = useState('')
-  const [products, setProducts] = useState([])
-  const [productsLoading, setProductsLoading] = useState(false)
-  const [blockingProduct, setBlockingProduct] = useState(null)
   const [search, setSearch] = useState('')
 
   const load = useCallback(async () => {
@@ -611,12 +606,6 @@ function TariffsTab({ token }) {
     setPlanPeriod('MONTH')
     setBlockDuration('permanent')
     setCustomBlockDate('')
-    setProducts([])
-    setProductsLoading(true)
-    apiModeratorGetBusinessProducts(token, b.id)
-      .then(data => setProducts(data))
-      .catch(() => setProducts([]))
-      .finally(() => setProductsLoading(false))
   }
 
   const handleAssign = async () => {
@@ -678,15 +667,6 @@ function TariffsTab({ token }) {
       } : b))
     } catch { /* ignore */ }
     finally { setBlocking(false) }
-  }
-
-  const handleToggleProduct = async (product) => {
-    setBlockingProduct(product.id)
-    try {
-      await apiModeratorBlockProduct(token, product.id, !product.is_blocked)
-      setProducts(prev => prev.map(p => p.id === product.id ? { ...p, is_blocked: !p.is_blocked } : p))
-    } catch { /* ignore */ }
-    finally { setBlockingProduct(null) }
   }
 
   const filtered = items.filter(b => b.brand_name.toLowerCase().includes(search.toLowerCase()))
@@ -877,40 +857,6 @@ function TariffsTab({ token }) {
                 </p>
               )}
 
-              {/* ── Услуги / Продукты ── */}
-              <div style={{ marginTop: 20, borderTop: '1px solid var(--border-color)', paddingTop: 16 }}>
-                <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 10 }}>🔧 Услуги / Продукты</div>
-                {productsLoading ? (
-                  <div style={{ color: 'var(--text-muted)', fontSize: 13 }}>Загрузка…</div>
-                ) : products.length === 0 ? (
-                  <div style={{ color: 'var(--text-muted)', fontSize: 13 }}>Нет услуг</div>
-                ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    {products.map(p => (
-                      <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: 'var(--bg-tertiary)', borderRadius: 8, border: p.is_blocked ? '1px solid rgba(229,57,53,0.3)' : '1px solid var(--border-color)' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          {p.image && <img src={p.image} alt="" style={{ width: 36, height: 36, objectFit: 'cover', borderRadius: 6 }} />}
-                          <div>
-                            <div style={{ fontSize: 13, fontWeight: 600, color: p.is_blocked ? 'var(--text-muted)' : 'var(--text-primary)' }}>
-                              {p.is_blocked && '🚫 '}{p.name}
-                            </div>
-                            <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{p.price}</div>
-                          </div>
-                        </div>
-                        <button
-                          className={`mod-btn ${p.is_blocked ? 'mod-btn--green' : 'mod-btn--red'}`}
-                          style={{ fontSize: 12, padding: '4px 10px' }}
-                          disabled={blockingProduct === p.id}
-                          onClick={() => handleToggleProduct(p)}
-                        >
-                          {blockingProduct === p.id ? '…' : p.is_blocked ? '🔓' : '🚫'}
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
             </div>
           </div>
         </div>
@@ -1040,7 +986,7 @@ function FeedTab({ token }) {
   return (
     <div className="mod-tab">
       <div className="mod-tab__filters">
-        {[{ v: '', l: 'Всё' }, { v: 'post', l: '📝 Посты' }, { v: 'story', l: '🎬 Истории' }, { v: 'product', l: '🔧 Услуги' }].map(f => (
+        {[{ v: '', l: 'Всё' }, { v: 'post', l: '📝 Посты' }, { v: 'story', l: '🎬 Истории' }].map(f => (
           <button key={f.v} className={`mod-filter-btn ${typeFilter === f.v ? 'mod-filter-btn--active' : ''}`} onClick={() => setType(f.v)}>
             {f.l}
           </button>
@@ -1517,16 +1463,6 @@ export default function ModeratorDashboardPage() {
               blockFn={apiModeratorBlockComment}
               renderTitle={i => i.text?.slice(0, 80) || `Комментарий #${i.id}`}
               renderMeta={i => `${i.author?.username} · история #${i.story_id} · ${new Date(i.created_at).toLocaleString('ru')}`}
-            />
-          )}
-          {tab === 'products' && (
-            <BlockableTab
-              token={token}
-              fetchFn={apiModeratorGetProducts}
-              blockFn={apiModeratorBlockProduct}
-              renderTitle={i => i.name}
-              renderMeta={i => `${i.business?.brand_name} · ${i.product_type} · ${i.price ? `${i.price} ${i.currency}` : 'Без цены'}`}
-              renderExtra={i => i.description && <div className="mod-card__text">{i.description}</div>}
             />
           )}
           {tab === 'reviews' && (
