@@ -240,19 +240,21 @@ export default function PostCard({ post, onDelete }) {
         </div>
       </div>
 
-      <div
-        className={`post-card__image${post.media_type === 'VIDEO' ? ' post-card__image--video' : ''}`}
-        onClick={(e) => {
-          if (post.media_type === 'VIDEO') {
-            e.stopPropagation()
-            setSelectedVideo({ url: post.media_display, title: post.text })
-          }
-        }}
-      >
-        <img src={media} aria-hidden="true" className="post-card__img-bg" draggable={false} />
-        <img src={media} alt="" loading="lazy" className="post-card__img-main" draggable={false} />
-        {post.media_type === 'VIDEO' && <div className="post-card__play">▶</div>}
-      </div>
+      {post.media_display && (
+        <div
+          className={`post-card__image${post.media_type === 'VIDEO' ? ' post-card__image--video' : ''}`}
+          onClick={(e) => {
+            if (post.media_type === 'VIDEO') {
+              e.stopPropagation()
+              setSelectedVideo({ url: post.media_display, title: post.text })
+            }
+          }}
+        >
+          <img src={media} aria-hidden="true" className="post-card__img-bg" draggable={false} />
+          <img src={media} alt="" loading="lazy" className="post-card__img-main" draggable={false} />
+          {post.media_type === 'VIDEO' && <div className="post-card__play">▶</div>}
+        </div>
+      )}
 
       {post.text && (
         <div className="post-card__body">
