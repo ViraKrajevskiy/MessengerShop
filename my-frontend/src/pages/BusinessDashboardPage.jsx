@@ -1435,7 +1435,7 @@ export default function BusinessDashboardPage() {
       postsLoadedRef.current = false
       setPostsLoaded(false)
       setPosts([])
-      if (activeTab === 'posts' && bizId) void loadPosts(bizId)
+      if ((activeTab === 'posts' || activeTab === 'tweets') && bizId) void loadPosts(bizId)
     }
     if (msg.includes('Сторис')) {
       storiesLoadedRef.current = false
