@@ -2290,8 +2290,8 @@ export default function BusinessDashboardPage() {
                             : <img src={URL.createObjectURL(editCardMedia)} className="biz-profile-edit__cover-preview" alt="card preview" />
                         ) : bizData?.card_media ? (
                           /\.(mp4|webm|mov)(\?|$)/i.test(bizData.card_media)
-                            ? <video src={resolveUrl(bizData.card_media)} className="biz-profile-edit__cover-preview" muted controls />
-                            : <img src={resolveUrl(bizData.card_media)} className="biz-profile-edit__cover-preview" alt="card media" />
+                            ? <video src={`${resolveUrl(bizData.card_media)}?v=${bizData.id}`} className="biz-profile-edit__cover-preview" muted controls />
+                            : <img src={`${resolveUrl(bizData.card_media)}?v=${Date.now()}`} className="biz-profile-edit__cover-preview" alt="card media" key={bizData.card_media} />
                         ) : (
                           <div className="biz-profile-edit__cover-placeholder">Нет медиа</div>
                         )}
