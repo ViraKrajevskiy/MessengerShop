@@ -315,6 +315,23 @@
 .vp__input:focus { border-color: var(--accent-1); }
 .vp__input::placeholder { color: var(--text-muted); }
 
+.vp__attach-btn {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-tertiary);
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.vp__attach-btn:hover:not(:disabled) { border-color: var(--accent-1); color: var(--accent-1); }
+.vp__attach-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
 .vp__send-btn {
   width: 46px;
   height: 46px;
