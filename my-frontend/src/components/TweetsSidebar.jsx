@@ -5,11 +5,11 @@ import { resolveUrl } from '../utils/urlUtils'
 import { makeInitialAvatar } from '../utils/defaults'
 import './TweetsSidebar.css'
 
-const PAGE_SIZE = 8
+const PREVIEW_SIZE = 5
 
 export default function TweetsSidebar({ posts: postsProp }) {
   const [posts, setPosts] = useState(postsProp || [])
-  const [page, setPage] = useState(0)
+  const [showAll, setShowAll] = useState(false)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -22,74 +22,71 @@ export default function TweetsSidebar({ posts: postsProp }) {
       .catch(() => setPosts([]))
   }, [postsProp])
 
-  const totalPages = Math.max(1, Math.ceil(posts.length / PAGE_SIZE))
-  const visible = posts.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE)
+  const visible = showAll ? posts : posts.slice(0, PREVIEW_SIZE)
+  const hasMore = posts.length > PREVIEW_SIZE
 
   return (
     <div className="tweets-sidebar-wrap">
       <aside className="tweets-sidebar">
-      <div className="tweets-sidebar__header">
-        <span>ТВИТЫ</span>
-      </div>
+        <div className="tweets-sidebar__header">
+          <span>ТВИТЫ</span>
+        </div>
 
-      <div className="tweets-sidebar__list">
-        {visible.length === 0 ? (
-          Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="tweet-item tweet-item--skeleton">
-              <div className="tweet-item__avatar-skeleton" />
-              <div className="tweet-item__body">
-                <div className="sk-line" style={{ width: '90%', height: 11 }} />
-                <div className="sk-line" style={{ width: '60%', height: 11, marginTop: 5 }} />
-                <div className="sk-line" style={{ width: '40%', height: 10, marginTop: 6 }} />
+        <div className="tweets-sidebar__list">
+          {visible.length === 0 ? (
+            Array.from({ length: PREVIEW_SIZE }).map((_, i) => (
+              <div key={i} className="tweet-item tweet-item--skeleton">
+                <div className="tweet-item__avatar-skeleton" />
+                <div className="tweet-item__body">
+                  <div className="sk-line" style={{ width: '90%', height: 11 }} />
+                  <div className="sk-line" style={{ width: '60%', height: 11, marginTop: 5 }} />
+                  <div className="sk-line" style={{ width: '40%', height: 10, marginTop: 6 }} />
+                </div>
               </div>
-            </div>
-          ))
-        ) : (
-          visible.map(post => (
-            <div
-              key={post.id}
-              className="tweet-item"
-              onClick={() => navigate(`/business/${post.business_id}`)}
-            >
-              <img
-                className="tweet-item__avatar"
-                src={post.business_logo ? resolveUrl(post.business_logo) : makeInitialAvatar(post.business_name)}
-                alt={post.business_name}
-                width="38"
-                height="38"
-                loading="lazy"
-                onError={(e) => { e.currentTarget.src = makeInitialAvatar(post.business_name) }}
-              />
-              <div className="tweet-item__body">
-                <span className="tweet-item__city">{post.business_name}</span>
-                <p className="tweet-item__text">
-                  {post.text?.length > 60 ? post.text.slice(0, 60) + '...' : post.text}
-                </p>
+            ))
+          ) : (
+            visible.map(post => (
+              <div
+                key={post.id}
+                className="tweet-item"
+                onClick={() => navigate(`/business/${post.business_id}`)}
+              >
+                <img
+                  className="tweet-item__avatar"
+                  src={post.business_logo ? resolveUrl(post.business_logo) : makeInitialAvatar(post.business_name)}
+                  alt={post.business_name}
+                  width="38"
+                  height="38"
+                  loading="lazy"
+                  onError={(e) => { e.currentTarget.src = makeInitialAvatar(post.business_name) }}
+                />
+                <div className="tweet-item__body">
+                  <span className="tweet-item__city">{post.business_name}</span>
+                  <p className="tweet-item__text">
+                    {post.text?.length > 60 ? post.text.slice(0, 60) + '...' : post.text}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))
-        )}
-      </div>
-      </aside>
-
-      {totalPages > 1 && (
-        <div className="tweets-sidebar__pagination">
-          {Array.from({ length: totalPages }).map((_, i) => (
-            <button
-              key={i}
-              className={`tweets-sidebar__page-btn ${i === page ? 'tweets-sidebar__page-btn--active' : ''}`}
-              onClick={() => setPage(i)}
-            >
-              {i + 1}
-            </button>
-          ))}
-          {page < totalPages - 1 && (
-            <button className="tweets-sidebar__page-btn" onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}>
-              &rsaquo;
-            </button>
+            ))
           )}
         </div>
-      )}
+
+        {hasMore && (
+          <button
+            className="tweets-sidebar__show-all"
+            onClick={() => setShowAll(v => !v)}
+          >
+            {showAll ? 'Свернуть' : `Все твиты (${posts.length})`}
+            <svg
+              width="14" height="14" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" strokeWidth="2.5"
+              style={{ transform: showAll ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}
+            >
+              <path d="M6 9l6 6 6-6"/>
+            </svg>
+          </button>
+        )}
+      </aside>
     </div>
   )
 }

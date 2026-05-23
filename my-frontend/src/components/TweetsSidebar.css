@@ -136,43 +136,27 @@
   50% { opacity: 0.4; }
 }
 
-/* Pagination */
-.tweets-sidebar__pagination {
-  display: flex;
-  gap: 4px;
-  padding: 0;
-  margin-top: 12px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.tweets-sidebar__page-btn {
-  min-width: 26px;
-  height: 26px;
-  border: 1.5px solid var(--border-color);
-  border-radius: 6px;
-  background: var(--bg-secondary);
-  color: var(--text-secondary);
-  font-size: 11px;
-  font-weight: 700;
-  cursor: pointer;
+/* Show all button */
+.tweets-sidebar__show-all {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.15s;
-  padding: 0 4px;
+  gap: 6px;
+  width: 100%;
+  padding: 9px 0;
+  margin-top: 4px;
+  border: none;
+  border-top: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--accent-1, #e53935);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  font-family: inherit;
 }
-
-.tweets-sidebar__page-btn:hover {
-  background: var(--accent-1, #e53935);
-  color: #fff;
-  border-color: transparent;
-}
-
-.tweets-sidebar__page-btn--active {
-  background: var(--accent-gradient);
-  color: #fff;
-  border-color: transparent;
+.tweets-sidebar__show-all:hover {
+  opacity: 0.75;
 }
 
 @media (max-width: 1024px) {
