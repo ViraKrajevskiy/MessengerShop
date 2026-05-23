@@ -6,6 +6,278 @@
   padding: 24px 20px 60px;
 }
 
+/* ── Unified single-chat layout ── */
+.vp__main--unified {
+  max-width: 760px;
+  padding: 24px 16px 0;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 64px);
+}
+
+.vp__unified-chat {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  background: var(--bg-secondary);
+  border: 1.5px solid var(--border-color);
+  border-radius: 20px 20px 0 0;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.vp__unified-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border-light);
+  background: var(--bg-secondary);
+  flex-shrink: 0;
+}
+
+.vp__unified-back {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  border-radius: 8px;
+  transition: color 0.18s;
+  flex-shrink: 0;
+}
+.vp__unified-back:hover { color: var(--text-primary); }
+
+.vp__unified-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--accent-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.vp__unified-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.vp__unified-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.vp__unified-status {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.vp__unified-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+}
+
+.vp__unified-system {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: center;
+  margin-bottom: 4px;
+}
+.vp__unified-system--warn {
+  background: rgba(239,68,68,0.08);
+  border-color: rgba(239,68,68,0.25);
+  color: #ef4444;
+}
+
+.vp__unified-start {
+  text-align: center;
+  padding: 32px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.vp__unified-start p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+.vp__unified-start-btn {
+  background: var(--accent-gradient);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 28px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.18s;
+  font-family: inherit;
+}
+.vp__unified-start-btn:hover { opacity: 0.88; }
+.vp__unified-start-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.vp__unified-msg {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+.vp__unified-msg--me {
+  flex-direction: row-reverse;
+}
+
+.vp__unified-msg-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--accent-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.vp__unified-bubble {
+  max-width: 72%;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-light);
+  border-radius: 16px 16px 16px 4px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.vp__unified-msg--me .vp__unified-bubble {
+  background: var(--accent-gradient);
+  border-color: transparent;
+  border-radius: 16px 16px 4px 16px;
+}
+
+.vp__unified-author {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent-1);
+  opacity: 0.85;
+}
+
+.vp__unified-text {
+  font-size: 14px;
+  color: var(--text-primary);
+  line-height: 1.5;
+  word-break: break-word;
+}
+.vp__unified-msg--me .vp__unified-text { color: #fff; }
+
+.vp__unified-img {
+  max-width: 220px;
+  border-radius: 8px;
+  display: block;
+}
+
+.vp__unified-file {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--accent-1);
+  text-decoration: none;
+}
+.vp__unified-msg--me .vp__unified-file { color: rgba(255,255,255,0.9); }
+.vp__unified-file:hover { text-decoration: underline; }
+
+.vp__unified-time {
+  font-size: 11px;
+  color: var(--text-muted);
+  align-self: flex-end;
+}
+.vp__unified-msg--me .vp__unified-time { color: rgba(255,255,255,0.65); }
+
+.vp__unified-input {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-top: 1px solid var(--border-light);
+  background: var(--bg-secondary);
+  flex-shrink: 0;
+}
+
+.vp__unified-attach {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-tertiary);
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.18s;
+}
+.vp__unified-attach:hover:not(:disabled) { border-color: var(--accent-1); color: var(--accent-1); }
+.vp__unified-attach:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.vp__unified-text-input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1.5px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-size: 14px;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+.vp__unified-text-input:focus { border-color: var(--accent-1); }
+.vp__unified-text-input::placeholder { color: var(--text-muted); }
+
+.vp__unified-send {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: none;
+  background: var(--accent-gradient);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: opacity 0.18s;
+  box-shadow: 0 4px 12px rgba(229,57,53,0.3);
+}
+.vp__unified-send:hover:not(:disabled) { opacity: 0.88; }
+.vp__unified-send:disabled { opacity: 0.5; cursor: not-allowed; }
+
+@media (max-width: 600px) {
+  .vp__main--unified { padding: 0; height: calc(100vh - 56px); }
+  .vp__unified-chat { border-radius: 0; border-left: none; border-right: none; }
+  .vp__unified-messages { padding: 12px 14px; }
+  .vp__unified-bubble { max-width: 85%; }
+}
+
 .vp__back {
   display: inline-flex;
   align-items: center;
