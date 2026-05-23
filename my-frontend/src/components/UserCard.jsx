@@ -13,7 +13,7 @@ function fmtDate(dt) {
   return new Date(dt).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' })
 }
 
-export default function UserCard({ id, name = 'Имя', city = 'Город', badge = null, type = 'card', logo = null, cover = null, planType = 'FREE', isOnline = false, isVerified = false, verifiedAt = null }) {
+export default function UserCard({ id, name = 'Имя', city = 'Город', badge = null, type = 'card', logo = null, cover = null, cardMedia = null, planType = 'FREE', isOnline = false, isVerified = false, verifiedAt = null }) {
   const { addViewed } = useViewed()
   const { user } = useAuth()
   const { t } = useLanguage()
@@ -47,10 +47,10 @@ export default function UserCard({ id, name = 'Имя', city = 'Город', bad
   const videoRef = useRef(null)
 
   const placeholder = makeCardPlaceholder(name, id)
-  // cover = dedicated card photo; logo = avatar fallback
-  const cardMedia = cover || logo
-  const rawPhoto = cardMedia ? resolveUrl(cardMedia) : placeholder
-  const isVideo = cardMedia && /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(cardMedia)
+  // cardMedia prop = dedicated card media (photo or video); fallback to cover, then logo
+  const resolvedCardMedia = cardMedia || cover || logo
+  const rawPhoto = resolvedCardMedia ? resolveUrl(resolvedCardMedia) : placeholder
+  const isVideo = resolvedCardMedia && /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(resolvedCardMedia)
 
   const handleMouseEnter = () => { if (isVideo && videoRef.current) videoRef.current.play() }
   const handleMouseLeave = () => {
