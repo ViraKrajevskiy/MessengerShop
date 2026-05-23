@@ -217,16 +217,11 @@ function ServiceCard({ item, navigate }) {
   )
 }
 
-function InfoTabs({ biz, categoryIcon, faq, services, navigate }) {
+function InfoTabs({ biz, categoryIcon, faq, navigate }) {
   const { t } = useLanguage()
   const [tab, setTab] = useState('props')
   const [openFaq, setOpenFaq] = useState(null)
   const hasFaq = faq && faq.length > 0
-  const profileServices = Array.isArray(services) ? services : []
-  const productServices = Array.isArray(biz?.products)
-    ? biz.products.filter(item => item.product_type === 'SERVICE')
-    : []
-  const serviceList = [...productServices, ...profileServices]
 
   return (
     <section className="bp__card">
@@ -235,13 +230,6 @@ function InfoTabs({ biz, categoryIcon, faq, services, navigate }) {
           className={`bp__info-tab${tab === 'props' ? ' bp__info-tab--active' : ''}`}
           onClick={() => setTab('props')}
         >{t('biz_infoFeatures')}</button>
-        <button
-          className={`bp__info-tab${tab === 'services' ? ' bp__info-tab--active' : ''}`}
-          onClick={() => setTab('services')}
-        >
-          {t('biz_infoServices')}
-          {serviceList.length > 0 && <span className="bp__info-tab-count">{serviceList.length}</span>}
-        </button>
         <button
           className={`bp__info-tab${tab === 'faq' ? ' bp__info-tab--active' : ''}`}
           onClick={() => setTab('faq')}
@@ -274,30 +262,6 @@ function InfoTabs({ biz, categoryIcon, faq, services, navigate }) {
         </div>
       )}
 
-      {tab === 'services' && (
-        serviceList.length > 0
-          ? <div className="bp__svc-list">
-              {serviceList.map((s, i) => {
-                const symbol = { TRY: '₺', USD: '$', EUR: '€', RUB: '₽' }[s.currency] || s.currency || ''
-                return (
-                  <div key={i} className="bp__svc-item">
-                    <div className="bp__svc-item__icon">🔧</div>
-                    <div className="bp__svc-item__name">{s.name}</div>
-                    {s.price && (
-                      <div className="bp__svc-item__price">{Number(s.price).toLocaleString()} {symbol}</div>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-          : <div className="bp__services-empty">
-              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
-              </svg>
-              <p>{t('biz_noServices')}</p>
-              <span>{t('biz_noServicesSub')}</span>
-            </div>
-      )}
 
       {tab === 'faq' && (
         hasFaq
@@ -779,7 +743,6 @@ export default function BusinessPage() {
               biz={biz}
               categoryIcon={categoryIcon}
               faq={faq}
-              services={services}
               navigate={navigate}
             />
 

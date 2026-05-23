@@ -354,7 +354,11 @@ function StoryRow({ story, onDelete, deleting }) {
   const isVideo = story.media_type === 'VIDEO'
   return (
     <div className="biz-content-row">
-      <div className="biz-content-row__thumb biz-content-row__thumb--story">
+      <div
+        className="biz-content-row__thumb biz-content-row__thumb--story"
+        style={media ? { cursor: 'pointer' } : undefined}
+        onClick={media ? () => window.open(media, '_blank') : undefined}
+      >
         {media
           ? isVideo
             ? <video src={media} className="biz-content-row__video-thumb" muted preload="metadata" playsInline />
