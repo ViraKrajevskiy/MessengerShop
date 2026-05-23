@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { API_URL } from '../config/api'
 import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../context/LanguageContext'
@@ -10,6 +10,8 @@ const MOD_TR = {
   'Лента': 'Akış', 'Верификация': 'Doğrulama', 'Посты': 'Gönderiler',
   'Твиты': 'Tweetler', 'Истории': 'Hikayeler', 'Комментарии': 'Yorumlar',
   'Услуги': 'Hizmetler', 'Отзывы': 'Değerlendirmeler', 'Жалобы': 'Şikayetler',
+  'Чаты': 'Sohbetler', 'Выберите чат слева': 'Soldan sohbet seçin',
+  'Нет чатов': 'Sohbet yok', 'Последнее сообщение': 'Son mesaj',
   'Тарифы': 'Tarifeler', 'Оплаты': 'Ödemeler', 'Профили': 'Profiller',
   // Status / plan
   'Бесплатный': 'Ücretsiz', 'Ожидание': 'Beklemede', 'Одобрено': 'Onaylandı',
@@ -78,6 +80,7 @@ const TABS = [
   { id: 'payments',     label: 'Оплаты',       icon: '💳' },
   { id: 'profiles',     label: 'Профили',      icon: '👤' },
   { id: 'surveys',      label: 'Опросы',       icon: '📋' },
+  { id: 'chats',        label: 'Чаты',         icon: '💬' },
 ]
 
 const PLAN_LABELS = { FREE: 'Бесплатный', PRO: 'Pro', VIP: 'VIP' }
@@ -113,6 +116,188 @@ function useModeratorAuth() {
   }
 
   return { token, modUser, logout }
+}
+
+// ── Chats Tab ─────────────────────────────────────────────────────────────────
+function ChatsTab({ token }) {
+  const mt = useModT()
+  const [items, setItems]             = useState([])
+  const [loading, setLoading]         = useState(true)
+  const [selected, setSelected]       = useState(null)
+  const [messages, setMessages]       = useState([])
+  const [detailLoading, setDetailLoading] = useState(false)
+  const [msgText, setMsgText]         = useState('')
+  const [sending, setSending]         = useState(false)
+  const [polling, setPolling]         = useState(null)
+  const chatEndRef = useRef(null)
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    try {
+      const data = await apiModeratorGetVerifications(token)
+      setItems(Array.isArray(data) ? data : [])
+    } catch { /* ignore */ }
+    finally { setLoading(false) }
+  }, [token])
+
+  useEffect(() => { load() }, [load])
+
+  const loadMessages = useCallback(async (item) => {
+    if (!item) return
+    try {
+      const full = await apiModeratorGetVerificationDetail(token, item.id)
+      setMessages(full.messages || [])
+    } catch { /* ignore */ }
+    finally { setDetailLoading(false) }
+  }, [token])
+
+  const openChat = async (item) => {
+    setSelected(item)
+    setMessages([])
+    setMsgText('')
+    setDetailLoading(true)
+    await loadMessages(item)
+  }
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
+
+  // Poll for new messages every 5s when a chat is open
+  useEffect(() => {
+    if (!selected) return
+    const id = setInterval(() => loadMessages(selected), 5000)
+    setPolling(id)
+    return () => clearInterval(id)
+  }, [selected, loadMessages])
+
+  const sendMessage = async () => {
+    const text = msgText.trim()
+    if (!text || sending || !selected) return
+    setSending(true)
+    setMsgText('')
+    try {
+      await apiModeratorSendVerificationMessage(token, selected.id, text)
+      await loadMessages(selected)
+    } catch { setMsgText(text) }
+    finally { setSending(false) }
+  }
+
+  const handleKey = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() }
+  }
+
+  const lastMsg = (item) => {
+    if (item.last_message) return item.last_message
+    return item.owner_email || '—'
+  }
+
+  return (
+    <div className="mod-chats">
+      {/* Left: list of chats */}
+      <div className="mod-chats__list">
+        <div className="mod-chats__list-header">
+          <span>💬 Чаты с пользователями</span>
+          <button className="mod-chats__refresh" onClick={load} title="Обновить">↻</button>
+        </div>
+        {loading ? (
+          <div className="mod-loader">Загрузка…</div>
+        ) : items.length === 0 ? (
+          <div className="mod-empty">{mt('Нет чатов')}</div>
+        ) : items.map(item => (
+          <div
+            key={item.id}
+            className={`mod-chat-row${selected?.id === item.id ? ' mod-chat-row--active' : ''}`}
+            onClick={() => openChat(item)}
+          >
+            <div className="mod-chat-row__avatar">
+              {(item.brand_name || '?')[0].toUpperCase()}
+            </div>
+            <div className="mod-chat-row__body">
+              <div className="mod-chat-row__name">{item.brand_name || '—'}</div>
+              <div className="mod-chat-row__sub">{item.owner_email || '—'}</div>
+            </div>
+            <span className={`mod-badge mod-badge--${STATUS_COLORS[item.status] || 'gray'}`} style={{ fontSize: 10, alignSelf: 'flex-start', marginTop: 2 }}>
+              {STATUS_LABELS[item.status] || item.status}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* Right: chat view */}
+      <div className="mod-chats__panel">
+        {!selected ? (
+          <div className="mod-chats__placeholder">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" style={{ opacity: 0.25 }}>
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            <p>{mt('Выберите чат слева')}</p>
+          </div>
+        ) : (
+          <>
+            <div className="mod-chats__header">
+              <div className="mod-chats__header-info">
+                <b>{selected.brand_name || '—'}</b>
+                <span>{selected.owner_email}</span>
+              </div>
+              <span className={`mod-badge mod-badge--${STATUS_COLORS[selected.status] || 'gray'}`}>
+                {STATUS_LABELS[selected.status] || selected.status}
+              </span>
+            </div>
+
+            <div className="mod-chats__messages">
+              {detailLoading ? (
+                <div className="mod-loader" style={{ padding: 24 }}>Загрузка…</div>
+              ) : messages.length === 0 ? (
+                <div className="mod-chat__empty">Сообщений пока нет</div>
+              ) : messages.map(msg => {
+                const isMod = msg.sender_role === 'MODERATOR'
+                return (
+                  <div key={msg.id} className={`mod-msg ${isMod ? 'mod-msg--out' : 'mod-msg--in'}`}>
+                    <div className="mod-msg__bubble">
+                      <div className="mod-msg__sender">
+                        {isMod ? '🛡️ Вы' : `👤 ${msg.sender_username}`}
+                      </div>
+                      {msg.text && <div className="mod-msg__text">{msg.text}</div>}
+                      {msg.file && (
+                        <a href={msg.file} target="_blank" rel="noopener noreferrer" className="mod-msg__file">
+                          📎 {msg.file_name || 'Файл'}
+                        </a>
+                      )}
+                      <div className="mod-msg__time">
+                        {new Date(msg.created_at).toLocaleString('ru', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' })}
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+              <div ref={chatEndRef} />
+            </div>
+
+            <div className="mod-chat__input">
+              <textarea
+                className="mod-chat__textarea"
+                placeholder="Написать сообщение… (Enter — отправить)"
+                value={msgText}
+                onChange={e => setMsgText(e.target.value)}
+                onKeyDown={handleKey}
+                rows={2}
+              />
+              <button className="mod-chat__send" onClick={sendMessage} disabled={sending || !msgText.trim()}>
+                {sending ? '…' : (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="22" y1="2" x2="11" y2="13"/>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                  </svg>
+                )}
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  )
 }
 
 // ── Verification Tab ──────────────────────────────────────────────────────────
@@ -1444,6 +1629,7 @@ export default function ModeratorDashboardPage() {
           {tab === 'complaints'   && <ComplaintsTab   token={token} />}
           {tab === 'tariffs'      && <TariffsTab      token={token} />}
           {tab === 'surveys'      && <ModeratorSurveysTab token={token} />}
+          {tab === 'chats'        && <ChatsTab           token={token} />}
           {tab === 'stories' && (
             <BlockableTab
               token={token}
