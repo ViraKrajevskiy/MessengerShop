@@ -723,10 +723,10 @@ function CropModal({ src, aspect = 4 / 5, onCancel, onCrop }) {
             zoom={zoom}
             rotation={rotation}
             aspect={aspect}
-            minZoom={1}
+            minZoom={0.4}
             maxZoom={4}
             zoomSpeed={0.4}
-            restrictPosition={true}
+            restrictPosition={false}
             onCropChange={setCrop}
             onZoomChange={setZoom}
             onRotationChange={setRotation}
@@ -738,7 +738,7 @@ function CropModal({ src, aspect = 4 / 5, onCancel, onCrop }) {
           <span>🔍</span>
           <input
             type="range"
-            min={1}
+            min={0.4}
             max={4}
             step={0.01}
             value={zoom}
