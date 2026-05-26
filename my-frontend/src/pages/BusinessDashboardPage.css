@@ -894,6 +894,18 @@
 }
 .biz-publish-btn--product:hover { opacity: 0.88; transform: translateY(-1px); }
 
+.biz-publish-btn--photo {
+  background: linear-gradient(135deg, #f093fb, #f5576c);
+  color: #fff;
+}
+.biz-publish-btn--photo:hover { opacity: 0.88; transform: translateY(-1px); }
+
+.biz-publish-btn--video {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+}
+.biz-publish-btn--video:hover { opacity: 0.88; transform: translateY(-1px); }
+
 .biz-publish-btn:disabled {
   opacity: 0.45;
   cursor: not-allowed;

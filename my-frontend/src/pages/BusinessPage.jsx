@@ -729,15 +729,16 @@ setSubscribed(bizData.is_subscribed || false)
 
             <Gallery posts={posts} onVideoSelect={setSelectedVideo} onPhotoSelect={setSelectedPhoto} isPremium={biz.is_vip} />
 
-            {posts.length > 0 && (
+            {posts.filter(p => p.text?.trim()).length > 0 && (
               <section className="bp__card" id="section-posts">
-                <h2 className="bp__card-title">{t('biz_publications')} <span className="bp__pill">{posts.length}</span></h2>
+                <h2 className="bp__card-title">{t('biz_publications')} <span className="bp__pill">{posts.filter(p => p.text?.trim()).length}</span></h2>
                 <div className="bp__feed">
                   {(() => {
-                    const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE)
+                    const textPosts = posts.filter(p => p.text?.trim())
+                    const totalPages = Math.ceil(textPosts.length / POSTS_PER_PAGE)
                     const start = postsPage * POSTS_PER_PAGE
                     const end = start + POSTS_PER_PAGE
-                    const visiblePosts = posts.slice(start, end)
+                    const visiblePosts = textPosts.slice(start, end)
                     return visiblePosts.map(post => (
                       <div key={post.id} className="bp__feed-item">
                         <div className="bp__feed-body">
@@ -797,7 +798,8 @@ setSubscribed(bizData.is_subscribed || false)
                   })()}
                 </div>
                 {(() => {
-                  const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE)
+                  const textPosts = posts.filter(p => p.text?.trim())
+                  const totalPages = Math.ceil(textPosts.length / POSTS_PER_PAGE)
                   return totalPages > 1 && (
                     <div className="bp__pagination">
                       {Array.from({ length: totalPages }, (_, i) => (
