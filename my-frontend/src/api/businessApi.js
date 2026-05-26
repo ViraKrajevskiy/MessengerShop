@@ -217,7 +217,10 @@ export async function apiDeleteStory(storyId, token) {
     method: 'DELETE',
     headers: { 'Authorization': `Bearer ${token}` },
   })
-  if (!res.ok) throw new Error('Ошибка удаления истории')
+  // 204 = удалено, 404 = история уже отсутствует — в обоих случаях для UI это успех
+  if (!res.ok && res.status !== 204 && res.status !== 404) {
+    throw new Error('Ошибка удаления истории')
+  }
 }
 
 export async function apiDeleteProduct(bizId, productId, token) {
