@@ -857,6 +857,76 @@ function CreateProductModal({ getAccessToken, bizId, onClose, onSuccess }) {
   )
 }
 
+// ── Create Media-Only Modal (photo or video, no text) ─────────────────────────
+function CreateMediaOnlyModal({ getAccessToken, bizId, onClose, onSuccess, mediaType }) {
+  const isVideo = mediaType === 'video'
+  const [file, setFile]       = useState(null)
+  const [preview, setPreview] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError]     = useState('')
+  const inputRef = useRef()
+
+  const handleFile = e => {
+    const f = e.target.files[0]
+    if (!f) return
+    setFile(f)
+    setPreview(URL.createObjectURL(f))
+  }
+
+  const handleSubmit = async () => {
+    if (!file) { setError('Выберите файл'); return }
+    setLoading(true); setError('')
+    const fd = new FormData()
+    fd.append('text', '')
+    fd.append('media', file)
+    fd.append('media_type', isVideo ? 'VIDEO' : 'IMAGE')
+    try {
+      const token = await getAccessToken()
+      if (!token) { setError('Сессия истекла'); return }
+      const r = await fetch(`${BASE}/businesses/${bizId}/posts/`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: fd,
+      })
+      if (!r.ok) {
+        const body = await r.json().catch(() => ({}))
+        setError(body.detail || 'Ошибка')
+        return
+      }
+      onSuccess(isVideo ? 'Видео опубликовано!' : 'Фото опубликовано!')
+      onClose()
+    } catch {
+      setError('Ошибка соединения')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <Modal title={isVideo ? 'Добавить видео' : 'Добавить фото'} onClose={onClose}>
+      <div className="biz-form">
+        <div className="biz-form__upload" onClick={() => inputRef.current.click()}>
+          {preview ? (
+            isVideo
+              ? <video src={preview} className="biz-form__preview" controls />
+              : <img src={preview} className="biz-form__preview" alt="preview" />
+          ) : (
+            <div className="biz-form__upload-placeholder">
+              <span>{isVideo ? '🎬' : '📷'}</span>
+              <p>Нажмите чтобы выбрать {isVideo ? 'видео' : 'фото'}</p>
+            </div>
+          )}
+          <input ref={inputRef} type="file" accept={isVideo ? 'video/*' : 'image/*'} onChange={handleFile} hidden />
+        </div>
+        {error && <p className="biz-form__error">{error}</p>}
+        <button className="biz-form__submit" onClick={handleSubmit} disabled={loading}>
+          {loading ? <span className="biz-form__spinner" /> : 'Опубликовать'}
+        </button>
+      </div>
+    </Modal>
+  )
+}
+
 // ── Main Page ──────────────────────────────────────────────────────────────────
 export default function BusinessDashboardPage() {
   const navigate = useNavigate()
@@ -965,6 +1035,8 @@ export default function BusinessDashboardPage() {
   const [showPost,     setShowPost]     = useState(false)
   const [showTweet,    setShowTweet]    = useState(false)
   const [showProduct,  setShowProduct]  = useState(false)
+  const [showPhoto,    setShowPhoto]    = useState(false)
+  const [showVideo,    setShowVideo]    = useState(false)
   const [editingService, setEditingService] = useState(null) // service object being edited
 
   // ── Filters: Products ──────────────────────────────────────────────────────
@@ -1438,7 +1510,7 @@ export default function BusinessDashboardPage() {
     showToast(msg)
     refreshStats()
     // Invalidate loaded flags and refresh the active list immediately.
-    if (msg.includes('Пост') || msg.includes('Твит')) {
+    if (msg.includes('Пост') || msg.includes('Твит') || msg.includes('Фото') || msg.includes('Видео')) {
       // Drop the shared list caches so HomePage / feed / shop profile
       // show the new post immediately instead of a 5-min stale list.
       invalidateCache('posts')
@@ -1612,6 +1684,31 @@ export default function BusinessDashboardPage() {
               <line x1="8" y1="12" x2="16" y2="12"/>
             </svg>
             Новый пост
+          </button>
+          <button
+            type="button"
+            className="biz-publish-btn biz-publish-btn--photo"
+            onClick={() => setShowPhoto(true)}
+            disabled={!bizId}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+              <circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21 15 16 10 5 21"/>
+            </svg>
+            Фото
+          </button>
+          <button
+            type="button"
+            className="biz-publish-btn biz-publish-btn--video"
+            onClick={() => setShowVideo(true)}
+            disabled={!bizId}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polygon points="23 7 16 12 23 17 23 7"/>
+              <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+            </svg>
+            Видео
           </button>
           {bizData?.is_pro ? (
             <button
@@ -2803,6 +2900,24 @@ export default function BusinessDashboardPage() {
           bizId={bizId}
           onClose={() => setShowTweet(false)}
           onSuccess={handleSuccess}
+        />
+      )}
+      {showPhoto && bizId && (
+        <CreateMediaOnlyModal
+          getAccessToken={getAccessToken}
+          bizId={bizId}
+          onClose={() => setShowPhoto(false)}
+          onSuccess={handleSuccess}
+          mediaType="image"
+        />
+      )}
+      {showVideo && bizId && (
+        <CreateMediaOnlyModal
+          getAccessToken={getAccessToken}
+          bizId={bizId}
+          onClose={() => setShowVideo(false)}
+          onSuccess={handleSuccess}
+          mediaType="video"
         />
       )}
       {showProduct && bizId && (
