@@ -1128,6 +1128,14 @@
 }
 .biz-form__upload:hover { border-color: var(--accent-1); }
 .biz-form__upload--sm { min-height: 120px; }
+.biz-form__upload--dragover {
+  border-color: var(--accent-1, #6c63ff);
+  background: rgba(108, 99, 255, 0.08);
+  transform: scale(1.01);
+}
+.biz-form__upload--dragover * {
+  pointer-events: none;
+}
 
 .biz-form__upload-placeholder {
   display: flex;
