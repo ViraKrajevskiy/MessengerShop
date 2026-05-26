@@ -213,16 +213,31 @@ function ConfirmModal({ message, onConfirm, onCancel, loading }) {
 function CreateStoryModal({ getAccessToken, onClose, onSuccess }) {
   const [file, setFile]       = useState(null)
   const [preview, setPreview] = useState(null)
+  const [cropSrc, setCropSrc] = useState(null)
   const [caption, setCaption] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState('')
   const inputRef = useRef()
 
+  const isVideoFile = (f) =>
+    f && (f.type.startsWith('video/') || /\.(mp4|webm|mov|avi|mkv)$/i.test(f.name))
+
   const handleFile = e => {
     const f = e.target.files[0]
     if (!f) return
-    setFile(f)
-    setPreview(URL.createObjectURL(f))
+    e.target.value = ''
+    if (isVideoFile(f)) {
+      setFile(f)
+      setPreview(URL.createObjectURL(f))
+    } else {
+      setCropSrc(URL.createObjectURL(f))
+    }
+  }
+
+  const handleCropped = (croppedFile) => {
+    setFile(croppedFile)
+    setPreview(URL.createObjectURL(croppedFile))
+    setCropSrc(null)
   }
 
   const handleSubmit = async () => {
@@ -258,11 +273,12 @@ function CreateStoryModal({ getAccessToken, onClose, onSuccess }) {
   }
 
   return (
+    <>
     <Modal title="Новый сторис" onClose={onClose}>
       <div className="biz-form">
         <div className="biz-form__upload" onClick={() => inputRef.current.click()}>
           {preview
-            ? file?.type.startsWith('video')
+            ? isVideoFile(file)
               ? <video src={preview} className="biz-form__preview" controls />
               : <img src={preview} className="biz-form__preview" alt="preview" />
             : <div className="biz-form__upload-placeholder">
@@ -272,6 +288,15 @@ function CreateStoryModal({ getAccessToken, onClose, onSuccess }) {
           }
           <input ref={inputRef} type="file" accept="image/*,video/*" onChange={handleFile} hidden />
         </div>
+        {file && !isVideoFile(file) && (
+          <button
+            type="button"
+            className="biz-form__remove-media"
+            onClick={() => setCropSrc(URL.createObjectURL(file))}
+          >
+            ✏️ Редактировать (кроп / поворот)
+          </button>
+        )}
         <textarea
           className="biz-form__textarea"
           placeholder="Подпись к сторису (необязательно)"
@@ -285,6 +310,15 @@ function CreateStoryModal({ getAccessToken, onClose, onSuccess }) {
         </button>
       </div>
     </Modal>
+    {cropSrc && (
+      <CropModal
+        src={cropSrc}
+        aspect={9 / 16}
+        onCancel={() => setCropSrc(null)}
+        onCrop={handleCropped}
+      />
+    )}
+    </>
   )
 }
 
@@ -292,6 +326,7 @@ function CreateStoryModal({ getAccessToken, onClose, onSuccess }) {
 function CreatePostModal({ getAccessToken, bizId, onClose, onSuccess }) {
   const [file, setFile]       = useState(null)
   const [preview, setPreview] = useState(null)
+  const [cropSrc, setCropSrc] = useState(null)
   const [text, setText]       = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState('')
@@ -333,15 +368,27 @@ function CreatePostModal({ getAccessToken, bizId, onClose, onSuccess }) {
     setTagSuggests([])
   }
 
+  const isVideoFile = (f) =>
+    f && (f.type.startsWith('video/') || /\.(mp4|webm|mov|avi|mkv)$/i.test(f.name))
+
   const handleFile = e => {
     const f = e.target.files[0]
     if (!f) return
-    setFile(f)
-    setPreview(URL.createObjectURL(f))
+    e.target.value = ''
+    if (isVideoFile(f)) {
+      setFile(f)
+      setPreview(URL.createObjectURL(f))
+    } else {
+      // Open cropper/editor for images
+      setCropSrc(URL.createObjectURL(f))
+    }
   }
 
-  const isVideoFile = (f) =>
-    f && (f.type.startsWith('video/') || /\.(mp4|webm|mov|avi|mkv)$/i.test(f.name))
+  const handleCropped = (croppedFile) => {
+    setFile(croppedFile)
+    setPreview(URL.createObjectURL(croppedFile))
+    setCropSrc(null)
+  }
 
   const handleSubmit = async () => {
     if (!text.trim()) { setError('Введите текст поста'); return }
@@ -378,6 +425,7 @@ function CreatePostModal({ getAccessToken, bizId, onClose, onSuccess }) {
   }
 
   return (
+    <>
     <Modal title="Новый пост" onClose={onClose}>
       <div className="biz-form">
         <textarea
@@ -399,6 +447,15 @@ function CreatePostModal({ getAccessToken, bizId, onClose, onSuccess }) {
           }
           <input ref={fileInputRef} type="file" accept="image/*,video/*" onChange={handleFile} hidden />
         </div>
+        {file && !isVideoFile(file) && (
+          <button
+            type="button"
+            className="biz-form__remove-media"
+            onClick={(e) => { e.stopPropagation(); setCropSrc(URL.createObjectURL(file)) }}
+          >
+            ✏️ Редактировать (кроп / поворот)
+          </button>
+        )}
         {file && (
           <button
             type="button"
@@ -444,6 +501,15 @@ function CreatePostModal({ getAccessToken, bizId, onClose, onSuccess }) {
         </button>
       </div>
     </Modal>
+    {cropSrc && (
+      <CropModal
+        src={cropSrc}
+        aspect={4 / 5}
+        onCancel={() => setCropSrc(null)}
+        onCrop={handleCropped}
+      />
+    )}
+    </>
   )
 }
 
@@ -515,6 +581,7 @@ function CreateMediaOnlyModal({ getAccessToken, bizId, onClose, onSuccess, media
   const isVideo = mediaType === 'video'
   const [file, setFile]       = useState(null)
   const [preview, setPreview] = useState(null)
+  const [cropSrc, setCropSrc] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState('')
   const inputRef = useRef()
@@ -522,8 +589,20 @@ function CreateMediaOnlyModal({ getAccessToken, bizId, onClose, onSuccess, media
   const handleFile = e => {
     const f = e.target.files[0]
     if (!f) return
-    setFile(f)
-    setPreview(URL.createObjectURL(f))
+    e.target.value = ''
+    if (isVideo) {
+      setFile(f)
+      setPreview(URL.createObjectURL(f))
+    } else {
+      // Open cropper/editor for images
+      setCropSrc(URL.createObjectURL(f))
+    }
+  }
+
+  const handleCropped = (croppedFile) => {
+    setFile(croppedFile)
+    setPreview(URL.createObjectURL(croppedFile))
+    setCropSrc(null)
   }
 
   const handleSubmit = async () => {
@@ -556,27 +635,46 @@ function CreateMediaOnlyModal({ getAccessToken, bizId, onClose, onSuccess, media
   }
 
   return (
-    <Modal title={isVideo ? 'Добавить видео' : 'Добавить фото'} onClose={onClose}>
-      <div className="biz-form">
-        <div className="biz-form__upload" onClick={() => inputRef.current.click()}>
-          {preview ? (
-            isVideo
-              ? <video src={preview} className="biz-form__preview" controls />
-              : <img src={preview} className="biz-form__preview" alt="preview" />
-          ) : (
-            <div className="biz-form__upload-placeholder">
-              <span>{isVideo ? '🎬' : '📷'}</span>
-              <p>Нажмите чтобы выбрать {isVideo ? 'видео' : 'фото'}</p>
-            </div>
+    <>
+      <Modal title={isVideo ? 'Добавить видео' : 'Добавить фото'} onClose={onClose}>
+        <div className="biz-form">
+          <div className="biz-form__upload" onClick={() => inputRef.current.click()}>
+            {preview ? (
+              isVideo
+                ? <video src={preview} className="biz-form__preview" controls />
+                : <img src={preview} className="biz-form__preview" alt="preview" />
+            ) : (
+              <div className="biz-form__upload-placeholder">
+                <span>{isVideo ? '🎬' : '📷'}</span>
+                <p>Нажмите чтобы выбрать {isVideo ? 'видео' : 'фото'}</p>
+              </div>
+            )}
+            <input ref={inputRef} type="file" accept={isVideo ? 'video/*' : 'image/*'} onChange={handleFile} hidden />
+          </div>
+          {!isVideo && file && (
+            <button
+              type="button"
+              className="biz-form__remove-media"
+              onClick={() => setCropSrc(URL.createObjectURL(file))}
+            >
+              ✏️ Редактировать (кроп / поворот)
+            </button>
           )}
-          <input ref={inputRef} type="file" accept={isVideo ? 'video/*' : 'image/*'} onChange={handleFile} hidden />
+          {error && <p className="biz-form__error">{error}</p>}
+          <button className="biz-form__submit" onClick={handleSubmit} disabled={loading}>
+            {loading ? <span className="biz-form__spinner" /> : 'Опубликовать'}
+          </button>
         </div>
-        {error && <p className="biz-form__error">{error}</p>}
-        <button className="biz-form__submit" onClick={handleSubmit} disabled={loading}>
-          {loading ? <span className="biz-form__spinner" /> : 'Опубликовать'}
-        </button>
-      </div>
-    </Modal>
+      </Modal>
+      {cropSrc && (
+        <CropModal
+          src={cropSrc}
+          aspect={4 / 5}
+          onCancel={() => setCropSrc(null)}
+          onCrop={handleCropped}
+        />
+      )}
+    </>
   )
 }
 
@@ -607,7 +705,12 @@ function CropModal({ src, aspect = 4 / 5, onCancel, onCrop }) {
     }
   }
 
-  const aspectLabel = aspect === 1 ? '1:1' : aspect === 16 / 9 ? '16:9' : '4:5'
+  const aspectLabel =
+    aspect === 1       ? '1:1' :
+    aspect === 16 / 9  ? '16:9' :
+    aspect === 9 / 16  ? '9:16' :
+    aspect === 4 / 5   ? '4:5'  :
+    `${aspect.toFixed(2)}`
 
   return (
     <div className="crop-modal__backdrop" onClick={onCancel}>
