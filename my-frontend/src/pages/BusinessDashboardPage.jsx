@@ -516,12 +516,9 @@ function CreateStoryModal({ getAccessToken, onClose, onSuccess }) {
 
 // ── Create Post Modal ──────────────────────────────────────────────────────────
 function CreatePostModal({ getAccessToken, bizId, onClose, onSuccess }) {
-  const [file, setFile]       = useState(null)
-  const [preview, setPreview] = useState(null)
   const [text, setText]       = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState('')
-  const inputRef = useRef()
 
   // Hashtag picker state
   const [tagInput, setTagInput]         = useState('')
@@ -559,24 +556,11 @@ function CreatePostModal({ getAccessToken, bizId, onClose, onSuccess }) {
     setTagSuggests([])
   }
 
-  const handleFile = e => {
-    const f = e.target.files[0]
-    if (!f) return
-    setFile(f)
-    setPreview(URL.createObjectURL(f))
-  }
-
   const handleSubmit = async () => {
-    if (!text.trim() && !file) { setError('Добавьте текст или медиафайл'); return }
+    if (!text.trim()) { setError('Введите текст поста'); return }
     setLoading(true); setError('')
     const fd = new FormData()
     fd.append('text', text)
-    if (file) {
-      fd.append('media', file)
-      // Определяем тип медиа по MIME type или расширению файла
-      const isVideo = file.type.startsWith('video/') || /\.(mp4|webm|mov|avi|mkv)$/i.test(file.name)
-      fd.append('media_type', isVideo ? 'VIDEO' : 'IMAGE')
-    }
     try {
       const token = await getAccessToken()
       if (!token) {
@@ -612,18 +596,6 @@ function CreatePostModal({ getAccessToken, bizId, onClose, onSuccess }) {
           onChange={e => setText(e.target.value)}
           rows={4}
         />
-        <div className="biz-form__upload biz-form__upload--sm" onClick={() => inputRef.current.click()}>
-          {preview
-            ? (file?.type.startsWith('video/') || /\.(mp4|webm|mov|avi|mkv)$/i.test(file?.name))
-              ? <video src={preview} className="biz-form__preview" controls />
-              : <img src={preview} className="biz-form__preview" alt="preview" />
-            : <div className="biz-form__upload-placeholder">
-                <span>🖼</span>
-                <p>Добавить фото или видео (необязательно)</p>
-              </div>
-          }
-          <input ref={inputRef} type="file" accept="image/*,video/*" onChange={handleFile} hidden />
-        </div>
         {/* ── Hashtag picker ── */}
         <div className="post-tag-picker">
           <div className="post-tag-picker__label">🏷 Хештеги</div>
