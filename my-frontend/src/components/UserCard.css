@@ -18,7 +18,7 @@
 .user-card__image {
   position: relative;
   width: 100%;
-  aspect-ratio: 1/1.2;
+  aspect-ratio: 4/5;
   overflow: hidden;
 }
 
@@ -305,7 +305,7 @@
     border-radius: 10px;
   }
   .user-card__image {
-    aspect-ratio: 3/4;
+    aspect-ratio: 4/5;
   }
   .user-card__info {
     padding: 10px 11px 12px;
@@ -334,7 +334,7 @@
     border-radius: 10px;
   }
   .user-card__image {
-    aspect-ratio: 3/4;
+    aspect-ratio: 4/5;
   }
   .user-card__info {
     padding: 9px 10px 11px;
