@@ -926,6 +926,93 @@ function CreateMediaOnlyModal({ getAccessToken, bizId, onClose, onSuccess, media
   )
 }
 
+// ── Image Cropper (4:5) ────────────────────────────────────────────────────────
+function CropModal({ src, onCancel, onCrop }) {
+  const RATIO = 4 / 5
+  const [cropBox, setCropBox] = useState(null)
+  const [ready, setReady]     = useState(false)
+  const [dragStart, setDragStart] = useState(null)
+  const imgRef = useRef()
+
+  const getDisp = () => {
+    if (!imgRef.current) return null
+    const r = imgRef.current.getBoundingClientRect()
+    return { w: r.width, h: r.height }
+  }
+
+  const onImgLoad = () => {
+    const d = getDisp()
+    if (!d) return
+    let cw = d.w
+    let ch = cw / RATIO
+    if (ch > d.h) { ch = d.h; cw = ch * RATIO }
+    setCropBox({ x: (d.w - cw) / 2, y: (d.h - ch) / 2, w: cw, h: ch })
+    setReady(true)
+  }
+
+  const onMouseDown = (e) => {
+    e.preventDefault()
+    setDragStart({ mx: e.clientX, my: e.clientY, bx: cropBox.x, by: cropBox.y })
+  }
+
+  const onMouseMove = (e) => {
+    if (!dragStart || !cropBox) return
+    const d = getDisp()
+    let nx = dragStart.bx + (e.clientX - dragStart.mx)
+    let ny = dragStart.by + (e.clientY - dragStart.my)
+    nx = Math.max(0, Math.min(d.w - cropBox.w, nx))
+    ny = Math.max(0, Math.min(d.h - cropBox.h, ny))
+    setCropBox(prev => ({ ...prev, x: nx, y: ny }))
+  }
+
+  const onMouseUp = () => setDragStart(null)
+
+  const doCrop = () => {
+    const img = imgRef.current
+    const d   = getDisp()
+    const sx  = img.naturalWidth  / d.w
+    const sy  = img.naturalHeight / d.h
+    const ow  = Math.round(cropBox.w * sx)
+    const oh  = Math.round(cropBox.h * sy)
+    const canvas = document.createElement('canvas')
+    canvas.width  = ow
+    canvas.height = oh
+    canvas.getContext('2d').drawImage(img, cropBox.x * sx, cropBox.y * sy, ow, oh, 0, 0, ow, oh)
+    canvas.toBlob(blob => {
+      onCrop(new File([blob], 'card_media.jpg', { type: 'image/jpeg' }))
+    }, 'image/jpeg', 0.93)
+  }
+
+  return (
+    <div className="crop-modal__backdrop" onClick={onCancel}>
+      <div className="crop-modal" onClick={e => e.stopPropagation()}>
+        <p className="crop-modal__title">Выбор области 4:5</p>
+        <div className="crop-modal__stage" onMouseMove={onMouseMove} onMouseUp={onMouseUp} onMouseLeave={onMouseUp}>
+          <img ref={imgRef} src={src} className="crop-modal__img" onLoad={onImgLoad} draggable={false} />
+          {ready && cropBox && (
+            <>
+              <div className="crop-modal__shade" style={{ top: 0, left: 0, right: 0, height: cropBox.y }} />
+              <div className="crop-modal__shade" style={{ top: cropBox.y + cropBox.h, left: 0, right: 0, bottom: 0 }} />
+              <div className="crop-modal__shade" style={{ top: cropBox.y, left: 0, width: cropBox.x, height: cropBox.h }} />
+              <div className="crop-modal__shade" style={{ top: cropBox.y, left: cropBox.x + cropBox.w, right: 0, height: cropBox.h }} />
+              <div
+                className="crop-modal__frame"
+                style={{ left: cropBox.x, top: cropBox.y, width: cropBox.w, height: cropBox.h }}
+                onMouseDown={onMouseDown}
+              />
+            </>
+          )}
+        </div>
+        <p className="crop-modal__hint">Перетащите рамку чтобы выбрать нужную область</p>
+        <div className="crop-modal__actions">
+          <button className="crop-modal__cancel" onClick={onCancel}>Отмена</button>
+          <button className="crop-modal__confirm" onClick={doCrop} disabled={!ready}>Обрезать</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ── Main Page ──────────────────────────────────────────────────────────────────
 export default function BusinessDashboardPage() {
   const navigate = useNavigate()
@@ -986,6 +1073,8 @@ export default function BusinessDashboardPage() {
   const [editLogo,    setEditLogo]    = useState(null)
   const [editCover,     setEditCover]     = useState(null)
   const [editCardMedia, setEditCardMedia] = useState(null)
+  const [cropSrc,       setCropSrc]       = useState(null)
+  const cardMediaInputRef = useRef(null)
   const [editAudio,   setEditAudio]   = useState(null)
   const [removeAudio, setRemoveAudio] = useState(false)
   const audioInputRef = useRef(null)
@@ -2404,7 +2493,19 @@ export default function BusinessDashboardPage() {
                         </p>
                         <label className="biz-profile-edit__upload-btn">
                           🎬 Загрузить фото / видео
-                          <input type="file" accept="image/*,video/*" hidden onChange={e => setEditCardMedia(e.target.files[0] || null)} />
+                          <input
+                            ref={cardMediaInputRef}
+                            type="file"
+                            accept="image/*,video/*"
+                            hidden
+                            onChange={e => {
+                              const f = e.target.files[0]
+                              if (!f) return
+                              e.target.value = ''
+                              const isVid = f.type.startsWith('video/') || /\.(mp4|webm|mov|avi|mkv)$/i.test(f.name)
+                              if (isVid) { setEditCardMedia(f) } else { setCropSrc(URL.createObjectURL(f)) }
+                            }}
+                          />
                         </label>
                         {editCardMedia && (
                           <button className="biz-profile-edit__upload-btn" style={{marginLeft:8,background:'rgba(239,68,68,0.1)',color:'#ef4444',border:'1.5px solid rgba(239,68,68,0.3)'}} onClick={() => setEditCardMedia(null)}>
@@ -2899,6 +3000,13 @@ export default function BusinessDashboardPage() {
           bizId={bizId}
           onClose={() => setShowTweet(false)}
           onSuccess={handleSuccess}
+        />
+      )}
+      {cropSrc && (
+        <CropModal
+          src={cropSrc}
+          onCancel={() => setCropSrc(null)}
+          onCrop={file => { setEditCardMedia(file); setCropSrc(null) }}
         />
       )}
       {showPhoto && bizId && (
