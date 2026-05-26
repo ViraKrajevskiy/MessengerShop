@@ -47,8 +47,7 @@ export default function UserCard({ id, name = 'Имя', city = 'Город', bad
   const videoRef = useRef(null)
 
   const placeholder = makeCardPlaceholder(name, id)
-  // cardMedia prop = dedicated card media (photo or video); fallback to cover, then logo
-  const resolvedCardMedia = cardMedia || cover || logo
+  const resolvedCardMedia = cardMedia || null
   const rawPhoto = resolvedCardMedia ? resolveUrl(resolvedCardMedia) : placeholder
   const isVideo = resolvedCardMedia && /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(resolvedCardMedia)
 
