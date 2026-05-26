@@ -86,233 +86,6 @@ function StatCard({ icon, value, label, color }) {
   )
 }
 
-// ── Product Row ────────────────────────────────────────────────────────────────
-function ProductRow({ p, rank, onDelete, onEdit, onToggleStatus, togglingStatus }) {
-  const isToggling = togglingStatus === p.id
-  const imgSrc = p.image_display || p.image || null
-
-  return (
-    <div className="biz-prod-row">
-      <div className="biz-prod-row__rank">#{rank}</div>
-
-      <div className="biz-prod-row__img">
-        {imgSrc
-          ? <img src={imgSrc} alt={p.name} />
-          : <div className="biz-prod-row__img-placeholder">🔧</div>
-        }
-      </div>
-
-      <div className="biz-prod-row__info">
-        <span className="biz-prod-row__name">{p.name}</span>
-        <span className="biz-prod-row__type-badge">🔧 Услуга</span>
-        {p.price && (
-          <span className="biz-prod-row__price">{p.price} {p.currency}</span>
-        )}
-      </div>
-
-      <div className="biz-prod-row__metrics">
-        <div className="biz-prod-row__metric" title="Просмотры">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-            <circle cx="12" cy="12" r="3"/>
-          </svg>
-          {p.views}
-        </div>
-        <div className="biz-prod-row__metric biz-prod-row__metric--like" title="Лайки">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-          </svg>
-          {p.likes}
-        </div>
-        <div className="biz-prod-row__metric biz-prod-row__metric--inq" title="Запросы">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-          </svg>
-          {p.inquiries}
-        </div>
-      </div>
-
-      {/* ── Clickable status toggle ── */}
-      <button
-        className={`biz-prod-row__status-btn ${p.is_available ? 'biz-prod-row__status-btn--on' : 'biz-prod-row__status-btn--off'} ${isToggling ? 'biz-prod-row__status-btn--loading' : ''}`}
-        onClick={() => onToggleStatus(p.id, p.is_available)}
-        disabled={isToggling}
-        title={p.is_available ? 'Нажмите чтобы скрыть' : 'Нажмите чтобы активировать'}
-      >
-        {isToggling ? (
-          <span className="biz-row__delete-spinner" />
-        ) : (
-          <>
-            <span className="biz-prod-row__status-dot" />
-            {p.is_available ? 'Активен' : 'Скрыт'}
-            <svg className="biz-prod-row__status-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <polyline points="6 9 12 15 18 9"/>
-            </svg>
-          </>
-        )}
-      </button>
-
-      {/* Edit button */}
-      <button
-        className="biz-row__edit-btn"
-        onClick={() => onEdit(p)}
-        title="Редактировать услугу"
-      >
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-        </svg>
-      </button>
-
-      <button
-        className="biz-row__delete-btn"
-        onClick={() => onDelete(p.id)}
-        title="Удалить услугу"
-      >
-        <TrashIcon />
-      </button>
-    </div>
-  )
-}
-
-// ── Edit Service Modal ─────────────────────────────────────────────────────────
-function EditServiceModal({ service, getAccessToken, bizId, onClose, onSuccess }) {
-  const [form, setForm] = useState({
-    name:        service.name        || '',
-    description: service.description || '',
-    price:       service.price       || '',
-    currency:    service.currency    || 'TRY',
-    image_url:   service.image_url   || '',
-    is_available: service.is_available !== false,
-  })
-  const [file, setFile]       = useState(null)
-  const [preview, setPreview] = useState(service.image_display || service.image || null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError]     = useState('')
-  const inputRef = useRef()
-
-  const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
-
-  const handleFile = e => {
-    const f = e.target.files[0]
-    if (!f) return
-    setFile(f)
-    setPreview(URL.createObjectURL(f))
-  }
-
-  const handleSubmit = async () => {
-    if (!form.name.trim()) { setError('Введите название'); return }
-    setLoading(true); setError('')
-    const fd = new FormData()
-    fd.append('name',        form.name)
-    fd.append('description', form.description)
-    fd.append('currency',    form.currency)
-    fd.append('is_available', form.is_available)
-    fd.append('product_type', 'SERVICE')
-    if (form.price)     fd.append('price',     form.price)
-    if (form.image_url) fd.append('image_url', form.image_url)
-    if (file)           fd.append('image',     file)
-    try {
-      const token = await getAccessToken()
-      if (!token) { setError('Сессия истекла'); return }
-      const r = await fetch(`${BASE}/businesses/${bizId}/products/${service.id}/`, {
-        method: 'PATCH',
-        headers: { Authorization: `Bearer ${token}` },
-        body: fd,
-      })
-      if (!r.ok) {
-        const body = await r.json().catch(() => ({}))
-        setError(body.detail || JSON.stringify(body) || 'Ошибка')
-        return
-      }
-      onSuccess('Услуга обновлена!')
-      onClose()
-    } catch {
-      setError('Ошибка соединения')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  return (
-    <Modal title="Редактировать услугу" onClose={onClose}>
-      <div className="biz-form">
-        <input
-          className="biz-form__input"
-          placeholder="Название *"
-          value={form.name}
-          onChange={e => set('name', e.target.value)}
-        />
-        <textarea
-          className="biz-form__textarea"
-          placeholder="Описание"
-          value={form.description}
-          onChange={e => set('description', e.target.value)}
-          rows={3}
-        />
-
-        <div className="biz-form__row">
-          <input
-            className="biz-form__input"
-            placeholder="Цена (необязательно)"
-            type="number"
-            value={form.price}
-            onChange={e => set('price', e.target.value)}
-          />
-          <select
-            className="biz-form__select"
-            value={form.currency}
-            onChange={e => set('currency', e.target.value)}
-          >
-            <option value="TRY">₺ TRY</option>
-            <option value="USD">$ USD</option>
-            <option value="EUR">€ EUR</option>
-            <option value="RUB">₽ RUB</option>
-          </select>
-        </div>
-
-        {/* Photo upload */}
-        <div className="biz-form__upload biz-form__upload--sm" onClick={() => inputRef.current.click()}>
-          {preview ? (
-            <div className="biz-form__preview-wrap">
-              <img src={preview} className="biz-form__preview" alt="preview" />
-              <div className="biz-form__preview-hint">Нажмите чтобы сменить фото</div>
-            </div>
-          ) : (
-            <div className="biz-form__upload-placeholder">
-              <span>🖼</span>
-              <p>Добавить фото услуги</p>
-              <span className="biz-form__upload-hint">Нажмите для выбора файла</span>
-            </div>
-          )}
-          <input ref={inputRef} type="file" accept="image/*" onChange={handleFile} hidden />
-        </div>
-
-        <input
-          className="biz-form__input"
-          placeholder="Или вставьте ссылку на фото"
-          value={form.image_url}
-          onChange={e => set('image_url', e.target.value)}
-        />
-
-        <label className="biz-form__checkbox">
-          <input
-            type="checkbox"
-            checked={form.is_available}
-            onChange={e => set('is_available', e.target.checked)}
-          />
-          Доступен для заказа
-        </label>
-
-        {error && <p className="biz-form__error">{error}</p>}
-        <button className="biz-form__submit" onClick={handleSubmit} disabled={loading}>
-          {loading ? <span className="biz-form__spinner" /> : 'Сохранить изменения'}
-        </button>
-      </div>
-    </Modal>
-  )
-}
-
 // ── Post Row ───────────────────────────────────────────────────────────────────
 function PostRow({ post, onDelete, deleting }) {
   const media = post.media_display || post.media
@@ -699,137 +472,6 @@ function CreateTweetModal({ getAccessToken, bizId, onClose, onSuccess }) {
   )
 }
 
-// ── Create Product Modal ───────────────────────────────────────────────────────
-function CreateProductModal({ getAccessToken, bizId, onClose, onSuccess }) {
-  const [form, setForm] = useState({
-    name: '', description: '', product_type: 'SERVICE',
-    price: '', currency: 'TRY', image_url: '', is_available: true,
-  })
-  const [file, setFile]       = useState(null)
-  const [preview, setPreview] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError]     = useState('')
-  const inputRef = useRef()
-
-  const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
-
-  const handleFile = e => {
-    const f = e.target.files[0]
-    if (!f) return
-    setFile(f)
-    setPreview(URL.createObjectURL(f))
-  }
-
-  const handleSubmit = async () => {
-    if (!form.name.trim()) { setError('Введите название'); return }
-    setLoading(true); setError('')
-    const fd = new FormData()
-    fd.append('name', form.name)
-    fd.append('description', form.description)
-    fd.append('product_type', form.product_type)
-    fd.append('currency', form.currency)
-    fd.append('is_available', form.is_available)
-    if (form.price) fd.append('price', form.price)
-    if (form.image_url) fd.append('image_url', form.image_url)
-    if (file) fd.append('image', file)
-    try {
-      const token = await getAccessToken()
-      if (!token) {
-        setError('Сессия истекла')
-        return
-      }
-      const r = await fetch(`${BASE}/businesses/${bizId}/products/`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: fd,
-      })
-      if (!r.ok) {
-        const body = await r.json().catch(() => ({}))
-        setError(body.detail || 'Ошибка')
-        return
-      }
-      onSuccess('Услуга добавлена!')
-      onClose()
-    } catch(e) {
-      setError('Ошибка соединения')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  return (
-    <Modal title="Новая услуга" onClose={onClose}>
-      <div className="biz-form">
-        <input
-          className="biz-form__input"
-          placeholder="Название *"
-          value={form.name}
-          onChange={e => set('name', e.target.value)}
-        />
-        <textarea
-          className="biz-form__textarea"
-          placeholder="Описание"
-          value={form.description}
-          onChange={e => set('description', e.target.value)}
-          rows={3}
-        />
-
-        <div className="biz-form__row">
-          <input
-            className="biz-form__input"
-            placeholder="Цена (необязательно)"
-            type="number"
-            value={form.price}
-            onChange={e => set('price', e.target.value)}
-          />
-          <select
-            className="biz-form__select"
-            value={form.currency}
-            onChange={e => set('currency', e.target.value)}
-          >
-            <option value="TRY">₺ TRY</option>
-            <option value="USD">$ USD</option>
-            <option value="EUR">€ EUR</option>
-            <option value="RUB">₽ RUB</option>
-          </select>
-        </div>
-
-        <div className="biz-form__upload biz-form__upload--sm" onClick={() => inputRef.current.click()}>
-          {preview
-            ? <img src={preview} className="biz-form__preview" alt="preview" />
-            : <div className="biz-form__upload-placeholder">
-                <span>🖼</span>
-                <p>Добавить фото</p>
-              </div>
-          }
-          <input ref={inputRef} type="file" accept="image/*" onChange={handleFile} hidden />
-        </div>
-
-        <input
-          className="biz-form__input"
-          placeholder="Или вставьте ссылку на фото"
-          value={form.image_url}
-          onChange={e => set('image_url', e.target.value)}
-        />
-
-        <label className="biz-form__checkbox">
-          <input
-            type="checkbox"
-            checked={form.is_available}
-            onChange={e => set('is_available', e.target.checked)}
-          />
-          Доступен для заказа
-        </label>
-
-        {error && <p className="biz-form__error">{error}</p>}
-        <button className="biz-form__submit" onClick={handleSubmit} disabled={loading}>
-          {loading ? <span className="biz-form__spinner" /> : 'Добавить'}
-        </button>
-      </div>
-    </Modal>
-  )
-}
-
 // ── Create Media-Only Modal (photo or video, no text) ─────────────────────────
 function CreateMediaOnlyModal({ getAccessToken, bizId, onClose, onSuccess, mediaType }) {
   const isVideo = mediaType === 'video'
@@ -900,8 +542,8 @@ function CreateMediaOnlyModal({ getAccessToken, bizId, onClose, onSuccess, media
   )
 }
 
-// ── Image Cropper (4:5, pan + zoom, max-width 1200px) ──────────────────────────
-function CropModal({ src, onCancel, onCrop }) {
+// ── Image Cropper (configurable aspect, pan + zoom, max-width 1200px) ─────────
+function CropModal({ src, aspect = 4 / 5, onCancel, onCrop }) {
   const [crop, setCrop]           = useState({ x: 0, y: 0 })
   const [zoom, setZoom]           = useState(1)
   const [croppedArea, setCroppedArea] = useState(null)
@@ -923,16 +565,18 @@ function CropModal({ src, onCancel, onCrop }) {
     }
   }
 
+  const aspectLabel = aspect === 1 ? '1:1' : aspect === 16 / 9 ? '16:9' : '4:5'
+
   return (
     <div className="crop-modal__backdrop" onClick={onCancel}>
       <div className="crop-modal" onClick={e => e.stopPropagation()}>
-        <p className="crop-modal__title">Выбор области 4:5</p>
+        <p className="crop-modal__title">Выбор области {aspectLabel}</p>
         <div className="crop-modal__stage">
           <Cropper
             image={src}
             crop={crop}
             zoom={zoom}
-            aspect={4 / 5}
+            aspect={aspect}
             minZoom={1}
             maxZoom={4}
             zoomSpeed={0.4}
@@ -1039,9 +683,6 @@ export default function BusinessDashboardPage() {
   const [confirmState, setConfirmState] = useState(null) // { type, id, label }
   const [deleteLoading, setDeleteLoading] = useState(false)
 
-  // Status toggle
-  const [togglingStatus, setTogglingStatus] = useState(null) // product id being toggled
-
   // Profile edit
   const [editDesc,    setEditDesc]    = useState('')
   const [editPhone,   setEditPhone]   = useState('')
@@ -1051,7 +692,8 @@ export default function BusinessDashboardPage() {
   const [editLogo,    setEditLogo]    = useState(null)
   const [editCover,     setEditCover]     = useState(null)
   const [editCardMedia, setEditCardMedia] = useState(null)
-  const [cropSrc,       setCropSrc]       = useState(null)
+  // cropTask = { src, aspect, onCropped } | null
+  const [cropTask,      setCropTask]      = useState(null)
   const cardMediaInputRef = useRef(null)
   const [editAudio,   setEditAudio]   = useState(null)
   const [removeAudio, setRemoveAudio] = useState(false)
@@ -1100,17 +742,8 @@ export default function BusinessDashboardPage() {
   const [showStory,    setShowStory]    = useState(false)
   const [showPost,     setShowPost]     = useState(false)
   const [showTweet,    setShowTweet]    = useState(false)
-  const [showProduct,  setShowProduct]  = useState(false)
   const [showPhoto,    setShowPhoto]    = useState(false)
   const [showVideo,    setShowVideo]    = useState(false)
-  const [editingService, setEditingService] = useState(null) // service object being edited
-
-  // ── Filters: Products ──────────────────────────────────────────────────────
-  const [prodSearch, setProdSearch]   = useState('')
-  const [prodType,   setProdType]     = useState('all')   // all | PRODUCT | SERVICE
-  const [prodStatus, setProdStatus]   = useState('all')   // all | active | hidden
-  const [prodSort,   setProdSort]     = useState('default') // default | views | likes | inquiries | price_asc | price_desc
-
 
   // ── Filters: Stories ───────────────────────────────────────────────────────
   const [storySearch, setStorySearch] = useState('')
@@ -1280,21 +913,6 @@ export default function BusinessDashboardPage() {
   }
 
   // ── Filtered + sorted lists ────────────────────────────────────────────────
-  const filteredProducts = useMemo(() => {
-    let list = [...(stats?.products || [])]
-    if (prodSearch.trim())    list = list.filter(p => p.name?.toLowerCase().includes(prodSearch.toLowerCase()))
-    list = list.filter(p => p.product_type === 'SERVICE')
-    if (prodStatus === 'active') list = list.filter(p => p.is_available)
-    if (prodStatus === 'hidden') list = list.filter(p => !p.is_available)
-    if (prodSort === 'views')       list.sort((a, b) => (b.views  || 0) - (a.views  || 0))
-    if (prodSort === 'likes')       list.sort((a, b) => (b.likes  || 0) - (a.likes  || 0))
-    if (prodSort === 'inquiries')   list.sort((a, b) => (b.inquiries || 0) - (a.inquiries || 0))
-    if (prodSort === 'price_asc')   list.sort((a, b) => (parseFloat(a.price) || 0) - (parseFloat(b.price) || 0))
-    if (prodSort === 'price_desc')  list.sort((a, b) => (parseFloat(b.price) || 0) - (parseFloat(a.price) || 0))
-    return list
-  }, [stats?.products, prodSearch, prodType, prodStatus, prodSort])
-
-
   const filteredStories = useMemo(() => {
     let list = [...stories]
     if (storySearch.trim())  list = list.filter(s => s.caption?.toLowerCase().includes(storySearch.toLowerCase()))
@@ -1465,12 +1083,10 @@ export default function BusinessDashboardPage() {
       } else {
         setStats({
           profile_views: body.views_count ?? 0,
-          total_products: 0,
           unread_inquiries: 0,
           active_stories: 0,
           rating: String(body.rating ?? '0.0'),
           is_verified: body.is_verified ?? false,
-          products: [],
         })
       }
 
@@ -1617,41 +1233,12 @@ export default function BusinessDashboardPage() {
         setStories(prev => prev.filter(s => s.id !== id))
         showToast('История удалена')
         refreshStats()
-      } else if (type === 'product') {
-        await apiDeleteProduct(bizId, id, token)
-        setStats(prev => prev
-          ? { ...prev, products: prev.products.filter(p => p.id !== id), total_products: prev.total_products - 1 }
-          : prev
-        )
-        showToast('Услуга удалена')
       }
     } catch (e) {
       showToast(e.message || 'Ошибка удаления')
     } finally {
       setDeleteLoading(false)
       setConfirmState(null)
-    }
-  }
-
-  // ── Toggle product status ──────────────────────────────────────────────────
-  const handleToggleStatus = async (productId, currentStatus) => {
-    if (togglingStatus === productId) return
-    setTogglingStatus(productId)
-    try {
-      const token = await getAccessToken()
-      await apiUpdateProduct(bizId, productId, { is_available: !currentStatus }, token)
-      // Optimistic update in stats.products
-      setStats(prev => prev ? {
-        ...prev,
-        products: prev.products.map(p =>
-          p.id === productId ? { ...p, is_available: !currentStatus } : p
-        ),
-      } : prev)
-      showToast(!currentStatus ? 'Услуга активирована' : 'Услуга скрыта')
-    } catch (e) {
-      showToast(e.message || 'Ошибка изменения статуса')
-    } finally {
-      setTogglingStatus(null)
     }
   }
 
@@ -1943,12 +1530,6 @@ export default function BusinessDashboardPage() {
                 color="#6366f1"
               />
               <StatCard
-                icon={<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>}
-                value={stats.total_products}
-                label="Услуг"
-                color="#f59e0b"
-              />
-              <StatCard
                 icon={<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>}
                 value={stats.unread_inquiries}
                 label="Новых сообщений"
@@ -2074,110 +1655,6 @@ export default function BusinessDashboardPage() {
 
               {activeTab === 'survey' && (
                 <BusinessSurveySection getAccessToken={getAccessToken} />
-              )}
-
-              {/* ── Products tab ── */}
-              {activeTab === 'products' && (
-                <>
-                  <div className="biz-dashboard__section-header">
-                    <h2>Услуги</h2>
-                    <button className="biz-dashboard__add-btn" onClick={() => setShowProduct(true)}>
-                      + Добавить
-                    </button>
-                  </div>
-
-                  {/* Product filters */}
-                  <div className="biz-filter-bar">
-                    <div className="biz-filter-bar__search">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                      </svg>
-                      <input
-                        type="text"
-                        className="biz-filter-bar__input"
-                        placeholder="Поиск по названию..."
-                        value={prodSearch}
-                        onChange={e => setProdSearch(e.target.value)}
-                      />
-                      {prodSearch && (
-                        <button className="biz-filter-bar__clear" onClick={() => setProdSearch('')}>✕</button>
-                      )}
-                    </div>
-                    <div className="biz-filter-bar__chips">
-                      {[['all','Все услуги']].map(([v, l]) => (
-                        <button key={v}
-                          className={`biz-filter-chip ${prodType === v ? 'biz-filter-chip--active' : ''}`}
-                          onClick={() => setProdType(v)}
-                        >{l}</button>
-                      ))}
-                    </div>
-                    <div className="biz-filter-bar__chips">
-                      {[['all','Все'],['active','Активные'],['hidden','Скрытые']].map(([v, l]) => (
-                        <button key={v}
-                          className={`biz-filter-chip ${prodStatus === v ? 'biz-filter-chip--active biz-filter-chip--status' : ''}`}
-                          onClick={() => setProdStatus(v)}
-                        >{l}</button>
-                      ))}
-                    </div>
-                    <select className="biz-filter-bar__select" value={prodSort} onChange={e => setProdSort(e.target.value)}>
-                      <option value="default">По умолчанию</option>
-                      <option value="views">По просмотрам</option>
-                      <option value="likes">По лайкам</option>
-                      <option value="inquiries">По запросам</option>
-                      <option value="price_asc">Цена ↑</option>
-                      <option value="price_desc">Цена ↓</option>
-                    </select>
-                  </div>
-
-                  {/* Result count */}
-                  {(prodSearch || prodType !== 'all' || prodStatus !== 'all') && (
-                    <div className="biz-filter-bar__result">
-                      Найдено: <strong>{filteredProducts.length}</strong> из {stats.products.length}
-                      <button className="biz-filter-bar__reset" onClick={() => { setProdSearch(''); setProdType('all'); setProdStatus('all'); setProdSort('default') }}>
-                        Сбросить
-                      </button>
-                    </div>
-                  )}
-
-                  {stats.products.length === 0 ? (
-                    <div className="biz-dashboard__empty">
-                      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" opacity="0.3">
-                        <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
-                      </svg>
-                      <p>Нет услуг. Нажмите «Добавить» чтобы создать первую услугу.</p>
-                    </div>
-                  ) : filteredProducts.length === 0 ? (
-                    <div className="biz-dashboard__empty">
-                      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.3">
-                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                      </svg>
-                      <p>Ничего не найдено. Попробуйте изменить фильтры.</p>
-                    </div>
-                  ) : (
-                    <div className="biz-prod-list">
-                      <div className="biz-prod-list__head">
-                        <span></span>
-                        <span></span>
-                        <span>Услуга</span>
-                        <span style={{textAlign:'right'}}>Метрики</span>
-                        <span>Статус</span>
-                        <span></span>
-                        <span></span>
-                      </div>
-                      {filteredProducts.map((p, i) => (
-                        <ProductRow
-                          key={p.id}
-                          p={p}
-                          rank={i + 1}
-                          onDelete={id => requestDelete('product', id, p.name)}
-                          onEdit={svc => setEditingService(svc)}
-                          onToggleStatus={handleToggleStatus}
-                          togglingStatus={togglingStatus}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </>
               )}
 
               {/* ── Posts tab ── */}
@@ -2429,7 +1906,26 @@ export default function BusinessDashboardPage() {
                         )}
                         <label className="biz-profile-edit__upload-btn">
                           📷 Сменить фото / видео
-                          <input type="file" accept="image/*,video/*" hidden onChange={e => setEditLogo(e.target.files[0] || null)} />
+                          <input
+                            type="file"
+                            accept="image/*,video/*"
+                            hidden
+                            onChange={e => {
+                              const f = e.target.files[0]
+                              if (!f) return
+                              e.target.value = ''
+                              const isVid = f.type.startsWith('video/') || /\.(mp4|webm|mov|avi|mkv)$/i.test(f.name)
+                              if (isVid) {
+                                setEditLogo(f)
+                              } else {
+                                setCropTask({
+                                  src: URL.createObjectURL(f),
+                                  aspect: 1,
+                                  onCropped: cropped => setEditLogo(cropped),
+                                })
+                              }
+                            }}
+                          />
                         </label>
                       </div>
                     </div>
@@ -2446,7 +1942,21 @@ export default function BusinessDashboardPage() {
                         }
                         <label className="biz-profile-edit__upload-btn">
                           🖼️ Сменить обложку
-                          <input type="file" accept="image/*" hidden onChange={e => setEditCover(e.target.files[0] || null)} />
+                          <input
+                            type="file"
+                            accept="image/*"
+                            hidden
+                            onChange={e => {
+                              const f = e.target.files[0]
+                              if (!f) return
+                              e.target.value = ''
+                              setCropTask({
+                                src: URL.createObjectURL(f),
+                                aspect: 16 / 9,
+                                onCropped: cropped => setEditCover(cropped),
+                              })
+                            }}
+                          />
                         </label>
                       </div>
                     </div>
@@ -2481,7 +1991,15 @@ export default function BusinessDashboardPage() {
                               if (!f) return
                               e.target.value = ''
                               const isVid = f.type.startsWith('video/') || /\.(mp4|webm|mov|avi|mkv)$/i.test(f.name)
-                              if (isVid) { setEditCardMedia(f) } else { setCropSrc(URL.createObjectURL(f)) }
+                              if (isVid) {
+                                setEditCardMedia(f)
+                              } else {
+                                setCropTask({
+                                  src: URL.createObjectURL(f),
+                                  aspect: 4 / 5,
+                                  onCropped: cropped => setEditCardMedia(cropped),
+                                })
+                              }
                             }}
                           />
                         </label>
@@ -2980,11 +2498,12 @@ export default function BusinessDashboardPage() {
           onSuccess={handleSuccess}
         />
       )}
-      {cropSrc && (
+      {cropTask && (
         <CropModal
-          src={cropSrc}
-          onCancel={() => setCropSrc(null)}
-          onCrop={file => { setEditCardMedia(file); setCropSrc(null) }}
+          src={cropTask.src}
+          aspect={cropTask.aspect}
+          onCancel={() => setCropTask(null)}
+          onCrop={file => { cropTask.onCropped(file); setCropTask(null) }}
         />
       )}
       {showPhoto && bizId && (
@@ -3003,35 +2522,6 @@ export default function BusinessDashboardPage() {
           onClose={() => setShowVideo(false)}
           onSuccess={handleSuccess}
           mediaType="video"
-        />
-      )}
-      {showProduct && bizId && (
-        <CreateProductModal
-          getAccessToken={getAccessToken}
-          bizId={bizId}
-          onClose={() => setShowProduct(false)}
-          onSuccess={handleSuccess}
-        />
-      )}
-      {editingService && bizId && (
-        <EditServiceModal
-          service={editingService}
-          getAccessToken={getAccessToken}
-          bizId={bizId}
-          onClose={() => setEditingService(null)}
-          onSuccess={(msg) => {
-            // Refresh the products list
-            getAccessToken().then(token => {
-              if (!token) return
-              fetch(`${BASE}/businesses/${bizId}/products/`, { headers: { Authorization: `Bearer ${token}` } })
-                .then(r => r.ok ? r.json() : null)
-                .then(data => {
-                  if (data) setStats(prev => ({ ...prev, products: Array.isArray(data) ? data : (data.results || []) }))
-                })
-                .catch(() => {})
-            })
-            handleSuccess(msg)
-          }}
         />
       )}
 
