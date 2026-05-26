@@ -217,21 +217,45 @@ function CreateStoryModal({ getAccessToken, onClose, onSuccess }) {
   const [caption, setCaption] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState('')
+  const [dragOver, setDragOver] = useState(false)
   const inputRef = useRef()
 
   const isVideoFile = (f) =>
     f && (f.type.startsWith('video/') || /\.(mp4|webm|mov|avi|mkv)$/i.test(f.name))
 
-  const handleFile = e => {
-    const f = e.target.files[0]
+  const processFile = (f) => {
     if (!f) return
-    e.target.value = ''
     if (isVideoFile(f)) {
       setFile(f)
       setPreview(URL.createObjectURL(f))
     } else {
       setCropSrc(URL.createObjectURL(f))
     }
+  }
+
+  const handleFile = e => {
+    const f = e.target.files[0]
+    if (!f) return
+    e.target.value = ''
+    processFile(f)
+  }
+
+  const handleDrop = e => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragOver(false)
+    const f = e.dataTransfer?.files?.[0]
+    if (f) processFile(f)
+  }
+  const handleDragOver = e => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (!dragOver) setDragOver(true)
+  }
+  const handleDragLeave = e => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragOver(false)
   }
 
   const handleCropped = (croppedFile) => {
@@ -276,14 +300,21 @@ function CreateStoryModal({ getAccessToken, onClose, onSuccess }) {
     <>
     <Modal title="Новый сторис" onClose={onClose}>
       <div className="biz-form">
-        <div className="biz-form__upload" onClick={() => inputRef.current.click()}>
+        <div
+          className={`biz-form__upload${dragOver ? ' biz-form__upload--dragover' : ''}`}
+          onClick={() => inputRef.current.click()}
+          onDragOver={handleDragOver}
+          onDragEnter={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
           {preview
             ? isVideoFile(file)
               ? <video src={preview} className="biz-form__preview" controls />
               : <img src={preview} className="biz-form__preview" alt="preview" />
             : <div className="biz-form__upload-placeholder">
                 <span>📷</span>
-                <p>Нажмите чтобы выбрать фото или видео</p>
+                <p>{dragOver ? 'Отпустите чтобы загрузить' : 'Нажмите или перетащите фото / видео'}</p>
               </div>
           }
           <input ref={inputRef} type="file" accept="image/*,video/*" onChange={handleFile} hidden />
@@ -330,6 +361,7 @@ function CreatePostModal({ getAccessToken, bizId, onClose, onSuccess }) {
   const [text, setText]       = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState('')
+  const [dragOver, setDragOver] = useState(false)
   const fileInputRef = useRef(null)
 
   // Hashtag picker state
@@ -371,17 +403,39 @@ function CreatePostModal({ getAccessToken, bizId, onClose, onSuccess }) {
   const isVideoFile = (f) =>
     f && (f.type.startsWith('video/') || /\.(mp4|webm|mov|avi|mkv)$/i.test(f.name))
 
-  const handleFile = e => {
-    const f = e.target.files[0]
+  const processFile = (f) => {
     if (!f) return
-    e.target.value = ''
     if (isVideoFile(f)) {
       setFile(f)
       setPreview(URL.createObjectURL(f))
     } else {
-      // Open cropper/editor for images
       setCropSrc(URL.createObjectURL(f))
     }
+  }
+
+  const handleFile = e => {
+    const f = e.target.files[0]
+    if (!f) return
+    e.target.value = ''
+    processFile(f)
+  }
+
+  const handleDrop = e => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragOver(false)
+    const f = e.dataTransfer?.files?.[0]
+    if (f) processFile(f)
+  }
+  const handleDragOver = e => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (!dragOver) setDragOver(true)
+  }
+  const handleDragLeave = e => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragOver(false)
   }
 
   const handleCropped = (croppedFile) => {
@@ -435,14 +489,21 @@ function CreatePostModal({ getAccessToken, bizId, onClose, onSuccess }) {
           onChange={e => setText(e.target.value)}
           rows={4}
         />
-        <div className="biz-form__upload biz-form__upload--sm" onClick={() => fileInputRef.current.click()}>
+        <div
+          className={`biz-form__upload biz-form__upload--sm${dragOver ? ' biz-form__upload--dragover' : ''}`}
+          onClick={() => fileInputRef.current.click()}
+          onDragOver={handleDragOver}
+          onDragEnter={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
           {preview
             ? isVideoFile(file)
               ? <video src={preview} className="biz-form__preview" controls />
               : <img src={preview} className="biz-form__preview" alt="preview" />
             : <div className="biz-form__upload-placeholder">
                 <span>🖼</span>
-                <p>Добавить фото или видео (необязательно)</p>
+                <p>{dragOver ? 'Отпустите чтобы загрузить' : 'Добавить или перетащить фото / видео (необязательно)'}</p>
               </div>
           }
           <input ref={fileInputRef} type="file" accept="image/*,video/*" onChange={handleFile} hidden />
@@ -584,19 +645,52 @@ function CreateMediaOnlyModal({ getAccessToken, bizId, onClose, onSuccess, media
   const [cropSrc, setCropSrc] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState('')
+  const [dragOver, setDragOver] = useState(false)
   const inputRef = useRef()
+
+  const processFile = (f) => {
+    if (!f) return
+    // Reject mismatched media type when dragged from desktop
+    if (isVideo && !(f.type.startsWith('video/') || /\.(mp4|webm|mov|avi|mkv)$/i.test(f.name))) {
+      setError('Выберите видео-файл')
+      return
+    }
+    if (!isVideo && !f.type.startsWith('image/')) {
+      setError('Выберите изображение')
+      return
+    }
+    setError('')
+    if (isVideo) {
+      setFile(f)
+      setPreview(URL.createObjectURL(f))
+    } else {
+      setCropSrc(URL.createObjectURL(f))
+    }
+  }
 
   const handleFile = e => {
     const f = e.target.files[0]
     if (!f) return
     e.target.value = ''
-    if (isVideo) {
-      setFile(f)
-      setPreview(URL.createObjectURL(f))
-    } else {
-      // Open cropper/editor for images
-      setCropSrc(URL.createObjectURL(f))
-    }
+    processFile(f)
+  }
+
+  const handleDrop = e => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragOver(false)
+    const f = e.dataTransfer?.files?.[0]
+    if (f) processFile(f)
+  }
+  const handleDragOver = e => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (!dragOver) setDragOver(true)
+  }
+  const handleDragLeave = e => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragOver(false)
   }
 
   const handleCropped = (croppedFile) => {
@@ -638,7 +732,14 @@ function CreateMediaOnlyModal({ getAccessToken, bizId, onClose, onSuccess, media
     <>
       <Modal title={isVideo ? 'Добавить видео' : 'Добавить фото'} onClose={onClose}>
         <div className="biz-form">
-          <div className="biz-form__upload" onClick={() => inputRef.current.click()}>
+          <div
+            className={`biz-form__upload${dragOver ? ' biz-form__upload--dragover' : ''}`}
+            onClick={() => inputRef.current.click()}
+            onDragOver={handleDragOver}
+            onDragEnter={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+          >
             {preview ? (
               isVideo
                 ? <video src={preview} className="biz-form__preview" controls />
@@ -646,7 +747,9 @@ function CreateMediaOnlyModal({ getAccessToken, bizId, onClose, onSuccess, media
             ) : (
               <div className="biz-form__upload-placeholder">
                 <span>{isVideo ? '🎬' : '📷'}</span>
-                <p>Нажмите чтобы выбрать {isVideo ? 'видео' : 'фото'}</p>
+                <p>{dragOver
+                  ? 'Отпустите чтобы загрузить'
+                  : `Нажмите или перетащите ${isVideo ? 'видео' : 'фото'}`}</p>
               </div>
             )}
             <input ref={inputRef} type="file" accept={isVideo ? 'video/*' : 'image/*'} onChange={handleFile} hidden />
@@ -820,6 +923,21 @@ function getCroppedFile(src, area, rotation = 0, maxWidth = 1200) {
 export default function BusinessDashboardPage() {
   const navigate = useNavigate()
   const { user, getAccessToken } = useAuth()
+
+  // Prevent the browser from opening files dropped outside upload zones
+  useEffect(() => {
+    const prevent = (e) => {
+      if (e.dataTransfer?.types?.includes('Files')) {
+        e.preventDefault()
+      }
+    }
+    window.addEventListener('dragover', prevent)
+    window.addEventListener('drop', prevent)
+    return () => {
+      window.removeEventListener('dragover', prevent)
+      window.removeEventListener('drop', prevent)
+    }
+  }, [])
 
   // Stats & biz info
   const [stats, setStats]     = useState(null)
