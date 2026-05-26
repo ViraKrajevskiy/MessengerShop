@@ -56,16 +56,6 @@ export default function NearbyBusinesses({ businesses = [], posts = [] }) {
     )
   }, [businesses, selectedCity, geoCity])
 
-  const postImageMap = useMemo(() => {
-    const m = {}
-    posts.forEach(p => {
-      if (p.business_id && p.media_display && !m[p.business_id]) {
-        m[p.business_id] = resolveUrl(p.media_display)
-      }
-    })
-    return m
-  }, [posts])
-
   const totalPages = Math.ceil(filtered.length / CARDS_PER_VIEW)
 
   useEffect(() => {
@@ -188,7 +178,7 @@ export default function NearbyBusinesses({ businesses = [], posts = [] }) {
             onDragStart={e => e.preventDefault()}
           >
             {filtered.map(biz => {
-              const img = postImageMap[biz.id] || resolveUrl(biz.cover) || null
+              const avatar = resolveUrl(biz.avatar) || makeInitialAvatar(biz.brand_name)
               return (
                 <div
                   key={biz.id}
@@ -215,11 +205,9 @@ export default function NearbyBusinesses({ businesses = [], posts = [] }) {
                         <p className="nearby__card-cat">{biz.category_label}</p>
                       )}
                     </div>
-                    {img && (
-                      <div className="nearby__card-img-wrap">
-                        <img className="nearby__card-img" src={img} alt={biz.brand_name} loading="lazy" decoding="async" onError={e => { e.target.onerror = null; e.target.src = makeInitialAvatar(biz.brand_name) }} />
-                      </div>
-                    )}
+                    <div className="nearby__card-avatar-wrap">
+                      <img className="nearby__card-avatar" src={avatar} alt={biz.brand_name} loading="lazy" decoding="async" onError={e => { e.target.onerror = null; e.target.src = makeInitialAvatar(biz.brand_name) }} />
+                    </div>
                   </div>
                 </div>
               )
