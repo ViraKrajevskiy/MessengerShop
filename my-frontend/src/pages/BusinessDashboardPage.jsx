@@ -542,10 +542,11 @@ function CreateMediaOnlyModal({ getAccessToken, bizId, onClose, onSuccess, media
   )
 }
 
-// ── Image Cropper (configurable aspect, pan + zoom, max-width 1200px) ─────────
+// ── Image Cropper (aspect + pan/zoom + rotation, max-width 1200px) ────────────
 function CropModal({ src, aspect = 4 / 5, onCancel, onCrop }) {
   const [crop, setCrop]           = useState({ x: 0, y: 0 })
   const [zoom, setZoom]           = useState(1)
+  const [rotation, setRotation]   = useState(0)
   const [croppedArea, setCroppedArea] = useState(null)
   const [busy, setBusy]           = useState(false)
 
@@ -553,11 +554,14 @@ function CropModal({ src, aspect = 4 / 5, onCancel, onCrop }) {
     setCroppedArea(areaPixels)
   }, [])
 
+  const rotateLeft  = () => setRotation(r => (r - 90 + 360) % 360)
+  const rotateRight = () => setRotation(r => (r + 90) % 360)
+
   const doCrop = async () => {
     if (!croppedArea) return
     setBusy(true)
     try {
-      const file = await getCroppedFile(src, croppedArea, 1200)
+      const file = await getCroppedFile(src, croppedArea, rotation, 1200)
       onCrop(file)
     } catch (e) {
       console.error('Crop error:', e)
@@ -576,6 +580,7 @@ function CropModal({ src, aspect = 4 / 5, onCancel, onCrop }) {
             image={src}
             crop={crop}
             zoom={zoom}
+            rotation={rotation}
             aspect={aspect}
             minZoom={1}
             maxZoom={4}
@@ -583,6 +588,7 @@ function CropModal({ src, aspect = 4 / 5, onCancel, onCrop }) {
             restrictPosition={true}
             onCropChange={setCrop}
             onZoomChange={setZoom}
+            onRotationChange={setRotation}
             onCropComplete={onCropComplete}
             objectFit="contain"
           />
@@ -599,7 +605,24 @@ function CropModal({ src, aspect = 4 / 5, onCancel, onCrop }) {
             className="crop-modal__zoom-slider"
           />
         </div>
-        <p className="crop-modal__hint">Перетащите фото и используйте ползунок зума, чтобы выбрать нужную область</p>
+        <div className="crop-modal__tools">
+          <button type="button" className="crop-modal__tool-btn" onClick={rotateLeft} title="Повернуть влево">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="1 4 1 10 7 10"/>
+              <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+            </svg>
+            Влево
+          </button>
+          <button type="button" className="crop-modal__tool-btn" onClick={rotateRight} title="Повернуть вправо">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="23 4 23 10 17 10"/>
+              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+            </svg>
+            Вправо
+          </button>
+          <span className="crop-modal__rotation-value">{rotation}°</span>
+        </div>
+        <p className="crop-modal__hint">Перетащите фото, используйте зум и поворот, чтобы выбрать нужную область</p>
         <div className="crop-modal__actions">
           <button className="crop-modal__cancel" onClick={onCancel} disabled={busy}>Отмена</button>
           <button className="crop-modal__confirm" onClick={doCrop} disabled={!croppedArea || busy}>
@@ -611,23 +634,40 @@ function CropModal({ src, aspect = 4 / 5, onCancel, onCrop }) {
   )
 }
 
-// Helper: вырезает область из исходного изображения и возвращает File (макс. ширина 1200px)
-function getCroppedFile(src, area, maxWidth = 1200) {
+// Helper: вырезает область с учётом поворота и возвращает File (макс. ширина 1200px)
+function getCroppedFile(src, area, rotation = 0, maxWidth = 1200) {
   return new Promise((resolve, reject) => {
     const img = new Image()
     img.crossOrigin = 'anonymous'
     img.onload = () => {
-      const scale  = area.width > maxWidth ? maxWidth / area.width : 1
-      const outW   = Math.round(area.width  * scale)
-      const outH   = Math.round(area.height * scale)
+      const radians = (rotation * Math.PI) / 180
+      const sin = Math.abs(Math.sin(radians))
+      const cos = Math.abs(Math.cos(radians))
+      // Bounding box of the rotated image
+      const bBoxW = img.width * cos + img.height * sin
+      const bBoxH = img.width * sin + img.height * cos
+
+      // Draw the rotated image onto an offscreen canvas
+      const rotCanvas = document.createElement('canvas')
+      rotCanvas.width  = bBoxW
+      rotCanvas.height = bBoxH
+      const rotCtx = rotCanvas.getContext('2d')
+      rotCtx.translate(bBoxW / 2, bBoxH / 2)
+      rotCtx.rotate(radians)
+      rotCtx.drawImage(img, -img.width / 2, -img.height / 2)
+
+      // Now crop from the rotated canvas
+      const scale = area.width > maxWidth ? maxWidth / area.width : 1
+      const outW  = Math.round(area.width  * scale)
+      const outH  = Math.round(area.height * scale)
       const canvas = document.createElement('canvas')
       canvas.width  = outW
       canvas.height = outH
       const ctx = canvas.getContext('2d')
-      ctx.drawImage(img, area.x, area.y, area.width, area.height, 0, 0, outW, outH)
+      ctx.drawImage(rotCanvas, area.x, area.y, area.width, area.height, 0, 0, outW, outH)
       canvas.toBlob(blob => {
         if (!blob) return reject(new Error('toBlob failed'))
-        resolve(new File([blob], 'card_media.jpg', { type: 'image/jpeg' }))
+        resolve(new File([blob], 'photo.jpg', { type: 'image/jpeg' }))
       }, 'image/jpeg', 0.92)
     }
     img.onerror = reject
