@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
+import Cropper from 'react-easy-crop'
 import Header from '../components/Header'
 import BusinessSurveySection from '../components/BusinessSurveySection'
 import { useAuth } from '../context/AuthContext'
@@ -926,91 +927,95 @@ function CreateMediaOnlyModal({ getAccessToken, bizId, onClose, onSuccess, media
   )
 }
 
-// ── Image Cropper (4:5) ────────────────────────────────────────────────────────
+// ── Image Cropper (4:5, pan + zoom, max-width 1200px) ──────────────────────────
 function CropModal({ src, onCancel, onCrop }) {
-  const RATIO = 4 / 5
-  const [cropBox, setCropBox] = useState(null)
-  const [ready, setReady]     = useState(false)
-  const [dragStart, setDragStart] = useState(null)
-  const imgRef = useRef()
+  const [crop, setCrop]           = useState({ x: 0, y: 0 })
+  const [zoom, setZoom]           = useState(1)
+  const [croppedArea, setCroppedArea] = useState(null)
+  const [busy, setBusy]           = useState(false)
 
-  const getDisp = () => {
-    if (!imgRef.current) return null
-    const r = imgRef.current.getBoundingClientRect()
-    return { w: r.width, h: r.height }
-  }
+  const onCropComplete = useCallback((_area, areaPixels) => {
+    setCroppedArea(areaPixels)
+  }, [])
 
-  const onImgLoad = () => {
-    const d = getDisp()
-    if (!d) return
-    let cw = d.w
-    let ch = cw / RATIO
-    if (ch > d.h) { ch = d.h; cw = ch * RATIO }
-    setCropBox({ x: (d.w - cw) / 2, y: (d.h - ch) / 2, w: cw, h: ch })
-    setReady(true)
-  }
-
-  const onMouseDown = (e) => {
-    e.preventDefault()
-    setDragStart({ mx: e.clientX, my: e.clientY, bx: cropBox.x, by: cropBox.y })
-  }
-
-  const onMouseMove = (e) => {
-    if (!dragStart || !cropBox) return
-    const d = getDisp()
-    let nx = dragStart.bx + (e.clientX - dragStart.mx)
-    let ny = dragStart.by + (e.clientY - dragStart.my)
-    nx = Math.max(0, Math.min(d.w - cropBox.w, nx))
-    ny = Math.max(0, Math.min(d.h - cropBox.h, ny))
-    setCropBox(prev => ({ ...prev, x: nx, y: ny }))
-  }
-
-  const onMouseUp = () => setDragStart(null)
-
-  const doCrop = () => {
-    const img = imgRef.current
-    const d   = getDisp()
-    const sx  = img.naturalWidth  / d.w
-    const sy  = img.naturalHeight / d.h
-    const ow  = Math.round(cropBox.w * sx)
-    const oh  = Math.round(cropBox.h * sy)
-    const canvas = document.createElement('canvas')
-    canvas.width  = ow
-    canvas.height = oh
-    canvas.getContext('2d').drawImage(img, cropBox.x * sx, cropBox.y * sy, ow, oh, 0, 0, ow, oh)
-    canvas.toBlob(blob => {
-      onCrop(new File([blob], 'card_media.jpg', { type: 'image/jpeg' }))
-    }, 'image/jpeg', 0.93)
+  const doCrop = async () => {
+    if (!croppedArea) return
+    setBusy(true)
+    try {
+      const file = await getCroppedFile(src, croppedArea, 1200)
+      onCrop(file)
+    } catch (e) {
+      console.error('Crop error:', e)
+      setBusy(false)
+    }
   }
 
   return (
     <div className="crop-modal__backdrop" onClick={onCancel}>
       <div className="crop-modal" onClick={e => e.stopPropagation()}>
         <p className="crop-modal__title">Выбор области 4:5</p>
-        <div className="crop-modal__stage" onMouseMove={onMouseMove} onMouseUp={onMouseUp} onMouseLeave={onMouseUp}>
-          <img ref={imgRef} src={src} className="crop-modal__img" onLoad={onImgLoad} draggable={false} />
-          {ready && cropBox && (
-            <>
-              <div className="crop-modal__shade" style={{ top: 0, left: 0, right: 0, height: cropBox.y }} />
-              <div className="crop-modal__shade" style={{ top: cropBox.y + cropBox.h, left: 0, right: 0, bottom: 0 }} />
-              <div className="crop-modal__shade" style={{ top: cropBox.y, left: 0, width: cropBox.x, height: cropBox.h }} />
-              <div className="crop-modal__shade" style={{ top: cropBox.y, left: cropBox.x + cropBox.w, right: 0, height: cropBox.h }} />
-              <div
-                className="crop-modal__frame"
-                style={{ left: cropBox.x, top: cropBox.y, width: cropBox.w, height: cropBox.h }}
-                onMouseDown={onMouseDown}
-              />
-            </>
-          )}
+        <div className="crop-modal__stage">
+          <Cropper
+            image={src}
+            crop={crop}
+            zoom={zoom}
+            aspect={4 / 5}
+            minZoom={1}
+            maxZoom={4}
+            zoomSpeed={0.4}
+            restrictPosition={true}
+            onCropChange={setCrop}
+            onZoomChange={setZoom}
+            onCropComplete={onCropComplete}
+            objectFit="contain"
+          />
         </div>
-        <p className="crop-modal__hint">Перетащите рамку чтобы выбрать нужную область</p>
+        <div className="crop-modal__zoom">
+          <span>🔍</span>
+          <input
+            type="range"
+            min={1}
+            max={4}
+            step={0.01}
+            value={zoom}
+            onChange={e => setZoom(Number(e.target.value))}
+            className="crop-modal__zoom-slider"
+          />
+        </div>
+        <p className="crop-modal__hint">Перетащите фото и используйте ползунок зума, чтобы выбрать нужную область</p>
         <div className="crop-modal__actions">
-          <button className="crop-modal__cancel" onClick={onCancel}>Отмена</button>
-          <button className="crop-modal__confirm" onClick={doCrop} disabled={!ready}>Обрезать</button>
+          <button className="crop-modal__cancel" onClick={onCancel} disabled={busy}>Отмена</button>
+          <button className="crop-modal__confirm" onClick={doCrop} disabled={!croppedArea || busy}>
+            {busy ? 'Обработка…' : 'Применить'}
+          </button>
         </div>
       </div>
     </div>
   )
+}
+
+// Helper: вырезает область из исходного изображения и возвращает File (макс. ширина 1200px)
+function getCroppedFile(src, area, maxWidth = 1200) {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    img.crossOrigin = 'anonymous'
+    img.onload = () => {
+      const scale  = area.width > maxWidth ? maxWidth / area.width : 1
+      const outW   = Math.round(area.width  * scale)
+      const outH   = Math.round(area.height * scale)
+      const canvas = document.createElement('canvas')
+      canvas.width  = outW
+      canvas.height = outH
+      const ctx = canvas.getContext('2d')
+      ctx.drawImage(img, area.x, area.y, area.width, area.height, 0, 0, outW, outH)
+      canvas.toBlob(blob => {
+        if (!blob) return reject(new Error('toBlob failed'))
+        resolve(new File([blob], 'card_media.jpg', { type: 'image/jpeg' }))
+      }, 'image/jpeg', 0.92)
+    }
+    img.onerror = reject
+    img.src = src
+  })
 }
 
 // ── Main Page ──────────────────────────────────────────────────────────────────
