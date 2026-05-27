@@ -184,12 +184,12 @@ export default function MyProfilePage() {
 
               <div className="mpp__stats">
                 <div className="mpp__stat">
-                  <strong>0</strong>
+                  <strong>{user.subscribers_count ?? 0}</strong>
                   <span>{t('myprofile_subscribers')}</span>
                 </div>
                 <div className="mpp__stat-divider" />
                 <div className="mpp__stat">
-                  <strong>0</strong>
+                  <strong>{user.subscriptions_count ?? 0}</strong>
                   <span>{t('myprofile_subscriptions')}</span>
                 </div>
               </div>

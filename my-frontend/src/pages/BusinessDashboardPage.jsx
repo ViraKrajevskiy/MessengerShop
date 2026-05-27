@@ -1004,7 +1004,6 @@ export default function BusinessDashboardPage() {
   const [tagInput,      setTagInput]      = useState('')
   const [tagSuggests,   setTagSuggests]   = useState([])
   const [tagsLoading,   setTagsLoading]   = useState(false)
-  const [savingTags,    setSavingTags]    = useState(false)
   const [bizPopularTags, setBizPopularTags] = useState([])
 
   const TAG_LIMITS = { FREE: 5, PRO: 15, VIP: null }
@@ -1028,14 +1027,11 @@ export default function BusinessDashboardPage() {
   // Public group selector
   const [myGroups,        setMyGroups]        = useState([])
   const [selectedGroupId, setSelectedGroupId] = useState(null)
-  const [savingGroup,     setSavingGroup]     = useState(false)
-  const [groupMsg,        setGroupMsg]        = useState('')
 
   // FAQ edit
   const [bizFaq,      setBizFaq]      = useState([])
   const [faqQuestion, setFaqQuestion] = useState('')
   const [faqAnswer,   setFaqAnswer]   = useState('')
-  const [savingFaq,   setSavingFaq]   = useState(false)
 
   // Modals
   const [showStory,    setShowStory]    = useState(false)
@@ -1076,11 +1072,13 @@ export default function BusinessDashboardPage() {
     setSelectedGroupId(bizData.group_id || null)
   }, [bizData])
 
-  // ── Save profile handler ───────────────────────────────────────────────────
-  const handleSaveProfile = async () => {
+  // ── Unified save (profile + social + group + tags + faq + services) ────────
+  const handleSaveAll = async () => {
     setSavingProfile(true)
     try {
       const token = await getAccessToken()
+
+      // ── Step 1: FormData PATCH — text fields + optional media ─────────────
       const fd = new FormData()
       fd.append('description', editDesc)
       fd.append('phone', editPhone)
@@ -1093,30 +1091,48 @@ export default function BusinessDashboardPage() {
       fd.append('social_youtube',   editYoutube)
       fd.append('social_tiktok',    editTiktok)
       fd.append('social_facebook',  editFacebook)
-      if (editLogo)  fd.append('logo',  editLogo)
-      if (editCover)     fd.append('cover', editCover)
+      if (editLogo)      fd.append('logo',      editLogo)
+      if (editCover)     fd.append('cover',      editCover)
       if (editCardMedia) fd.append('card_media', editCardMedia)
-      if (editAudio) fd.append('audio', editAudio)
+      if (editAudio)     fd.append('audio',      editAudio)
       if (removeAudio && !editAudio) fd.append('remove_audio', 'true')
-      const res = await fetch(`${BASE}/businesses/me/`, {
+
+      const r1 = await fetch(`${BASE}/businesses/me/`, {
         method: 'PATCH',
         headers: { Authorization: `Bearer ${token}` },
         body: fd,
       })
-      if (!res.ok) {
-        const err = await res.json().catch(() => null)
-        const msg = err && (err.detail || Object.values(err).flat().join(' ')) || 'Ошибка при сохранении'
-        throw new Error(msg)
+      if (!r1.ok) {
+        const e1 = await r1.json().catch(() => null)
+        throw new Error(e1?.detail || Object.values(e1 || {}).flat().join(' ') || 'Ошибка')
       }
-      const updated = await res.json()
+
+      // ── Step 2: JSON PATCH — complex fields (group, tags, faq, services) ──
+      const r2 = await fetch(`${BASE}/businesses/me/`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          group:    selectedGroupId,
+          tags:     bizTags,
+          faq:      bizFaq,
+          services: bizServices,
+        }),
+      })
+      if (!r2.ok) {
+        const e2 = await r2.json().catch(() => null)
+        throw new Error(e2?.detail || Object.values(e2 || {}).flat().join(' ') || 'Ошибка')
+      }
+
+      const updated = await r2.json()
       setBizData(updated)
+      setBizServices(Array.isArray(updated.services) ? updated.services : [])
       setEditLogo(null)
       setEditCover(null)
       setEditCardMedia(null)
       setEditAudio(null)
       setRemoveAudio(false)
       if (audioInputRef.current) audioInputRef.current.value = ''
-      showToast('✅ Профиль сохранён!')
+      showToast('✅ Все изменения сохранены!')
     } catch (e) {
       showToast('❌ ' + (e.message || 'Ошибка при сохранении'))
     } finally {
@@ -1134,26 +1150,6 @@ export default function BusinessDashboardPage() {
 
   const handleRemoveFaq = (idx) => {
     setBizFaq(prev => prev.filter((_, i) => i !== idx))
-  }
-
-  const handleSaveFaq = async () => {
-    setSavingFaq(true)
-    try {
-      const token = await getAccessToken()
-      const res = await fetch(`${BASE}/businesses/me/`, {
-        method: 'PATCH',
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ faq: bizFaq }),
-      })
-      if (!res.ok) throw new Error()
-      const updated = await res.json()
-      setBizData(updated)
-      showToast('✅ FAQ сохранён!')
-    } catch {
-      showToast('❌ Ошибка при сохранении FAQ')
-    } finally {
-      setSavingFaq(false)
-    }
   }
 
   // ── Hashtag handlers ──────────────────────────────────────────────────────
@@ -1190,26 +1186,6 @@ export default function BusinessDashboardPage() {
   }
 
   const handleRemoveTag = (tag) => setBizTags(prev => prev.filter(t => t !== tag))
-
-  const handleSaveTags = async () => {
-    setSavingTags(true)
-    try {
-      const token = await getAccessToken()
-      const res = await fetch(`${BASE}/businesses/me/`, {
-        method: 'PATCH',
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tags: bizTags }),
-      })
-      if (!res.ok) throw new Error()
-      const updated = await res.json()
-      setBizData(updated)
-      showToast('✅ Хэштеги сохранены!')
-    } catch {
-      showToast('❌ Ошибка при сохранении хэштегов')
-    } finally {
-      setSavingTags(false)
-    }
-  }
 
   // ── Filtered + sorted lists ────────────────────────────────────────────────
   const filteredStories = useMemo(() => {
@@ -1297,35 +1273,6 @@ export default function BusinessDashboardPage() {
       } catch {}
     })()
   }, [user, getAccessToken])
-
-  // ── Save public group ──────────────────────────────────────────────────────
-  const handleSavePublicGroup = async () => {
-    setSavingGroup(true)
-    setGroupMsg('')
-    try {
-      const token = await getAccessToken()
-      const res = await fetch(`${BASE}/businesses/me/`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ group: selectedGroupId }),
-      })
-      if (!res.ok) {
-        const err = await res.json().catch(() => null)
-        throw new Error((err && (err.detail || err.group)) || 'Ошибка')
-      }
-      const updated = await res.json()
-      setBizData(updated)
-      setGroupMsg('✅ Публичная группа сохранена!')
-    } catch (e) {
-      setGroupMsg('❌ ' + (e.message || 'Ошибка при сохранении'))
-    } finally {
-      setSavingGroup(false)
-      setTimeout(() => setGroupMsg(''), 3500)
-    }
-  }
 
   const handleCreateStore = async (e) => {
     e?.preventDefault?.()
@@ -2346,16 +2293,6 @@ export default function BusinessDashboardPage() {
                       </div>
                     </div>
 
-                    <div className="biz-svc-save-row">
-                      <button
-                        className="biz-svc-save-btn"
-                        onClick={handleSaveProfile}
-                        disabled={savingProfile}
-                      >
-                        {savingProfile ? <span className="biz-form__spinner" /> : '💾 Сохранить профиль'}
-                      </button>
-                      <span className="biz-svc-hint">Изменения отобразятся на странице вашего магазина</span>
-                    </div>
                   </div>
 
                   {/* ── Social links section ── */}
@@ -2397,7 +2334,7 @@ export default function BusinessDashboardPage() {
                     ))}
 
                     <div className="biz-svc-hint" style={{ marginTop: 4 }}>
-                      Ссылки отображаются на странице вашего магазина. Сохраните через кнопку «💾 Сохранить профиль» выше.
+                      Ссылки отображаются на странице вашего магазина.
                     </div>
                   </div>
 
@@ -2429,16 +2366,6 @@ export default function BusinessDashboardPage() {
                       </p>
                     )}
 
-                    <div className="biz-svc-save-row">
-                      <button
-                        className="biz-svc-save-btn"
-                        onClick={handleSavePublicGroup}
-                        disabled={savingGroup}
-                      >
-                        {savingGroup ? <span className="biz-form__spinner" /> : '💾 Сохранить группу'}
-                      </button>
-                      {groupMsg && <span className="biz-svc-hint">{groupMsg}</span>}
-                    </div>
                   </div>
 
                   {/* ── Hashtags section ── */}
@@ -2556,11 +2483,6 @@ export default function BusinessDashboardPage() {
                       </div>
                     )}
 
-                    <div className="biz-svc-save-row">
-                      <button className="biz-svc-save-btn" onClick={handleSaveTags} disabled={savingTags}>
-                        {savingTags ? <span className="biz-form__spinner" /> : '💾 Сохранить хэштеги'}
-                      </button>
-                    </div>
                   </div>
 
                   {/* ── FAQ section ── */}
@@ -2612,12 +2534,20 @@ export default function BusinessDashboardPage() {
                       </button>
                     </div>
 
-                    <div className="biz-svc-save-row">
-                      <button className="biz-svc-save-btn" onClick={handleSaveFaq} disabled={savingFaq}>
-                        {savingFaq ? <span className="biz-form__spinner" /> : '💾 Сохранить FAQ'}
-                      </button>
-                      <span className="biz-svc-hint">FAQ отображается на странице вашего магазина</span>
-                    </div>
+                  </div>
+
+                  {/* ── Unified save ── */}
+                  <div className="biz-save-all-bar">
+                    <button
+                      className="biz-save-all-btn"
+                      onClick={handleSaveAll}
+                      disabled={savingProfile}
+                    >
+                      {savingProfile
+                        ? <><span className="biz-form__spinner" /> Сохранение…</>
+                        : '💾 Сохранить все изменения'}
+                    </button>
+                    <span className="biz-svc-hint">Профиль, соцсети, группа, хэштеги, FAQ и услуги</span>
                   </div>
 
                 </>
