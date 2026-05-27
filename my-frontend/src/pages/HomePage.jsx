@@ -93,11 +93,11 @@ export default function HomePage() {
       .finally(() => setLoadingBiz(false))
 
     setLoadingPosts(true)
-    apiGetPosts()
+    apiGetPosts(tokens?.access)
       .then(p => setPosts(Array.isArray(p) ? p : []))
       .catch(() => setPosts([]))
       .finally(() => setLoadingPosts(false))
-  }, [])
+  }, [tokens?.access])
 
   const filteredAll = useMemo(() =>
     allBiz.filter(b =>

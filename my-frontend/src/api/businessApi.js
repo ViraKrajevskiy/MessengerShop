@@ -38,7 +38,13 @@ export async function apiGetBusinesses(params = {}) {
   })
 }
 
-export async function apiGetBusiness(id) {
+export async function apiGetBusiness(id, token) {
+  const headers = token ? { 'Authorization': `Bearer ${token}` } : {}
+  if (token) {
+    const res = await fetch(`${BASE}/businesses/${id}/`, { headers })
+    if (!res.ok) throw new Error('Бизнес не найден')
+    return res.json()
+  }
   return cached(`business:${id}`, async () => {
     const res = await fetch(`${BASE}/businesses/${id}/`)
     if (!res.ok) throw new Error('Бизнес не найден')
@@ -93,7 +99,13 @@ export async function apiGetPosts(token) {
   })
 }
 
-export async function apiGetBusinessPosts(id) {
+export async function apiGetBusinessPosts(id, token) {
+  const headers = token ? { 'Authorization': `Bearer ${token}` } : {}
+  if (token) {
+    const res = await fetch(`${BASE}/businesses/${id}/posts/`, { headers })
+    if (!res.ok) throw new Error('Ошибка загрузки постов бизнеса')
+    return res.json()
+  }
   return cached(`biz-posts:${id}`, async () => {
     const res = await fetch(`${BASE}/businesses/${id}/posts/`)
     if (!res.ok) throw new Error('Ошибка загрузки постов бизнеса')

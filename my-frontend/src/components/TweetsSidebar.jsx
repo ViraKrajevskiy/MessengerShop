@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import { apiGetPosts } from '../api/businessApi'
 import { resolveUrl } from '../utils/urlUtils'
 import { makeInitialAvatar } from '../utils/defaults'
@@ -10,16 +11,17 @@ const PREVIEW_SIZE = 5
 export default function TweetsSidebar({ posts: postsProp }) {
   const [posts, setPosts] = useState(postsProp || [])
   const navigate = useNavigate()
+  const { tokens } = useAuth()
 
   useEffect(() => {
     if (Array.isArray(postsProp)) {
       setPosts(postsProp)
       return
     }
-    apiGetPosts()
+    apiGetPosts(tokens?.access)
       .then(data => setPosts(Array.isArray(data) ? data : []))
       .catch(() => setPosts([]))
-  }, [postsProp])
+  }, [postsProp, tokens?.access])
 
   const visible = posts.slice(0, PREVIEW_SIZE)
   const hasMore = posts.length > PREVIEW_SIZE

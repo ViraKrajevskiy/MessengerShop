@@ -276,7 +276,7 @@ function InfoTabs({ biz, categoryIcon, faq, navigate, surveyAnswers }) {
 export default function BusinessPage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { user, getAccessToken } = useAuth()
+  const { user, tokens, getAccessToken } = useAuth()
   const { t } = useLanguage()
 
   const [biz, setBiz]               = useState(null)
@@ -312,10 +312,11 @@ export default function BusinessPage() {
     setBiz(null)
     setSimilar([])
     setSurveyAnswers([])
+    const token = tokens?.access || null
     apiGetBusinessSurveyAnswers(id)
       .then(d => setSurveyAnswers(Array.isArray(d) ? d : []))
       .catch(() => setSurveyAnswers([]))
-    Promise.all([apiGetBusiness(id), apiGetBusinessPosts(id)])
+    Promise.all([apiGetBusiness(id, token), apiGetBusinessPosts(id, token)])
       .then(([bizData, postsData]) => {
         setBiz(bizData)
         setPosts(postsData)
