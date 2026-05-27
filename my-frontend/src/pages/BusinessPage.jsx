@@ -229,24 +229,6 @@ function InfoTabs({ biz, categoryIcon, faq, navigate, surveyAnswers }) {
           <div className="bp__prop"><span>{t('biz_category')}</span><span>{categoryIcon} {biz.category_label}</span></div>
           {biz.city && <div className="bp__prop"><span>{t('biz_city')}</span><span>{biz.city}</span></div>}
           <div className="bp__prop"><span>{t('biz_rating')}</span><span>⭐ {Number(biz.rating).toFixed(1)} / 5</span></div>
-          <div className="bp__prop">
-            <span>{t('biz_status')}</span>
-            <span style={{ color: biz.is_verified ? '#10b981' : 'var(--text-muted)' }}>
-              {biz.is_verified ? (
-                <span className="bp__verified-status">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ flexShrink: 0 }}>
-                    <path d="M12 2L9.19 4.09 5.5 3.82 4.41 7.41 1.42 9.72 2.83 13.21 1.42 16.71 4.41 19 5.5 22.59 9.19 22.32 12 24.41 14.81 22.32 18.5 22.59 19.59 19 22.58 16.71 21.17 13.21 22.58 9.72 19.59 7.41 18.5 3.82 14.81 4.09 12 2ZM10.09 16.72L7.29 13.91 8.71 12.5 10.09 13.88 15.34 8.63 16.76 10.05 10.09 16.72Z"/>
-                  </svg>
-                  <span className="bp__verified-status__text">
-                    {t('biz_verified')}
-                    {biz.verified_at && (
-                      <span className="bp__verified-status__date">с {fmtDate(biz.verified_at)}</span>
-                    )}
-                  </span>
-                </span>
-              ) : t('biz_notVerified')}
-            </span>
-          </div>
         </div>
       )}
 
@@ -316,6 +298,7 @@ export default function BusinessPage() {
   const POSTS_PER_PAGE = 8
   const [selectedVideo, setSelectedVideo] = useState(null)
   const [selectedPhoto, setSelectedPhoto] = useState(null)
+  const [selectedPost, setSelectedPost] = useState(null)
   const [avatarVideoOpen, setAvatarVideoOpen] = useState(false)
 
   const showToast = (msg) => {
@@ -501,6 +484,48 @@ setSubscribed(bizData.is_subscribed || false)
           title={selectedVideo.title}
           onClose={() => setSelectedVideo(null)}
         />
+      )}
+
+      {/* Post Modal */}
+      {selectedPost && (
+        <div
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10000, padding: '16px' }}
+          onClick={() => setSelectedPost(null)}
+        >
+          <div
+            style={{ background: 'var(--bg-secondary)', borderRadius: 14, maxWidth: 560, width: '100%', maxHeight: '90vh', overflow: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.5)' }}
+            onClick={e => e.stopPropagation()}
+          >
+            {selectedPost.media_display && selectedPost.media_type !== 'VIDEO' && (
+              <img
+                src={selectedPost.media_display}
+                alt=""
+                style={{ width: '100%', display: 'block', borderRadius: '14px 14px 0 0', objectFit: 'cover', maxHeight: 400 }}
+              />
+            )}
+            {selectedPost.media_display && selectedPost.media_type === 'VIDEO' && (
+              <video
+                src={selectedPost.media_display}
+                controls
+                style={{ width: '100%', display: 'block', borderRadius: '14px 14px 0 0', maxHeight: 400 }}
+              />
+            )}
+            <div style={{ padding: '16px 20px 20px' }}>
+              {selectedPost.text && (
+                <p style={{ margin: '0 0 12px', fontSize: 15, lineHeight: 1.6, color: 'var(--text-primary)', whiteSpace: 'pre-wrap' }}>
+                  {selectedPost.text}
+                </p>
+              )}
+              <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                {new Date(selectedPost.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}
+              </span>
+            </div>
+            <button
+              style={{ position: 'absolute', top: 16, right: 16, background: 'rgba(255,255,255,0.15)', border: 'none', color: '#fff', fontSize: 20, width: 36, height: 36, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              onClick={() => setSelectedPost(null)}
+            >✕</button>
+          </div>
+        </div>
       )}
 
       {/* Photo Modal */}
@@ -740,13 +765,13 @@ setSubscribed(bizData.is_subscribed || false)
                     const end = start + POSTS_PER_PAGE
                     const visiblePosts = textPosts.slice(start, end)
                     return visiblePosts.map(post => (
-                      <div key={post.id} className="bp__feed-item">
+                      <div key={post.id} className="bp__feed-item" style={{ cursor: 'pointer' }} onClick={() => setSelectedPost(post)}>
                         <div className="bp__feed-body">
                           {post.media_display && (
                             post.media_type === 'VIDEO' ? (
                               <div
                                 className="bp__feed-media bp__feed-media--video"
-                                onClick={() => setSelectedVideo({ url: post.media_display, title: post.text || '' })}
+                                onClick={e => { e.stopPropagation(); setSelectedVideo({ url: post.media_display, title: post.text || '' }) }}
                                 style={{ position: 'relative', cursor: 'pointer', marginBottom: 8 }}
                               >
                                 <video
@@ -775,7 +800,7 @@ setSubscribed(bizData.is_subscribed || false)
                             {isOwner && (
                               <button
                                 className="bp__feed-delete"
-                                onClick={() => handleDeletePost(post.id)}
+                                onClick={e => { e.stopPropagation(); handleDeletePost(post.id) }}
                                 disabled={deletingPost === post.id}
                                 title={t('biz_deletePost')}
                               >
