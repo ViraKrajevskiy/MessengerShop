@@ -1768,8 +1768,9 @@ export default function BusinessDashboardPage() {
                   <span>Телефон</span>
                   <input
                     type="tel"
+                    inputMode="numeric"
                     value={setupPhone}
-                    onChange={(e) => setSetupPhone(e.target.value)}
+                    onChange={(e) => setSetupPhone(e.target.value.replace(/[^\d+\s\-()]/g, ''))}
                     placeholder="+90 …"
                     autoComplete="tel"
                   />
@@ -2261,9 +2262,11 @@ export default function BusinessDashboardPage() {
                       <label className="biz-profile-edit__label">Телефон</label>
                       <input
                         className="biz-profile-edit__input"
+                        type="tel"
+                        inputMode="numeric"
                         placeholder="+90 555 000 00 00"
                         value={editPhone}
-                        onChange={e => setEditPhone(e.target.value)}
+                        onChange={e => setEditPhone(e.target.value.replace(/[^\d+\s\-()]/g, ''))}
                       />
                     </div>
 

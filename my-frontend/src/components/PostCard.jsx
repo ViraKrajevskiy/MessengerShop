@@ -91,6 +91,7 @@ export default function PostCard({ post, onDelete }) {
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [followed, setFollowed] = useState(post.is_subscribed || false)
   const [subLoading, setSubLoading] = useState(false)
+  const [subError, setSubError] = useState('')
   const [fav, setFav] = useState(false)
   const [expanded, setExpanded] = useState(false)
   const [selectedVideo, setSelectedVideo] = useState(null)
@@ -178,11 +179,15 @@ export default function PostCard({ post, onDelete }) {
     if (!user) { navigate('/login'); return }
     if (subLoading) return
     setSubLoading(true)
+    setSubError('')
     try {
       const token = await getAccessToken()
       const data = await apiToggleSubscription(post.business_id, token)
       setFollowed(data.subscribed)
-    } catch { /* ignore */ } finally {
+    } catch (err) {
+      setSubError(err.message || 'Ошибка подписки')
+      setTimeout(() => setSubError(''), 3000)
+    } finally {
       setSubLoading(false)
     }
   }
@@ -221,6 +226,9 @@ export default function PostCard({ post, onDelete }) {
               {followed ? t('post_subscribed') : t('post_subscribe')}
             </button>
           </div>
+          {subError && (
+            <div style={{ fontSize: 11, color: 'var(--accent-1)', marginTop: 2, lineHeight: 1.3 }}>{subError}</div>
+          )}
           <div className="post-card__bottom-row">
             {post.created_at && (
               <span className="post-card__time">{timeAgo(post.created_at)}</span>

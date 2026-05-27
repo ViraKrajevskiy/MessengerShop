@@ -431,7 +431,9 @@ setSubscribed(bizData.is_subscribed || false)
       const data = await apiToggleSubscription(id, token)
       setSubscribed(data.subscribed)
       setSubCount(data.subscribers_count)
-    } catch {} finally { setSubLoading(false) }
+    } catch (err) {
+      showToast(err.message || 'Ошибка подписки')
+    } finally { setSubLoading(false) }
   }
 
   const seoImage = resolveUrl(biz.logo) && !logoIsVideo ? resolveUrl(biz.logo) : undefined
@@ -489,30 +491,22 @@ setSubscribed(bizData.is_subscribed || false)
       {/* Post Modal */}
       {selectedPost && (
         <div
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10000, padding: '16px' }}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
           onClick={() => setSelectedPost(null)}
         >
           <div
-            style={{ background: 'var(--bg-secondary)', borderRadius: 14, maxWidth: 560, width: '100%', maxHeight: '90vh', overflow: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.5)' }}
+            style={{ position: 'relative', background: 'var(--bg-secondary)', borderRadius: 14, maxWidth: 560, width: '100%', maxHeight: '90vh', overflowY: 'auto' }}
             onClick={e => e.stopPropagation()}
           >
             {selectedPost.media_display && selectedPost.media_type !== 'VIDEO' && (
-              <img
-                src={selectedPost.media_display}
-                alt=""
-                style={{ width: '100%', display: 'block', borderRadius: '14px 14px 0 0', objectFit: 'cover', maxHeight: 400 }}
-              />
+              <img src={selectedPost.media_display} alt="" style={{ width: '100%', borderRadius: '14px 14px 0 0', display: 'block', objectFit: 'cover', maxHeight: 360 }} />
             )}
             {selectedPost.media_display && selectedPost.media_type === 'VIDEO' && (
-              <video
-                src={selectedPost.media_display}
-                controls
-                style={{ width: '100%', display: 'block', borderRadius: '14px 14px 0 0', maxHeight: 400 }}
-              />
+              <video src={selectedPost.media_display} controls style={{ width: '100%', borderRadius: '14px 14px 0 0', display: 'block', maxHeight: 360, background: '#000' }} />
             )}
             <div style={{ padding: '16px 20px 20px' }}>
               {selectedPost.text && (
-                <p style={{ margin: '0 0 12px', fontSize: 15, lineHeight: 1.6, color: 'var(--text-primary)', whiteSpace: 'pre-wrap' }}>
+                <p style={{ margin: '0 0 12px', fontSize: 15, lineHeight: 1.6, whiteSpace: 'pre-wrap', color: 'var(--text-primary)' }}>
                   {selectedPost.text}
                 </p>
               )}
@@ -521,7 +515,7 @@ setSubscribed(bizData.is_subscribed || false)
               </span>
             </div>
             <button
-              style={{ position: 'absolute', top: 16, right: 16, background: 'rgba(255,255,255,0.15)', border: 'none', color: '#fff', fontSize: 20, width: 36, height: 36, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              style={{ position: 'absolute', top: 12, right: 12, background: 'rgba(0,0,0,0.5)', border: 'none', borderRadius: '50%', width: 32, height: 32, color: '#fff', fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
               onClick={() => setSelectedPost(null)}
             >✕</button>
           </div>
@@ -765,13 +759,13 @@ setSubscribed(bizData.is_subscribed || false)
                     const end = start + POSTS_PER_PAGE
                     const visiblePosts = textPosts.slice(start, end)
                     return visiblePosts.map(post => (
-                      <div key={post.id} className="bp__feed-item" style={{ cursor: 'pointer' }} onClick={() => setSelectedPost(post)}>
+                      <div key={post.id} className="bp__feed-item" onClick={() => setSelectedPost(post)} style={{ cursor: 'pointer' }}>
                         <div className="bp__feed-body">
                           {post.media_display && (
                             post.media_type === 'VIDEO' ? (
                               <div
                                 className="bp__feed-media bp__feed-media--video"
-                                onClick={e => { e.stopPropagation(); setSelectedVideo({ url: post.media_display, title: post.text || '' }) }}
+                                onClick={(e) => { e.stopPropagation(); setSelectedVideo({ url: post.media_display, title: post.text || '' }) }}
                                 style={{ position: 'relative', cursor: 'pointer', marginBottom: 8 }}
                               >
                                 <video
@@ -800,7 +794,7 @@ setSubscribed(bizData.is_subscribed || false)
                             {isOwner && (
                               <button
                                 className="bp__feed-delete"
-                                onClick={e => { e.stopPropagation(); handleDeletePost(post.id) }}
+                                onClick={(e) => { e.stopPropagation(); handleDeletePost(post.id) }}
                                 disabled={deletingPost === post.id}
                                 title={t('biz_deletePost')}
                               >

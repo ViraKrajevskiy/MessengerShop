@@ -20,7 +20,7 @@ async function fetchVerStatus(token) {
 }
 
 export default function MyProfilePage() {
-  const { user, tokens, logout, getAccessToken } = useAuth()
+  const { user, setUser, tokens, logout, getAccessToken } = useAuth()
   const { t } = useLanguage()
   const navigate = useNavigate()
   const fileRef = useRef(null)
@@ -101,7 +101,8 @@ export default function MyProfilePage() {
       fd.append('username', form.username)
       fd.append('city', form.city)
       if (avatarFile) fd.append('avatar', avatarFile)
-      await apiPatchMe(token, fd)
+      const updatedUser = await apiPatchMe(token, fd)
+      if (updatedUser) setUser(updatedUser)
       setEditing(false)
       setAvatarFile(null)
       setAvatarPreview(null)

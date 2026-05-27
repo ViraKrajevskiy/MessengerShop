@@ -219,7 +219,8 @@ export async function apiDeleteStory(storyId, token) {
   })
   // 204 = удалено, 404 = история уже отсутствует — в обоих случаях для UI это успех
   if (!res.ok && res.status !== 204 && res.status !== 404) {
-    throw new Error('Ошибка удаления истории')
+    const err = await res.json().catch(() => ({}))
+    throw new Error(err.detail || 'Ошибка удаления истории')
   }
 }
 
@@ -379,7 +380,10 @@ export async function apiToggleSubscription(bizId, token) {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${token}` },
   })
-  if (!res.ok) throw new Error('Ошибка подписки')
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(err.detail || 'Ошибка подписки')
+  }
   // Сбрасываем кэш бизнеса и постов чтобы is_subscribed обновился
   invalidateCache(`business:${bizId}`)
   return res.json()
