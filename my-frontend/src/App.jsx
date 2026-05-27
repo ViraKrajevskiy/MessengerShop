@@ -1,11 +1,12 @@
 import { lazy, Suspense } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import { ThemeProvider } from './context/ThemeContext'
 import { ViewedProvider } from './context/ViewedContext'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { LanguageProvider } from './context/LanguageContext'
 import ChatPanel from './components/ChatPanel'
+import Footer from './components/Footer'
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || ''
 
@@ -64,6 +65,14 @@ function PrivateRoute({ children }) {
   return (user && tokens?.access) ? children : <Navigate to="/login" replace />
 }
 
+const NO_FOOTER_PATHS = ['/login', '/register', '/forgot-password', '/reset-password', '/verification', '/moderator/login']
+
+function FooterWrapper() {
+  const { pathname } = useLocation()
+  if (NO_FOOTER_PATHS.includes(pathname)) return null
+  return <Footer />
+}
+
 function AppContent() {
   return (
     <BrowserRouter>
@@ -98,6 +107,7 @@ function AppContent() {
                 <Route path="/group/:id" element={<PrivateRoute><GroupPreviewPage /></PrivateRoute>} />
               </Routes>
             </Suspense>
+            <FooterWrapper />
           </ViewedProvider>
         </AuthProvider>
         </LanguageProvider>
