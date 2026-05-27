@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
-import Footer from '../components/Footer'
 import Seo from '../components/Seo'
 import Stories from '../components/Stories'
 import PostCard from '../components/PostCard'
@@ -414,7 +413,7 @@ export default function FeedPage() {
         </div>
       </main>
 
-      <Footer />
+
     </div>
   )
 }

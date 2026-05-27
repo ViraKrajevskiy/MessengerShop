@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
-import Footer from '../components/Footer';
 import Seo from '../components/Seo';
 import { useLanguage } from '../context/LanguageContext';
 import { API_URL } from '../config/api';
@@ -132,7 +131,7 @@ export default function NewsDetailPage() {
         </article>
       </main>
 
-      <Footer />
+
     </div>
   );
 }

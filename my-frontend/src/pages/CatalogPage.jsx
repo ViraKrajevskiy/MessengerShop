@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import Header from '../components/Header'
-import Footer from '../components/Footer'
 import Seo from '../components/Seo'
 import { useAuth } from '../context/AuthContext'
 import { useLanguage } from '../context/LanguageContext'
@@ -483,7 +482,7 @@ export default function CatalogPage() {
         </div>
       </main>
 
-      <Footer />
+
     </div>
   )
 }
