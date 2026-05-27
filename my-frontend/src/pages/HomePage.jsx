@@ -6,7 +6,6 @@ import Seo from '../components/Seo'
 import Stories from '../components/Stories'
 import NewUsers from '../components/NewUsers'
 import UserCard from '../components/UserCard'
-import Footer from '../components/Footer'
 import TweetsSidebar from '../components/TweetsSidebar'
 import BusinessRankSidebar from '../components/BusinessRankSidebar'
 import PostCard from '../components/PostCard'
@@ -406,7 +405,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      <Footer />
+
     </div>
   )
 }

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
-import Footer from '../components/Footer'
 import Seo from '../components/Seo'
 import { useAuth } from '../context/AuthContext'
 import { useLanguage } from '../context/LanguageContext'
@@ -81,7 +80,7 @@ export default function ProductDetailPage() {
             </div>
           </div>
         </main>
-        <Footer />
+  
       </div>
     )
   }
@@ -94,7 +93,7 @@ export default function ProductDetailPage() {
         <main className="pdp__main">
           <div className="pdp__not-found">{t('product_notFound')}</div>
         </main>
-        <Footer />
+  
       </div>
     )
   }
@@ -241,7 +240,7 @@ export default function ProductDetailPage() {
           </div>
         </div>
       </main>
-      <Footer />
+
     </div>
   )
 }
