@@ -13,6 +13,7 @@ class PostSerializer(serializers.ModelSerializer):
     tags              = serializers.SerializerMethodField()
     is_favorited      = serializers.SerializerMethodField()
     favorites_count   = serializers.SerializerMethodField()
+    is_owner          = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
@@ -22,6 +23,7 @@ class PostSerializer(serializers.ModelSerializer):
             'text', 'media_display', 'media_type', 'views_count',
             'is_subscribed', 'tags',
             'is_favorited', 'favorites_count',
+            'is_owner',
             'created_at', 'updated_at',
         ]
 
@@ -37,6 +39,12 @@ class PostSerializer(serializers.ModelSerializer):
         if hasattr(obj, '_favorites_count'):
             return obj._favorites_count
         return obj.favorites.count()
+
+    def get_is_owner(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated and obj.business:
+            return obj.business.owner_id == request.user.id
+        return False
 
     def get_owner_is_online(self, obj):
         return bool(obj.business and obj.business.owner and obj.business.owner.is_online)

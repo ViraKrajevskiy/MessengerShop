@@ -603,13 +603,15 @@ setSubscribed(bizData.is_subscribed || false)
             </div>
 
             <div className="bp__actions">
-              <button
-                className={`bp__act-btn bp__act-btn--sub ${subscribed ? 'bp__act-btn--active' : ''}`}
-                onClick={handleSubscribe}
-                disabled={subLoading}
-              >
-                {subscribed ? t('biz_subscribed') : t('biz_subscribe')}
-              </button>
+              {!isOwner && (
+                <button
+                  className={`bp__act-btn bp__act-btn--sub ${subscribed ? 'bp__act-btn--active' : ''}`}
+                  onClick={handleSubscribe}
+                  disabled={subLoading}
+                >
+                  {subscribed ? t('biz_subscribed') : t('biz_subscribe')}
+                </button>
+              )}
               <button className="bp__act-btn bp__act-btn--chat"
                 onClick={async () => {
                   if (!user) { navigate('/login'); return }

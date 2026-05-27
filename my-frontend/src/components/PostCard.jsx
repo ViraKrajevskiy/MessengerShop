@@ -217,14 +217,18 @@ export default function PostCard({ post, onDelete }) {
                 </svg>
               )}
             </span>
-            <span className="post-card__sep">·</span>
-            <button
-              className={`post-card__follow ${followed ? 'post-card__follow--active' : ''}`}
-              onClick={handleFollow}
-              disabled={subLoading}
-            >
-              {followed ? t('post_subscribed') : t('post_subscribe')}
-            </button>
+            {!post.is_owner && (
+              <>
+                <span className="post-card__sep">·</span>
+                <button
+                  className={`post-card__follow ${followed ? 'post-card__follow--active' : ''}`}
+                  onClick={handleFollow}
+                  disabled={subLoading}
+                >
+                  {followed ? t('post_subscribed') : t('post_subscribe')}
+                </button>
+              </>
+            )}
           </div>
           {subError && (
             <div style={{ fontSize: 11, color: 'var(--accent-1)', marginTop: 2, lineHeight: 1.3 }}>{subError}</div>

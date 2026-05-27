@@ -382,7 +382,7 @@ export async function apiToggleSubscription(bizId, token) {
   })
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))
-    throw new Error(err.detail || 'Ошибка подписки')
+    throw new Error(err.detail || err.error || 'Ошибка подписки')
   }
   // Сбрасываем кэш бизнеса и постов чтобы is_subscribed обновился
   invalidateCache(`business:${bizId}`)
