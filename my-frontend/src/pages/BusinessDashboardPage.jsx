@@ -1493,6 +1493,8 @@ export default function BusinessDashboardPage() {
         setStories(prev => prev.filter(s => s.id !== id))
         showToast('История удалена')
         refreshStats()
+        storiesLoadedRef.current = false
+        if (bizId) void loadStories(bizId)
       }
     } catch (e) {
       showToast(e.message || 'Ошибка удаления')
