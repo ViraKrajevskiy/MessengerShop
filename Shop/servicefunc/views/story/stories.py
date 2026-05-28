@@ -120,9 +120,11 @@ class StoryDetailView(APIView):
         },
     )
     def delete(self, request, pk):
+        all_ids = list(Story.objects.values_list('id', flat=True))
+        print(f'[DELETE story] pk={pk}, all story IDs in DB: {all_ids}, user={request.user.id}')
         story = self.get_object(pk)
         if not story:
-            return Response({'detail': 'Сторис не найден.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'detail': f'Сторис {pk} не найден. В базе: {all_ids}'}, status=status.HTTP_404_NOT_FOUND)
         if story.author != request.user:
             return Response({'detail': 'Только автор может удалить сторис.'}, status=status.HTTP_403_FORBIDDEN)
         story.delete()
