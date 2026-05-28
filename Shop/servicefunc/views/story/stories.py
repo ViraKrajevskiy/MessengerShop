@@ -120,14 +120,48 @@ class StoryDetailView(APIView):
         },
     )
     def delete(self, request, pk):
-        all_ids = list(Story.objects.values_list('id', flat=True))
-        print(f'[DELETE story] pk={pk}, all story IDs in DB: {all_ids}, user={request.user.id}')
+        from django.db import connection
+        import sys
+
+        print(f'[DELETE story] pk={pk} type={type(pk).__name__}, user={request.user.id}', flush=True)
+
+        # 1. Standard ORM lookup
         story = self.get_object(pk)
+
+        # 2. If ORM missed — double-check with raw SQL + simpler ORM query
         if not story:
-            return Response({'detail': f'Сторис {pk} не найден. В базе: {all_ids}'}, status=status.HTTP_404_NOT_FOUND)
+            try:
+                with connection.cursor() as cur:
+                    cur.execute(
+                        "SELECT id, author_id FROM Shop_story WHERE id = %s", [pk],
+                    )
+                    raw = cur.fetchone()
+                print(f'[DELETE story] ORM miss, raw SQL: {raw}', flush=True)
+            except Exception as exc:
+                raw = None
+                print(f'[DELETE story] raw SQL error: {exc}', flush=True)
+
+            # Fallback: query without select_related
+            story = Story.objects.filter(pk=pk).first()
+            if story:
+                print(f'[DELETE story] found via .filter().first()', flush=True)
+
+        if not story:
+            all_ids = list(Story.objects.values_list('id', flat=True)[:50])
+            print(f'[DELETE story] NOT FOUND. DB has IDs: {all_ids}', file=sys.stderr, flush=True)
+            return Response(
+                {'detail': f'Сторис {pk} не найден.', 'db_ids': all_ids},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
         if story.author != request.user:
-            return Response({'detail': 'Только автор может удалить сторис.'}, status=status.HTTP_403_FORBIDDEN)
+            return Response(
+                {'detail': 'Только автор может удалить сторис.'},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
         story.delete()
+        print(f'[DELETE story] deleted pk={pk} OK', flush=True)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 

@@ -225,14 +225,17 @@ export async function apiDeletePost(bizId, postId, token) {
 }
 
 export async function apiDeleteStory(storyId, token) {
+  console.log('[apiDeleteStory] DELETE /stories/' + storyId + '/', { token: token ? 'present' : 'MISSING' })
   const res = await fetch(`${BASE}/stories/${storyId}/`, {
     method: 'DELETE',
     headers: { 'Authorization': `Bearer ${token}` },
   })
-  // 204 = удалено, 404 = история уже отсутствует — в обоих случаях для UI это успех
-  if (!res.ok && res.status !== 204 && res.status !== 404) {
+  console.log('[apiDeleteStory] response status:', res.status)
+  // 204 = success. Any other non-2xx status is an error (including 404)
+  if (!res.ok && res.status !== 204) {
     const err = await res.json().catch(() => ({}))
-    throw new Error(err.detail || 'Ошибка удаления истории')
+    console.error('[apiDeleteStory] error body:', err)
+    throw new Error(err.detail || `Ошибка удаления истории (${res.status})`)
   }
 }
 
