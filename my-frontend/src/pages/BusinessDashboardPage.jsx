@@ -178,6 +178,23 @@ function StoryRow({ story, onDelete, deleting }) {
   )
 }
 
+// ── Media Lightbox (full-screen preview) ──────────────────────────────────────
+function MediaLightbox({ src, isVideo, onClose }) {
+  if (!src) return null
+  return (
+    <div className="biz-lightbox-overlay" onClick={onClose}>
+      <button className="biz-lightbox__close" onClick={onClose}>✕</button>
+      <div className="biz-lightbox__content" onClick={e => e.stopPropagation()}>
+        {isVideo ? (
+          <video src={src} className="biz-lightbox__media" controls autoPlay playsInline />
+        ) : (
+          <img src={src} className="biz-lightbox__media" alt="preview" />
+        )}
+      </div>
+    </div>
+  )
+}
+
 // ── Modal Wrapper ──────────────────────────────────────────────────────────────
 function Modal({ title, onClose, children }) {
   return (
@@ -996,6 +1013,9 @@ export default function BusinessDashboardPage() {
   const [confirmState, setConfirmState] = useState(null) // { type, id, label }
   const [deleteLoading, setDeleteLoading] = useState(false)
 
+  // Media lightbox { src, isVideo }
+  const [lightbox, setLightbox] = useState(null)
+
   // Profile edit
   const [editDesc,    setEditDesc]    = useState('')
   const [editPhone,   setEditPhone]   = useState('')
@@ -1490,11 +1510,10 @@ export default function BusinessDashboardPage() {
         refreshStats()
       } else if (type === 'story') {
         await apiDeleteStory(id, token)
+        // Only remove from UI after confirmed server deletion (no 404 swallowing)
         setStories(prev => prev.filter(s => s.id !== id))
         showToast('История удалена')
         refreshStats()
-        storiesLoadedRef.current = false
-        if (bizId) void loadStories(bizId)
       }
     } catch (e) {
       showToast(e.message || 'Ошибка удаления')
@@ -2076,16 +2095,19 @@ export default function BusinessDashboardPage() {
                     <div className="biz-profile-edit__row">
                       <label className="biz-profile-edit__label">Аватар / Логотип</label>
                       <div className="biz-profile-edit__avatar-wrap">
-                        {(editLogo
-                          ? editLogo.type.startsWith('video/')
-                            ? <video src={URL.createObjectURL(editLogo)} className="biz-profile-edit__avatar-preview" autoPlay muted loop playsInline />
-                            : <img src={URL.createObjectURL(editLogo)} className="biz-profile-edit__avatar-preview" alt="preview" />
-                          : bizData?.logo
-                            ? /\.(mp4|webm|mov)(\?|$)/i.test(bizData.logo)
-                              ? <video src={resolveUrl(bizData.logo)} className="biz-profile-edit__avatar-preview" autoPlay muted loop playsInline />
-                              : <img src={resolveUrl(bizData.logo)} className="biz-profile-edit__avatar-preview" alt="logo" />
-                            : <div className="biz-profile-edit__avatar-placeholder">{bizData?.brand_name?.[0] || '?'}</div>
-                        )}
+                        {(() => {
+                          const logoSrc = editLogo
+                            ? URL.createObjectURL(editLogo)
+                            : bizData?.logo ? resolveUrl(bizData.logo) : null
+                          const logoIsVideo = editLogo
+                            ? editLogo.type.startsWith('video/')
+                            : bizData?.logo ? /\.(mp4|webm|mov)(\?|$)/i.test(bizData.logo) : false
+                          if (!logoSrc) return <div className="biz-profile-edit__avatar-placeholder">{bizData?.brand_name?.[0] || '?'}</div>
+                          const openLb = () => setLightbox({ src: logoSrc, isVideo: logoIsVideo })
+                          return logoIsVideo
+                            ? <video src={logoSrc} className="biz-profile-edit__avatar-preview biz-profile-edit__media-clickable" onClick={openLb} autoPlay muted loop playsInline />
+                            : <img src={logoSrc} className="biz-profile-edit__avatar-preview biz-profile-edit__media-clickable" onClick={openLb} alt="logo" />
+                        })()}
                         <label className="biz-profile-edit__upload-btn">
                           📷 Сменить фото / видео
                           <input
@@ -2116,12 +2138,18 @@ export default function BusinessDashboardPage() {
                     <div className="biz-profile-edit__row">
                       <label className="biz-profile-edit__label">Обложка</label>
                       <div className="biz-profile-edit__cover-wrap">
-                        {editCover
-                          ? <img src={URL.createObjectURL(editCover)} className="biz-profile-edit__cover-preview" alt="cover preview" />
-                          : bizData?.cover
-                            ? <img src={resolveUrl(bizData.cover)} className="biz-profile-edit__cover-preview" alt="cover" />
-                            : <div className="biz-profile-edit__cover-placeholder">Нет обложки</div>
-                        }
+                        {(() => {
+                          const coverSrc = editCover
+                            ? URL.createObjectURL(editCover)
+                            : bizData?.cover ? resolveUrl(bizData.cover) : null
+                          if (!coverSrc) return <div className="biz-profile-edit__cover-placeholder">Нет обложки</div>
+                          return <img
+                            src={coverSrc}
+                            className="biz-profile-edit__cover-preview biz-profile-edit__media-clickable"
+                            onClick={() => setLightbox({ src: coverSrc, isVideo: false })}
+                            alt="cover"
+                          />
+                        })()}
                         <label className="biz-profile-edit__upload-btn">
                           🖼️ Сменить обложку
                           <input
@@ -2147,17 +2175,20 @@ export default function BusinessDashboardPage() {
                     <div className="biz-profile-edit__row">
                       <label className="biz-profile-edit__label">Медиа для карточки</label>
                       <div className="biz-profile-edit__cover-wrap">
-                        {editCardMedia ? (
-                          /\.(mp4|webm|mov)(\?|$)/i.test(editCardMedia.name)
-                            ? <video src={URL.createObjectURL(editCardMedia)} className="biz-profile-edit__card-preview" muted controls />
-                            : <img src={URL.createObjectURL(editCardMedia)} className="biz-profile-edit__card-preview" alt="card preview" />
-                        ) : bizData?.card_media ? (
-                          /\.(mp4|webm|mov)(\?|$)/i.test(bizData.card_media)
-                            ? <video src={`${resolveUrl(bizData.card_media)}?v=${bizData.id}`} className="biz-profile-edit__card-preview" muted controls />
-                            : <img src={`${resolveUrl(bizData.card_media)}?v=${Date.now()}`} className="biz-profile-edit__card-preview" alt="card media" key={bizData.card_media} />
-                        ) : (
-                          <div className="biz-profile-edit__cover-placeholder">Нет медиа</div>
-                        )}
+                        {(() => {
+                          const cardSrc = editCardMedia
+                            ? URL.createObjectURL(editCardMedia)
+                            : bizData?.card_media ? resolveUrl(bizData.card_media) : null
+                          const cardIsVideo = editCardMedia
+                            ? /\.(mp4|webm|mov)(\?|$)/i.test(editCardMedia.name)
+                            : bizData?.card_media ? /\.(mp4|webm|mov)(\?|$)/i.test(bizData.card_media) : false
+                          if (!cardSrc) return <div className="biz-profile-edit__cover-placeholder">Нет медиа</div>
+                          const openLb = () => setLightbox({ src: cardSrc, isVideo: cardIsVideo })
+                          const cacheBust = editCardMedia ? '' : `?v=${Date.now()}`
+                          return cardIsVideo
+                            ? <video src={cardSrc + cacheBust} className="biz-profile-edit__card-preview biz-profile-edit__media-clickable" onClick={openLb} muted controls />
+                            : <img src={cardSrc + cacheBust} className="biz-profile-edit__card-preview biz-profile-edit__media-clickable" onClick={openLb} alt="card media" />
+                        })()}
                         <p className="biz-svc-hint" style={{marginTop:6,marginBottom:4}}>
                           Фото или видео, которое видят все пользователи на главной странице в вашей карточке
                         </p>
@@ -2631,6 +2662,15 @@ export default function BusinessDashboardPage() {
           onConfirm={handleConfirmDelete}
           onCancel={() => setConfirmState(null)}
           loading={deleteLoading}
+        />
+      )}
+
+      {/* ── Media Lightbox ── */}
+      {lightbox && (
+        <MediaLightbox
+          src={lightbox.src}
+          isVideo={lightbox.isVideo}
+          onClose={() => setLightbox(null)}
         />
       )}
     </div>
