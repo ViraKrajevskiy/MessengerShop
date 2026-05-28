@@ -14,6 +14,7 @@ import {
 } from '../api/businessApi'
 import { timeAgo } from '../utils/timeUtils'
 import { resolveUrl } from '../utils/urlUtils'
+import PostModal from '../components/PostModal'
 import { API_URL as BASE, API_ORIGIN } from '../config/api'
 import './BusinessDashboardPage.css'
 
@@ -88,79 +89,91 @@ function StatCard({ icon, value, label, color }) {
 
 // ── Post Row ───────────────────────────────────────────────────────────────────
 function PostRow({ post, onDelete, deleting }) {
+  const [showModal, setShowModal] = useState(false)
   const media = post.media_display || post.media
   return (
-    <div className="biz-content-row">
-      <div
-        className="biz-content-row__thumb"
-        style={media ? { cursor: 'pointer' } : undefined}
-        onClick={media ? () => window.open(media, '_blank') : undefined}
-      >
-        {media
-          ? <img src={media} alt="" />
-          : <div className="biz-content-row__thumb-placeholder">📝</div>
-        }
+    <>
+      {showModal && (
+        <PostModal post={post} onClose={() => setShowModal(false)} />
+      )}
+      <div className="biz-content-row">
+        <div
+          className="biz-content-row__thumb"
+          style={media ? { cursor: 'pointer' } : undefined}
+          onClick={media ? () => setShowModal(true) : undefined}
+        >
+          {media
+            ? <img src={media} alt="" />
+            : <div className="biz-content-row__thumb-placeholder">📝</div>
+          }
+        </div>
+        <div className="biz-content-row__info">
+          <p className="biz-content-row__text">
+            {post.text ? (post.text.length > 80 ? post.text.slice(0, 80) + '...' : post.text) : '—'}
+          </p>
+          <span className="biz-content-row__meta">{timeAgo(post.created_at)}</span>
+        </div>
+        <button
+          className="biz-row__delete-btn"
+          onClick={() => onDelete(post.id)}
+          disabled={deleting === post.id}
+          title="Удалить пост"
+        >
+          {deleting === post.id
+            ? <span className="biz-row__delete-spinner" />
+            : <TrashIcon />
+          }
+        </button>
       </div>
-      <div className="biz-content-row__info">
-        <p className="biz-content-row__text">
-          {post.text ? (post.text.length > 80 ? post.text.slice(0, 80) + '...' : post.text) : '—'}
-        </p>
-        <span className="biz-content-row__meta">{timeAgo(post.created_at)}</span>
-      </div>
-      <button
-        className="biz-row__delete-btn"
-        onClick={() => onDelete(post.id)}
-        disabled={deleting === post.id}
-        title="Удалить пост"
-      >
-        {deleting === post.id
-          ? <span className="biz-row__delete-spinner" />
-          : <TrashIcon />
-        }
-      </button>
-    </div>
+    </>
   )
 }
 
 // ── Story Row ──────────────────────────────────────────────────────────────────
 function StoryRow({ story, onDelete, deleting }) {
+  const [showModal, setShowModal] = useState(false)
   const media = story.media_display || story.media
   const isVideo = story.media_type === 'VIDEO'
+  const modalPost = media ? { media_display: media, media_type: story.media_type, text: story.caption, created_at: story.created_at } : null
   return (
-    <div className="biz-content-row">
-      <div
-        className="biz-content-row__thumb biz-content-row__thumb--story"
-        style={media ? { cursor: 'pointer' } : undefined}
-        onClick={media ? () => window.open(media, '_blank') : undefined}
-      >
-        {media
-          ? isVideo
-            ? <video src={media} className="biz-content-row__video-thumb" muted preload="metadata" playsInline />
-            : <img src={media} alt="" />
-          : <div className="biz-content-row__thumb-placeholder">🎬</div>
-        }
-        <span className="biz-content-row__type-badge">
-          {isVideo ? '▶' : '📷'}
-        </span>
+    <>
+      {showModal && modalPost && (
+        <PostModal post={modalPost} onClose={() => setShowModal(false)} />
+      )}
+      <div className="biz-content-row">
+        <div
+          className="biz-content-row__thumb biz-content-row__thumb--story"
+          style={media ? { cursor: 'pointer' } : undefined}
+          onClick={media ? () => setShowModal(true) : undefined}
+        >
+          {media
+            ? isVideo
+              ? <video src={media} className="biz-content-row__video-thumb" muted preload="metadata" playsInline />
+              : <img src={media} alt="" />
+            : <div className="biz-content-row__thumb-placeholder">🎬</div>
+          }
+          <span className="biz-content-row__type-badge">
+            {isVideo ? '▶' : '📷'}
+          </span>
+        </div>
+        <div className="biz-content-row__info">
+          <p className="biz-content-row__text">
+            {story.caption || <em className="biz-content-row__no-caption">Без подписи</em>}
+          </p>
+          <span className="biz-content-row__meta">{timeAgo(story.created_at)}</span>
+        </div>
+        <button
+          className="biz-row__delete-btn"
+          onClick={() => onDelete(story.id)}
+          disabled={deleting === story.id}
+          title="Удалить историю"
+        >
+          {deleting === story.id
+            ? <span className="biz-row__delete-spinner" />
+            : <TrashIcon />
+          }
+        </button>
       </div>
-      <div className="biz-content-row__info">
-        <p className="biz-content-row__text">
-          {story.caption || <em className="biz-content-row__no-caption">Без подписи</em>}
-        </p>
-        <span className="biz-content-row__meta">{timeAgo(story.created_at)}</span>
-      </div>
-      <button
-        className="biz-row__delete-btn"
-        onClick={() => onDelete(story.id)}
-        disabled={deleting === story.id}
-        title="Удалить историю"
-      >
-        {deleting === story.id
-          ? <span className="biz-row__delete-spinner" />
-          : <TrashIcon />
-        }
-      </button>
-    </div>
   )
 }
 

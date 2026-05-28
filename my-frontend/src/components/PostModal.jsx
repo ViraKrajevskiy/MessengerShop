@@ -2,7 +2,9 @@ import { useEffect } from 'react'
 import './PostModal.css'
 
 export default function PostModal({ post, photoUrl, onClose }) {
-  const imgSrc = post?.media_display || photoUrl
+  const mediaSrc = post?.media_display || photoUrl
+  const isVideo = post?.media_type === 'VIDEO' ||
+    (mediaSrc && /\.(mp4|webm|mov|avi|mkv)(\?|#|$)/i.test(mediaSrc))
   const hasText = post?.text?.trim()
   const hasDate = post?.created_at
 
@@ -12,16 +14,26 @@ export default function PostModal({ post, photoUrl, onClose }) {
     return () => document.removeEventListener('keydown', onKey)
   }, [onClose])
 
-  if (!imgSrc && !hasText) return null
+  if (!mediaSrc && !hasText) return null
 
   return (
     <div className="post-modal" onClick={onClose}>
       <div className="post-modal__box" onClick={e => e.stopPropagation()}>
         <button className="post-modal__close" onClick={onClose} aria-label="Закрыть">✕</button>
 
-        {imgSrc && (
+        {mediaSrc && (
           <div className="post-modal__media">
-            <img src={imgSrc} alt="" className="post-modal__img" draggable={false} />
+            {isVideo ? (
+              <video
+                src={mediaSrc}
+                className="post-modal__video"
+                controls
+                autoPlay
+                playsInline
+              />
+            ) : (
+              <img src={mediaSrc} alt="" className="post-modal__img" draggable={false} />
+            )}
           </div>
         )}
 
