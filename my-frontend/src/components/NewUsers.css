@@ -17,8 +17,8 @@
 }
 
 .new-users {
-  padding: 28px 0;
-  min-height: 420px; /* CLS fix: reserve space for new users grid */
+  padding: var(--section-gap) 0;
+  min-height: 420px;
   contain: layout style;
 }
 

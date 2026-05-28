@@ -47,6 +47,12 @@
   --radius-md: 14px;
   --radius-lg: 20px;
   --radius-xl: 28px;
+
+  /* ── Spacing system ── */
+  --section-gap: 32px;
+  --block-gap: 20px;
+  --inner-pad-h: 14px;
+  --inner-pad-v: 12px;
 }
 
 /* ========== CSS Variables — Dark Theme ========== */

@@ -1,0 +1,126 @@
+.post-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.88);
+  z-index: 10500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  cursor: zoom-out;
+  animation: pm-fade-in 0.18s ease;
+}
+
+@keyframes pm-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.post-modal__box {
+  position: relative;
+  background: var(--bg-secondary);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+  cursor: default;
+  animation: pm-slide-up 0.2s cubic-bezier(0.34, 1.2, 0.64, 1);
+  scrollbar-width: none;
+}
+
+.post-modal__box::-webkit-scrollbar { display: none; }
+
+@keyframes pm-slide-up {
+  from { transform: translateY(24px); opacity: 0.6; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.post-modal__media {
+  width: 100%;
+  background: var(--bg-tertiary);
+  border-radius: 16px 16px 0 0;
+  overflow: hidden;
+  line-height: 0;
+}
+
+.post-modal__img {
+  width: 100%;
+  max-height: 420px;
+  object-fit: contain;
+  display: block;
+  background: #000;
+}
+
+.post-modal__body {
+  padding: 16px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.post-modal__text {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.post-modal__date {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--accent-1);
+}
+
+.post-modal__close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  background: rgba(0, 0, 0, 0.45);
+  border: none;
+  color: #fff;
+  font-size: 16px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: background 0.18s;
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+.post-modal__close:hover {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+/* Photo-only mode: no body, image fills the modal cleanly */
+.post-modal__box:not(:has(.post-modal__body)) .post-modal__media {
+  border-radius: 16px;
+}
+
+.post-modal__box:not(:has(.post-modal__body)) .post-modal__img {
+  max-height: 85vh;
+  border-radius: 16px;
+}
+
+@media (max-width: 600px) {
+  .post-modal__box {
+    max-width: 100%;
+    border-radius: 14px;
+  }
+  .post-modal__img {
+    max-height: 55vw;
+  }
+  .post-modal__body {
+    padding: 14px 16px 18px;
+  }
+}

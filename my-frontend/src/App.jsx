@@ -65,7 +65,7 @@ function PrivateRoute({ children }) {
   return (user && tokens?.access) ? children : <Navigate to="/login" replace />
 }
 
-const NO_FOOTER_PATHS = ['/login', '/register', '/forgot-password', '/reset-password', '/verification', '/moderator/login']
+const NO_FOOTER_PATHS = ['/login', '/register', '/forgot-password', '/reset-password', '/verification', '/moderator/login', '/messenger', '/moderator']
 
 function FooterWrapper() {
   const { pathname } = useLocation()

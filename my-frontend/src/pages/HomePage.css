@@ -129,7 +129,7 @@
 
 /* All cards title above filter */
 .all-cards-title {
-  margin: 28px 0 12px;
+  margin: 0 0 12px;
 }
 
 /* All cards carousel — same layout as stories */
@@ -180,7 +180,7 @@
 
 /* All cards */
 .all-cards-section {
-  padding: 8px 4px 24px;
+  padding: var(--section-gap) 4px 24px;
 }
 
 /* ── Filter chips ── */
@@ -673,7 +673,7 @@
 
 /* Posts section — без отдельного «контейнера», фон как у страницы */
 .home-posts-section {
-  margin: 10px 0 32px;
+  margin: var(--section-gap) 0;
   min-height: 0;
   background: transparent;
   border: none;
@@ -905,8 +905,8 @@
    ========================================================================== */
 
 .home-news-section {
-  margin: 32px 0;
-  min-height: 280px; /* CLS fix: reserve space for news cards */
+  margin: var(--section-gap) 0;
+  min-height: 280px;
   contain: layout style;
 }
 
