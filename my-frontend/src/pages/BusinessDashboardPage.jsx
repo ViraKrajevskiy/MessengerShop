@@ -174,6 +174,7 @@ function StoryRow({ story, onDelete, deleting }) {
           }
         </button>
       </div>
+    </>
   )
 }
 
