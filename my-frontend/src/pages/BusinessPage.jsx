@@ -6,6 +6,7 @@ import Header from '../components/Header'
 import Seo from '../components/Seo'
 import ReviewsSection from '../components/ReviewsSection'
 import VideoModal from '../components/VideoModal'
+import PostModal from '../components/PostModal'
 import '../components/PremiumCarousel.css'
 import { apiGetBusiness, apiGetBusinessPosts, apiGetBusinesses, apiToggleSubscription, apiJoinGroup, apiCheckGroupMembership, apiDeletePost, apiStartBizChat, apiGetBusinessSurveyAnswers } from '../api/businessApi'
 import { API_URL } from '../config/api'
@@ -491,55 +492,12 @@ setSubscribed(bizData.is_subscribed || false)
 
       {/* Post Modal */}
       {selectedPost && (
-        <div
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
-          onClick={() => setSelectedPost(null)}
-        >
-          <div
-            style={{ position: 'relative', background: 'var(--bg-secondary)', borderRadius: 14, maxWidth: 560, width: '100%', maxHeight: '90vh', overflowY: 'auto' }}
-            onClick={e => e.stopPropagation()}
-          >
-            {selectedPost.media_display && selectedPost.media_type !== 'VIDEO' && (
-              <img src={selectedPost.media_display} alt="" style={{ width: '100%', borderRadius: '14px 14px 0 0', display: 'block', objectFit: 'cover', maxHeight: 360 }} />
-            )}
-            {selectedPost.media_display && selectedPost.media_type === 'VIDEO' && (
-              <video src={selectedPost.media_display} controls style={{ width: '100%', borderRadius: '14px 14px 0 0', display: 'block', maxHeight: 360, background: '#000' }} />
-            )}
-            <div style={{ padding: '16px 20px 20px' }}>
-              {selectedPost.text && (
-                <p style={{ margin: '0 0 12px', fontSize: 15, lineHeight: 1.6, whiteSpace: 'pre-wrap', color: 'var(--text-primary)' }}>
-                  {selectedPost.text}
-                </p>
-              )}
-              <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-                {new Date(selectedPost.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}
-              </span>
-            </div>
-            <button
-              style={{ position: 'absolute', top: 12, right: 12, background: 'rgba(0,0,0,0.5)', border: 'none', borderRadius: '50%', width: 32, height: 32, color: '#fff', fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-              onClick={() => setSelectedPost(null)}
-            >✕</button>
-          </div>
-        </div>
+        <PostModal post={selectedPost} onClose={() => setSelectedPost(null)} />
       )}
 
       {/* Photo Modal */}
       {selectedPhoto && (
-        <div
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.92)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10000, cursor: 'zoom-out' }}
-          onClick={() => setSelectedPhoto(null)}
-        >
-          <img
-            src={selectedPhoto}
-            alt=""
-            style={{ maxWidth: '95vw', maxHeight: '92vh', objectFit: 'contain', borderRadius: 10, display: 'block' }}
-            onClick={e => e.stopPropagation()}
-          />
-          <button
-            style={{ position: 'absolute', top: 16, right: 16, background: 'rgba(255,255,255,0.15)', border: 'none', color: '#fff', fontSize: 22, width: 40, height: 40, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}
-            onClick={() => setSelectedPhoto(null)}
-          >✕</button>
-        </div>
+        <PostModal photoUrl={selectedPhoto} onClose={() => setSelectedPhoto(null)} />
       )}
 
       {/* Toast */}

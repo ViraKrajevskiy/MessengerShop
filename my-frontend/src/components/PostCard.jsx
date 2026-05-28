@@ -5,6 +5,7 @@ import { useLanguage } from '../context/LanguageContext'
 import { apiToggleSubscription } from '../api/businessApi'
 import { makeInitialAvatar } from '../utils/defaults'
 import VideoModal from './VideoModal'
+import PostModal from './PostModal'
 import { timeAgo } from '../utils/timeUtils'
 import { resolveUrl } from '../utils/urlUtils'
 import './PostCard.css'
@@ -95,6 +96,7 @@ export default function PostCard({ post, onDelete }) {
   const [fav, setFav] = useState(false)
   const [expanded, setExpanded] = useState(false)
   const [selectedVideo, setSelectedVideo] = useState(null)
+  const [selectedPost, setSelectedPost] = useState(null)
   const [posterUrl, setPosterUrl] = useState(() => {
     if (post.media_type !== 'VIDEO') return null
     const cached = POSTER_CACHE.get(post.media_display)
@@ -201,6 +203,9 @@ export default function PostCard({ post, onDelete }) {
           onClose={() => setSelectedVideo(null)}
         />
       )}
+      {selectedPost && (
+        <PostModal post={selectedPost} onClose={() => setSelectedPost(null)} />
+      )}
       <div className="post-card" ref={cardRef} onClick={() => navigate(`/business/${post.business_id}`)}>
       <div className="post-card__header">
         <div className="post-card__avatar-wrap" onClick={(e) => { e.stopPropagation(); navigate(`/business/${post.business_id}`) }}>
@@ -256,9 +261,11 @@ export default function PostCard({ post, onDelete }) {
         <div
           className={`post-card__image${post.media_type === 'VIDEO' ? ' post-card__image--video' : ''}`}
           onClick={(e) => {
+            e.stopPropagation()
             if (post.media_type === 'VIDEO') {
-              e.stopPropagation()
               setSelectedVideo({ url: post.media_display, title: post.text })
+            } else {
+              setSelectedPost(post)
             }
           }}
         >
