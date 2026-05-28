@@ -192,6 +192,15 @@ export default function MyProfilePage() {
                   <strong>{user.subscriptions_count ?? 0}</strong>
                   <span>{t('myprofile_subscriptions')}</span>
                 </div>
+                {(user.views_count ?? 0) > 0 && (
+                  <>
+                    <div className="mpp__stat-divider" />
+                    <div className="mpp__stat">
+                      <strong>{user.views_count}</strong>
+                      <span>{t('views')}</span>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>

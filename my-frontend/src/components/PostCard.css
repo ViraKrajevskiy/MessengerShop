@@ -333,8 +333,8 @@
 }
 
 .post-card__body {
-  padding: 10px 14px 0;
-  min-height: 82px;
+  padding: 8px 14px 0;
+  min-height: 48px;
   overflow: hidden;
   flex-shrink: 0;
 }
@@ -491,7 +491,7 @@
   .post-card__follow { font-size: 11px; padding: 0; border-radius: 0; }
   .post-card__report { font-size: 10px; }
   .post-card__text { font-size: 11px; }
-  .post-card__body { padding: 6px 8px 0; min-height: 68px; }
+  .post-card__body { padding: 6px 8px 0; min-height: 40px; }
   .post-card__footer { padding: 4px 8px 8px; }
 }
 
@@ -569,8 +569,8 @@
     min-height: 150px;
   }
   .post-card__body {
-    padding: 10px 13px 0;
-    min-height: 75px;
+    padding: 8px 13px 0;
+    min-height: 48px;
   }
   .post-card__text {
     font-size: 13px;
