@@ -53,6 +53,7 @@
   cursor: pointer;
   transition: all 0.18s;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .nearby__chip:hover {
@@ -282,7 +283,10 @@
     overflow-x: auto;
     scrollbar-width: none;
     padding-bottom: 4px;
+    padding-right: 16px;
     -webkit-overflow-scrolling: touch;
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent 100%);
+    mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent 100%);
   }
   .nearby__cities::-webkit-scrollbar { display: none; }
 
