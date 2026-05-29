@@ -756,10 +756,6 @@
   width: 42px;
 }
 
-.home-posts-section .post-card__body {
-  min-height: 56px;
-}
-
 .home-posts-section .post-card__footer {
   padding-top: 6px;
   padding-bottom: 10px;
