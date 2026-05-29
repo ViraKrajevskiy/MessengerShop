@@ -225,16 +225,13 @@ export async function apiDeletePost(bizId, postId, token) {
 }
 
 export async function apiDeleteStory(storyId, token) {
-  console.log('[apiDeleteStory] DELETE /stories/' + storyId + '/', { token: token ? 'present' : 'MISSING' })
   const res = await fetch(`${BASE}/stories/${storyId}/`, {
     method: 'DELETE',
     headers: { 'Authorization': `Bearer ${token}` },
   })
-  console.log('[apiDeleteStory] response status:', res.status)
-  // 204 = success. Any other non-2xx status is an error (including 404)
-  if (!res.ok && res.status !== 204) {
+  // 204 = success, 404 = already gone — both mean "deleted" for the UI.
+  if (!res.ok && res.status !== 204 && res.status !== 404) {
     const err = await res.json().catch(() => ({}))
-    console.error('[apiDeleteStory] error body:', err)
     throw new Error(err.detail || `Ошибка удаления истории (${res.status})`)
   }
 }
@@ -284,7 +281,11 @@ export async function apiUpdateProduct(bizId, productId, data, token) {
 }
 
 export async function apiGetBusinessStories(bizId, token, authorId = null) {
+  // Management view must never read the 60s public HTTP cache the /stories/
+  // endpoint sets — otherwise freshly created stories don't appear and deleted
+  // ones reappear (and re-deleting a phantom 404s). Always fetch fresh.
   const headers = token ? { 'Authorization': `Bearer ${token}` } : {}
+  const fetchOpts = { headers, cache: 'no-store' }
 
   const normalizeList = (data) => Array.isArray(data) ? data : (data.results || [])
 
@@ -316,7 +317,7 @@ export async function apiGetBusinessStories(bizId, token, authorId = null) {
   ]
 
   for (const url of tryUrls) {
-    const res = await fetch(url, { headers })
+    const res = await fetch(url, fetchOpts)
     if (!res.ok) continue
     const data = await res.json()
     const list = normalizeList(data)
