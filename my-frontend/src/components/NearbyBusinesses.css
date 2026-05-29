@@ -207,20 +207,22 @@
 }
 
 .nearby__card-avatar-wrap {
+  width: 200px;
   flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px 20px 20px 0;
+  overflow: hidden;
+  min-height: 200px;
 }
 
 .nearby__card-avatar {
-  width: 110px;
-  height: 110px;
-  border-radius: 16px;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   display: block;
-  border: 1.5px solid var(--border-color);
+  transition: transform 0.35s;
+}
+
+.nearby__card:hover .nearby__card-avatar {
+  transform: scale(1.05);
 }
 
 /* ── Dots ───────────────────────────────────────────────────────── */
@@ -255,6 +257,13 @@
 
 /* ── Responsive ─────────────────────────────────────────────────── */
 
+@media (max-width: 900px) {
+  .nearby__card-avatar-wrap {
+    width: 160px;
+    min-height: 160px;
+  }
+}
+
 @media (max-width: 768px) {
   .nearby__track {
     scroll-snap-type: x mandatory;
@@ -266,6 +275,11 @@
   .nearby__card {
     flex: 0 0 84%;
     scroll-snap-align: center;
+  }
+
+  .nearby__card-avatar-wrap {
+    width: 170px;
+    min-height: 170px;
   }
 
   .nearby__card-desc {
@@ -310,11 +324,7 @@
   }
 
   .nearby__card-avatar-wrap {
-    padding: 16px 16px 16px 0;
-  }
-
-  .nearby__card-avatar {
-    width: 100px;
-    height: 100px;
+    width: 150px;
+    min-height: 150px;
   }
 }
