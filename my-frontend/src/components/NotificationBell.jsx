@@ -10,14 +10,28 @@ import './NotificationBell.css'
 
 const POLL_MS = 30_000  // как часто опрашивать счётчик непрочитанных
 
-// Куда вести при клике по уведомлению
-function targetPath(n) {
+// Достаём имя группы из заголовка вида: Новое сообщение в «Название»
+function groupNameFromTitle(title) {
+  const m = (title || '').match(/«([^»]+)»/)
+  return m ? m[1] : ''
+}
+
+// Куда вести при клике по уведомлению.
+// Возвращает [path, navigateOptions]
+function targetFor(n) {
   const d = n.data || {}
-  if (n.type === 'GROUP_MSG' && d.group_id) return `/group/${d.group_id}`
-  if (n.type === 'INQUIRY_MSG') return '/messenger'
-  if (n.type === 'FOLLOW' && d.business_id) return `/business/${d.business_id}`
-  if (n.type === 'NEW_POST' && d.business_id) return `/business/${d.business_id}`
-  return null
+  if (n.type === 'GROUP_MSG' && d.group_id) {
+    // Сразу открываем чат группы в мессенджере (без страницы-превью)
+    return ['/messenger', {
+      state: { openGroup: { id: d.group_id, name: groupNameFromTitle(n.title), member_count: 0 } },
+    }]
+  }
+  if (n.type === 'INQUIRY_MSG') {
+    return ['/messenger', { state: { openInquiryId: d.inquiry_id } }]
+  }
+  if (n.type === 'FOLLOW' && d.business_id) return [`/business/${d.business_id}`]
+  if (n.type === 'NEW_POST' && d.business_id) return [`/business/${d.business_id}`]
+  return [null]
 }
 
 export default function NotificationBell() {
@@ -77,9 +91,9 @@ export default function NotificationBell() {
   }
 
   const onItemClick = (n) => {
-    const path = targetPath(n)
+    const [path, opts] = targetFor(n)
     setOpen(false)
-    if (path) navigate(path)
+    if (path) navigate(path, opts)
   }
 
   const onClear = async (e) => {

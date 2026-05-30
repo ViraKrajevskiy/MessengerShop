@@ -1043,7 +1043,10 @@ export default function MessengerPage() {
         }
         if (locationState?.openGroup) {
           setTab('groups')
-          setActiveGroup(locationState.openGroup)
+          // Берём полный объект группы из загруженного списка (имя, кол-во
+          // участников, роль); partial из навигации — запасной вариант
+          const full = loadedGroups.find(g => g.id === locationState.openGroup.id)
+          setActiveGroup(full || locationState.openGroup)
         }
       } finally { setLoading(false) }
     })
