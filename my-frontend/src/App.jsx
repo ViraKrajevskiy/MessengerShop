@@ -28,6 +28,7 @@ const NewsDetailPage        = lazy(() => import('./pages/NewsDetailPage'))
 const ProductDetailPage     = lazy(() => import('./pages/ProductDetailPage'))
 const PricingPage             = lazy(() => import('./pages/PricingPage'))
 const CatalogPage             = lazy(() => import('./pages/CatalogPage'))
+const FavoritesPage           = lazy(() => import('./pages/FavoritesPage'))
 const ModeratorLoginPage      = lazy(() => import('./pages/ModeratorLoginPage'))
 const ModeratorDashboardPage  = lazy(() => import('./pages/ModeratorDashboardPage'))
 const GroupPreviewPage        = lazy(() => import('./pages/GroupPreviewPage'))
@@ -101,6 +102,7 @@ function AppContent() {
                 <Route path="/product/:id" element={<ProductDetailPage />} />
                 <Route path="/pricing" element={<PricingPage />} />
                 <Route path="/catalog" element={<CatalogPage />} />
+                <Route path="/favorites" element={<FavoritesPage />} />
                 <Route path="/vip" element={<Navigate to="/pricing" replace />} />
                 <Route path="/moderator/login" element={<ModeratorLoginPage />} />
                 <Route path="/moderator" element={<ModeratorDashboardPage />} />

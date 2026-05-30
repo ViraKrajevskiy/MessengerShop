@@ -1,11 +1,37 @@
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { makeInitialAvatar } from '../utils/defaults'
 import { resolveUrl } from '../utils/urlUtils'
+import { useAuth } from '../context/AuthContext'
+import { useAuthGate } from './AuthGate'
 import './BusinessRankSidebar.css'
+
+const FAVS_KEY = 'biz_favorites'
 
 export default function BusinessRankSidebar({ title, businesses = [], limit = 5 }) {
   const navigate = useNavigate()
+  const { user } = useAuth()
+  const { guard, AuthModal } = useAuthGate()
   const list = businesses.slice(0, limit)
+
+  const [favs, setFavs] = useState([])
+
+  useEffect(() => {
+    if (!user) { setFavs([]); return }
+    setFavs(JSON.parse(localStorage.getItem(FAVS_KEY) || '[]'))
+  }, [user])
+
+  const toggleFav = (e, id) => {
+    e.stopPropagation()
+    guard(() => {
+      const stored = JSON.parse(localStorage.getItem(FAVS_KEY) || '[]')
+      const next = stored.includes(id)
+        ? stored.filter(x => x !== id)
+        : [...stored, id]
+      localStorage.setItem(FAVS_KEY, JSON.stringify(next))
+      setFavs(next)
+    })
+  }
 
   return (
     <aside className="brs">
@@ -29,6 +55,7 @@ export default function BusinessRankSidebar({ title, businesses = [], limit = 5 
             const name = b.brand_name || b.name || ''
             const city = b.city || ''
             const rating = b.rating ?? 0
+            const isFav = favs.includes(b.id)
             return (
               <div
                 key={b.id}
@@ -54,11 +81,11 @@ export default function BusinessRankSidebar({ title, businesses = [], limit = 5 
                     <span>{rating}</span>
                   </span>
                   <button
-                    className="brs__heart"
-                    onClick={(e) => e.stopPropagation()}
+                    className={`brs__heart${isFav ? ' brs__heart--active' : ''}`}
+                    onClick={(e) => toggleFav(e, b.id)}
                     aria-label="favorite"
                   >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9b6dff" strokeWidth="2">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill={isFav ? '#9b6dff' : 'none'} stroke="#9b6dff" strokeWidth="2">
                       <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                     </svg>
                   </button>
@@ -68,6 +95,7 @@ export default function BusinessRankSidebar({ title, businesses = [], limit = 5 
           })
         )}
       </div>
+      <AuthModal />
     </aside>
   )
 }
