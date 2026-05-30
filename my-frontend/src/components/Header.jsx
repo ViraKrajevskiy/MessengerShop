@@ -6,6 +6,7 @@ import { useLanguage } from '../context/LanguageContext'
 import { DEFAULT_AVATAR } from '../utils/defaults'
 import { API_URL } from '../config/api'
 import FlagIcon from './FlagIcon'
+import NotificationBell from './NotificationBell'
 import './Header.css'
 
 const ThemeIcon = ({ theme }) => theme === 'light' ? (
@@ -179,6 +180,9 @@ export default function Header() {
             <button className="header__theme-toggle" onClick={toggleTheme} title={t('nav_changeTheme')}>
               <ThemeIcon theme={theme} />
             </button>
+
+            {/* Notifications bell (only for logged-in users) */}
+            {user && <NotificationBell />}
 
             {user ? (
               /* ── Logged-in user menu ── */

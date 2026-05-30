@@ -61,6 +61,10 @@ from Shop.servicefunc.views.news.newses import BusinessNewsListView, NewsListVie
 from Shop.servicefunc.views.tags import TagListView
 from Shop.servicefunc.views.moderator.feed import ModeratorFeedView
 from Shop.servicefunc.views.chat_views.chat import ChatAPIView,ChatHistoryAPIView
+from Shop.servicefunc.views.notifications import (
+    NotificationListView, NotificationUnreadCountView,
+    NotificationReadView, NotificationDetailView,
+)
 from Shop.servicefunc.views.surveys import (
     ModeratorSurveyListView, ModeratorSurveyDetailView,
     SurveyListView, SurveyRespondView, BusinessSurveyAnswersView,
@@ -153,6 +157,12 @@ urlpatterns = [
     path('posts/<int:pk>/favorite/',   PostFavoriteView.as_view(),      name='post_favorite'),
 
     path('tags/',                      TagListView.as_view(),           name='tag_list'),
+
+    # ── Notifications (уведомления о сообщениях в чатах и группах) ─────────────
+    path('notifications/',                  NotificationListView.as_view(),        name='notification_list'),
+    path('notifications/unread-count/',     NotificationUnreadCountView.as_view(), name='notification_unread_count'),
+    path('notifications/read/',             NotificationReadView.as_view(),        name='notification_read'),
+    path('notifications/<int:pk>/',         NotificationDetailView.as_view(),      name='notification_detail'),
 
     # ── Surveys (опросники) ───────────────────────────────────────────────────
     path('businesses/<int:pk>/surveys/', BusinessSurveyAnswersView.as_view(), name='business_survey_answers'),
