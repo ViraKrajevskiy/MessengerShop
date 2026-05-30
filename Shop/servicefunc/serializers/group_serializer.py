@@ -35,12 +35,13 @@ class GroupChatListSerializer(serializers.ModelSerializer):
     member_count = serializers.SerializerMethodField()
     last_message = serializers.SerializerMethodField()
     my_role      = serializers.SerializerMethodField()
+    is_member    = serializers.SerializerMethodField()
 
     class Meta:
         model  = GroupChat
         fields = [
             'id', 'name', 'description', 'photo_url',
-            'member_count', 'last_message', 'my_role',
+            'member_count', 'last_message', 'my_role', 'is_member',
             'created_at', 'updated_at',
         ]
 
@@ -48,6 +49,14 @@ class GroupChatListSerializer(serializers.ModelSerializer):
         if hasattr(obj, '_member_count'):
             return obj._member_count
         return obj.members.count()
+
+    def get_is_member(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            if hasattr(obj, '_prefetched_objects_cache') and 'members' in obj._prefetched_objects_cache:
+                return any(m.user_id == request.user.id for m in obj.members.all())
+            return obj.members.filter(user=request.user).exists()
+        return False
 
     def get_last_message(self, obj):
         msg = obj.group_messages.filter(is_deleted=False).order_by('-created_at').first()
