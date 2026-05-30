@@ -35,7 +35,9 @@ export default function GroupPreviewPage() {
 
         const gData = await gRes.json()
         setGroup(gData)
-        setJoined(gData.is_member || false)
+        // is_member присутствует у обоих сериализаторов; my_role — запасной
+        // признак членства (есть роль → ты уже в группе)
+        setJoined(gData.is_member || !!gData.my_role)
 
         if (mRes.ok) {
           const mData = await mRes.json()
