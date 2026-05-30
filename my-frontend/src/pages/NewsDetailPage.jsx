@@ -3,16 +3,20 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Seo from '../components/Seo';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 import { API_URL } from '../config/api';
 import { metaText } from '../utils/seo';
+import { newsFavorites } from '../utils/mediaFavorites';
 import './NewsDetailPage.css';
 
 export default function NewsDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const { user, getAccessToken } = useAuth();
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [fav, setFav] = useState(false);
 
   useEffect(() => {
     const fetchNews = async () => {
@@ -21,6 +25,7 @@ export default function NewsDetailPage() {
         if (!res.ok) throw new Error('Error');
         const data = await res.json();
         setItem(data);
+        setFav(data.is_favorited || newsFavorites.isFavorite(data.id));
       } catch {
       } finally {
         setLoading(false);
@@ -29,6 +34,18 @@ export default function NewsDetailPage() {
     void fetchNews();
     window.scrollTo(0, 0);
   }, [id]);
+
+  useEffect(() => newsFavorites.onChange(ids => {
+    if (item) setFav(ids.includes(item.id));
+  }), [item]);
+
+  const toggleFav = async () => {
+    if (!user) { navigate('/login'); return; }
+    if (!item) return;
+    setFav(prev => !prev);
+    const token = await getAccessToken();
+    await newsFavorites.toggle(item.id, token);
+  };
 
   if (loading) return <div className="news-loading">{t('loading')}</div>;
   if (!item) return (
@@ -126,6 +143,16 @@ export default function NewsDetailPage() {
                 </svg>
                 {item.views_count || 0} {t('views')}
               </div>
+              <button
+                className={`news-fav-btn ${fav ? 'news-fav-btn--active' : ''}`}
+                onClick={toggleFav}
+                title={fav ? 'Убрать из избранного' : 'В избранное'}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill={fav ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+                  <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
+                </svg>
+                {fav ? 'В избранном' : 'В избранное'}
+              </button>
             </div>
           </footer>
         </article>

@@ -637,6 +637,21 @@ class PostFavorite(models.Model):
         return f'{self.user.email} → {self.post.id}'
 
 
+class NewsFavorite(models.Model):
+    user       = models.ForeignKey(User, on_delete=models.CASCADE, related_name='favorite_news')
+    news       = models.ForeignKey(News, on_delete=models.CASCADE, related_name='favorites')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'news')
+        ordering = ['-created_at']
+        verbose_name = 'News Favorite'
+        verbose_name_plural = 'News Favorites'
+
+    def __str__(self):
+        return f'{self.user.email} → news#{self.news_id}'
+
+
 class ComplaintReason(BaseController):
     """Причины жалобы — редактируются из Django-админки."""
     label     = models.CharField(max_length=120)

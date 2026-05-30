@@ -2,8 +2,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from django.db.models import Count, Exists, OuterRef
 
-from Shop.models.models import News
+from Shop.models.models import News, NewsFavorite
 from Shop.servicefunc.serializers.news_serializer import NewsCreateUpdateSerializer, NewsSerializer
 
 
@@ -112,3 +113,43 @@ class BusinessNewsListView(APIView):
             business_id=pk, is_published=True
         ).select_related('business', 'author').prefetch_related('tags')
         return Response(NewsSerializer(qs, many=True, context={'request': request}).data)
+
+
+class NewsFavoriteView(APIView):
+    """POST /api/news/<pk>/favorite/ — добавить/убрать новость из избранного."""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        try:
+            news = News.objects.get(pk=pk)
+        except News.DoesNotExist:
+            return Response({'detail': 'Новость не найдена'}, status=status.HTTP_404_NOT_FOUND)
+
+        fav, created = NewsFavorite.objects.get_or_create(user=request.user, news=news)
+        if not created:
+            fav.delete()
+            return Response({'favorited': False, 'favorites_count': news.favorites.count()})
+        return Response(
+            {'favorited': True, 'favorites_count': news.favorites.count()},
+            status=status.HTTP_201_CREATED,
+        )
+
+
+class NewsFavoritesListView(APIView):
+    """GET /api/news/favorites/ — список избранных новостей текущего пользователя."""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        qs = News.objects.filter(
+            favorites__user=request.user, is_published=True
+        ).select_related('business', 'author').prefetch_related('tags').annotate(
+            _favorites_count=Count('favorites', distinct=True),
+            _is_favorited=Exists(
+                NewsFavorite.objects.filter(news=OuterRef('pk'), user=request.user)
+            ),
+        ).order_by('-favorites__created_at')
+        ids = list(qs.values_list('id', flat=True))
+        return Response({
+            'ids': ids,
+            'news': NewsSerializer(qs, many=True, context={'request': request}).data,
+        })
