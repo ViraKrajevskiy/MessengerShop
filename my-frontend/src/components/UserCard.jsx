@@ -6,6 +6,7 @@ import { useLanguage } from '../context/LanguageContext'
 import { useAuthGate } from './AuthGate'
 import { resolveUrl } from '../utils/urlUtils'
 import { makeCardPlaceholder } from '../utils/defaults'
+import { isFavorite, toggleFavorite, onFavoritesChange } from '../utils/favorites'
 import './UserCard.css'
 
 function fmtDate(dt) {
@@ -15,32 +16,26 @@ function fmtDate(dt) {
 
 export default function UserCard({ id, name = 'Имя', city = 'Город', badge = null, type = 'card', logo = null, cover = null, cardMedia = null, planType = 'FREE', isOnline = false, isVerified = false, verifiedAt = null }) {
   const { addViewed } = useViewed()
-  const { user } = useAuth()
+  const { user, getAccessToken } = useAuth()
   const { t } = useLanguage()
   const navigate = useNavigate()
   const { guard, AuthModal } = useAuthGate()
 
-  const FAVS_KEY = 'biz_favorites'
-  const [fav, setFav] = useState(false)
+  const [fav, setFav] = useState(() => isFavorite(id))
 
   useEffect(() => {
     if (!user) { setFav(false); return }
-    const stored = JSON.parse(localStorage.getItem(FAVS_KEY) || '[]')
-    setFav(stored.includes(id))
+    setFav(isFavorite(id))
+    // Keep in sync when favourites change elsewhere (other cards, sidebar, other tab, server sync)
+    return onFavoritesChange(ids => setFav(ids.includes(id)))
   }, [user, id])
 
   const toggleFav = (e) => {
     e.stopPropagation()
-    guard(() => {
-      const stored = JSON.parse(localStorage.getItem(FAVS_KEY) || '[]')
-      let next
-      if (stored.includes(id)) {
-        next = stored.filter(x => x !== id)
-      } else {
-        next = [...stored, id]
-      }
-      localStorage.setItem(FAVS_KEY, JSON.stringify(next))
-      setFav(next.includes(id))
+    guard(async () => {
+      const token = await getAccessToken()
+      const next = await toggleFavorite(id, token)
+      setFav(next)
     })
   }
 

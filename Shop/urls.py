@@ -38,6 +38,7 @@ from Shop.servicefunc.views.business.business import (
     BusinessListView, BusinessCreateView, BusinessDetailView, MyBusinessView,
 )
 from Shop.servicefunc.views.business.subscribe import BusinessSubscribeView
+from Shop.servicefunc.views.business.favorites import BusinessFavoriteView, BusinessFavoritesListView
 from Shop.servicefunc.views.product.product import (
     AllProductsListView, BusinessProductListView, ProductDetailView, ProductLikeView,
     ProductSearchView, BusinessStatsView,
@@ -93,9 +94,11 @@ urlpatterns = [
     path('businesses/',                  BusinessListView.as_view(),          name='business_list'),
     path('businesses/create/',           BusinessCreateView.as_view(),        name='business_create'),
     path('businesses/me/',               MyBusinessView.as_view(),            name='business_me'),
+    path('businesses/favorites/',        BusinessFavoritesListView.as_view(), name='business_favorites'),
     path('businesses/<int:pk>/',         BusinessDetailView.as_view(),        name='business_detail'),
 
     path('businesses/<int:pk>/subscribe/', BusinessSubscribeView.as_view(),       name='business_subscribe'),
+    path('businesses/<int:pk>/favorite/',  BusinessFavoriteView.as_view(),        name='business_favorite'),
     path('businesses/<int:pk>/products/', BusinessProductListView.as_view(),      name='business_products'),
     path('businesses/<int:pk>/reviews/',  BusinessReviewListCreateView.as_view(), name='business_reviews'),
     path('businesses/<int:pk>/posts/',    BusinessPostListView.as_view(),         name='business_posts'),

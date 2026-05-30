@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react'
 import { apiLogin, apiRegister, apiVerifyEmail, apiLogout, apiMe, apiRefreshToken, apiGoOffline } from '../api/authApi'
+import { syncFavoritesFromServer, clearLocalFavorites } from '../utils/favorites'
 
 const AuthContext = createContext(null)
 
@@ -28,6 +29,11 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     tokensRef.current = tokens
   }, [tokens])
+
+  // Pull favourites from the server once logged in, so they appear across devices
+  useEffect(() => {
+    if (user && tokens?.access) syncFavoritesFromServer(tokens.access)
+  }, [user, tokens?.access])
 
   // ── Мгновенный офлайн при уходе со страницы ───────────────────────────────
   useEffect(() => {
@@ -117,6 +123,7 @@ export function AuthProvider({ children }) {
     try {
       if (tokens?.refresh) await apiLogout(tokens.refresh, tokens.access)
     } catch { /* игнорируем ошибку логаута */ }
+    clearLocalFavorites()
     setUser(null)
     setTokens(null)
   }, [tokens])

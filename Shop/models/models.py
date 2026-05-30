@@ -475,6 +475,21 @@ class BusinessSubscription(models.Model):
         return f'{self.user.email} → {self.business.brand_name}'
 
 
+class BusinessFavorite(models.Model):
+    user       = models.ForeignKey(User, on_delete=models.CASCADE, related_name='favorite_businesses')
+    business   = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='favorited_by')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'business')
+        ordering = ['-created_at']
+        verbose_name = 'Business Favorite'
+        verbose_name_plural = 'Business Favorites'
+
+    def __str__(self):
+        return f'{self.user.email} ♥ {self.business.brand_name}'
+
+
 class GroupChat(BaseController):
     name        = models.CharField(max_length=200)
     description = models.CharField(max_length=500, blank=True)

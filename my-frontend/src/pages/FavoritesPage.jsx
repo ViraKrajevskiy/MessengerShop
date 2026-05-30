@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
 import Seo from '../components/Seo'
@@ -7,9 +7,8 @@ import '../components/UserCard.css'
 import { useAuth } from '../context/AuthContext'
 import { useLanguage } from '../context/LanguageContext'
 import { apiGetBusinesses } from '../api/businessApi'
+import { fetchFavoriteBusinesses, getLocalFavorites, onFavoritesChange } from '../utils/favorites'
 import './FavoritesPage.css'
-
-const FAVS_KEY = 'biz_favorites'
 
 function bizToCard(b) {
   return {
@@ -28,38 +27,42 @@ function bizToCard(b) {
 
 export default function FavoritesPage() {
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { user, getAccessToken } = useAuth()
   const { t } = useLanguage()
 
-  const [allBiz, setAllBiz] = useState([])
+  const [favBiz, setFavBiz] = useState([])
   const [loading, setLoading] = useState(true)
-  const [favIds, setFavIds] = useState(() => JSON.parse(localStorage.getItem(FAVS_KEY) || '[]'))
+  const [favIds, setFavIds] = useState(() => getLocalFavorites())
 
   useEffect(() => {
+    if (!user) { setLoading(false); return }
+    let cancelled = false
     setLoading(true)
-    apiGetBusinesses()
-      .then(biz => setAllBiz(Array.isArray(biz) ? biz : []))
-      .catch(() => setAllBiz([]))
-      .finally(() => setLoading(false))
-  }, [])
+    getAccessToken()
+      .then(token => fetchFavoriteBusinesses(token))
+      .then(data => {
+        if (cancelled) return
+        setFavBiz(data.businesses || [])
+        setFavIds(data.ids || [])
+      })
+      .catch(async () => {
+        // Backend unavailable — fall back to local ids over the public business list
+        try {
+          const all = await apiGetBusinesses()
+          const ids = getLocalFavorites()
+          if (!cancelled) { setFavBiz((Array.isArray(all) ? all : []).filter(b => ids.includes(b.id))); setFavIds(ids) }
+        } catch { if (!cancelled) setFavBiz([]) }
+      })
+      .finally(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
+  }, [user, getAccessToken])
 
-  // Keep favourites in sync when the user toggles a heart on this page or in another tab
-  const refreshFavs = useCallback(() => {
-    setFavIds(JSON.parse(localStorage.getItem(FAVS_KEY) || '[]'))
-  }, [])
-
-  useEffect(() => {
-    window.addEventListener('storage', refreshFavs)
-    window.addEventListener('focus', refreshFavs)
-    return () => {
-      window.removeEventListener('storage', refreshFavs)
-      window.removeEventListener('focus', refreshFavs)
-    }
-  }, [refreshFavs])
+  // Reflect un-favouriting a card on this page (or in another tab) instantly
+  useEffect(() => onFavoritesChange(setFavIds), [])
 
   const favBusinesses = useMemo(
-    () => allBiz.filter(b => favIds.includes(b.id)).map(bizToCard),
-    [allBiz, favIds]
+    () => favBiz.filter(b => favIds.includes(b.id)).map(bizToCard),
+    [favBiz, favIds]
   )
 
   return (

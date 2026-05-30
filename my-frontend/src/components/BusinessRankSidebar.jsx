@@ -4,13 +4,12 @@ import { makeInitialAvatar } from '../utils/defaults'
 import { resolveUrl } from '../utils/urlUtils'
 import { useAuth } from '../context/AuthContext'
 import { useAuthGate } from './AuthGate'
+import { getLocalFavorites, toggleFavorite, onFavoritesChange } from '../utils/favorites'
 import './BusinessRankSidebar.css'
-
-const FAVS_KEY = 'biz_favorites'
 
 export default function BusinessRankSidebar({ title, businesses = [], limit = 5 }) {
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { user, getAccessToken } = useAuth()
   const { guard, AuthModal } = useAuthGate()
   const list = businesses.slice(0, limit)
 
@@ -18,18 +17,15 @@ export default function BusinessRankSidebar({ title, businesses = [], limit = 5 
 
   useEffect(() => {
     if (!user) { setFavs([]); return }
-    setFavs(JSON.parse(localStorage.getItem(FAVS_KEY) || '[]'))
+    setFavs(getLocalFavorites())
+    return onFavoritesChange(setFavs)
   }, [user])
 
   const toggleFav = (e, id) => {
     e.stopPropagation()
-    guard(() => {
-      const stored = JSON.parse(localStorage.getItem(FAVS_KEY) || '[]')
-      const next = stored.includes(id)
-        ? stored.filter(x => x !== id)
-        : [...stored, id]
-      localStorage.setItem(FAVS_KEY, JSON.stringify(next))
-      setFavs(next)
+    guard(async () => {
+      const token = await getAccessToken()
+      await toggleFavorite(id, token)
     })
   }
 
