@@ -57,7 +57,10 @@ from Shop.servicefunc.views.groups import (
     GroupMessagesView, GroupMessageActionView,
     GroupJoinView,
 )
-from Shop.servicefunc.views.news.newses import BusinessNewsListView, NewsListView, NewsCreateView, NewsDetailView
+from Shop.servicefunc.views.news.newses import (
+    BusinessNewsListView, NewsListView, NewsCreateView, NewsDetailView,
+    NewsFavoriteView, NewsFavoritesListView,
+)
 from Shop.servicefunc.views.tags import TagListView
 from Shop.servicefunc.views.moderator.feed import ModeratorFeedView
 from Shop.servicefunc.views.chat_views.chat import ChatAPIView,ChatHistoryAPIView
@@ -149,9 +152,11 @@ urlpatterns = [
     path('groups/<int:pk>/messages/<int:msg_pk>/',     GroupMessageActionView.as_view(), name='group_message_action'),
     path('groups/<int:pk>/join/',                      GroupJoinView.as_view(),          name='group_join'),
 
-    path('news/',             NewsListView.as_view(),   name='news_list'),
-    path('news/create/',      NewsCreateView.as_view(), name='news_create'),
-    path('news/<int:pk>/',    NewsDetailView.as_view(), name='news_detail'),
+    path('news/',                  NewsListView.as_view(),          name='news_list'),
+    path('news/create/',           NewsCreateView.as_view(),        name='news_create'),
+    path('news/favorites/',        NewsFavoritesListView.as_view(), name='news_favorites'),
+    path('news/<int:pk>/',         NewsDetailView.as_view(),        name='news_detail'),
+    path('news/<int:pk>/favorite/', NewsFavoriteView.as_view(),     name='news_favorite'),
 
     path('posts/favorites/',           PostFavoritesListView.as_view(), name='post_favorites'),
     path('posts/<int:pk>/favorite/',   PostFavoriteView.as_view(),      name='post_favorite'),

@@ -7,6 +7,8 @@ class NewsSerializer(serializers.ModelSerializer):
     business_id    = serializers.IntegerField(source='business.id', read_only=True)
     media_display  = serializers.SerializerMethodField()
     tags           = serializers.SerializerMethodField()
+    is_favorited    = serializers.SerializerMethodField()
+    favorites_count = serializers.SerializerMethodField()
 
     class Meta:
         model = News
@@ -15,8 +17,22 @@ class NewsSerializer(serializers.ModelSerializer):
             'author_name', 'title', 'text',
             'media_display', 'media_type',
             'tags', 'views_count', 'is_published',
+            'is_favorited', 'favorites_count',
             'created_at', 'updated_at',
         ]
+
+    def get_is_favorited(self, obj):
+        if hasattr(obj, '_is_favorited'):
+            return obj._is_favorited
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.favorites.filter(user=request.user).exists()
+        return False
+
+    def get_favorites_count(self, obj):
+        if hasattr(obj, '_favorites_count'):
+            return obj._favorites_count
+        return obj.favorites.count()
 
     def get_media_display(self, obj):
         if obj.media_url:

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useLanguage } from '../context/LanguageContext'
 import { apiToggleSubscription } from '../api/businessApi'
+import { postFavorites } from '../utils/mediaFavorites'
 import { makeInitialAvatar } from '../utils/defaults'
 import VideoModal from './VideoModal'
 import PostModal from './PostModal'
@@ -104,13 +105,12 @@ export default function PostCard({ post, onDelete }) {
   })
   const cardRef = useRef(null)
 
-  const FAVS_KEY = 'post_favorites'
-
   useEffect(() => {
     if (!user) { setFav(false); return }
-    const stored = JSON.parse(localStorage.getItem(FAVS_KEY) || '[]')
-    setFav(stored.includes(post.id))
-  }, [user, post.id])
+    // Backend (post.is_favorited) и локальный стор — любой источник истины
+    setFav(post.is_favorited || postFavorites.isFavorite(post.id))
+    return postFavorites.onChange(ids => setFav(ids.includes(post.id)))
+  }, [user, post.id, post.is_favorited])
 
   // Extract video poster lazily — only when card is near viewport AND only once per URL.
   useEffect(() => {
@@ -147,18 +147,13 @@ export default function PostCard({ post, onDelete }) {
     return () => { cancelled = true; io.disconnect() }
   }, [post.media_type, post.media_display])
 
-  const toggleFav = (e) => {
+  const toggleFav = async (e) => {
     e.stopPropagation()
     if (!user) { navigate('/login'); return }
-    const stored = JSON.parse(localStorage.getItem(FAVS_KEY) || '[]')
-    let next
-    if (stored.includes(post.id)) {
-      next = stored.filter(x => x !== post.id)
-    } else {
-      next = [...stored, post.id]
-    }
-    localStorage.setItem(FAVS_KEY, JSON.stringify(next))
-    setFav(next.includes(post.id))
+    // Мгновенно обновляем UI, синк с бэкендом — внутри стора
+    setFav(prev => !prev)
+    const token = await getAccessToken()
+    await postFavorites.toggle(post.id, token)
   }
 
   const logo = post.business_logo

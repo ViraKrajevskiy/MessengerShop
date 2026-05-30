@@ -154,3 +154,24 @@
   .news-main-title { font-size: 20px; }
   .news-article { padding: 14px; }
 }
+/* ── Favourite button ── */
+.news-fav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.news-fav-btn:hover { border-color: var(--accent-1); color: var(--accent-1); }
+.news-fav-btn--active {
+  background: var(--accent-1);
+  border-color: var(--accent-1);
+  color: #fff;
+}
