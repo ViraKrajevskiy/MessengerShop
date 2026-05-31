@@ -7,6 +7,7 @@ import PostCard from '../components/PostCard'
 import { useAuth } from '../context/AuthContext'
 import { useLanguage } from '../context/LanguageContext'
 import { apiGetPosts, apiGetBusinesses, apiGetNews, CATEGORY_LABELS } from '../api/businessApi'
+import { postFavorites } from '../utils/mediaFavorites'
 import { makeInitialAvatar } from '../utils/defaults'
 import { timeAgo } from '../utils/timeUtils'
 import { resolveUrl } from '../utils/urlUtils'
@@ -27,6 +28,24 @@ function TagPills({ tags, onTagClick }) {
 // ── Tweet card (compact post) ────────────────────────────────────────────────
 function TweetCard({ post, onTagClick }) {
   const navigate = useNavigate()
+  const { user, getAccessToken } = useAuth()
+  const { t } = useLanguage()
+  const [fav, setFav] = useState(false)
+
+  useEffect(() => {
+    if (!user) { setFav(false); return }
+    setFav(post.is_favorited || postFavorites.isFavorite(post.id))
+    return postFavorites.onChange(ids => setFav(ids.includes(post.id)))
+  }, [user, post.id, post.is_favorited])
+
+  const toggleFav = async (e) => {
+    e.stopPropagation()
+    if (!user) { navigate('/login'); return }
+    setFav(prev => !prev)
+    const token = await getAccessToken()
+    await postFavorites.toggle(post.id, token)
+  }
+
   const logo = post.business_logo
     ? resolveUrl(post.business_logo)
     : makeInitialAvatar(post.business_name)
@@ -48,6 +67,18 @@ function TweetCard({ post, onTagClick }) {
         </div>
         <p className="feed-tweet__text">{post.text}</p>
         <TagPills tags={post.tags} onTagClick={onTagClick} />
+        <div className="feed-tweet__footer">
+          <button
+            className={`feed-tweet__fav ${fav ? 'feed-tweet__fav--active' : ''}`}
+            onClick={toggleFav}
+            title={fav ? t('post_removeFav') : t('post_addFav')}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill={fav ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+              <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+            </svg>
+            <span>{fav ? t('post_removeFav') : t('post_addFav')}</span>
+          </button>
+        </div>
       </div>
     </div>
   )
