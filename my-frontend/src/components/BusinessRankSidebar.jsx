@@ -23,10 +23,9 @@ export default function BusinessRankSidebar({ title, businesses = [], limit = 5 
 
   const toggleFav = (e, id) => {
     e.stopPropagation()
-    guard(async () => {
-      const token = await getAccessToken()
-      await toggleFavorite(id, token)
-    })
+    // Передаём getAccessToken как геттер — локальный тогл срабатывает мгновенно,
+    // а запрос токена/сети уходит в фон (без задержки сердечка).
+    guard(() => { toggleFavorite(id, getAccessToken) })
   }
 
   return (

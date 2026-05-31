@@ -34,10 +34,8 @@ export default function TweetsSidebar({ posts: postsProp, title = 'Твиты' }
 
   const toggleFav = (e, id) => {
     e.stopPropagation()
-    guard(async () => {
-      const token = await getAccessToken()
-      await postFavorites.toggle(id, token)
-    })
+    // Геттер вместо awaited-токена — сердечко переключается мгновенно, синк в фоне.
+    guard(() => { postFavorites.toggle(id, getAccessToken) })
   }
 
   const list = posts.slice(0, PREVIEW_SIZE)

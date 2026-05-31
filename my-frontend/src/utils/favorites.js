@@ -32,11 +32,18 @@ export function onFavoritesChange(handler) {
   }
 }
 
-/** Toggle locally (instant) and best-effort sync to the backend if a token is given. Returns the new state. */
-export async function toggleFavorite(id, token) {
+/**
+ * Toggle locally (instant) and best-effort sync to the backend.
+ * `tokenOrGetter` may be a token string OR an async function returning one —
+ * passing the getter keeps the local toggle synchronous (instant UI) and defers
+ * the (possibly slow) token lookup until after the optimistic update.
+ * Returns the new state.
+ */
+export async function toggleFavorite(id, tokenOrGetter) {
   const cur = getLocalFavorites()
   const next = cur.includes(id) ? cur.filter(x => x !== id) : [...cur, id]
-  setLocalFavorites(next)
+  setLocalFavorites(next)   // мгновенно — UI обновляется в этом же тике
+  const token = typeof tokenOrGetter === 'function' ? await tokenOrGetter() : tokenOrGetter
   if (token) {
     try {
       await fetch(`${BASE}/businesses/${id}/favorite/`, {
