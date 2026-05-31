@@ -20,9 +20,12 @@ const FALLBACK_AVATAR = DEFAULT_AVATAR
 const ROLE_LABELS = { OWNER: 'Владелец', ADMIN: 'Админ', MODERATOR: 'Модератор', MEMBER: 'Участник' }
 
 /* ─── Inquiry contact item (existing) ─── */
-function ContactItem({ inquiry, isActive, onClick, isBusiness }) {
+function ContactItem({ inquiry, isActive, onClick, isBusiness, currentUserId }) {
   const avatar = inquiry.logo || FALLBACK_AVATAR
   const name   = inquiry.other_name || (isBusiness ? inquiry.sender_name : inquiry.biz_name)
+  // Непрочитанным чат считается только для получателя последнего сообщения,
+  // а не для того, кто сам его отправил.
+  const showUnread = !inquiry.is_read && inquiry.last_sender_id !== currentUserId
   return (
     <div className={`msg-contact ${isActive ? 'msg-contact--active' : ''}`} onClick={onClick}>
       <div className="msg-contact__avatar-wrap">
@@ -36,7 +39,7 @@ function ContactItem({ inquiry, isActive, onClick, isBusiness }) {
         </div>
         <div className="msg-contact__bottom">
           <span className="msg-contact__preview" title={inquiry.message}>{inquiry.message}</span>
-          {!inquiry.is_read && <span className="msg-contact__unread">1</span>}
+          {showUnread && <span className="msg-contact__unread">1</span>}
         </div>
       </div>
     </div>
@@ -1036,10 +1039,10 @@ export default function MessengerPage() {
 
         if (locationState?.openInquiryId) {
           const idx = loadedInqs.findIndex(i => i.id === locationState.openInquiryId)
-          if (idx !== -1) setActiveIdx(idx)
+          if (idx !== -1) { setActiveIdx(idx); markInquiryRead(loadedInqs[idx].id) }
         } else if (locationState?.openBizId) {
           const idx = loadedInqs.findIndex(i => i.biz_id === locationState.openBizId)
-          if (idx !== -1) setActiveIdx(idx)
+          if (idx !== -1) { setActiveIdx(idx); markInquiryRead(loadedInqs[idx].id) }
         }
         if (locationState?.openGroup) {
           setTab('groups')
@@ -1064,7 +1067,7 @@ export default function MessengerPage() {
   const filteredGroups = groups.filter(g => g.name.toLowerCase().includes(search.toLowerCase()))
 
   const activeInquiry = tab === 'chats' && activeIdx !== null ? filteredInquiries[activeIdx] : null
-  const unreadCount   = inquiries.filter(i => !i.is_read).length
+  const unreadCount   = inquiries.filter(i => !i.is_read && i.last_sender_id !== user?.id).length
   const anyActive = activeInquiry || activeGroup || activeSupportChat
 
   const handleCreateGroup = async (data) => {
@@ -1078,7 +1081,17 @@ export default function MessengerPage() {
     } catch {}
   }
 
-  const selectInquiry = (i) => { setActiveIdx(i); setActiveGroup(null); setActiveSupportChat(false) }
+  // Локально помечаем чат прочитанным, чтобы индикатор непрочитанных сразу
+  // исчезал (бэкенд тоже помечает is_read=True при загрузке сообщений владельцем).
+  const markInquiryRead = (id) => {
+    setInquiries(prev => prev.map(x => x.id === id ? { ...x, is_read: true } : x))
+  }
+
+  const selectInquiry = (i) => {
+    setActiveIdx(i); setActiveGroup(null); setActiveSupportChat(false)
+    const inq = filteredInquiries[i]
+    if (inq && !inq.is_read) markInquiryRead(inq.id)
+  }
   const selectGroup   = (g) => { setActiveGroup(g); setActiveIdx(null); setActiveSupportChat(false) }
   const selectSupport = () => { setActiveSupportChat(true); setActiveIdx(null); setActiveGroup(null) }
   const clearActive    = () => { setActiveIdx(null); setActiveGroup(null); setActiveSupportChat(false) }
@@ -1158,7 +1171,7 @@ export default function MessengerPage() {
               <div className="messenger__no-chats" style={{padding:'32px 20px'}}><p style={{color:'var(--text-muted)'}}>Загрузка...</p></div>
             ) : tab === 'chats' ? (
               filteredInquiries.length > 0 ? filteredInquiries.map((inq, i) => (
-                <ContactItem key={inq.id} inquiry={inq} isBusiness={isBusiness} isActive={activeIdx === i} onClick={() => selectInquiry(i)} />
+                <ContactItem key={inq.id} inquiry={inq} isBusiness={isBusiness} isActive={activeIdx === i} onClick={() => selectInquiry(i)} currentUserId={user?.id} />
               )) : (
                 <div className="messenger__no-chats">
                   <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{opacity:0.3,marginBottom:12}}>
