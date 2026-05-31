@@ -1,89 +1,101 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useAuthGate } from './AuthGate'
 import { apiGetPosts } from '../api/businessApi'
+import { postFavorites } from '../utils/mediaFavorites'
 import { resolveUrl } from '../utils/urlUtils'
 import { makeInitialAvatar } from '../utils/defaults'
-import './TweetsSidebar.css'
+// Дизайн точ-в-точ как у блоков «Бизнесы …» (BusinessRankSidebar)
+import './BusinessRankSidebar.css'
 
 const PREVIEW_SIZE = 5
 
-export default function TweetsSidebar({ posts: postsProp }) {
-  const [posts, setPosts] = useState(postsProp || [])
+export default function TweetsSidebar({ posts: postsProp, title = 'Твиты' }) {
   const navigate = useNavigate()
-  const { tokens } = useAuth()
+  const { user, getAccessToken, tokens } = useAuth()
+  const { guard, AuthModal } = useAuthGate()
+
+  const [posts, setPosts] = useState(postsProp || [])
+  const [favIds, setFavIds] = useState([])
 
   useEffect(() => {
-    if (Array.isArray(postsProp)) {
-      setPosts(postsProp)
-      return
-    }
+    if (Array.isArray(postsProp)) { setPosts(postsProp); return }
     apiGetPosts(tokens?.access)
       .then(data => setPosts(Array.isArray(data) ? data : []))
       .catch(() => setPosts([]))
   }, [postsProp, tokens?.access])
 
-  const visible = posts.slice(0, PREVIEW_SIZE)
-  const hasMore = posts.length > PREVIEW_SIZE
+  useEffect(() => {
+    if (!user) { setFavIds([]); return }
+    setFavIds(postFavorites.getIds())
+    return postFavorites.onChange(setFavIds)
+  }, [user])
+
+  const toggleFav = (e, id) => {
+    e.stopPropagation()
+    guard(async () => {
+      const token = await getAccessToken()
+      await postFavorites.toggle(id, token)
+    })
+  }
+
+  const list = posts.slice(0, PREVIEW_SIZE)
 
   return (
-    <div className="tweets-sidebar-wrap">
-      <aside className="tweets-sidebar">
-        <div className="tweets-sidebar__header">
-          <span>ТВИТЫ</span>
-        </div>
-
-        <div className="tweets-sidebar__list">
-          {visible.length === 0 ? (
-            Array.from({ length: PREVIEW_SIZE }).map((_, i) => (
-              <div key={i} className="tweet-item tweet-item--skeleton">
-                <div className="tweet-item__avatar-skeleton" />
-                <div className="tweet-item__body">
-                  <div className="sk-line" style={{ width: '90%', height: 11 }} />
-                  <div className="sk-line" style={{ width: '60%', height: 11, marginTop: 5 }} />
-                  <div className="sk-line" style={{ width: '40%', height: 10, marginTop: 6 }} />
-                </div>
+    <aside className="brs">
+      <h3 className="brs__title">{title}</h3>
+      <div className="brs__list">
+        {list.length === 0 ? (
+          Array.from({ length: PREVIEW_SIZE }).map((_, i) => (
+            <div key={i} className="brs__item brs__item--skeleton">
+              <div className="brs__avatar brs__avatar--skeleton" />
+              <div className="brs__body">
+                <div className="brs__sk-line" style={{ width: '70%' }} />
+                <div className="brs__sk-line" style={{ width: '40%', marginTop: 5 }} />
               </div>
-            ))
-          ) : (
-            visible.map(post => (
+            </div>
+          ))
+        ) : (
+          list.map(post => {
+            const logo = post.business_logo
+              ? resolveUrl(post.business_logo)
+              : makeInitialAvatar(post.business_name)
+            const isFav = favIds.includes(post.id)
+            return (
               <div
                 key={post.id}
-                className="tweet-item"
+                className="brs__item"
                 onClick={() => navigate(`/business/${post.business_id}`)}
               >
                 <img
-                  className="tweet-item__avatar"
-                  src={post.business_logo ? resolveUrl(post.business_logo) : makeInitialAvatar(post.business_name)}
+                  className="brs__avatar"
+                  src={logo}
                   alt={post.business_name}
-                  width="38"
-                  height="38"
                   loading="lazy"
-                  onError={(e) => { e.currentTarget.src = makeInitialAvatar(post.business_name) }}
+                  onError={e => { e.target.onerror = null; e.target.src = makeInitialAvatar(post.business_name) }}
                 />
-                <div className="tweet-item__body">
-                  <span className="tweet-item__city">{post.business_name}</span>
-                  <p className="tweet-item__text">
-                    {post.text?.length > 60 ? post.text.slice(0, 60) + '...' : post.text}
-                  </p>
+                <div className="brs__body">
+                  <span className="brs__name">{post.business_name}</span>
+                  {post.text && <span className="brs__city">{post.text}</span>}
+                </div>
+                <div className="brs__meta">
+                  <button
+                    className={`brs__heart${isFav ? ' brs__heart--active' : ''}`}
+                    onClick={(e) => toggleFav(e, post.id)}
+                    aria-label="favorite"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill={isFav ? '#9b6dff' : 'none'} stroke="#9b6dff" strokeWidth="2">
+                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                  </button>
                 </div>
               </div>
-            ))
-          )}
-        </div>
-
-        {hasMore && (
-          <button
-            className="tweets-sidebar__show-all"
-            onClick={() => navigate('/feed')}
-          >
-            Все твиты ({posts.length})
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
-          </button>
+            )
+          })
         )}
-      </aside>
-    </div>
+      </div>
+      <AuthModal />
+    </aside>
   )
 }
