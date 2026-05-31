@@ -107,6 +107,9 @@
   color: var(--text-primary);
   margin: 0;
   letter-spacing: -0.3px;
+  /* Длинный ник без пробелов должен переноситься, а не наезжать на кнопку «Редактировать» */
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .mpp__role-badge {
