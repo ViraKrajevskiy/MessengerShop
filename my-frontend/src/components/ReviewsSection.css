@@ -258,6 +258,7 @@
 .rv-card__head {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 10px;
 }
 
@@ -270,17 +271,18 @@
 }
 
 .rv-card__author {
-  flex: 1;
+  flex: 1 1 90px;
   display: flex;
   flex-direction: column;
   gap: 1px;
-  min-width: 0;
+  /* min-width даёт имени гарантированную ширину; если звёзды не влезают — они переносятся на строку ниже */
+  min-width: 90px;
 }
 
 .rv-card__name {
   font-size: 14px;
   font-weight: 600;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 .rv-card__date {
@@ -361,7 +363,8 @@
   color: #fff;
 }
 
-@media (max-width: 500px) {
+@media (max-width: 600px) {
   .rv-summary { flex-direction: column; align-items: flex-start; gap: 16px; }
-  .rv-list--horizontal { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* На узких экранах — одна колонка, иначе карточка слишком узкая и имя/звёзды сминаются */
+  .rv-list--horizontal { grid-template-columns: 1fr; }
 }
