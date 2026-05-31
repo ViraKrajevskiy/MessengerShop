@@ -1017,6 +1017,7 @@ export default function BusinessDashboardPage() {
   const [lightbox, setLightbox] = useState(null)
 
   // Profile edit
+  const [editBrandName, setEditBrandName] = useState('')
   const [editDesc,    setEditDesc]    = useState('')
   const [editPhone,   setEditPhone]   = useState('')
   const [editWebsite, setEditWebsite] = useState('')
@@ -1087,6 +1088,7 @@ export default function BusinessDashboardPage() {
   // ── Populate profile form when bizData loads ───────────────────────────────
   useEffect(() => {
     if (!bizData) return
+    setEditBrandName(bizData.brand_name || '')
     setEditDesc(bizData.description || '')
     setEditPhone(bizData.phone || '')
     setEditWebsite(bizData.website || '')
@@ -1114,6 +1116,7 @@ export default function BusinessDashboardPage() {
 
       // ── Step 1: FormData PATCH — text fields + optional media ─────────────
       const fd = new FormData()
+      fd.append('brand_name', editBrandName.trim())
       fd.append('description', editDesc)
       fd.append('phone', editPhone)
       fd.append('website', editWebsite)
@@ -2222,6 +2225,19 @@ export default function BusinessDashboardPage() {
                           </button>
                         )}
                       </div>
+                    </div>
+
+                    {/* Brand name (shop name) */}
+                    <div className="biz-profile-edit__row">
+                      <label className="biz-profile-edit__label">Название магазина</label>
+                      <input
+                        className="biz-profile-edit__input"
+                        type="text"
+                        placeholder="Название вашего магазина"
+                        value={editBrandName}
+                        onChange={e => setEditBrandName(e.target.value)}
+                        maxLength={100}
+                      />
                     </div>
 
                     {/* Description */}

@@ -38,7 +38,7 @@ export default function MyProfilePage() {
   }
 
   const [editing, setEditing]             = useState(false)
-  const [form, setForm]                   = useState({ username: '', city: '' })
+  const [form, setForm]                   = useState({ username: '' })
   const [avatarFile, setAvatarFile]       = useState(null)
   const [avatarPreview, setAvatarPreview] = useState(null)
   const [saving, setSaving]               = useState(false)
@@ -47,7 +47,7 @@ export default function MyProfilePage() {
   const [verStatus, setVerStatus]         = useState(undefined)
 
   useEffect(() => {
-    if (user) setForm({ username: user.username || '', city: user.city || '' })
+    if (user) setForm({ username: user.username || '' })
   }, [user])
 
   useEffect(() => {
@@ -97,7 +97,6 @@ export default function MyProfilePage() {
       if (!token) throw new Error('Сессия истекла')
       const fd = new FormData()
       fd.append('username', form.username)
-      fd.append('city', form.city)
       if (avatarFile) fd.append('avatar', avatarFile)
       const updatedUser = await apiPatchMe(token, fd)
       if (updatedUser) setUser(updatedUser)
@@ -118,7 +117,7 @@ export default function MyProfilePage() {
     setAvatarFile(null)
     setAvatarPreview(null)
     setSaveError('')
-    setForm({ username: user.username || '', city: user.city || '' })
+    setForm({ username: user.username || '' })
   }
 
   const handleLogout = async () => {
@@ -170,12 +169,6 @@ export default function MyProfilePage() {
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                   {user.email}
                 </span>
-                {user.city && (
-                  <span>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                    {user.city}
-                  </span>
-                )}
                 <span>
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                   {joinDate}
@@ -245,14 +238,6 @@ export default function MyProfilePage() {
                   {user.email}
                   <span className="mpp__verified-badge">✓ {t('verif_status_approved')}</span>
                 </span>
-              </div>
-
-              <div className="mpp__field">
-                <label className="mpp__field-label">{t('myprofile_city')}</label>
-                {editing
-                  ? <input className="mpp__field-input" type="text" value={form.city} onChange={e => setForm(f => ({ ...f, city: e.target.value }))} placeholder={t('myprofile_city')} />
-                  : <span className="mpp__field-value">{user.city || <span style={{ color: 'var(--text-muted)' }}>—</span>}</span>
-                }
               </div>
 
               <div className="mpp__field">
