@@ -32,11 +32,9 @@ export default function UserCard({ id, name = 'Имя', city = 'Город', bad
 
   const toggleFav = (e) => {
     e.stopPropagation()
-    guard(async () => {
-      const token = await getAccessToken()
-      const next = await toggleFavorite(id, token)
-      setFav(next)
-    })
+    // Геттер вместо awaited-токена: локальный тогл + событие срабатывают мгновенно
+    // (подписка onFavoritesChange обновит `fav` в этом же тике), сеть — в фоне.
+    guard(() => { toggleFavorite(id, getAccessToken) })
   }
 
   const videoRef = useRef(null)

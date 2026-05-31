@@ -28,11 +28,16 @@ function createFavoriteStore({ storageKey, toggleUrl, fetchServerIds }) {
     }
   }
 
-  /** Toggle locally (instant) + best-effort backend sync. Returns new state. */
-  const toggle = async (id, token) => {
+  /**
+   * Toggle locally (instant) + best-effort backend sync. Returns new state.
+   * `tokenOrGetter` may be a token string OR an async getter — passing the getter
+   * keeps the local toggle synchronous (instant UI) and defers the token lookup.
+   */
+  const toggle = async (id, tokenOrGetter) => {
     const cur = getIds()
     const next = cur.includes(id) ? cur.filter(x => x !== id) : [...cur, id]
-    setIds(next)
+    setIds(next)   // мгновенно — UI обновляется в этом же тике
+    const token = typeof tokenOrGetter === 'function' ? await tokenOrGetter() : tokenOrGetter
     if (token) {
       try {
         await fetch(toggleUrl(id), {
