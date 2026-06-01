@@ -2599,18 +2599,20 @@ export default function BusinessDashboardPage() {
 
                   </div>
 
-                  {/* ── Unified save ── */}
+                  {/* ── Unified save (фиксированная панель снизу — всегда видна) ── */}
                   <div className="biz-save-all-bar">
-                    <button
-                      className="biz-save-all-btn"
-                      onClick={handleSaveAll}
-                      disabled={savingProfile}
-                    >
-                      {savingProfile
-                        ? <><span className="biz-form__spinner" /> Сохранение…</>
-                        : '💾 Сохранить все изменения'}
-                    </button>
-                    <span className="biz-svc-hint">Профиль, соцсети, группа, хэштеги, FAQ и услуги</span>
+                    <div className="biz-save-all-bar__inner">
+                      <button
+                        className="biz-save-all-btn"
+                        onClick={handleSaveAll}
+                        disabled={savingProfile}
+                      >
+                        {savingProfile
+                          ? <><span className="biz-form__spinner" /> Сохранение…</>
+                          : '💾 Сохранить все изменения'}
+                      </button>
+                      <span className="biz-svc-hint">Профиль, соцсети, группа, хэштеги, FAQ и услуги</span>
+                    </div>
                   </div>
 
                 </>
