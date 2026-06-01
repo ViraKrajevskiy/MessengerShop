@@ -676,8 +676,16 @@
   .header__bottom { display: none; }
   .header__user-btn { padding: 4px 8px 4px 4px; }
   .header__user-avatar { width: 28px; height: 28px; }
+  /* Меньший логотип + гарантированный отступ, чтобы он не прилипал к блоку
+     языка/иконок (на узких экранах контент не помещался и space-between
+     не оставлял зазора). */
+  .header__top { gap: 14px; }
+  .header__logo { font-size: 20px; letter-spacing: -0.3px; flex-shrink: 0; }
+  .header__top-right { gap: 8px; }
 }
 
 @media (max-width: 380px) {
   .header__btn--login { padding: 7px 14px; font-size: 12px; }
+  .header__logo { font-size: 17px; }
+  .header__top-right { gap: 6px; }
 }
