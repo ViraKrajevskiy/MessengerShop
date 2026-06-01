@@ -1209,16 +1209,39 @@ export default function BusinessDashboardPage() {
     }
   }
 
+  // Мгновенно сохраняет отдельное JSON-поле бизнеса (faq/tags/services) на сервере,
+  // чтобы добавление/удаление применялось сразу — без кнопки «Сохранить все».
+  // Намеренно НЕ трогаем bizData, чтобы не затереть несохранённые правки текстовых полей.
+  const persistBizField = async (patch, okMsg) => {
+    try {
+      const token = await getAccessToken()
+      if (!token) throw new Error('auth')
+      const res = await fetch(`${BASE}/businesses/me/`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify(patch),
+      })
+      if (!res.ok) throw new Error()
+      if (okMsg) showToast(okMsg)
+    } catch {
+      showToast('❌ Не удалось сохранить')
+    }
+  }
+
   // ── FAQ handlers ──────────────────────────────────────────────────────────
   const handleAddFaq = () => {
     if (!faqQuestion.trim() || !faqAnswer.trim()) return
-    setBizFaq(prev => [...prev, { question: faqQuestion.trim(), answer: faqAnswer.trim() }])
+    const next = [...bizFaq, { question: faqQuestion.trim(), answer: faqAnswer.trim() }]
+    setBizFaq(next)
     setFaqQuestion('')
     setFaqAnswer('')
+    persistBizField({ faq: next }, '✅ Вопрос добавлен')
   }
 
   const handleRemoveFaq = (idx) => {
-    setBizFaq(prev => prev.filter((_, i) => i !== idx))
+    const next = bizFaq.filter((_, i) => i !== idx)
+    setBizFaq(next)
+    persistBizField({ faq: next }, '🗑 Вопрос удалён')
   }
 
   // ── Hashtag handlers ──────────────────────────────────────────────────────
@@ -1249,12 +1272,18 @@ export default function BusinessDashboardPage() {
     const limit = TAG_LIMITS[bizData?.plan_type] ?? 5
     if (limit !== null && bizTags.length >= limit) return
     if (bizTags.includes(tag)) return
-    setBizTags(prev => [...prev, tag])
+    const next = [...bizTags, tag]
+    setBizTags(next)
     setTagInput('')
     setTagSuggests([])
+    persistBizField({ tags: next }, '✅ Хэштег добавлен')
   }
 
-  const handleRemoveTag = (tag) => setBizTags(prev => prev.filter(t => t !== tag))
+  const handleRemoveTag = (tag) => {
+    const next = bizTags.filter(t => t !== tag)
+    setBizTags(next)
+    persistBizField({ tags: next }, '🗑 Хэштег удалён')
+  }
 
   // ── Filtered + sorted lists ────────────────────────────────────────────────
   const filteredStories = useMemo(() => {
@@ -1561,12 +1590,16 @@ export default function BusinessDashboardPage() {
   // ── Services management ────────────────────────────────────────────────────
   const handleAddService = () => {
     if (!svcName.trim()) return
-    setBizServices(prev => [...prev, { name: svcName.trim(), price: svcPrice.trim(), currency: svcCurrency }])
+    const next = [...bizServices, { name: svcName.trim(), price: svcPrice.trim(), currency: svcCurrency }]
+    setBizServices(next)
     setSvcName(''); setSvcPrice('')
+    persistBizField({ services: next }, '✅ Услуга добавлена')
   }
 
   const handleRemoveService = (idx) => {
-    setBizServices(prev => prev.filter((_, i) => i !== idx))
+    const next = bizServices.filter((_, i) => i !== idx)
+    setBizServices(next)
+    persistBizField({ services: next }, '🗑 Услуга удалена')
   }
 
   const handleSaveServices = async () => {
