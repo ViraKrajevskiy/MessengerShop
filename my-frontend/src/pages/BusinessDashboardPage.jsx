@@ -950,6 +950,9 @@ function getCroppedFile(src, area, rotation = 0, maxWidth = 1200) {
   })
 }
 
+// Ключ для сохранения позиции прокрутки дашборда между перезагрузками
+const SCROLL_KEY = 'biz-dashboard-scroll'
+
 // ── Main Page ──────────────────────────────────────────────────────────────────
 export default function BusinessDashboardPage() {
   const navigate = useNavigate()
@@ -1106,6 +1109,35 @@ export default function BusinessDashboardPage() {
     setRemoveAudio(false)
     if (audioInputRef.current) audioInputRef.current.value = ''
     setSelectedGroupId(bizData.group_id || null)
+  }, [bizData])
+
+  // ── Сохранение/восстановление позиции прокрутки при перезагрузке ───────────
+  // Контент дашборда грузится асинхронно (auth → lazy-чанк → fetch), поэтому
+  // при F5 браузер не может восстановить скролл и страница «прыгает» наверх.
+  // Сохраняем позицию и восстанавливаем её после загрузки данных — но только
+  // при перезагрузке страницы (при обычном переходе на дашборд — открываем сверху).
+  useEffect(() => {
+    const onScroll = () => sessionStorage.setItem(SCROLL_KEY, String(Math.round(window.scrollY)))
+    window.addEventListener('scroll', onScroll, { passive: true })
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual'
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      if ('scrollRestoration' in history) history.scrollRestoration = 'auto'
+    }
+  }, [])
+
+  const scrollRestored = useRef(false)
+  useEffect(() => {
+    if (!bizData || scrollRestored.current) return
+    scrollRestored.current = true
+    const nav = performance.getEntriesByType('navigation')[0]
+    const isReload = nav ? nav.type === 'reload' : false
+    if (!isReload) { sessionStorage.removeItem(SCROLL_KEY); return }
+    const saved = parseInt(sessionStorage.getItem(SCROLL_KEY) || '0', 10)
+    if (saved > 0) {
+      // ждём пару кадров, чтобы контент успел отрисоваться и стать нужной высоты
+      requestAnimationFrame(() => requestAnimationFrame(() => window.scrollTo(0, saved)))
+    }
   }, [bizData])
 
   // ── Unified save (profile + social + group + tags + faq + services) ────────
