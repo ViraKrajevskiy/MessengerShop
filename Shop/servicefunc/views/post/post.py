@@ -36,7 +36,14 @@ class PostListView(APIView):
         posts = qs.order_by('-created_at')[:50]
         serializer = PostSerializer(posts, many=True, context={'request': request})
         response = Response(serializer.data)
-        response['Cache-Control'] = 'public, max-age=60'
+        # Ответ содержит per-user поля (is_subscribed, is_favorited). Публично
+        # кэшировать его нельзя — иначе после отписки/смены избранного обновление
+        # страницы в течение 60с отдавало бы устаревшее состояние. Кэшируем только
+        # анонимный ответ (там эти поля всегда false).
+        if request.user.is_authenticated:
+            response['Cache-Control'] = 'private, no-store'
+        else:
+            response['Cache-Control'] = 'public, max-age=60'
         return response
 
 

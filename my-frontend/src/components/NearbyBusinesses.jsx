@@ -1,7 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { resolveUrl } from '../utils/urlUtils'
-import { makeInitialAvatar } from '../utils/defaults'
+import { makeCardPlaceholder } from '../utils/defaults'
 import { useLanguage } from '../context/LanguageContext'
 import './NearbyBusinesses.css'
 
@@ -178,7 +178,9 @@ export default function NearbyBusinesses({ businesses = [], posts = [] }) {
             onDragStart={e => e.preventDefault()}
           >
             {filtered.map(biz => {
-              const avatar = resolveUrl(biz.avatar) || makeInitialAvatar(biz.brand_name)
+              // Колонка-обложка: настоящее фото бизнеса, иначе крупный градиентный
+              // плейсхолдер (НЕ маленький круглый аватар — он раздувался object-fit'ом).
+              const avatar = resolveUrl(biz.cover) || resolveUrl(biz.logo) || makeCardPlaceholder(biz.brand_name)
               return (
                 <div
                   key={biz.id}
@@ -206,7 +208,7 @@ export default function NearbyBusinesses({ businesses = [], posts = [] }) {
                       )}
                     </div>
                     <div className="nearby__card-avatar-wrap">
-                      <img className="nearby__card-avatar" src={avatar} alt={biz.brand_name} loading="lazy" decoding="async" onError={e => { e.target.onerror = null; e.target.src = makeInitialAvatar(biz.brand_name) }} />
+                      <img className="nearby__card-avatar" src={avatar} alt={biz.brand_name} loading="lazy" decoding="async" onError={e => { e.target.onerror = null; e.target.src = makeCardPlaceholder(biz.brand_name) }} />
                     </div>
                   </div>
                 </div>
