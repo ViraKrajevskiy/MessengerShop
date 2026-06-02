@@ -685,6 +685,7 @@
 /* Три карточки публикаций: горизонтальный скролл с drag */
 .home-posts-grid {
   display: flex;
+  align-items: flex-start;
   gap: 20px;
   overflow-x: auto;
   padding: 10px 0 12px 0;
@@ -713,14 +714,20 @@
   scroll-snap-align: none;
 }
 
-/* Как в Instagram (ПК): портрет 4:5, картинка целиком без обрезки */
+/* Как в Instagram: ширина фиксирована, высота подстраивается под фото.
+   Вертикальное фото → высокая карточка, горизонтальное → низкая. Без обрезки. */
 .home-posts-section .post-card__image {
-  aspect-ratio: 4 / 5;
+  aspect-ratio: auto;
+  height: auto;
+  max-height: none;
 }
 
 .home-posts-section .post-card__img-main {
+  position: static;
+  inset: auto;
+  width: 100%;
+  height: auto;
   object-fit: contain;
-  background: #0a0a0a;
 }
 
 .home-posts-grid .post-card:nth-child(3n+1) {
@@ -785,8 +792,9 @@
     scroll-snap-align: start;
   }
   .home-posts-section .post-card__image {
-    aspect-ratio: 1/1;
-    max-height: 300px;
+    aspect-ratio: auto;
+    height: auto;
+    max-height: none;
   }
 
 }
@@ -815,8 +823,9 @@
     scroll-snap-align: center;
   }
   .home-posts-section .post-card__image {
-    aspect-ratio: 1/1;
-    max-height: 100%;
+    aspect-ratio: auto;
+    height: auto;
+    max-height: none;
   }
 }
 
