@@ -134,6 +134,15 @@
   margin: 0;
 }
 
+/* Счётчик просмотров + кнопка «В избранное» в столбик с заметным
+   вертикальным отступом, чтобы не было ошибочных нажатий */
+.news-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 14px;
+}
+
 .stat-item {
   display: flex;
   align-items: center;
