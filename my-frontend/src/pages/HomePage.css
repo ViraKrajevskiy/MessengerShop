@@ -408,7 +408,7 @@
         без фото, текстовые карточки ── */
   .home-page__sidebar .tweets-sidebar {
     display: flex;
-    width: 100%;
+    width: 250px;
     height: auto;
     margin-top: 0;
     background: none;
@@ -485,7 +485,7 @@
   /* ── Рейтинги бизнесов: сетка 2 колонки, без скролла ── */
   .home-page__sidebar .brs {
     display: flex;
-    width: 100%;
+    width: 250px;
     background: none;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
