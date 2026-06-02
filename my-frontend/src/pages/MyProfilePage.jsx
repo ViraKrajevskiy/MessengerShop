@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useLanguage } from '../context/LanguageContext'
 import { apiPatchMe } from '../api/profileApi'
+import { apiGetMySubscriptions, apiToggleSubscription } from '../api/businessApi'
 import Header from '../components/Header'
-import { DEFAULT_AVATAR } from '../utils/defaults'
+import { DEFAULT_AVATAR, makeInitialAvatar } from '../utils/defaults'
 import { resolveUrl } from '../utils/urlUtils'
 import { API_URL as BASE } from '../config/api'
 import './MyProfilePage.css'
@@ -45,6 +46,38 @@ export default function MyProfilePage() {
   const [saveError, setSaveError]         = useState('')
   const [saveOk, setSaveOk]               = useState(false)
   const [verStatus, setVerStatus]         = useState(undefined)
+
+  // ── Список подписок (модалка по клику на счётчик) ──
+  const [showSubs, setShowSubs]   = useState(false)
+  const [subs, setSubs]           = useState(null) // null = ещё не загружали
+  const [subsLoading, setSubsLoading] = useState(false)
+
+  const openSubs = async () => {
+    setShowSubs(true)
+    if (subs !== null) return
+    setSubsLoading(true)
+    try {
+      const token = await getAccessToken()
+      if (!token) { setSubs([]); return }
+      const data = await apiGetMySubscriptions(token)
+      setSubs(Array.isArray(data?.businesses) ? data.businesses : [])
+    } catch {
+      setSubs([])
+    } finally {
+      setSubsLoading(false)
+    }
+  }
+
+  const handleUnsub = async (e, bizId) => {
+    e.stopPropagation()
+    try {
+      const token = await getAccessToken()
+      if (!token) return
+      await apiToggleSubscription(bizId, token)
+      setSubs(list => (list || []).filter(b => b.id !== bizId))
+      setUser(u => u ? { ...u, subscriptions_count: Math.max(0, (u.subscriptions_count ?? 1) - 1) } : u)
+    } catch { /* ignore */ }
+  }
 
   useEffect(() => {
     if (user) setForm({ username: user.username || '' })
@@ -181,10 +214,10 @@ export default function MyProfilePage() {
                   <span>{t('myprofile_subscribers')}</span>
                 </div>
                 <div className="mpp__stat-divider" />
-                <div className="mpp__stat">
+                <button type="button" className="mpp__stat mpp__stat--clickable" onClick={openSubs}>
                   <strong>{user.subscriptions_count ?? 0}</strong>
                   <span>{t('myprofile_subscriptions')}</span>
-                </div>
+                </button>
                 <div className="mpp__stat-divider" />
                 <div className="mpp__stat">
                   <strong>{user.views_count ?? 0}</strong>
@@ -292,6 +325,43 @@ export default function MyProfilePage() {
         </button>
 
       </main>
+
+      {/* ── Модалка: список подписок ── */}
+      {showSubs && (
+        <div className="mpp-subs__backdrop" onClick={() => setShowSubs(false)}>
+          <div className="mpp-subs" onClick={e => e.stopPropagation()}>
+            <div className="mpp-subs__head">
+              <h3 className="mpp-subs__title">{t('myprofile_subscriptions')}</h3>
+              <button className="mpp-subs__close" onClick={() => setShowSubs(false)} aria-label="close">✕</button>
+            </div>
+
+            {subsLoading ? (
+              <p className="mpp-subs__empty">{t('loading')}</p>
+            ) : !subs || subs.length === 0 ? (
+              <p className="mpp-subs__empty">{t('home_noCards') || 'Пусто'}</p>
+            ) : (
+              <div className="mpp-subs__list">
+                {subs.map(b => {
+                  const logo = b.logo ? resolveUrl(b.logo) : makeInitialAvatar(b.brand_name || '?')
+                  return (
+                    <div key={b.id} className="mpp-subs__item" onClick={() => { setShowSubs(false); navigate(`/business/${b.id}`) }}>
+                      <img className="mpp-subs__avatar" src={logo} alt={b.brand_name}
+                        onError={e => { e.target.onerror = null; e.target.src = makeInitialAvatar(b.brand_name || '?') }} />
+                      <div className="mpp-subs__info">
+                        <span className="mpp-subs__name">{b.brand_name}</span>
+                        {b.city && <span className="mpp-subs__city">{b.city}</span>}
+                      </div>
+                      <button className="mpp-subs__unsub" onClick={(e) => handleUnsub(e, b.id)}>
+                        {t('post_subscribed') || 'Отписаться'}
+                      </button>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

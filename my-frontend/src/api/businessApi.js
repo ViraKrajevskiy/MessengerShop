@@ -400,6 +400,14 @@ export async function apiGetSubscription(bizId, token) {
   return res.json()
 }
 
+export async function apiGetMySubscriptions(token) {
+  const res = await fetch(`${BASE}/businesses/subscriptions/`, {
+    headers: { 'Authorization': `Bearer ${token}` },
+  })
+  if (!res.ok) throw new Error('Ошибка загрузки подписок')
+  return res.json()  // { ids: [...], businesses: [...] }
+}
+
 export async function apiToggleSubscription(bizId, token) {
   const res = await fetch(`${BASE}/businesses/${bizId}/subscribe/`, {
     method: 'POST',

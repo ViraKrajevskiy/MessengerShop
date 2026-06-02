@@ -3,7 +3,26 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from django.db.models import Count
+
 from Shop.models import Business, BusinessSubscription
+from Shop.servicefunc.serializers.business_serializer import BusinessListSerializer
+
+
+class MySubscriptionsListView(APIView):
+    """GET /api/businesses/subscriptions/ — бизнесы, на которые подписан текущий пользователь."""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        qs = Business.objects.filter(
+            subscribers__user=request.user
+        ).select_related('owner').annotate(
+            _subscribers_count=Count('subscribers', distinct=True),
+        ).order_by('-subscribers__created_at')
+
+        data = BusinessListSerializer(qs, many=True, context={'request': request}).data
+        ids = [b['id'] for b in data]
+        return Response({'ids': ids, 'businesses': data})
 
 
 class BusinessSubscribeView(APIView):

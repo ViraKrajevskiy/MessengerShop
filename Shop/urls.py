@@ -37,7 +37,7 @@ from Shop.servicefunc.views.verification.verification import (
 from Shop.servicefunc.views.business.business import (
     BusinessListView, BusinessCreateView, BusinessDetailView, MyBusinessView,
 )
-from Shop.servicefunc.views.business.subscribe import BusinessSubscribeView
+from Shop.servicefunc.views.business.subscribe import BusinessSubscribeView, MySubscriptionsListView
 from Shop.servicefunc.views.business.favorites import BusinessFavoriteView, BusinessFavoritesListView
 from Shop.servicefunc.views.product.product import (
     AllProductsListView, BusinessProductListView, ProductDetailView, ProductLikeView,
@@ -102,6 +102,7 @@ urlpatterns = [
     path('businesses/create/',           BusinessCreateView.as_view(),        name='business_create'),
     path('businesses/me/',               MyBusinessView.as_view(),            name='business_me'),
     path('businesses/favorites/',        BusinessFavoritesListView.as_view(), name='business_favorites'),
+    path('businesses/subscriptions/',    MySubscriptionsListView.as_view(),   name='business_subscriptions'),
     path('businesses/<int:pk>/',         BusinessDetailView.as_view(),        name='business_detail'),
 
     path('businesses/<int:pk>/subscribe/', BusinessSubscribeView.as_view(),       name='business_subscribe'),
