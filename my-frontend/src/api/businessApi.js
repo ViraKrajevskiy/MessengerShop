@@ -35,6 +35,7 @@ export async function apiGetBusinesses(params = {}, token) {
   if (token) {
     const res = await fetch(`${BASE}/businesses/?${q}`, {
       headers: { Authorization: `Bearer ${token}` },
+      cache: 'no-store',
     })
     if (!res.ok) throw new Error('Ошибка загрузки бизнесов')
     return res.json()
@@ -94,10 +95,12 @@ export async function apiViewStory(storyId, token) {
 }
 
 export async function apiGetPosts(token) {
-  // Не кэшируем если авторизован — нужен актуальный is_subscribed
+  // Не кэшируем если авторизован — нужны актуальные is_subscribed / is_favorited.
+  // cache:'no-store' защищает от того, что браузер отдаст устаревший ответ
+  // /posts/ при перезагрузке (из-за чего лайк «залипал» после reload).
   const headers = token ? { 'Authorization': `Bearer ${token}` } : {}
   if (token) {
-    const res = await fetch(`${BASE}/posts/`, { headers })
+    const res = await fetch(`${BASE}/posts/`, { headers, cache: 'no-store' })
     if (!res.ok) throw new Error('Ошибка загрузки постов')
     return res.json()
   }
