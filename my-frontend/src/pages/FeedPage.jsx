@@ -34,7 +34,11 @@ function TweetCard({ post, onTagClick }) {
 
   useEffect(() => {
     if (!user) { setFav(false); return }
-    setFav(post.is_favorited || postFavorites.isFavorite(post.id))
+    // Сервер — источник истины; локальный стор приводим к нему, иначе
+    // устаревшая запись в localStorage залипает после перезагрузки.
+    const serverFav = !!post.is_favorited
+    postFavorites.setFavorite(post.id, serverFav)
+    setFav(serverFav)
     return postFavorites.onChange(ids => setFav(ids.includes(post.id)))
   }, [user, post.id, post.is_favorited])
 

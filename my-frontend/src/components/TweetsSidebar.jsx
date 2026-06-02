@@ -32,6 +32,16 @@ export default function TweetsSidebar({ posts: postsProp, title = 'Твиты' }
     return postFavorites.onChange(setFavIds)
   }, [user])
 
+  // Сердечки здесь рисуются из локального стора — приводим его к серверной
+  // правде (post.is_favorited), иначе устаревшая запись в localStorage держит
+  // твит «лайкнутым» даже после перезагрузки.
+  useEffect(() => {
+    if (!user) return
+    posts.forEach(p => {
+      if (typeof p.is_favorited === 'boolean') postFavorites.setFavorite(p.id, p.is_favorited)
+    })
+  }, [user, posts])
+
   const toggleFav = (e, id) => {
     e.stopPropagation()
     // Геттер вместо awaited-токена — сердечко переключается мгновенно, синк в фоне.

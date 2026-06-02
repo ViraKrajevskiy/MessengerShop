@@ -25,7 +25,10 @@ export default function NewsDetailPage() {
         if (!res.ok) throw new Error('Error');
         const data = await res.json();
         setItem(data);
-        setFav(data.is_favorited || newsFavorites.isFavorite(data.id));
+        // Сервер — источник истины; приводим локальный стор к нему, иначе
+        // устаревшая запись в localStorage залипает после перезагрузки.
+        newsFavorites.setFavorite(data.id, !!data.is_favorited);
+        setFav(!!data.is_favorited);
       } catch {
       } finally {
         setLoading(false);

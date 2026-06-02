@@ -95,6 +95,7 @@ export default function PostCard({ post, onDelete }) {
   const [subLoading, setSubLoading] = useState(false)
   const [subError, setSubError] = useState('')
   const [fav, setFav] = useState(false)
+  const [favCount, setFavCount] = useState(post.favorites_count || 0)
   const [expanded, setExpanded] = useState(false)
   const [selectedVideo, setSelectedVideo] = useState(null)
   const [selectedPost, setSelectedPost] = useState(null)
@@ -106,9 +107,17 @@ export default function PostCard({ post, onDelete }) {
   const cardRef = useRef(null)
 
   useEffect(() => {
+    setFavCount(post.favorites_count || 0)
+  }, [post.id, post.favorites_count])
+
+  useEffect(() => {
     if (!user) { setFav(false); return }
-    // Backend (post.is_favorited) и локальный стор — любой источник истины
-    setFav(post.is_favorited || postFavorites.isFavorite(post.id))
+    // Сервер — единственный источник истины. Локальный стор приводим к нему,
+    // чтобы устаревшая запись в localStorage не показывала пост лайкнутым после
+    // перезагрузки (раньше тут был OR, который и давал залипание сердечка).
+    const serverFav = !!post.is_favorited
+    postFavorites.setFavorite(post.id, serverFav)
+    setFav(serverFav)
     return postFavorites.onChange(ids => setFav(ids.includes(post.id)))
   }, [user, post.id, post.is_favorited])
 
@@ -151,7 +160,9 @@ export default function PostCard({ post, onDelete }) {
     e.stopPropagation()
     if (!user) { navigate('/login'); return }
     // Мгновенно обновляем UI, синк с бэкендом — внутри стора
-    setFav(prev => !prev)
+    const next = !fav
+    setFav(next)
+    setFavCount(c => Math.max(0, c + (next ? 1 : -1)))
     const token = await getAccessToken()
     await postFavorites.toggle(post.id, token)
   }
@@ -294,7 +305,7 @@ export default function PostCard({ post, onDelete }) {
           <svg width="18" height="18" viewBox="0 0 24 24" fill={fav ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
             <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
           </svg>
-          <span>{fav ? '1' : '0'}</span>
+          <span>{favCount}</span>
         </button>
 
         {onDelete && (

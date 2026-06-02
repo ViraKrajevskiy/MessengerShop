@@ -16,6 +16,21 @@ function createFavoriteStore({ storageKey, toggleUrl, fetchServerIds }) {
 
   const isFavorite = (id) => getIds().includes(id)
 
+  /**
+   * Force the local mirror to a known state WITHOUT a server round-trip.
+   * Used to reconcile the cache with the server's authoritative `is_favorited`
+   * on load — otherwise a stale localStorage entry (left over from a previous
+   * desync) keeps a card showing "favourited" across reloads even after the
+   * server recorded an un-favourite. No-ops (and fires no event) when already
+   * in the desired state.
+   */
+  const setFavorite = (id, desired) => {
+    const cur = getIds()
+    const has = cur.includes(id)
+    if (desired && !has) setIds([...cur, id])
+    else if (!desired && has) setIds(cur.filter(x => x !== id))
+  }
+
   /** Subscribe to changes (same-tab + cross-tab). Returns unsubscribe fn. */
   const onChange = (handler) => {
     const onLocal = () => handler(getIds())
@@ -66,7 +81,7 @@ function createFavoriteStore({ storageKey, toggleUrl, fetchServerIds }) {
 
   const clear = () => setIds([])
 
-  return { getIds, setIds, isFavorite, onChange, toggle, syncFromServer, clear }
+  return { getIds, setIds, isFavorite, setFavorite, onChange, toggle, syncFromServer, clear }
 }
 
 // ── Posts ──────────────────────────────────────────────────────────────────
