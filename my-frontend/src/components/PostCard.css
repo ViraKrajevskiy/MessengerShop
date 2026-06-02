@@ -292,18 +292,17 @@
 
 .post-card__image {
   width: 100%;
-  aspect-ratio: 1/1;
   overflow: hidden;
   position: relative;
 }
 
-/* Main image — cover the whole card area */
+/* Как в Instagram: ширина фиксирована, высота подстраивается под фото.
+   Вертикальное фото → выше, горизонтальное → ниже. Без обрезки. */
 .post-card__img-main {
-  position: absolute;
-  inset: 0;
+  position: static;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
+  object-fit: contain;
   display: block;
   transition: transform 0.35s;
 }
@@ -564,8 +563,8 @@
     white-space: nowrap;
   }
   .post-card__image {
-    aspect-ratio: 1/1;
-    min-height: 150px;
+    aspect-ratio: auto;
+    min-height: 0;
   }
   .post-card__body {
     padding: 6px 13px 0;
