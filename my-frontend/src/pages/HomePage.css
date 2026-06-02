@@ -713,6 +713,16 @@
   scroll-snap-align: none;
 }
 
+/* Как в Instagram (ПК): портрет 4:5, картинка целиком без обрезки */
+.home-posts-section .post-card__image {
+  aspect-ratio: 4 / 5;
+}
+
+.home-posts-section .post-card__img-main {
+  object-fit: contain;
+  background: #0a0a0a;
+}
+
 .home-posts-grid .post-card:nth-child(3n+1) {
   scroll-snap-align: start;
 }
