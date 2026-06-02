@@ -283,7 +283,7 @@ export default function PostCard({ post, onDelete }) {
       {post.text && (
         <div className="post-card__body">
           <p className={`post-card__text${expanded ? ' post-card__text--expanded' : ''}`}>
-            {isLong && !expanded ? post.text.slice(0, SHORT) + '...' : post.text}
+            {post.text}
           </p>
           {isLong && (
             <span
