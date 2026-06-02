@@ -57,10 +57,21 @@ class BrevoEmailBackend(BaseEmailBackend):
             logger.error(f'[EMAIL ERROR] {error_msg}')
             raise ValueError(error_msg)
 
-        # Prepare recipients
-        to_emails = [{'email': addr, 'name': ''} for addr in message.to]
-        cc_emails = [{'email': addr, 'name': ''} for addr in message.cc]
-        bcc_emails = [{'email': addr, 'name': ''} for addr in message.bcc]
+        # Prepare recipients. Brevo rejects an empty "name" field with
+        # "name is missing in to" — name is optional, so omit it entirely.
+        to_emails = [{'email': addr} for addr in message.to]
+        cc_emails = [{'email': addr} for addr in message.cc]
+        bcc_emails = [{'email': addr} for addr in message.bcc]
+
+        # Body. EmailMultiAlternatives keeps the plain text in `body`
+        # (content_subtype 'plain') and the HTML in `alternatives`, so we must
+        # pull the HTML out of there — otherwise htmlContent is always None and
+        # the styled email is sent as plain text.
+        text_content = message.body if message.content_subtype != 'html' else None
+        html_content = message.body if message.content_subtype == 'html' else None
+        for alt_content, alt_mime in getattr(message, 'alternatives', None) or []:
+            if alt_mime == 'text/html':
+                html_content = alt_content
 
         # Prepare email data
         email_data = {
@@ -70,9 +81,11 @@ class BrevoEmailBackend(BaseEmailBackend):
             },
             'to': to_emails,
             'subject': message.subject,
-            'htmlContent': message.body if message.content_subtype == 'html' else None,
-            'textContent': message.body if message.content_subtype == 'plain' else None,
         }
+        if html_content:
+            email_data['htmlContent'] = html_content
+        if text_content:
+            email_data['textContent'] = text_content
 
         # Add CC and BCC if present
         if cc_emails:
