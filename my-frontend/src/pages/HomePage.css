@@ -504,6 +504,7 @@
     padding-bottom: 0;
   }
   .home-page__sidebar .brs__item {
+    display: flex;
     flex: unset;
     gap: 10px;
     background: var(--bg-secondary);
@@ -517,10 +518,9 @@
     min-width: 0;
   }
   .home-page__sidebar .brs__meta {
-    width: 100%;
+    flex-shrink: 0;
     justify-content: flex-start;
     gap: 8px;
-    margin-top: 4px;
   }
   .home-page__sidebar .brs__avatar {
     width: 44px;
