@@ -451,7 +451,7 @@
   .home-page__sidebar .tweets-sidebar__list {
     flex-direction: column;
     overflow: visible;
-    gap: 10px;
+    gap: 8px;
     padding: 0;
   }
   .home-page__sidebar .tweets-sidebar__list::-webkit-scrollbar {
@@ -461,10 +461,10 @@
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    gap: 6px;
-    padding: 12px;
+    gap: 4px;
+    padding: 10px;
     border-bottom: none;
-    border-radius: 12px;
+    border-radius: 10px;
     background: var(--bg-secondary);
     border: 1px solid var(--border-color);
   }
@@ -495,17 +495,17 @@
     display: flex;
     flex-direction: column;
     overflow: visible;
-    gap: 10px;
+    gap: 8px;
     padding-bottom: 0;
   }
   .home-page__sidebar .brs__item {
     display: flex;
     flex: unset;
-    gap: 10px;
+    gap: 8px;
     background: var(--bg-secondary);
     border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 12px;
+    border-radius: 10px;
+    padding: 10px;
     align-items: center;
   }
   .home-page__sidebar .brs__body {
@@ -518,8 +518,8 @@
     gap: 8px;
   }
   .home-page__sidebar .brs__avatar {
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
   }
 }
 
