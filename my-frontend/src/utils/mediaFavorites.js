@@ -50,18 +50,32 @@ function createFavoriteStore({ storageKey, toggleUrl, fetchServerIds }) {
    */
   const toggle = async (id, tokenOrGetter) => {
     const cur = getIds()
-    const next = cur.includes(id) ? cur.filter(x => x !== id) : [...cur, id]
+    const wasFav = cur.includes(id)
+    const next = wasFav ? cur.filter(x => x !== id) : [...cur, id]
     setIds(next)   // мгновенно — UI обновляется в этом же тике
     const token = typeof tokenOrGetter === 'function' ? await tokenOrGetter() : tokenOrGetter
-    if (token) {
-      try {
-        await fetch(toggleUrl(id), {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${token}` },
-        })
-      } catch { /* offline — localStorage holds it, re-synced later */ }
+    // Без токена серверный тогл невозможен — откатываем оптимистичное изменение,
+    // иначе localStorage разойдётся с сервером и лайк «залипнет» после перезагрузки.
+    if (!token) { setIds(cur); return wasFav }
+    try {
+      const res = await fetch(toggleUrl(id), {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (!res.ok) throw new Error('fail')
+      // Сервер — источник истины: приводим локальный стор к его ответу
+      // ({favorited: bool}), чтобы состояние всегда совпадало после reload.
+      const data = await res.json().catch(() => null)
+      if (data && typeof data.favorited === 'boolean') {
+        setFavorite(id, data.favorited)
+        return data.favorited
+      }
+      return next.includes(id)
+    } catch {
+      // Сеть упала — откат к исходному состоянию, без рассинхрона с сервером.
+      setIds(cur)
+      return wasFav
     }
-    return next.includes(id)
   }
 
   /** Pull server favourites and push any guest-local ones. Call after login. */

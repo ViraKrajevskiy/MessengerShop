@@ -55,18 +55,31 @@ export function onFavoritesChange(handler) {
  */
 export async function toggleFavorite(id, tokenOrGetter) {
   const cur = getLocalFavorites()
-  const next = cur.includes(id) ? cur.filter(x => x !== id) : [...cur, id]
+  const wasFav = cur.includes(id)
+  const next = wasFav ? cur.filter(x => x !== id) : [...cur, id]
   setLocalFavorites(next)   // мгновенно — UI обновляется в этом же тике
   const token = typeof tokenOrGetter === 'function' ? await tokenOrGetter() : tokenOrGetter
-  if (token) {
-    try {
-      await fetch(`${BASE}/businesses/${id}/favorite/`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-      })
-    } catch { /* offline — localStorage holds the change, re-synced on next load */ }
+  // Без токена серверный тогл невозможен — откатываем оптимистичное изменение,
+  // иначе localStorage разойдётся с сервером и лайк «залипнет» после перезагрузки.
+  if (!token) { setLocalFavorites(cur); return wasFav }
+  try {
+    const res = await fetch(`${BASE}/businesses/${id}/favorite/`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    if (!res.ok) throw new Error('fail')
+    // Сервер — источник истины: приводим локальный стор к его ответу
+    // ({favorited: bool}), чтобы состояние всегда совпадало после reload.
+    const data = await res.json().catch(() => null)
+    if (data && typeof data.favorited === 'boolean') {
+      setFavorite(id, data.favorited)
+      return data.favorited
+    }
+    return next.includes(id)
+  } catch {
+    setLocalFavorites(cur)  // откат при ошибке сети
+    return wasFav
   }
-  return next.includes(id)
 }
 
 /** Pull favourites from the server and merge any guest-local ones. Call right after login. */
