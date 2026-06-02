@@ -142,8 +142,10 @@ export default function HomePage() {
   const descKeys = getDescKeys(filters)
   const desc = { title: t(descKeys.title), text: t(descKeys.text) }
 
+  // В «Публикациях» показываем только посты с фото/видео.
+  // Текстовые посты (твиты) живут в сайдбаре «Твиты», в постах их быть не должно.
   const homePosts = useMemo(
-    () => posts.slice(0, HOME_POSTS_VISIBLE),
+    () => posts.filter(p => p.media_display).slice(0, HOME_POSTS_VISIBLE),
     [posts]
   )
 
