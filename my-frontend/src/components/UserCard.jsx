@@ -6,7 +6,7 @@ import { useLanguage } from '../context/LanguageContext'
 import { useAuthGate } from './AuthGate'
 import { resolveUrl } from '../utils/urlUtils'
 import { makeCardPlaceholder } from '../utils/defaults'
-import { isFavorite, toggleFavorite, onFavoritesChange } from '../utils/favorites'
+import { isFavorite, setFavorite, toggleFavorite, onFavoritesChange } from '../utils/favorites'
 import './UserCard.css'
 
 function fmtDate(dt) {
@@ -14,7 +14,7 @@ function fmtDate(dt) {
   return new Date(dt).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' })
 }
 
-export default function UserCard({ id, name = 'Имя', city = 'Город', badge = null, type = 'card', logo = null, cover = null, cardMedia = null, planType = 'FREE', isOnline = false, isVerified = false, verifiedAt = null }) {
+export default function UserCard({ id, name = 'Имя', city = 'Город', badge = null, type = 'card', logo = null, cover = null, cardMedia = null, planType = 'FREE', isOnline = false, isVerified = false, verifiedAt = null, isFavorited = null }) {
   const { addViewed } = useViewed()
   const { user, getAccessToken } = useAuth()
   const { t } = useLanguage()
@@ -25,10 +25,16 @@ export default function UserCard({ id, name = 'Имя', city = 'Город', bad
 
   useEffect(() => {
     if (!user) { setFav(false); return }
-    setFav(isFavorite(id))
-    // Keep in sync when favourites change elsewhere (other cards, sidebar, other tab, server sync)
+    // If the parent has server-truth (is_favorited), reconcile localStorage to it
+    // so a stale cache entry doesn't show the heart filled after reload.
+    if (isFavorited !== null) {
+      setFavorite(id, isFavorited)
+      setFav(isFavorited)
+    } else {
+      setFav(isFavorite(id))
+    }
     return onFavoritesChange(ids => setFav(ids.includes(id)))
-  }, [user, id])
+  }, [user, id, isFavorited])
 
   const toggleFav = (e) => {
     e.stopPropagation()

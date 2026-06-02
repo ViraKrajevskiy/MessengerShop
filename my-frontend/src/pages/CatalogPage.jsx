@@ -139,6 +139,7 @@ function ProductSkeleton() {
 export default function CatalogPage() {
   const navigate  = useNavigate()
   const { t }     = useLanguage()
+  const { tokens } = useAuth()
 
   const TABS = [
     { key: 'companies', label: `🏢 ${t('catalog_companies')}` },
@@ -165,14 +166,14 @@ export default function CatalogPage() {
   const [maxFocused, setMaxFocused]       = useState(false)
 
   useEffect(() => {
-    Promise.all([apiGetProducts(), apiGetBusinesses()])
+    Promise.all([apiGetProducts(), apiGetBusinesses({}, tokens?.access)])
       .then(([p, b]) => {
         setProducts(Array.isArray(p) ? p : [])
         setBiz(Array.isArray(b) ? b : [])
       })
       .catch(() => {})
       .finally(() => setLoading(false))
-  }, [])
+  }, [tokens?.access])
 
   // Derived lists
   const allProducts = useMemo(() => products.filter(p => p.product_type !== 'SERVICE'), [products])
@@ -471,6 +472,7 @@ export default function CatalogPage() {
                           isOnline={!!b.owner_is_online}
                           isVerified={!!b.is_verified}
                           verifiedAt={b.verified_at}
+                          isFavorited={typeof b.is_favorited === 'boolean' ? b.is_favorited : null}
                         />
                       ))}
                     </div>

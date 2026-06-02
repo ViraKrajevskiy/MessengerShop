@@ -4,9 +4,9 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from django.db.models import Count
+from django.db.models import Count, Exists, OuterRef
 
-from Shop.models import Business
+from Shop.models import Business, BusinessFavorite
 from Shop.permissions import IsBusinessman
 from Shop.servicefunc.serializers.business_serializer import (
     BusinessListSerializer,
@@ -35,6 +35,13 @@ class BusinessListView(APIView):
             _subscribers_count=Count('subscribers', distinct=True),
         )
 
+        if request.user.is_authenticated:
+            qs = qs.annotate(
+                _is_favorited=Exists(
+                    BusinessFavorite.objects.filter(business=OuterRef('pk'), user=request.user)
+                ),
+            )
+
         city     = request.query_params.get('city')
         category = request.query_params.get('category')
         vip      = request.query_params.get('vip')
@@ -47,7 +54,10 @@ class BusinessListView(APIView):
 
         serializer = BusinessListSerializer(qs, many=True, context={'request': request})
         response = Response(serializer.data)
-        response['Cache-Control'] = 'public, max-age=60'
+        if request.user.is_authenticated:
+            response['Cache-Control'] = 'private, no-store'
+        else:
+            response['Cache-Control'] = 'public, max-age=60'
         return response
 
 

@@ -86,7 +86,7 @@ export default function HomePage() {
     // Грузим независимо — кто пришёл первым, тот и показывается.
     // Раньше был Promise.all — если один запрос медленный, вся страница висела.
     setLoadingBiz(true)
-    apiGetBusinesses()
+    apiGetBusinesses({}, tokens?.access)
       .then(biz => setAllBiz(Array.isArray(biz) ? biz : []))
       .catch(() => setAllBiz([]))
       .finally(() => setLoadingBiz(false))
@@ -380,7 +380,7 @@ export default function HomePage() {
                 ))
               ) : filteredAll.length > 0 ? (
                 homeBusinessCards.slice(0, 8).map(u => (
-                  <UserCard key={u.id} id={u.id} name={u.name} city={u.city} logo={u.logo} cover={u.cover} cardMedia={u.card_media} planType={u.plan_type} type="all" isOnline={!!u.owner_is_online} isVerified={!!u.is_verified} verifiedAt={u.verified_at} />
+                  <UserCard key={u.id} id={u.id} name={u.name || u.brand_name} city={u.city} logo={u.logo} cover={u.cover} cardMedia={u.card_media} planType={u.plan_type} type="all" isOnline={!!u.owner_is_online} isVerified={!!u.is_verified} verifiedAt={u.verified_at} isFavorited={typeof u.is_favorited === 'boolean' ? u.is_favorited : null} />
                 ))
               ) : (
                 <div className="no-results">{t('home_noCards')}</div>

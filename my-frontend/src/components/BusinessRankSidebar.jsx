@@ -4,7 +4,7 @@ import { makeInitialAvatar } from '../utils/defaults'
 import { resolveUrl } from '../utils/urlUtils'
 import { useAuth } from '../context/AuthContext'
 import { useAuthGate } from './AuthGate'
-import { getLocalFavorites, toggleFavorite, onFavoritesChange } from '../utils/favorites'
+import { getLocalFavorites, setFavorite, toggleFavorite, onFavoritesChange } from '../utils/favorites'
 import './BusinessRankSidebar.css'
 
 export default function BusinessRankSidebar({ title, businesses = [], limit = 5 }) {
@@ -20,6 +20,16 @@ export default function BusinessRankSidebar({ title, businesses = [], limit = 5 
     setFavs(getLocalFavorites())
     return onFavoritesChange(setFavs)
   }, [user])
+
+  // Сервер — источник истины: когда список бизнесов загружен с is_favorited,
+  // приводим localStorage к серверному значению, иначе устаревшая запись
+  // держит сердечко заполненным после перезагрузки.
+  useEffect(() => {
+    if (!user) return
+    businesses.forEach(b => {
+      if (typeof b.is_favorited === 'boolean') setFavorite(b.id, b.is_favorited)
+    })
+  }, [user, businesses])
 
   const toggleFav = (e, id) => {
     e.stopPropagation()

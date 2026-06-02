@@ -20,6 +20,20 @@ export function isFavorite(id) {
   return getLocalFavorites().includes(id)
 }
 
+/**
+ * Force the local mirror to a known state WITHOUT a server round-trip.
+ * Used to reconcile the cache with the server's authoritative `is_favorited`
+ * on load — otherwise a stale localStorage entry keeps a card showing
+ * "favourited" across reloads even after the server recorded an un-favourite.
+ * No-ops (and fires no event) when already in the desired state.
+ */
+export function setFavorite(id, desired) {
+  const cur = getLocalFavorites()
+  const has = cur.includes(id)
+  if (desired && !has) setLocalFavorites([...cur, id])
+  else if (!desired && has) setLocalFavorites(cur.filter(x => x !== id))
+}
+
 /** Subscribe to favourite changes (same-tab custom event + cross-tab storage). Returns an unsubscribe fn. */
 export function onFavoritesChange(handler) {
   const onLocal = () => handler(getLocalFavorites())

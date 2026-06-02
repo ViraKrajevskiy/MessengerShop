@@ -29,6 +29,7 @@ class BusinessListSerializer(serializers.ModelSerializer):
     is_vip            = serializers.BooleanField(read_only=True)
     is_pro            = serializers.BooleanField(read_only=True)
     owner_is_online   = serializers.SerializerMethodField()
+    is_favorited      = serializers.SerializerMethodField()
 
     class Meta:
         model = Business
@@ -38,6 +39,7 @@ class BusinessListSerializer(serializers.ModelSerializer):
             'plan_type',
             'rating', 'views_count', 'subscribers_count',
             'owner_username', 'owner_avatar', 'owner_is_online',
+            'is_favorited',
         ]
 
     def get_subscribers_count(self, obj):
@@ -47,6 +49,14 @@ class BusinessListSerializer(serializers.ModelSerializer):
 
     def get_owner_is_online(self, obj):
         return bool(obj.owner and obj.owner.is_online)
+
+    def get_is_favorited(self, obj):
+        if hasattr(obj, '_is_favorited'):
+            return obj._is_favorited
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.favorited_by.filter(user=request.user).exists()
+        return False
 
 
 class BusinessDetailSerializer(serializers.ModelSerializer):

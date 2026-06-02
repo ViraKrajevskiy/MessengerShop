@@ -24,12 +24,21 @@ export function invalidateCache(key) {
   else { cache.clear(); inflight.clear() }
 }
 
-export async function apiGetBusinesses(params = {}) {
+export async function apiGetBusinesses(params = {}, token) {
   const q = new URLSearchParams()
   if (params.vip)      q.set('vip', 'true')
   if (params.city)     q.set('city', params.city)
   if (params.category) q.set('category', params.category)
   if (params.search)   q.set('search', params.search)
+  // Auth requests return per-user is_favorited — skip the shared cache and
+  // add a user-keyed key so multiple accounts on the same device don't mix up.
+  if (token) {
+    const res = await fetch(`${BASE}/businesses/?${q}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    if (!res.ok) throw new Error('Ошибка загрузки бизнесов')
+    return res.json()
+  }
   const key = `businesses?${q}`
   return cached(key, async () => {
     const res = await fetch(`${BASE}/businesses/?${q}`)
