@@ -256,12 +256,9 @@ function CreateStoryModal({ getAccessToken, onClose, onSuccess }) {
 
   const processFile = (f) => {
     if (!f) return
-    if (isVideoFile(f)) {
-      setFile(f)
-      setPreview(URL.createObjectURL(f))
-    } else {
-      setCropSrc(URL.createObjectURL(f))
-    }
+    // Редактирование фото (кроп) временно отключено — используем оригинал
+    setFile(f)
+    setPreview(URL.createObjectURL(f))
   }
 
   const handleFile = e => {
@@ -350,15 +347,6 @@ function CreateStoryModal({ getAccessToken, onClose, onSuccess }) {
           }
           <input ref={inputRef} type="file" accept="image/*,video/*" onChange={handleFile} hidden />
         </div>
-        {file && !isVideoFile(file) && (
-          <button
-            type="button"
-            className="biz-form__remove-media"
-            onClick={() => setCropSrc(URL.createObjectURL(file))}
-          >
-            ✏️ Редактировать (кроп / поворот)
-          </button>
-        )}
         <textarea
           className="biz-form__textarea"
           placeholder="Подпись к сторису (необязательно)"
@@ -436,12 +424,9 @@ function CreatePostModal({ getAccessToken, bizId, onClose, onSuccess }) {
 
   const processFile = (f) => {
     if (!f) return
-    if (isVideoFile(f)) {
-      setFile(f)
-      setPreview(URL.createObjectURL(f))
-    } else {
-      setCropSrc(URL.createObjectURL(f))
-    }
+    // Редактирование фото (кроп) временно отключено — используем оригинал
+    setFile(f)
+    setPreview(URL.createObjectURL(f))
   }
 
   const handleFile = e => {
@@ -539,15 +524,6 @@ function CreatePostModal({ getAccessToken, bizId, onClose, onSuccess }) {
           }
           <input ref={fileInputRef} type="file" accept="image/*,video/*" onChange={handleFile} hidden />
         </div>
-        {file && !isVideoFile(file) && (
-          <button
-            type="button"
-            className="biz-form__remove-media"
-            onClick={(e) => { e.stopPropagation(); setCropSrc(URL.createObjectURL(file)) }}
-          >
-            ✏️ Редактировать (кроп / поворот)
-          </button>
-        )}
         {file && (
           <button
             type="button"
@@ -691,12 +667,9 @@ function CreateMediaOnlyModal({ getAccessToken, bizId, onClose, onSuccess, media
       return
     }
     setError('')
-    if (isVideo) {
-      setFile(f)
-      setPreview(URL.createObjectURL(f))
-    } else {
-      setCropSrc(URL.createObjectURL(f))
-    }
+    // Редактирование фото (кроп) временно отключено — используем оригинал
+    setFile(f)
+    setPreview(URL.createObjectURL(f))
   }
 
   const handleFile = e => {
@@ -785,15 +758,6 @@ function CreateMediaOnlyModal({ getAccessToken, bizId, onClose, onSuccess, media
             )}
             <input ref={inputRef} type="file" accept={isVideo ? 'video/*' : 'image/*'} onChange={handleFile} hidden />
           </div>
-          {!isVideo && file && (
-            <button
-              type="button"
-              className="biz-form__remove-media"
-              onClick={() => setCropSrc(URL.createObjectURL(file))}
-            >
-              ✏️ Редактировать (кроп / поворот)
-            </button>
-          )}
           {error && <p className="biz-form__error">{error}</p>}
           <button className="biz-form__submit" onClick={handleSubmit} disabled={loading}>
             {loading ? <span className="biz-form__spinner" /> : 'Опубликовать'}
@@ -2186,16 +2150,7 @@ export default function BusinessDashboardPage() {
                               const f = e.target.files[0]
                               if (!f) return
                               e.target.value = ''
-                              const isVid = f.type.startsWith('video/') || /\.(mp4|webm|mov|avi|mkv)$/i.test(f.name)
-                              if (isVid) {
-                                setEditLogo(f)
-                              } else {
-                                setCropTask({
-                                  src: URL.createObjectURL(f),
-                                  aspect: 1,
-                                  onCropped: cropped => setEditLogo(cropped),
-                                })
-                              }
+                              setEditLogo(f)
                             }}
                           />
                         </label>
@@ -2228,11 +2183,7 @@ export default function BusinessDashboardPage() {
                               const f = e.target.files[0]
                               if (!f) return
                               e.target.value = ''
-                              setCropTask({
-                                src: URL.createObjectURL(f),
-                                aspect: 16 / 9,
-                                onCropped: cropped => setEditCover(cropped),
-                              })
+                              setEditCover(f)
                             }}
                           />
                         </label>
@@ -2271,16 +2222,7 @@ export default function BusinessDashboardPage() {
                               const f = e.target.files[0]
                               if (!f) return
                               e.target.value = ''
-                              const isVid = f.type.startsWith('video/') || /\.(mp4|webm|mov|avi|mkv)$/i.test(f.name)
-                              if (isVid) {
-                                setEditCardMedia(f)
-                              } else {
-                                setCropTask({
-                                  src: URL.createObjectURL(f),
-                                  aspect: 4 / 5,
-                                  onCropped: cropped => setEditCardMedia(cropped),
-                                })
-                              }
+                              setEditCardMedia(f)
                             }}
                           />
                         </label>
