@@ -516,6 +516,12 @@
     max-height: 70px;
     overflow: hidden;
   }
+  /* Твиты: не ограничиваем высоту, чтобы влезали 3 строки текста */
+  .home-page__sidebar .brs--tweets .brs__item {
+    max-height: none;
+    overflow: visible;
+    align-items: flex-start;
+  }
   .home-page__sidebar .brs__body {
     flex: 1;
     min-width: 0;

@@ -68,6 +68,16 @@
   text-overflow: ellipsis;
 }
 
+/* Текст твита — 3 строки (а не одна с обрезкой, как город бизнеса) */
+.brs--tweets .brs__city {
+  white-space: normal;
+  text-overflow: clip;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  line-height: 1.4;
+}
+
 .brs__meta {
   display: flex;
   align-items: center;

@@ -51,7 +51,7 @@ export default function TweetsSidebar({ posts: postsProp, title = 'Твиты' }
   const list = posts.slice(0, PREVIEW_SIZE)
 
   return (
-    <aside className="brs">
+    <aside className="brs brs--tweets">
       <h3 className="brs__title">{title}</h3>
       <div className="brs__list">
         {list.length === 0 ? (
