@@ -316,7 +316,12 @@
   color: var(--text-primary);
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
+  /* Длинный ник/email без пробелов должен переноситься, а не вылезать за экран */
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .mpp__field-value--muted { color: var(--text-secondary); }
@@ -455,6 +460,19 @@
   .mpp__card { padding: 16px; border-radius: 16px; }
 
   .mpp__logout-btn { align-self: stretch; justify-content: center; }
+
+  /* Верификация: на мобилке элементы переносятся, ссылка уходит на новую
+     строку вместо наложения на текст статуса */
+  .mpp__ver-status {
+    flex-wrap: wrap;
+    gap: 10px 12px;
+    padding: 14px 16px;
+  }
+  .mpp__ver-status > div { min-width: 0; flex: 1; }
+  .mpp__ver-link {
+    margin-left: 0;
+    flex-basis: 100%;
+  }
 }
 
 @media (max-width: 400px) {
