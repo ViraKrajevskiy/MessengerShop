@@ -449,29 +449,24 @@
     gap: 10px;
   }
   .home-page__sidebar .tweets-sidebar__list {
-    flex-direction: row;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scroll-snap-type: x proximity;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    gap: 12px;
-    padding: 0 0 4px;
+    flex-direction: column;
+    overflow: visible;
+    gap: 10px;
+    padding: 0;
   }
   .home-page__sidebar .tweets-sidebar__list::-webkit-scrollbar {
     display: none;
   }
   .home-page__sidebar .tweet-item {
-    flex: 0 0 100%;
+    display: flex;
     flex-direction: column;
     align-items: stretch;
     gap: 6px;
-    padding: 16px;
+    padding: 12px;
     border-bottom: none;
     border-radius: 12px;
     background: var(--bg-secondary);
     border: 1px solid var(--border-color);
-    scroll-snap-align: start;
   }
   .home-page__sidebar .tweet-item__city {
     font-size: 13px;
@@ -497,8 +492,8 @@
     padding: 0;
   }
   .home-page__sidebar .brs__list {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    display: flex;
+    flex-direction: column;
     overflow: visible;
     gap: 10px;
     padding-bottom: 0;
