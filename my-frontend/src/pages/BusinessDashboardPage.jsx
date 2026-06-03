@@ -412,7 +412,14 @@ function CreatePostModal({ getAccessToken, bizId, onClose, onSuccess }) {
     }, 280)
   }
 
+  // Уже ли хэштег в тексте поста? Сравниваем как целое слово, регистронезависимо.
+  const tagInText = (tagName) => {
+    const esc = String(tagName).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    return new RegExp(`(^|\\s)#${esc}(?=\\s|$)`, 'i').test(text)
+  }
+
   const insertTag = (tagName) => {
+    if (tagInText(tagName)) return  // один и тот же хэштег дважды не добавляем
     const tag = `#${tagName} `
     setText(prev => (prev.endsWith(' ') || prev === '' ? prev + tag : prev + ' ' + tag))
     setTagInput('')
@@ -547,16 +554,22 @@ function CreatePostModal({ getAccessToken, bizId, onClose, onSuccess }) {
             {tagLoading && <span className="post-tag-picker__spinner" />}
           </div>
           <div className="post-tag-picker__chips">
-            {(tagInput.trim() ? tagSuggests : popularTags).map(tag => (
-              <button
-                key={tag.name || tag}
-                type="button"
-                className="post-tag-picker__chip"
-                onClick={() => insertTag(tag.name || tag)}
-              >
-                #{tag.name || tag}
-              </button>
-            ))}
+            {(tagInput.trim() ? tagSuggests : popularTags).map(tag => {
+              const name = tag.name || tag
+              const added = tagInText(name)
+              return (
+                <button
+                  key={name}
+                  type="button"
+                  className={`post-tag-picker__chip${added ? ' post-tag-picker__chip--added' : ''}`}
+                  onClick={() => !added && insertTag(name)}
+                  disabled={added}
+                >
+                  #{name}
+                  {added && <span className="post-tag-picker__chip-check">✓</span>}
+                </button>
+              )
+            })}
             {tagInput.trim() && !tagLoading && tagSuggests.length === 0 && (
               <span className="post-tag-picker__empty">Теги не найдены</span>
             )}
