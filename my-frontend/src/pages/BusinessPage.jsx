@@ -531,7 +531,7 @@ setSubscribed(bizData.is_subscribed || false)
         <div className="bp__hero">
           {logoIsVideo
             ? <video src={logo} className="bp__avatar bp__avatar--clickable" autoPlay muted loop playsInline onClick={() => setAvatarVideoOpen(true)} />
-            : <img src={logo} alt={biz.brand_name} className="bp__avatar" />
+            : <img src={logo} alt={biz.brand_name} className="bp__avatar bp__avatar--clickable" onClick={() => setSelectedPhoto(logo)} />
           }
 
           <div className="bp__hero-body">
