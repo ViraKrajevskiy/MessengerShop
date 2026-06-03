@@ -375,9 +375,7 @@ export default function FeedPage() {
                   <>
                     <Stories />
                     {(() => {
-                      // Только медиа-посты (фото/видео). Текстовые посты (твиты)
-                      // живут в своей вкладке «Твиты», чтобы не дублироваться.
-                      const allPosts = fPosts.filter(p => p.media_display)
+                      const allPosts = fPosts
                       const hasMore = false
                       const totalPages = Math.ceil(allPosts.length / CARDS_PER_PAGE)
                       const paginatedPosts = allPosts.slice(page * CARDS_PER_PAGE, (page + 1) * CARDS_PER_PAGE)
