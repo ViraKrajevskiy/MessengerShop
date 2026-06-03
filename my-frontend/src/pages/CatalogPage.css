@@ -54,6 +54,27 @@
   overflow: hidden;
 }
 
+/* ── Точка «онлайн» строго под центром кнопки-закладки ──
+   Кнопка избранного и точка независимо приклеены к right, но кнопка шире
+   (иконка 15px + паддинги) → их центры расходятся на 3–9px. Подгоняем right
+   точки = actions.right + padding-right − 0.5, чтобы центры совпали.
+   desktop: actions right 10 + padding-right 10 → 19.5 */
+.cat-page .user-card__online-dot {
+  right: 19.5px;
+}
+@media (max-width: 768px) {
+  /* padding-right 9 → 10 + 9 − 0.5 */
+  .cat-page .user-card__online-dot {
+    right: 18.5px;
+  }
+}
+@media (max-width: 480px) {
+  /* на ≤480 у .user-card__actions right:6, padding-right 8 → 6 + 8 − 0.5 */
+  .cat-page .user-card__online-dot {
+    right: 13.5px;
+  }
+}
+
 /* Hero */
 .cat-page__hero {
   margin-bottom: 24px;
