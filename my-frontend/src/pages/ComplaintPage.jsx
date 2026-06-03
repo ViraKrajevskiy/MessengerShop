@@ -22,10 +22,15 @@ export default function ComplaintPage() {
   const { user, getAccessToken } = useAuth()
 
   const post = location.state?.post || null
+  const isAppeal = location.state?.appeal === true
+  const appealContentType = location.state?.content_type || null
+  const appealContentId = location.state?.content_id || null
 
   const [reasons, setReasons] = useState([])
   const [reason, setReason] = useState('')
-  const [description, setDescription] = useState('')
+  const [description, setDescription] = useState(
+    isAppeal ? `Апелляция на блокировку${appealContentType ? ` (${appealContentType} #${appealContentId})` : ''}. ` : ''
+  )
   const [attached, setAttached] = useState(true)
   const [sending, setSending] = useState(false)
   const [error, setError] = useState('')
@@ -40,11 +45,15 @@ export default function ComplaintPage() {
       .then(list => {
         const arr = Array.isArray(list) && list.length ? list : FALLBACK_REASONS
         setReasons(arr)
-        setReason(arr[0].label)
+        const defaultReason = isAppeal
+          ? (arr.find(r => r.label === 'Другое') || arr[arr.length - 1]).label
+          : arr[0].label
+        setReason(defaultReason)
       })
       .catch(() => {
         setReasons(FALLBACK_REASONS)
-        setReason(FALLBACK_REASONS[0].label)
+        const defaultReason = isAppeal ? 'Другое' : FALLBACK_REASONS[0].label
+        setReason(defaultReason)
       })
   }, [])
 
@@ -86,7 +95,7 @@ export default function ComplaintPage() {
           <div className="cp__head">
             <div className="cp__head-avatar">🛡️</div>
             <div>
-              <div className="cp__head-name">Поддержка / Жалоба</div>
+              <div className="cp__head-name">{isAppeal ? 'Апелляция на блокировку' : 'Поддержка / Жалоба'}</div>
               <div className="cp__head-status">● Online</div>
             </div>
           </div>
@@ -94,14 +103,16 @@ export default function ComplaintPage() {
           {done ? (
             <div className="cp__done">
               <div className="cp__done-icon">✓</div>
-              <h3>Жалоба отправлена</h3>
-              <p>Администратор рассмотрит вашу жалобу. Спасибо!</p>
+              <h3>{isAppeal ? 'Апелляция отправлена' : 'Жалоба отправлена'}</h3>
+              <p>{isAppeal ? 'Администратор рассмотрит вашу апелляцию. Спасибо!' : 'Администратор рассмотрит вашу жалобу. Спасибо!'}</p>
               <button className="cp__btn" onClick={() => navigate(-1)}>Закрыть</button>
             </div>
           ) : (
             <div className="cp__body">
               <p className="cp__sys">
-                Опишите проблему — сообщение получит администратор.
+                {isAppeal
+                  ? 'Опишите, почему вы считаете блокировку ошибочной. Администратор рассмотрит вашу апелляцию.'
+                  : 'Опишите проблему — сообщение получит администратор.'}
               </p>
 
               {post && (
@@ -170,7 +181,7 @@ export default function ComplaintPage() {
                 onClick={submit}
                 disabled={sending || !reason}
               >
-                {sending ? 'Отправка…' : 'Отправить администратору'}
+                {sending ? 'Отправка…' : isAppeal ? 'Отправить апелляцию' : 'Отправить администратору'}
               </button>
             </div>
           )}

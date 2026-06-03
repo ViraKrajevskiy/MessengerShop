@@ -14,11 +14,11 @@ from django.utils import timezone
 
 from Shop.models import Post, Story, Comment, Product, Review
 
-BLOCK_TTL_DAYS = 4
+BLOCK_TTL_DAYS = 3
 
 
 class Command(BaseCommand):
-    help = 'Delete content blocked more than 4 days ago'
+    help = 'Delete content blocked more than 3 days ago'
 
     def handle(self, *args, **options):
         cutoff = timezone.now() - timedelta(days=BLOCK_TTL_DAYS)

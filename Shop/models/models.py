@@ -175,11 +175,12 @@ class Story(BaseController):
     media_type = models.CharField(max_length=10, choices=MediaType.choices, default=MediaType.IMAGE)
     caption    = models.CharField(max_length=500, blank=True)
     expires_at = models.DateTimeField(default=story_expires_at)
-    is_blocked  = models.BooleanField(default=False)
-    blocked_by  = models.ForeignKey(
+    is_blocked    = models.BooleanField(default=False)
+    blocked_by    = models.ForeignKey(
         'User', null=True, blank=True, on_delete=models.SET_NULL, related_name='blocked_stories',
     )
-    blocked_at  = models.DateTimeField(null=True, blank=True)
+    blocked_at    = models.DateTimeField(null=True, blank=True)
+    block_reason  = models.TextField(blank=True, default='')
 
     class Meta:
         ordering = ['-created_at']
@@ -242,7 +243,8 @@ class Product(BaseController):
     blocked_by   = models.ForeignKey(
         'User', null=True, blank=True, on_delete=models.SET_NULL, related_name='blocked_products',
     )
-    blocked_at   = models.DateTimeField(null=True, blank=True)
+    blocked_at     = models.DateTimeField(null=True, blank=True)
+    block_reason   = models.TextField(blank=True, default='')
 
 
 class VerificationRequest(BaseController):
@@ -358,11 +360,12 @@ class Post(BaseController):
     # может быть и текстовым; различаем их по этому флагу, а не по наличию картинки.
     is_tweet   = models.BooleanField(default=False)
     views_count = models.PositiveIntegerField(default=0)
-    is_blocked  = models.BooleanField(default=False)
-    blocked_by  = models.ForeignKey(
+    is_blocked    = models.BooleanField(default=False)
+    blocked_by    = models.ForeignKey(
         'User', null=True, blank=True, on_delete=models.SET_NULL, related_name='blocked_posts',
     )
-    blocked_at  = models.DateTimeField(null=True, blank=True)
+    blocked_at    = models.DateTimeField(null=True, blank=True)
+    block_reason  = models.TextField(blank=True, default='')
 
     class Meta:
         ordering = ['-created_at']
@@ -442,7 +445,8 @@ class Review(models.Model):
     blocked_by = models.ForeignKey(
         User, null=True, blank=True, on_delete=models.SET_NULL, related_name='blocked_reviews',
     )
-    blocked_at = models.DateTimeField(null=True, blank=True)
+    blocked_at   = models.DateTimeField(null=True, blank=True)
+    block_reason = models.TextField(blank=True, default='')
 
     class Meta:
         ordering = ['-created_at']
@@ -614,7 +618,8 @@ class Comment(BaseController):
     blocked_by = models.ForeignKey(
         User, null=True, blank=True, on_delete=models.SET_NULL, related_name='blocked_comments',
     )
-    blocked_at = models.DateTimeField(null=True, blank=True)
+    blocked_at   = models.DateTimeField(null=True, blank=True)
+    block_reason = models.TextField(blank=True, default='')
 
     class Meta:
         ordering = ['created_at']
@@ -741,13 +746,15 @@ class PaymentRequest(BaseController):
 
 class Notification(models.Model):
     class Type(models.TextChoices):
-        FOLLOW      = 'FOLLOW',      'Новый подписчик'
-        NEW_POST    = 'NEW_POST',    'Новый пост'
-        INQUIRY_MSG = 'INQUIRY_MSG', 'Сообщение в запросе'
-        GROUP_MSG   = 'GROUP_MSG',   'Сообщение в группе'
+        FOLLOW           = 'FOLLOW',           'Новый подписчик'
+        NEW_POST         = 'NEW_POST',         'Новый пост'
+        INQUIRY_MSG      = 'INQUIRY_MSG',      'Сообщение в запросе'
+        GROUP_MSG        = 'GROUP_MSG',        'Сообщение в группе'
+        CONTENT_BLOCKED  = 'CONTENT_BLOCKED',  'Контент заблокирован'
+        PROFILE_BLOCKED  = 'PROFILE_BLOCKED',  'Профиль заблокирован'
 
     recipient  = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
-    type       = models.CharField(max_length=20, choices=Type.choices)
+    type       = models.CharField(max_length=30, choices=Type.choices)
     title      = models.CharField(max_length=200)
     body       = models.TextField(blank=True)
     is_read    = models.BooleanField(default=False)

@@ -31,6 +31,9 @@ function targetFor(n) {
   }
   if (n.type === 'FOLLOW' && d.business_id) return [`/business/${d.business_id}`]
   if (n.type === 'NEW_POST' && d.business_id) return [`/business/${d.business_id}`]
+  if (n.type === 'CONTENT_BLOCKED' || n.type === 'PROFILE_BLOCKED') {
+    return ['/complaint', { state: { appeal: true, content_type: d.content_type, content_id: d.content_id } }]
+  }
   return [null]
 }
 
@@ -136,11 +139,14 @@ export default function NotificationBell() {
             {!loading && items.map(n => (
               <button
                 key={n.id}
-                className={`notif__item ${n.is_read ? '' : 'notif__item--unread'}`}
+                className={`notif__item ${n.is_read ? '' : 'notif__item--unread'}${n.type === 'CONTENT_BLOCKED' || n.type === 'PROFILE_BLOCKED' ? ' notif__item--blocked' : ''}`}
                 onClick={() => onItemClick(n)}
               >
                 <div className="notif__item-title">{n.title}</div>
                 {n.body && <div className="notif__item-body">{n.body}</div>}
+                {(n.type === 'CONTENT_BLOCKED' || n.type === 'PROFILE_BLOCKED') && (
+                  <div className="notif__item-appeal">Подать апелляцию →</div>
+                )}
                 <div className="notif__item-time">{timeAgo(n.created_at)}</div>
               </button>
             ))}

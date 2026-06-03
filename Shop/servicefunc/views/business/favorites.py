@@ -32,7 +32,8 @@ class BusinessFavoritesListView(APIView):
 
     def get(self, request):
         qs = Business.objects.filter(
-            favorited_by__user=request.user
+            favorited_by__user=request.user,
+            is_blocked=False,
         ).select_related('owner').annotate(
             _subscribers_count=Count('subscribers', distinct=True),
         ).order_by('-favorited_by__created_at')

@@ -135,3 +135,14 @@
   font-size: 11px;
   color: var(--text-muted);
 }
+
+.notif__item--blocked {
+  border-left: 3px solid #ef4444;
+  background: rgba(239,68,68,0.06);
+}
+.notif__item-appeal {
+  font-size: 12px;
+  font-weight: 700;
+  color: #e91e63;
+  margin-top: 2px;
+}

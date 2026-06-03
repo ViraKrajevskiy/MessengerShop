@@ -7,6 +7,7 @@ import { DEFAULT_AVATAR } from '../utils/defaults'
 import { API_URL } from '../config/api'
 import FlagIcon from './FlagIcon'
 import NotificationBell from './NotificationBell'
+import BlockedBanner from './BlockedBanner'
 import './Header.css'
 
 const ThemeIcon = ({ theme }) => theme === 'light' ? (
@@ -136,6 +137,7 @@ export default function Header() {
 
   return (
     <>
+      <BlockedBanner />
       <header className="header">
 
         {/* ── Row 1: Logo + Auth controls ── */}

@@ -9,7 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from Shop.models import User, Complaint
+from Shop.models import User, Notification, Complaint
 from Shop.servicefunc.views.verification.verification import IsModerator
 
 
@@ -109,6 +109,16 @@ class ModeratorUserBlockView(APIView):
                 fields.append('is_active')
 
         user.save(update_fields=fields)
+
+        if user.is_profile_blocked:
+            reason = request.data.get('reason', '')
+            Notification.objects.create(
+                recipient=user,
+                type='PROFILE_BLOCKED',
+                title='Ваш профиль заблокирован модератором',
+                body=reason or 'Функционал ограничен. Вы можете подать апелляцию.',
+                data={'user_id': user.id},
+            )
 
         return Response({
             'id':                 user.id,

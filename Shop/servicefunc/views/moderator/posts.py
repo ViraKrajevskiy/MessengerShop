@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from Shop.models import Post, User
+from Shop.models import Post, User, Notification
 from Shop.servicefunc.views.verification.verification import IsModerator
 
 
@@ -72,14 +72,27 @@ class ModeratorPostBlockView(APIView):
         if blocked is None:
             return Response({'detail': 'Поле blocked обязательно.'}, status=400)
 
+        reason = request.data.get('reason', '')
         post.is_blocked = bool(blocked)
         if post.is_blocked:
             post.blocked_by = request.user
             post.blocked_at = timezone.now()
+            post.block_reason = reason
         else:
             post.blocked_by = None
             post.blocked_at = None
-        post.save(update_fields=['is_blocked', 'blocked_by', 'blocked_at'])
+            post.block_reason = ''
+        post.save(update_fields=['is_blocked', 'blocked_by', 'blocked_at', 'block_reason'])
+
+        if post.is_blocked and post.business and post.business.owner:
+            label = 'твит' if post.is_tweet else 'пост'
+            Notification.objects.create(
+                recipient=post.business.owner,
+                type='CONTENT_BLOCKED',
+                title=f'Ваш {label} заблокирован модератором',
+                body=reason or 'Нарушение правил платформы. Контент будет удалён через 3 дня.',
+                data={'content_type': 'post', 'content_id': post.id},
+            )
 
         return Response({
             'id':         post.id,

@@ -31,7 +31,9 @@ class BusinessListView(APIView):
         responses={200: BusinessListSerializer(many=True)},
     )
     def get(self, request):
-        qs = Business.objects.select_related('owner').annotate(
+        qs = Business.objects.filter(
+            is_blocked=False,
+        ).select_related('owner').annotate(
             _subscribers_count=Count('subscribers', distinct=True),
         )
 

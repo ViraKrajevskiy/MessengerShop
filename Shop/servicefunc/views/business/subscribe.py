@@ -15,7 +15,8 @@ class MySubscriptionsListView(APIView):
 
     def get(self, request):
         qs = Business.objects.filter(
-            subscribers__user=request.user
+            subscribers__user=request.user,
+            is_blocked=False,
         ).select_related('owner').annotate(
             _subscribers_count=Count('subscribers', distinct=True),
         ).order_by('-subscribers__created_at')

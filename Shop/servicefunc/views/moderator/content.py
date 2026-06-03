@@ -8,19 +8,50 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from Shop.models import Story, Comment, Product, Review
+from Shop.models import Story, Comment, Product, Review, Notification
 from Shop.servicefunc.views.verification.verification import IsModerator
 
 
-def _block_toggle(obj, user, blocked):
+CONTENT_TYPE_LABELS = {
+    'Story': 'история', 'Comment': 'комментарий',
+    'Product': 'товар/услуга', 'Review': 'отзыв',
+}
+
+
+def _get_content_owner(obj):
+    """Return the User who owns this content."""
+    if hasattr(obj, 'author'):
+        return obj.author
+    if hasattr(obj, 'business') and obj.business:
+        return obj.business.owner
+    return None
+
+
+def _block_toggle(obj, user, blocked, reason=''):
     obj.is_blocked = blocked
     if blocked:
         obj.blocked_by = user
         obj.blocked_at = timezone.now()
+        obj.block_reason = reason
     else:
         obj.blocked_by = None
         obj.blocked_at = None
-    obj.save(update_fields=['is_blocked', 'blocked_by', 'blocked_at'])
+        obj.block_reason = ''
+    obj.save(update_fields=['is_blocked', 'blocked_by', 'blocked_at', 'block_reason'])
+
+    if blocked:
+        owner = _get_content_owner(obj)
+        if owner:
+            ctype = type(obj).__name__
+            label = CONTENT_TYPE_LABELS.get(ctype, 'контент')
+            Notification.objects.create(
+                recipient=owner,
+                type='CONTENT_BLOCKED',
+                title=f'Ваш {label} заблокирован модератором',
+                body=reason or 'Нарушение правил платформы. Контент будет удалён через 3 дня.',
+                data={'content_type': ctype.lower(), 'content_id': obj.id},
+            )
+
     return {'id': obj.id, 'is_blocked': obj.is_blocked, 'blocked_at': obj.blocked_at}
 
 
@@ -64,7 +95,8 @@ class ModeratorStoryBlockView(APIView):
         blocked = request.data.get('blocked')
         if blocked is None:
             return Response({'detail': 'Поле blocked обязательно.'}, status=400)
-        return Response(_block_toggle(obj, request.user, bool(blocked)))
+        reason = request.data.get('reason', '')
+        return Response(_block_toggle(obj, request.user, bool(blocked), reason=reason))
 
 
 # ── Comments ───────────────────────────────────────────────────────────────────
@@ -106,7 +138,8 @@ class ModeratorCommentBlockView(APIView):
         blocked = request.data.get('blocked')
         if blocked is None:
             return Response({'detail': 'Поле blocked обязательно.'}, status=400)
-        return Response(_block_toggle(obj, request.user, bool(blocked)))
+        reason = request.data.get('reason', '')
+        return Response(_block_toggle(obj, request.user, bool(blocked), reason=reason))
 
 
 # ── Products ───────────────────────────────────────────────────────────────────
@@ -152,7 +185,8 @@ class ModeratorProductBlockView(APIView):
         blocked = request.data.get('blocked')
         if blocked is None:
             return Response({'detail': 'Поле blocked обязательно.'}, status=400)
-        return Response(_block_toggle(obj, request.user, bool(blocked)))
+        reason = request.data.get('reason', '')
+        return Response(_block_toggle(obj, request.user, bool(blocked), reason=reason))
 
 
 # ── Reviews ────────────────────────────────────────────────────────────────────
@@ -197,4 +231,5 @@ class ModeratorReviewBlockView(APIView):
         blocked = request.data.get('blocked')
         if blocked is None:
             return Response({'detail': 'Поле blocked обязательно.'}, status=400)
-        return Response(_block_toggle(obj, request.user, bool(blocked)))
+        reason = request.data.get('reason', '')
+        return Response(_block_toggle(obj, request.user, bool(blocked), reason=reason))

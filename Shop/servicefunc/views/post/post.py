@@ -33,7 +33,7 @@ class PostListView(APIView):
                 ),
             )
 
-        posts = qs.order_by('-created_at')[:50]
+        posts = qs.filter(is_blocked=False).order_by('-created_at')[:50]
         serializer = PostSerializer(posts, many=True, context={'request': request})
         response = Response(serializer.data)
         # Ответ содержит per-user поля (is_subscribed, is_favorited). Публично
@@ -51,7 +51,7 @@ class BusinessPostListView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, pk):
-        qs = Post.objects.filter(business_id=pk).select_related(
+        qs = Post.objects.filter(business_id=pk, is_blocked=False).select_related(
             'business__owner'
         ).prefetch_related('tags').annotate(
             _favorites_count=Count('favorites', distinct=True),

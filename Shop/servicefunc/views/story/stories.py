@@ -30,7 +30,8 @@ class StoryListCreateView(APIView):
         from django.utils import timezone
         from django.db.models import Count, Q
         stories = Story.objects.filter(
-            expires_at__gt=timezone.now()
+            expires_at__gt=timezone.now(),
+            is_blocked=False,
         ).select_related('author').prefetch_related('story_views').annotate(
             _comments_count=Count(
                 'comments', filter=Q(comments__is_deleted=False, comments__parent=None)
