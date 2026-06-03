@@ -19,7 +19,16 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 52px;
+  height: 58px;
+  gap: 16px;
+}
+
+/* Logo + primary nav grouped on the left */
+.header__brand {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  min-width: 0;
 }
 
 .header__top-right {
@@ -64,36 +73,54 @@
   font-weight: 500;
 }
 
-/* ── Bottom nav buttons ── */
+/* ── Primary nav (left, next to logo) ── */
 .header__nav {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
 }
 
 .header__nav-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 5px 14px;
-  border-radius: 20px;
-  border: 1.5px solid var(--border-color);
-  background: var(--bg-tertiary);
+  gap: 7px;
+  padding: 8px 14px;
+  border-radius: 11px;
+  border: none;
+  background: transparent;
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.22s;
+  transition: background 0.18s, color 0.18s;
   font-family: inherit;
   white-space: nowrap;
 }
 
-.header__nav-btn:hover {
-  background: var(--accent-gradient);
-  color: #fff;
-  border-color: transparent;
-  box-shadow: 0 4px 14px rgba(229, 57, 53, 0.28);
+.header__nav-btn svg {
+  opacity: 0.85;
+  transition: opacity 0.18s;
 }
+
+.header__nav-btn:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.header__nav-btn:hover svg { opacity: 1; }
+
+/* Active tab — soft accent tint */
+.header__nav-btn--active {
+  background: rgba(229, 57, 53, 0.10);
+  color: var(--accent-1);
+}
+
+.header__nav-btn--active:hover {
+  background: rgba(229, 57, 53, 0.14);
+  color: var(--accent-1);
+}
+
+.header__nav-btn--active svg { opacity: 1; }
 
 /* ── Logo ── */
 .header__logo {
@@ -677,6 +704,7 @@
   .header__user-name { display: none; }
   .header__theme-toggle { display: none; }
   .header__bottom { display: none; }
+  .header__nav { display: none; }
   .header__user-btn { padding: 4px 8px 4px 4px; }
   .header__user-avatar { width: 28px; height: 28px; }
   /* Меньший логотип + гарантированный отступ, чтобы он не прилипал к блоку
