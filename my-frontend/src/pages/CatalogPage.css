@@ -39,6 +39,21 @@
   grid-template-columns: repeat(5, 1fr);
 }
 
+/* ── Формат карточки каталога (макет): фото 2:3 + текстовый блок 70px ──
+   Пропорция 2:3 (260×390) — фото кадрируется через object-fit: cover.
+   Текстовый блок 70px → общая высота карточки ≈ 460px при ширине 260px.
+   Скоупим под .cat-page, чтобы не задеть карточки на главной. */
+.cat-page .user-card__image {
+  aspect-ratio: 2 / 3;
+}
+
+.cat-page .user-card__info {
+  height: 70px;
+  box-sizing: border-box;
+  justify-content: center;
+  overflow: hidden;
+}
+
 /* Hero */
 .cat-page__hero {
   margin-bottom: 24px;

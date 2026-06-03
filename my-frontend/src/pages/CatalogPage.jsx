@@ -442,8 +442,8 @@ export default function CatalogPage() {
         <div className="cat-page__layout">
           <div className="cat-page__content">
             {loading ? (
-              <div className="card-grid card-grid--4">
-                {[0,1,2,3,4,5,6,7].map(i => <ProductSkeleton key={i} />)}
+              <div className="card-grid card-grid--5">
+                {[0,1,2,3,4,5,6,7,8,9].map(i => <ProductSkeleton key={i} />)}
               </div>
             ) : (
               <>
@@ -457,7 +457,7 @@ export default function CatalogPage() {
                 ) : (
                   <>
                     <div className="cat-results-count">{fBiz.length}</div>
-                    <div className="card-grid card-grid--4">
+                    <div className="card-grid card-grid--5">
                       {fBiz.map(b => (
                         <UserCard
                           key={b.id}
