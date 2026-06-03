@@ -472,6 +472,7 @@ function CreatePostModal({ getAccessToken, bizId, onClose, onSuccess }) {
     setLoading(true); setError('')
     const fd = new FormData()
     fd.append('text', text)
+    fd.append('is_tweet', 'false')
     if (file) {
       fd.append('media', file)
       fd.append('media_type', isVideoFile(file) ? 'VIDEO' : 'IMAGE')
@@ -609,6 +610,7 @@ function CreateTweetModal({ getAccessToken, bizId, onClose, onSuccess }) {
     setLoading(true); setError('')
     const fd = new FormData()
     fd.append('text', value)
+    fd.append('is_tweet', 'true')
     try {
       const token = await getAccessToken()
       if (!token) {
@@ -1947,7 +1949,7 @@ export default function BusinessDashboardPage() {
                     🐦 Твиты
                     {postsLoaded && (
                       <span className="biz-content-tab__count">
-                        {posts.filter(p => !p.media_display).length}
+                        {posts.filter(p => p.is_tweet).length}
                       </span>
                     )}
                   </button>
@@ -1991,7 +1993,7 @@ export default function BusinessDashboardPage() {
 
                   {postsLoading ? (
                     <div className="biz-content-loading"><div className="biz-dashboard__spinner" /></div>
-                  ) : posts.length === 0 ? (
+                  ) : posts.filter(p => !p.is_tweet).length === 0 ? (
                     <div className="biz-dashboard__empty">
                       <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" opacity="0.3">
                         <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/>
@@ -2000,7 +2002,7 @@ export default function BusinessDashboardPage() {
                     </div>
                   ) : (
                     <div className="biz-content-list">
-                      {posts.map(post => (
+                      {posts.filter(p => !p.is_tweet).map(post => (
                         <PostRow
                           key={post.id}
                           post={post}
@@ -2025,7 +2027,7 @@ export default function BusinessDashboardPage() {
 
                   {postsLoading ? (
                     <div className="biz-content-loading"><div className="biz-dashboard__spinner" /></div>
-                  ) : posts.filter(p => !p.media_display).length === 0 ? (
+                  ) : posts.filter(p => p.is_tweet).length === 0 ? (
                     <div className="biz-dashboard__empty">
                       <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" opacity="0.3">
                         <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/>
@@ -2034,7 +2036,7 @@ export default function BusinessDashboardPage() {
                     </div>
                   ) : (
                     <div className="biz-content-list">
-                      {posts.filter(p => !p.media_display).map(post => (
+                      {posts.filter(p => p.is_tweet).map(post => (
                         <PostRow
                           key={post.id}
                           post={post}

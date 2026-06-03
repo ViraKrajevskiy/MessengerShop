@@ -39,6 +39,7 @@ class ModeratorPostListView(APIView):
                 'text':       post.text,
                 'media':      media,
                 'media_type': post.media_type,
+                'is_tweet':   post.is_tweet,
                 'is_blocked': post.is_blocked,
                 'blocked_at': post.blocked_at,
                 'blocked_by': post.blocked_by.email if post.blocked_by else None,

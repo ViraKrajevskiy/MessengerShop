@@ -84,10 +84,10 @@ class BusinessPostListView(APIView):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        # Твит = текстовый пост без медиа. Твиты — только для платного тарифа.
-        # Обычные посты (с фото/видео) можно публиковать на любом тарифе.
-        has_media = bool(request.FILES.get('media') or request.data.get('media_url'))
-        if not has_media and not business.is_pro:
+        # Твит — отдельная платная фича (Pro/VIP), помечается флагом is_tweet.
+        # Обычные посты (хоть с медиа, хоть текстовые) можно публиковать на любом тарифе.
+        is_tweet = str(request.data.get('is_tweet', '')).lower() in ('true', '1', 'on')
+        if is_tweet and not business.is_pro:
             return Response(
                 {'detail': 'Публиковать твиты могут только бизнесы с оплаченным тарифом (Pro или VIP).'},
                 status=status.HTTP_403_FORBIDDEN,
@@ -95,7 +95,7 @@ class BusinessPostListView(APIView):
 
         serializer = PostCreateSerializer(data=request.data)
         if serializer.is_valid():
-            post = serializer.save(business=business)
+            post = serializer.save(business=business, is_tweet=is_tweet)
             return Response(PostSerializer(post, context={'request': request}).data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

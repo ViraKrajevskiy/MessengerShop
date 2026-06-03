@@ -375,7 +375,9 @@ export default function FeedPage() {
                   <>
                     <Stories />
                     {(() => {
-                      const allPosts = fPosts
+                      // Посты = всё, что не твит (с медиа и текстовые посты).
+                      // Твиты — отдельная платная сущность, у них своя вкладка.
+                      const allPosts = fPosts.filter(p => !p.is_tweet)
                       const hasMore = false
                       const totalPages = Math.ceil(allPosts.length / CARDS_PER_PAGE)
                       const paginatedPosts = allPosts.slice(page * CARDS_PER_PAGE, (page + 1) * CARDS_PER_PAGE)
@@ -419,7 +421,7 @@ export default function FeedPage() {
 
                 {/* ── Твиты (text-only posts) ── */}
                 {tab === 'tweets' && (() => {
-                  const fTweets = fPosts.filter(p => !p.media_display)
+                  const fTweets = fPosts.filter(p => p.is_tweet)
                   return (
                     <>
                       <div className="feed-tweets-list">

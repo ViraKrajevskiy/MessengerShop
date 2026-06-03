@@ -354,6 +354,9 @@ class Post(BaseController):
     media      = models.FileField(upload_to='posts/', blank=True, null=True)
     media_url  = models.URLField(blank=True)
     media_type = models.CharField(max_length=10, choices=MediaType.choices, default=MediaType.IMAGE)
+    # Твит — отдельная платная фича (Pro/VIP), а не «пост без медиа». Обычный пост
+    # может быть и текстовым; различаем их по этому флагу, а не по наличию картинки.
+    is_tweet   = models.BooleanField(default=False)
     views_count = models.PositiveIntegerField(default=0)
     is_blocked  = models.BooleanField(default=False)
     blocked_by  = models.ForeignKey(

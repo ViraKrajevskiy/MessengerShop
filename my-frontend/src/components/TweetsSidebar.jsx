@@ -48,7 +48,7 @@ export default function TweetsSidebar({ posts: postsProp, title = 'Твиты' }
     guard(() => { postFavorites.toggle(id, getAccessToken) })
   }
 
-  const list = posts.slice(0, PREVIEW_SIZE)
+  const list = posts.filter(p => p.is_tweet).slice(0, PREVIEW_SIZE)
 
   return (
     <aside className="brs brs--tweets">

@@ -518,7 +518,7 @@ function PostsTab({ token }) {
     try {
       const params = filter === 'blocked' ? { blocked: true } : filter === 'active' ? { blocked: false } : {}
       const data = await apiModeratorGetPosts(token, params)
-      setItems(data)
+      setItems((data || []).filter(p => !p.is_tweet))
     } catch { /* ignore */ }
     finally { setLoading(false) }
   }, [token, filter])
@@ -598,7 +598,7 @@ function TweetsTab({ token }) {
     try {
       const params = filter === 'blocked' ? { blocked: true } : filter === 'active' ? { blocked: false } : {}
       const data = await apiModeratorGetPosts(token, params)
-      setItems((data || []).filter(p => !p.media))
+      setItems((data || []).filter(p => p.is_tweet))
     } catch { /* ignore */ }
     finally { setLoading(false) }
   }, [token, filter])

@@ -20,7 +20,7 @@ class PostSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'business_id', 'business_name', 'business_logo', 'is_verified',
             'owner_is_online',
-            'text', 'media_display', 'media_type', 'views_count',
+            'text', 'media_display', 'media_type', 'is_tweet', 'views_count',
             'is_subscribed', 'tags',
             'is_favorited', 'favorites_count',
             'is_owner',

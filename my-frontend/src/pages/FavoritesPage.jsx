@@ -137,13 +137,13 @@ export default function FavoritesPage() {
     () => favBiz.filter(b => favIds.includes(b.id)).map(bizToCard),
     [favBiz, favIds]
   )
-  // Пост = с медиа, твит = текстовый пост (как в ленте)
+  // Твит — отдельная платная сущность (флаг is_tweet), пост — всё остальное.
   const visiblePosts = useMemo(
-    () => favPosts.filter(p => favPostIds.includes(p.id) && p.media_display),
+    () => favPosts.filter(p => favPostIds.includes(p.id) && !p.is_tweet),
     [favPosts, favPostIds]
   )
   const visibleTweets = useMemo(
-    () => favPosts.filter(p => favPostIds.includes(p.id) && !p.media_display),
+    () => favPosts.filter(p => favPostIds.includes(p.id) && p.is_tweet),
     [favPosts, favPostIds]
   )
   const visibleNews = useMemo(
