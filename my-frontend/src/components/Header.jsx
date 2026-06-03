@@ -142,11 +142,10 @@ export default function Header() {
 
         {/* ── Row 1: Logo + primary nav + Auth controls ── */}
         <div className="header__top">
-          <div className="header__brand">
-            <div className="header__logo" onClick={() => go('/')}>{t('appName')}</div>
+          <div className="header__logo" onClick={() => go('/')}>{t('appName')}</div>
 
-            {/* Primary nav — left, next to the logo */}
-            <nav className="header__nav">
+          {/* Primary nav — centered segmented control */}
+          <nav className="header__nav">
               <button
                 className={`header__nav-btn ${location.pathname === '/catalog' ? 'header__nav-btn--active' : ''}`}
                 onClick={() => go('/catalog')}
@@ -177,7 +176,6 @@ export default function Header() {
                 {t('nav_messenger')}
               </button>
             </nav>
-          </div>
 
           <div className="header__top-right">
 

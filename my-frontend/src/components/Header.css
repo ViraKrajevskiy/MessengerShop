@@ -16,19 +16,12 @@
 
 /* ── Row 1 ── */
 .header__top {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   height: 58px;
   gap: 16px;
-}
-
-/* Logo + primary nav grouped on the left */
-.header__brand {
-  display: flex;
-  align-items: center;
-  gap: 26px;
-  min-width: 0;
 }
 
 .header__top-right {
@@ -73,26 +66,30 @@
   font-weight: 500;
 }
 
-/* ── Primary nav (left, next to logo) ── */
+/* ── Primary nav — centered segmented control, transparent container ── */
 .header__nav {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
+  background: transparent;
 }
 
 .header__nav-btn {
   display: flex;
   align-items: center;
   gap: 7px;
-  padding: 8px 14px;
-  border-radius: 11px;
+  padding: 8px 16px;
+  border-radius: 10px;
   border: none;
   background: transparent;
   color: var(--text-secondary);
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.18s, color 0.18s;
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
   font-family: inherit;
   white-space: nowrap;
 }
@@ -109,18 +106,15 @@
 
 .header__nav-btn:hover svg { opacity: 1; }
 
-/* Active tab — soft accent tint */
-.header__nav-btn--active {
-  background: rgba(229, 57, 53, 0.10);
-  color: var(--accent-1);
-}
-
+/* Active tab — filled accent gradient */
+.header__nav-btn--active,
 .header__nav-btn--active:hover {
-  background: rgba(229, 57, 53, 0.14);
-  color: var(--accent-1);
+  background: var(--accent-gradient);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(229, 57, 53, 0.32);
 }
 
-.header__nav-btn--active svg { opacity: 1; }
+.header__nav-btn--active svg { opacity: 1; stroke: #fff; }
 
 /* ── Logo ── */
 .header__logo {
