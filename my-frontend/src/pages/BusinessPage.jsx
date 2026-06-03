@@ -277,7 +277,7 @@ function InfoTabs({ biz, categoryIcon, faq, navigate, surveyAnswers }) {
 export default function BusinessPage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { user, tokens, getAccessToken } = useAuth()
+  const { user, tokens, getAccessToken, setUser } = useAuth()
   const { t } = useLanguage()
 
   const [biz, setBiz]               = useState(null)
@@ -433,6 +433,7 @@ setSubscribed(bizData.is_subscribed || false)
       const data = await apiToggleSubscription(id, token)
       setSubscribed(data.subscribed)
       setSubCount(data.subscribers_count)
+      setUser(u => u ? { ...u, subscriptions_count: (u.subscriptions_count ?? 0) + (data.subscribed ? 1 : -1) } : u)
     } catch (err) {
       showToast(err.message || 'Ошибка подписки')
     } finally { setSubLoading(false) }

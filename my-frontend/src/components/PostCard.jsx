@@ -88,7 +88,7 @@ function getOrExtractPoster(videoUrl) {
 
 export default function PostCard({ post, onDelete }) {
   const navigate = useNavigate()
-  const { user, getAccessToken } = useAuth()
+  const { user, getAccessToken, setUser } = useAuth()
   const { t } = useLanguage()
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [followed, setFollowed] = useState(post.is_subscribed || false)
@@ -192,6 +192,7 @@ export default function PostCard({ post, onDelete }) {
       const token = await getAccessToken()
       const data = await apiToggleSubscription(post.business_id, token)
       setFollowed(data.subscribed)
+      setUser(u => u ? { ...u, subscriptions_count: (u.subscriptions_count ?? 0) + (data.subscribed ? 1 : -1) } : u)
     } catch (err) {
       setSubError(err.message || 'Ошибка подписки')
       setTimeout(() => setSubError(''), 3000)

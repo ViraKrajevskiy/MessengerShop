@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useLanguage } from '../context/LanguageContext'
 import { apiPatchMe } from '../api/profileApi'
+import { apiMe } from '../api/authApi'
 import { apiGetMySubscriptions, apiToggleSubscription } from '../api/businessApi'
 import Header from '../components/Header'
+import PostModal from '../components/PostModal'
 import { DEFAULT_AVATAR, makeInitialAvatar } from '../utils/defaults'
 import { resolveUrl } from '../utils/urlUtils'
 import { API_URL as BASE } from '../config/api'
@@ -47,6 +49,8 @@ export default function MyProfilePage() {
   const [saveOk, setSaveOk]               = useState(false)
   const [verStatus, setVerStatus]         = useState(undefined)
 
+  const [photoOpen, setPhotoOpen] = useState(false)
+
   // ── Список подписок (модалка по клику на счётчик) ──
   const [showSubs, setShowSubs]   = useState(false)
   const [subs, setSubs]           = useState(null) // null = ещё не загружали
@@ -83,6 +87,21 @@ export default function MyProfilePage() {
     if (user) setForm({ username: user.username || '' })
   }, [user])
 
+  // Обновляем данные пользователя с сервера при каждом заходе на профиль,
+  // чтобы subscriptions_count и другие счётчики были актуальны.
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      const token = await getAccessToken()
+      if (!token || cancelled) return
+      try {
+        const fresh = await apiMe(token)
+        if (!cancelled && fresh) setUser(fresh)
+      } catch { /* ignore */ }
+    })()
+    return () => { cancelled = true }
+  }, []) // eslint-disable-line
+
   useEffect(() => {
     if (user?.role !== 'BUSINESS') return
     let cancelled = false
@@ -113,7 +132,10 @@ export default function MyProfilePage() {
     ? new Date(user.created_at).toLocaleDateString('ru-RU', { year: 'numeric', month: 'long' })
     : '—'
 
-  const handleAvatarClick = () => { if (editing) fileRef.current?.click() }
+  const handleAvatarClick = () => {
+    if (editing) { fileRef.current?.click(); return }
+    if (user.avatar) setPhotoOpen(true)
+  }
 
   const handleFileChange = (e) => {
     const file = e.target.files?.[0]
@@ -325,6 +347,11 @@ export default function MyProfilePage() {
         </button>
 
       </main>
+
+      {/* ── Модалка: фото профиля ── */}
+      {photoOpen && (
+        <PostModal photoUrl={avatarSrc} onClose={() => setPhotoOpen(false)} />
+      )}
 
       {/* ── Модалка: список подписок ── */}
       {showSubs && (
