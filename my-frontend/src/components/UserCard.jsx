@@ -87,7 +87,7 @@ export default function UserCard({ id, name = 'Имя', city = 'Город', bad
 
           {isVerified && (
             <span className="user-card__verified-badge">
-              <VerifiedBadge size={13} fill="#fff" />
+              <VerifiedBadge size={13} />
             </span>
           )}
 

@@ -843,7 +843,7 @@ setSubscribed(bizData.is_subscribed || false)
                         )}
                         {s.is_verified && (
                           <span className="pc-card__verified">
-                            <VerifiedBadge size={12} fill="#fff" />
+                            <VerifiedBadge size={12} />
                           </span>
                         )}
                       </div>

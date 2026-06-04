@@ -190,7 +190,7 @@ export default function PremiumCarousel({ businesses = [], onMessage }) {
                 </span>
                 {biz.is_verified && (
                   <span className="pc-card__verified" title="">
-                    <VerifiedBadge size={12} fill="#fff" />
+                    <VerifiedBadge size={12} />
                   </span>
                 )}
               </div>
