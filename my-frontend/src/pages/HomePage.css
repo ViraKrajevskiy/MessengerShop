@@ -28,14 +28,17 @@
   flex: 1;
   min-width: 0;
   padding: 0 0 60px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--section-gap);
 }
 
 .home-page__sidebar {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: var(--section-gap);
   flex-shrink: 0;
-  margin-top: 28px;
+  margin-top: var(--section-gap);
   align-self: flex-start;
 }
 
@@ -180,7 +183,7 @@
 
 /* All cards */
 .all-cards-section {
-  padding: var(--section-gap) 4px 24px;
+  padding: 0;
 }
 
 /* ── Filter chips ── */
@@ -371,8 +374,7 @@
     flex-wrap: wrap;
   }
   .all-cards-section {
-    padding: 4px 0 16px;
-    margin-top: 18px;
+    padding: 0;
   }
   .all-cards__arrow {
     display: none;
@@ -399,9 +401,9 @@
   .home-page__layout .home-page__sidebar {
     display: flex;
     flex-direction: column;
-    gap: 22px;
+    gap: var(--section-gap);
     width: 100%;
-    margin-top: 4px;
+    margin-top: 0;
   }
 
   /* ── ТВИТЫ: оформлены так же, как блоки «Бизнесы …» ниже,
@@ -590,14 +592,13 @@
   }
 
   .all-cards-section {
-    margin-top: 14px;
-    padding: 4px 0 20px;
+    padding: 0;
   }
   .home-posts-section {
-    margin: 18px 0;
+    margin: 0;
   }
   .home-news-section {
-    margin: 18px 0;
+    margin: 0;
   }
   .home-auth-gate {
     margin: 20px 0 8px;
@@ -681,7 +682,7 @@
 
 /* Posts section — без отдельного «контейнера», фон как у страницы */
 .home-posts-section {
-  margin: var(--section-gap) 0;
+  margin: 0;
   min-height: 0;
   background: transparent;
   border: none;
@@ -916,7 +917,7 @@
    ========================================================================== */
 
 .home-news-section {
-  margin: var(--section-gap) 0;
+  margin: 0;
   min-height: 280px;
   contain: layout style;
 }

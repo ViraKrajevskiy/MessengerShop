@@ -7,7 +7,7 @@ import PostCard from '../components/PostCard'
 import { useAuth } from '../context/AuthContext'
 import { useLanguage } from '../context/LanguageContext'
 import { apiGetPosts, apiGetBusinesses, apiGetNews, CATEGORY_LABELS } from '../api/businessApi'
-import { postFavorites } from '../utils/mediaFavorites'
+import { postFavorites, newsFavorites } from '../utils/mediaFavorites'
 import { makeInitialAvatar } from '../utils/defaults'
 import { timeAgo } from '../utils/timeUtils'
 import { resolveUrl } from '../utils/urlUtils'
@@ -91,8 +91,26 @@ function TweetCard({ post, onTagClick }) {
 // ── News card (feed style) ──────────────────────────────────────────────────
 function FeedNewsCard({ item, onTagClick }) {
   const navigate = useNavigate()
+  const { user, getAccessToken } = useAuth()
   const { t } = useLanguage()
+  const [fav, setFav] = useState(false)
   const img = item.media_display || item.media_url || null
+
+  useEffect(() => {
+    if (!user) { setFav(false); return }
+    const serverFav = !!item.is_favorited
+    newsFavorites.setFavorite(item.id, serverFav)
+    setFav(serverFav)
+    return newsFavorites.onChange(ids => setFav(ids.includes(item.id)))
+  }, [user, item.id, item.is_favorited])
+
+  const toggleFav = async (e) => {
+    e.stopPropagation()
+    if (!user) { navigate('/login'); return }
+    setFav(prev => !prev)
+    const token = await getAccessToken()
+    await newsFavorites.toggle(item.id, token)
+  }
 
   return (
     <div className="feed-news-card" onClick={() => navigate(`/news/${item.id}`)}>
@@ -106,7 +124,18 @@ function FeedNewsCard({ item, onTagClick }) {
         <h3 className="feed-news-card__title">{item.title}</h3>
         <p className="feed-news-card__text">{item.text?.length > 100 ? item.text.slice(0, 100) + '...' : item.text}</p>
         <TagPills tags={item.tags} onTagClick={onTagClick} />
-        <span className="feed-news-card__source">{item.business_name || item.author_name || 'MessengerShop'}</span>
+        <div className="feed-news-card__footer">
+          <span className="feed-news-card__source">{item.business_name || item.author_name || 'MessengerShop'}</span>
+          <button
+            className={`feed-news-card__fav ${fav ? 'feed-news-card__fav--active' : ''}`}
+            onClick={toggleFav}
+            title={fav ? t('post_removeFav') : t('post_addFav')}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill={fav ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
   )
