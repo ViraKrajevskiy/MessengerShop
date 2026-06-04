@@ -46,8 +46,8 @@ export default function UserCard({ id, name = 'Имя', city = 'Город', bad
   const videoRef = useRef(null)
 
   const placeholder = makeCardPlaceholder(name, id)
-  const resolvedCardMedia = cardMedia || null
-  const rawPhoto = resolvedCardMedia ? resolveUrl(resolvedCardMedia) : placeholder
+  const mediaSource = cardMedia || cover || logo || null
+  const rawPhoto = mediaSource ? resolveUrl(mediaSource) : placeholder
   const isVideo = resolvedCardMedia && /\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(resolvedCardMedia)
 
   const handleMouseEnter = () => { if (isVideo && videoRef.current) videoRef.current.play() }
