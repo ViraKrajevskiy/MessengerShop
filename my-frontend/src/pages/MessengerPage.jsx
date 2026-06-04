@@ -12,7 +12,7 @@ import {
   apiAddGroupMember, apiUpdateGroupMember, apiRemoveGroupMember,
   apiJoinGroup, apiLeaveGroup, apiDeleteGroup,
 } from '../api/businessApi'
-import { DEFAULT_AVATAR } from '../utils/defaults'
+import { DEFAULT_AVATAR, makeInitialAvatar } from '../utils/defaults'
 import { timeAgoShort as timeAgo } from '../utils/timeUtils'
 import './MessengerPage.css'
 
@@ -21,8 +21,8 @@ const ROLE_LABELS = { OWNER: 'Владелец', ADMIN: 'Админ', MODERATOR:
 
 /* ─── Inquiry contact item (existing) ─── */
 function ContactItem({ inquiry, isActive, onClick, isBusiness, currentUserId }) {
-  const avatar = inquiry.logo || FALLBACK_AVATAR
   const name   = inquiry.other_name || (isBusiness ? inquiry.sender_name : inquiry.biz_name)
+  const avatar = inquiry.logo || makeInitialAvatar(name || '?')
   // Непрочитанным чат считается только для получателя последнего сообщения,
   // а не для того, кто сам его отправил.
   const showUnread = !inquiry.is_read && inquiry.last_sender_id !== currentUserId
@@ -48,17 +48,13 @@ function ContactItem({ inquiry, isActive, onClick, isBusiness, currentUserId }) 
 
 /* ─── Group contact item ─── */
 function GroupContactItem({ group, isActive, onClick }) {
+  const groupAvatar = group.photo
+    ? group.photo
+    : makeInitialAvatar(group.name || 'G')
   return (
     <div className={`msg-contact ${isActive ? 'msg-contact--active' : ''}`} onClick={onClick}>
       <div className="msg-contact__avatar-wrap">
-        <div className="msg-contact__group-icon">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-            <circle cx="9" cy="7" r="4"/>
-            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-          </svg>
-        </div>
+        <img className="msg-contact__avatar" src={groupAvatar} alt={group.name} />
       </div>
       <div className="msg-contact__info">
         <div className="msg-contact__top">
