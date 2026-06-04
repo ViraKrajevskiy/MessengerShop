@@ -107,7 +107,7 @@ function BizCard({ biz }) {
       {biz.is_vip && <span className="biz-card__vip">VIP</span>}
       {biz.is_verified && (
         <span className="biz-card__verified">
-          <VerifiedBadge size={11} fill="#fff" />
+          <VerifiedBadge size={11} />
         </span>
       )}
       <div className="biz-card__info">
