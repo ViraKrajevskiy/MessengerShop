@@ -5,7 +5,7 @@
 }
 
 .biz-dashboard {
-  max-width: 1100px;
+  max-width: 1360px;
   margin: 0 auto;
   /* нижний отступ учитывает фиксированную панель сохранения на вкладке профиля */
   padding: 24px 20px 96px;
@@ -2326,7 +2326,7 @@
 }
 
 .biz-save-all-bar__inner {
-  max-width: 1100px;
+  max-width: 1360px;
   margin: 0 auto;
   display: flex;
   align-items: center;
