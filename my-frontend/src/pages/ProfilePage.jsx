@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
+import VerifiedBadge from '../components/VerifiedBadge'
 import './ProfilePage.css'
 
 // ---------- avatar & post photos ----------
@@ -544,10 +545,7 @@ export default function ProfilePage() {
               <>
                 <div className="profile-about__divider" />
                 <div className="profile-about__verified-badge">
-                  <svg className="profile-about__badge-icon" viewBox="0 0 24 24" fill="none">
-                    <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z" fill="rgba(33,150,243,0.15)" stroke="#2196f3" strokeWidth="1.5"/>
-                    <path d="M9 12l2 2 4-4" stroke="#2196f3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
+                  <VerifiedBadge size={22} className="profile-about__badge-icon" />
                   <div className="profile-about__badge-text">
                     <strong>Верифицированный бизнес</strong>
                     <span>Личность и деятельность подтверждены платформой</span>
