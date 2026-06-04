@@ -823,6 +823,7 @@ function CropModal({ src, aspect = 4 / 5, onCancel, onCrop }) {
     aspect === 16 / 9  ? '16:9' :
     aspect === 9 / 16  ? '9:16' :
     aspect === 4 / 5   ? '4:5'  :
+    aspect === 2 / 3   ? '2:3'  :
     `${aspect.toFixed(2)}`
 
   return (
@@ -2237,7 +2238,12 @@ export default function BusinessDashboardPage() {
                               const f = e.target.files[0]
                               if (!f) return
                               e.target.value = ''
-                              setEditCardMedia(f)
+                              if (f.type.startsWith('image/')) {
+                                const url = URL.createObjectURL(f)
+                                setCropTask({ src: url, aspect: 2 / 3, onCropped: (cropped) => setEditCardMedia(cropped) })
+                              } else {
+                                setEditCardMedia(f)
+                              }
                             }}
                           />
                         </label>
