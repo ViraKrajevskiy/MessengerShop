@@ -267,7 +267,6 @@ export default function PostCard({ post, onDelete }) {
       {post.media_display && (
         <div
           className={`post-card__image${post.media_type === 'VIDEO' ? ' post-card__image--video' : ''}`}
-          style={{ aspectRatio: (post.media_format || '4:5').replace(':', ' / ') }}
           onClick={(e) => {
             e.stopPropagation()
             if (post.media_type === 'VIDEO') {

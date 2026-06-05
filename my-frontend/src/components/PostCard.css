@@ -296,16 +296,14 @@
   position: relative;
 }
 
-/* Формат карточки задаёт автор поста (media_format). Контейнер получает
-   aspect-ratio из формата (inline-стиль в PostCard.jsx), поэтому все карточки
-   одного формата ровные. Фото уже скадрировано под этот формат при создании,
-   так что cover заполняет рамку без полей и без искажения пропорций. */
+/* Pinterest-режим: ширина фиксирована, высота подстраивается под фото.
+   Фото показывается ЦЕЛИКОМ — не режется, не растягивается, без полей.
+   Вертикальное фото → карточка выше, горизонтальное → ниже. */
 .post-card__img-main {
-  position: absolute;
-  inset: 0;
+  position: static;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
+  object-fit: contain;
   display: block;
   transition: transform 0.35s;
 }
