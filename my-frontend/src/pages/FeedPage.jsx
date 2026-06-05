@@ -302,7 +302,6 @@ export default function FeedPage() {
       <Seo title={t('feed_title')} description={t('feed_sub')} path="/feed" />
       <Header />
 
-      <div className="feed-page__layout">
       <main className="feed-page__main">
         {/* Tabs */}
         <div className="feed-page__tabs">
@@ -394,6 +393,19 @@ export default function FeedPage() {
           )}
         </div>
 
+        {/* ── Блоки наверху: Твиты + рейтинги бизнесов ── */}
+        <div className="feed-top-blocks">
+          <TweetsSidebar posts={posts} />
+          <BusinessRankSidebar
+            title={t('home_popularBiz') || 'Самые популярные Бизнесы на этой неделе'}
+            businesses={[...businesses].sort((a, b) => (b.rating || 0) - (a.rating || 0))}
+          />
+          <BusinessRankSidebar
+            title={t('home_viewedBiz') || 'Самые просматриваемые Бизнесы на этой неделе'}
+            businesses={[...businesses].sort((a, b) => (b.views_count || b.id || 0) - (a.views_count || a.id || 0))}
+          />
+        </div>
+
         <div className="feed-page__layout">
           {/* ── Main feed ── */}
           <div className="feed-page__feed">
@@ -409,30 +421,12 @@ export default function FeedPage() {
                       // Посты = всё, что не твит (с медиа и текстовые посты).
                       // Твиты — отдельная платная сущность, у них своя вкладка.
                       const allPosts = fPosts.filter(p => !p.is_tweet)
-                      const hasMore = false
-                      const totalPages = Math.ceil(allPosts.length / CARDS_PER_PAGE)
-                      const paginatedPosts = allPosts.slice(page * CARDS_PER_PAGE, (page + 1) * CARDS_PER_PAGE)
                       return (
-                        <>
-                          <div className="post-cards-grid post-cards-grid--5">
-                            {paginatedPosts.map(post => (
-                              <PostCard key={`post-${post.id}`} post={post} />
-                            ))}
-                          </div>
-                          {totalPages > 1 && (
-                            <div className="feed-pagination">
-                              {Array.from({ length: totalPages }).map((_, i) => (
-                                <button
-                                  key={i}
-                                  className={`feed-pagination__btn ${i === page ? 'feed-pagination__btn--active' : ''}`}
-                                  onClick={() => { setPage(i); window.scrollTo(0, 0) }}
-                                >
-                                  {i + 1}
-                                </button>
-                              ))}
-                            </div>
-                          )}
-                        </>
+                        <div className="post-cards-grid post-cards-grid--5">
+                          {allPosts.map(post => (
+                            <PostCard key={`post-${post.id}`} post={post} />
+                          ))}
+                        </div>
                       )
                     })()}
                   </>
@@ -480,19 +474,6 @@ export default function FeedPage() {
           </div>
         </div>
       </main>
-
-      <aside className="feed-page__sidebar">
-        <TweetsSidebar posts={posts} />
-        <BusinessRankSidebar
-          title={t('home_popularBiz') || 'Самые популярные Бизнесы на этой неделе'}
-          businesses={[...businesses].sort((a, b) => (b.rating || 0) - (a.rating || 0))}
-        />
-        <BusinessRankSidebar
-          title={t('home_viewedBiz') || 'Самые просматриваемые Бизнесы на этой неделе'}
-          businesses={[...businesses].sort((a, b) => (b.views_count || b.id || 0) - (a.views_count || a.id || 0))}
-        />
-      </aside>
-      </div>
 
 
     </div>
