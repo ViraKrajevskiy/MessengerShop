@@ -722,20 +722,25 @@
   scroll-snap-align: none;
 }
 
-/* Как в Instagram: ширина фиксирована, высота подстраивается под фото.
-   Вертикальное фото → высокая карточка, горизонтальное → низкая. Без обрезки. */
+/* Превью-лента: фото целиком (без обрезки), но высота ограничена max-height,
+   чтобы очень высокие фото не растягивали карточку. Высокие фото вписываются
+   по высоте (могут быть уже карточки), широкие — по ширине. */
 .home-posts-section .post-card__image {
   aspect-ratio: auto;
   height: auto;
-  max-height: none;
+  max-height: 380px;
+  text-align: center;
 }
 
 .home-posts-section .post-card__img-main {
   position: static;
   inset: auto;
-  width: 100%;
+  width: auto;
+  max-width: 100%;
   height: auto;
+  max-height: 380px;
   object-fit: contain;
+  margin: 0 auto;
 }
 
 .home-posts-grid .post-card:nth-child(3n+1) {
