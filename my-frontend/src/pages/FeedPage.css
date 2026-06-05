@@ -689,35 +689,35 @@
 }
 
 /* ── Tweet Card (compact) ──────────────────────────────────────── */
+/* Masonry-раскладка через CSS-колонки: твиты разной высоты пакуются плотно,
+   без рваных рядов и дыр (как в grid). Текст не режется. */
 .feed-tweets-list {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 14px;
+  column-count: 5;
+  column-gap: 14px;
 }
 
 @media (max-width: 1200px) {
   .feed-tweets-list {
-    grid-template-columns: repeat(4, 1fr);
+    column-count: 4;
   }
 }
 
 @media (max-width: 900px) {
   .feed-tweets-list {
-    grid-template-columns: repeat(3, 1fr);
+    column-count: 3;
   }
 }
 
 @media (max-width: 768px) {
   .feed-tweets-list {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+    column-count: 2;
+    column-gap: 10px;
   }
 }
 
 @media (max-width: 480px) {
   .feed-tweets-list {
-    grid-template-columns: 1fr;
-    gap: 8px;
+    column-count: 1;
   }
 }
 
@@ -725,12 +725,15 @@
   display: flex;
   gap: 12px;
   padding: 14px 16px;
+  margin-bottom: 14px;
   background: var(--bg-secondary);
   border: 1.5px solid var(--border-light);
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.22s;
   box-shadow: var(--card-shadow);
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
 }
 
 .feed-tweet:hover {
