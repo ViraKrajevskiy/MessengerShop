@@ -296,13 +296,16 @@
   position: relative;
 }
 
-/* Как в Instagram: ширина фиксирована, высота подстраивается под фото.
-   Вертикальное фото → выше, горизонтальное → ниже. Без обрезки. */
+/* Формат карточки задаёт автор поста (media_format). Контейнер получает
+   aspect-ratio из формата (inline-стиль в PostCard.jsx), поэтому все карточки
+   одного формата ровные. Фото уже скадрировано под этот формат при создании,
+   так что cover заполняет рамку без полей и без искажения пропорций. */
 .post-card__img-main {
-  position: static;
+  position: absolute;
+  inset: 0;
   width: 100%;
-  height: auto;
-  object-fit: contain;
+  height: 100%;
+  object-fit: cover;
   display: block;
   transition: transform 0.35s;
 }
@@ -563,7 +566,6 @@
     white-space: nowrap;
   }
   .post-card__image {
-    aspect-ratio: auto;
     min-height: 0;
   }
   .post-card__body {

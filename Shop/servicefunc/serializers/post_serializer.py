@@ -20,7 +20,7 @@ class PostSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'business_id', 'business_name', 'business_logo', 'is_verified',
             'owner_is_online',
-            'text', 'media_display', 'media_type', 'is_tweet', 'views_count',
+            'text', 'media_display', 'media_type', 'media_format', 'is_tweet', 'views_count',
             'is_subscribed', 'tags',
             'is_favorited', 'favorites_count',
             'is_owner',
@@ -87,7 +87,7 @@ class PostCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ['text', 'media', 'media_url', 'media_type', 'tags']
+        fields = ['text', 'media', 'media_url', 'media_type', 'media_format', 'tags']
 
     def _set_tags(self, instance, tag_names):
         from Shop.models.models import Tag
