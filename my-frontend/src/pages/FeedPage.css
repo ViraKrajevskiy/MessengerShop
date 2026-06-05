@@ -734,6 +734,10 @@
   cursor: pointer;
   transition: all 0.22s;
   box-shadow: var(--card-shadow);
+  /* grid-элемент по умолчанию имеет min-width: auto и распирается длинным
+     неразрывным именем бизнеса, ломая колонки. 0 — разрешаем сжиматься. */
+  min-width: 0;
+  overflow: hidden;
 }
 
 .feed-tweet:hover {
@@ -763,6 +767,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
 }
 
 .feed-tweet__name {
@@ -771,6 +776,16 @@
   color: var(--text-primary);
   display: flex;
   align-items: center;
+  gap: 3px;
+  min-width: 0;
+}
+
+/* Длинное имя бизнеса обрезаем многоточием в одну строку */
+.feed-tweet__name-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 .feed-tweet__time {

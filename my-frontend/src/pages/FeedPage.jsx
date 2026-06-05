@@ -61,9 +61,9 @@ function TweetCard({ post, onTagClick }) {
       <div className="feed-tweet__body">
         <div className="feed-tweet__top">
           <span className="feed-tweet__name">
-            {post.business_name}
+            <span className="feed-tweet__name-text">{post.business_name}</span>
             {post.is_verified && (
-              <VerifiedBadge size={13} style={{marginLeft:3,verticalAlign:'middle'}} />
+              <VerifiedBadge size={13} style={{flexShrink:0}} />
             )}
           </span>
           <span className="feed-tweet__time">{timeAgo(post.created_at)}</span>
