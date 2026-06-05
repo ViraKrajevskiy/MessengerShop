@@ -302,6 +302,7 @@ export default function FeedPage() {
       <Seo title={t('feed_title')} description={t('feed_sub')} path="/feed" />
       <Header />
 
+      <div className="feed-page__shell">
       <main className="feed-page__main">
         {/* Tabs */}
         <div className="feed-page__tabs">
@@ -393,19 +394,6 @@ export default function FeedPage() {
           )}
         </div>
 
-        {/* ── Блоки наверху: Твиты + рейтинги бизнесов ── */}
-        <div className="feed-top-blocks">
-          <TweetsSidebar posts={posts} />
-          <BusinessRankSidebar
-            title={t('home_popularBiz') || 'Самые популярные Бизнесы на этой неделе'}
-            businesses={[...businesses].sort((a, b) => (b.rating || 0) - (a.rating || 0))}
-          />
-          <BusinessRankSidebar
-            title={t('home_viewedBiz') || 'Самые просматриваемые Бизнесы на этой неделе'}
-            businesses={[...businesses].sort((a, b) => (b.views_count || b.id || 0) - (a.views_count || a.id || 0))}
-          />
-        </div>
-
         <div className="feed-page__layout">
           {/* ── Main feed ── */}
           <div className="feed-page__feed">
@@ -474,6 +462,19 @@ export default function FeedPage() {
           </div>
         </div>
       </main>
+
+      <aside className="feed-page__sidebar">
+        <TweetsSidebar posts={posts} />
+        <BusinessRankSidebar
+          title={t('home_popularBiz') || 'Самые популярные Бизнесы на этой неделе'}
+          businesses={[...businesses].sort((a, b) => (b.rating || 0) - (a.rating || 0))}
+        />
+        <BusinessRankSidebar
+          title={t('home_viewedBiz') || 'Самые просматриваемые Бизнесы на этой неделе'}
+          businesses={[...businesses].sort((a, b) => (b.views_count || b.id || 0) - (a.views_count || a.id || 0))}
+        />
+      </aside>
+      </div>
 
 
     </div>
