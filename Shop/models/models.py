@@ -349,6 +349,12 @@ class Post(BaseController):
         IMAGE = 'IMAGE', 'Image'
         VIDEO = 'VIDEO', 'Video'
 
+    class MediaFormat(models.TextChoices):
+        PORTRAIT  = '4:5',  'Вертикальное 4:5'
+        TALL      = '2:3',  'Книжное 2:3'
+        SQUARE    = '1:1',  'Квадрат 1:1'
+        LANDSCAPE = '16:9', 'Горизонтальное 16:9'
+
     views_count = models.PositiveIntegerField(default=0)
     tags = models.ManyToManyField('Tag', blank=True, related_name='posts')
     business   = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='posts')
@@ -356,6 +362,11 @@ class Post(BaseController):
     media      = models.FileField(upload_to='posts/', blank=True, null=True)
     media_url  = models.URLField(blank=True)
     media_type = models.CharField(max_length=10, choices=MediaType.choices, default=MediaType.IMAGE)
+    # Соотношение сторон, выбранное автором. Карточка рендерится в этом формате,
+    # поэтому все карточки одного формата ровные — без обрезки и без полей.
+    media_format = models.CharField(
+        max_length=8, choices=MediaFormat.choices, default=MediaFormat.PORTRAIT, blank=True,
+    )
     # Твит — отдельная платная фича (Pro/VIP), а не «пост без медиа». Обычный пост
     # может быть и текстовым; различаем их по этому флагу, а не по наличию картинки.
     is_tweet   = models.BooleanField(default=False)

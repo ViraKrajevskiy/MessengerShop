@@ -373,10 +373,22 @@ function CreateStoryModal({ getAccessToken, onClose, onSuccess }) {
 }
 
 // ── Create Post Modal ──────────────────────────────────────────────────────────
+// Форматы карточки поста. value совпадает с Post.MediaFormat на бэкенде,
+// aspect — соотношение для кроп-окна и предпросмотра.
+const POST_FORMATS = [
+  { value: '4:5',  label: 'Вертикальное', aspect: 4 / 5 },
+  { value: '2:3',  label: '2:3',          aspect: 2 / 3 },
+  { value: '1:1',  label: 'Квадрат',      aspect: 1 },
+  { value: '16:9', label: 'Горизонтальное', aspect: 16 / 9 },
+]
+const aspectOf = (fmt) => (POST_FORMATS.find(f => f.value === fmt) || POST_FORMATS[0]).aspect
+
 function CreatePostModal({ getAccessToken, bizId, onClose, onSuccess }) {
   const [file, setFile]       = useState(null)
   const [preview, setPreview] = useState(null)
   const [cropSrc, setCropSrc] = useState(null)
+  const [origSrc, setOrigSrc] = useState(null)   // оригинал для повторного кропа при смене формата
+  const [format, setFormat]   = useState('4:5')
   const [text, setText]       = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState('')
@@ -431,9 +443,22 @@ function CreatePostModal({ getAccessToken, bizId, onClose, onSuccess }) {
 
   const processFile = (f) => {
     if (!f) return
-    // Редактирование фото (кроп) временно отключено — используем оригинал
-    setFile(f)
-    setPreview(URL.createObjectURL(f))
+    // Видео не кадрируем — берём как есть. Фото открываем в кропе под выбранный формат.
+    if (isVideoFile(f)) {
+      setOrigSrc(null)
+      setFile(f)
+      setPreview(URL.createObjectURL(f))
+      return
+    }
+    const src = URL.createObjectURL(f)
+    setOrigSrc(src)
+    setCropSrc(src)
+  }
+
+  // Смена формата — перекадрируем то же фото под новое соотношение.
+  const changeFormat = (value) => {
+    setFormat(value)
+    if (origSrc) setCropSrc(origSrc)
   }
 
   const handleFile = e => {
@@ -473,6 +498,7 @@ function CreatePostModal({ getAccessToken, bizId, onClose, onSuccess }) {
     const fd = new FormData()
     fd.append('text', text)
     fd.append('is_tweet', 'false')
+    fd.append('media_format', format)
     if (file) {
       fd.append('media', file)
       fd.append('media_type', isVideoFile(file) ? 'VIDEO' : 'IMAGE')
@@ -513,6 +539,21 @@ function CreatePostModal({ getAccessToken, bizId, onClose, onSuccess }) {
           onChange={e => setText(e.target.value)}
           rows={4}
         />
+        <div className="biz-form__format">
+          <span className="biz-form__format-label">Формат фото</span>
+          <div className="biz-form__format-chips">
+            {POST_FORMATS.map(f => (
+              <button
+                key={f.value}
+                type="button"
+                className={`biz-form__format-chip${format === f.value ? ' biz-form__format-chip--active' : ''}`}
+                onClick={() => changeFormat(f.value)}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+        </div>
         <div
           className={`biz-form__upload biz-form__upload--sm${dragOver ? ' biz-form__upload--dragover' : ''}`}
           onClick={() => fileInputRef.current.click()}
@@ -524,7 +565,12 @@ function CreatePostModal({ getAccessToken, bizId, onClose, onSuccess }) {
           {preview
             ? isVideoFile(file)
               ? <video src={preview} className="biz-form__preview" controls />
-              : <img src={preview} className="biz-form__preview" alt="preview" />
+              : <img
+                  src={preview}
+                  className="biz-form__preview"
+                  alt="preview"
+                  style={{ aspectRatio: format.replace(':', ' / '), objectFit: 'cover', width: '100%' }}
+                />
             : <div className="biz-form__upload-placeholder">
                 <span>🖼</span>
                 <p>{dragOver ? 'Отпустите чтобы загрузить' : 'Добавить или перетащить фото / видео (необязательно)'}</p>
@@ -586,7 +632,7 @@ function CreatePostModal({ getAccessToken, bizId, onClose, onSuccess }) {
     {cropSrc && (
       <CropModal
         src={cropSrc}
-        aspect={4 / 5}
+        aspect={aspectOf(format)}
         onCancel={() => setCropSrc(null)}
         onCrop={handleCropped}
       />
@@ -665,6 +711,8 @@ function CreateMediaOnlyModal({ getAccessToken, bizId, onClose, onSuccess, media
   const [file, setFile]       = useState(null)
   const [preview, setPreview] = useState(null)
   const [cropSrc, setCropSrc] = useState(null)
+  const [origSrc, setOrigSrc] = useState(null)
+  const [format, setFormat]   = useState('4:5')
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState('')
   const [dragOver, setDragOver] = useState(false)
@@ -682,9 +730,21 @@ function CreateMediaOnlyModal({ getAccessToken, bizId, onClose, onSuccess, media
       return
     }
     setError('')
-    // Редактирование фото (кроп) временно отключено — используем оригинал
-    setFile(f)
-    setPreview(URL.createObjectURL(f))
+    // Видео берём как есть. Фото кадрируем под выбранный формат карточки.
+    if (isVideo) {
+      setFile(f)
+      setPreview(URL.createObjectURL(f))
+      return
+    }
+    const src = URL.createObjectURL(f)
+    setOrigSrc(src)
+    setCropSrc(src)
+  }
+
+  // Смена формата — перекадрируем то же фото под новое соотношение.
+  const changeFormat = (value) => {
+    setFormat(value)
+    if (origSrc) setCropSrc(origSrc)
   }
 
   const handleFile = e => {
@@ -725,6 +785,7 @@ function CreateMediaOnlyModal({ getAccessToken, bizId, onClose, onSuccess, media
     fd.append('text', '')
     fd.append('media', file)
     fd.append('media_type', isVideo ? 'VIDEO' : 'IMAGE')
+    fd.append('media_format', format)
     try {
       const token = await getAccessToken()
       if (!token) { setError('Сессия истекла'); return }
@@ -751,6 +812,23 @@ function CreateMediaOnlyModal({ getAccessToken, bizId, onClose, onSuccess, media
     <>
       <Modal title={isVideo ? 'Добавить видео' : 'Добавить фото'} onClose={onClose}>
         <div className="biz-form">
+          {!isVideo && (
+            <div className="biz-form__format">
+              <span className="biz-form__format-label">Формат фото</span>
+              <div className="biz-form__format-chips">
+                {POST_FORMATS.map(f => (
+                  <button
+                    key={f.value}
+                    type="button"
+                    className={`biz-form__format-chip${format === f.value ? ' biz-form__format-chip--active' : ''}`}
+                    onClick={() => changeFormat(f.value)}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           <div
             className={`biz-form__upload${dragOver ? ' biz-form__upload--dragover' : ''}`}
             onClick={() => inputRef.current.click()}
@@ -762,7 +840,12 @@ function CreateMediaOnlyModal({ getAccessToken, bizId, onClose, onSuccess, media
             {preview ? (
               isVideo
                 ? <video src={preview} className="biz-form__preview" controls />
-                : <img src={preview} className="biz-form__preview" alt="preview" />
+                : <img
+                    src={preview}
+                    className="biz-form__preview"
+                    alt="preview"
+                    style={{ aspectRatio: format.replace(':', ' / '), objectFit: 'cover', width: '100%' }}
+                  />
             ) : (
               <div className="biz-form__upload-placeholder">
                 <span>{isVideo ? '🎬' : '📷'}</span>
@@ -782,7 +865,7 @@ function CreateMediaOnlyModal({ getAccessToken, bizId, onClose, onSuccess, media
       {cropSrc && (
         <CropModal
           src={cropSrc}
-          aspect={4 / 5}
+          aspect={aspectOf(format)}
           onCancel={() => setCropSrc(null)}
           onCrop={handleCropped}
         />
