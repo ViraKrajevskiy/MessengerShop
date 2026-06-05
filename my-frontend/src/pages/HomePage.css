@@ -717,7 +717,8 @@
 .home-posts-section .post-card {
   border: none;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-  flex: 0 0 calc((100% - 2 * 20px) / 3);
+  /* ~2.5 карточки в ряд — крупнее, чем было (3); следующая чуть выглядывает */
+  flex: 0 0 calc((100% - 2 * 20px) / 2.5);
   scroll-snap-align: none;
 }
 
