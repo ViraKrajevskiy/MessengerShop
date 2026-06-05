@@ -945,36 +945,50 @@
   .feed-tweet__avatar { width: 34px; height: 34px; }
 }
 
-/* ── Fixed grid layout ────────────────────────────────────────────── */
+/* ── Masonry-раскладка ленты постов ───────────────────────────────────
+   Фото у постов разной высоты, поэтому обычный grid давал рваные ряды с
+   большими дырами под низкими карточками. CSS-колонки пакуют карточки
+   плотно по высоте (как в Pinterest). break-inside: avoid не даёт карточке
+   разорваться между колонками; вертикальный отступ задаём margin-bottom. */
 .post-cards-grid--5 {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 18px;
+  display: block;
+  column-count: 5;
+  column-gap: 18px;
+}
+.post-cards-grid--5 .post-card {
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  margin-bottom: 18px;
 }
 
 @media (max-width: 1200px) {
   .post-cards-grid--5 {
-    grid-template-columns: repeat(4, 1fr);
+    column-count: 4;
   }
 }
 
 @media (max-width: 900px) {
   .post-cards-grid--5 {
-    grid-template-columns: repeat(3, 1fr);
+    column-count: 3;
   }
 }
 
 @media (max-width: 768px) {
   .post-cards-grid--5 {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+    column-count: 2;
+    column-gap: 10px;
+  }
+  .post-cards-grid--5 .post-card {
+    margin-bottom: 10px;
   }
 }
 
 @media (max-width: 480px) {
   .post-cards-grid--5 {
-    grid-template-columns: 1fr;
-    gap: 8px;
+    column-count: 1;
+  }
+  .post-cards-grid--5 .post-card {
+    margin-bottom: 8px;
   }
 }
 
