@@ -6,12 +6,34 @@
   flex-direction: column;
 }
 
-.feed-page__main {
+/* Двухколоночный layout: контент + сайдбар (Твиты / рейтинги бизнесов) */
+.feed-page__layout {
   max-width: min(1420px, calc(100vw - 40px));
   margin: 0 auto;
   padding: 24px 20px 60px;
   width: 100%;
   box-sizing: border-box;
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.feed-page__main {
+  flex: 1;
+  min-width: 0;
+}
+
+.feed-page__sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 80px;
+}
+
+@media (max-width: 1024px) {
+  .feed-page__sidebar { display: none; }
 }
 
 /* Stories strip */
@@ -668,7 +690,7 @@
 }
 
 @media (max-width: 600px) {
-  .feed-page__main {
+  .feed-page__layout {
     padding: 16px 12px 70px;
   }
   .feed-page__tabs {
