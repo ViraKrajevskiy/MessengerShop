@@ -4,6 +4,7 @@ import Header from '../components/Header'
 import Seo from '../components/Seo'
 import Stories from '../components/Stories'
 import PostCard from '../components/PostCard'
+import VerifiedBadge from '../components/VerifiedBadge'
 import { useAuth } from '../context/AuthContext'
 import { useLanguage } from '../context/LanguageContext'
 import { apiGetPosts, apiGetBusinesses, apiGetNews, CATEGORY_LABELS } from '../api/businessApi'
@@ -62,9 +63,7 @@ function TweetCard({ post, onTagClick }) {
           <span className="feed-tweet__name">
             {post.business_name}
             {post.is_verified && (
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="#2196f3" style={{marginLeft:3,verticalAlign:'middle'}}>
-                <path d="M12 2L9.19 4.09 5.5 3.82 4.41 7.41 1.42 9.72 2.83 13.21 1.42 16.71 4.41 19 5.5 22.59 9.19 22.32 12 24.41 14.81 22.32 18.5 22.59 19.59 19 22.58 16.71 21.17 13.21 22.58 9.72 19.59 7.41 18.5 3.82 14.81 4.09 12 2ZM10.09 16.72L7.29 13.91 8.71 12.5 10.09 13.88 15.34 8.63 16.76 10.05 10.09 16.72Z"/>
-              </svg>
+              <VerifiedBadge size={13} style={{marginLeft:3,verticalAlign:'middle'}} />
             )}
           </span>
           <span className="feed-tweet__time">{timeAgo(post.created_at)}</span>

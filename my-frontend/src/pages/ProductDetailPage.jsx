@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
 import Seo from '../components/Seo'
+import VerifiedBadge from '../components/VerifiedBadge'
 import { useAuth } from '../context/AuthContext'
 import { useLanguage } from '../context/LanguageContext'
 import { apiSendProductInquiry } from '../api/businessApi'
@@ -185,7 +186,7 @@ export default function ProductDetailPage() {
                 <div className="pdp__biz-info">
                   <span className="pdp__biz-name">
                     {business.brand_name}
-                    {business.is_verified && <span className="pdp__biz-verified" title={t('product_verifiedBadge')}>&#10003;</span>}
+                    {business.is_verified && <span className="pdp__biz-verified" title={t('product_verifiedBadge')}><VerifiedBadge size={12} color="#fff" title={t('product_verifiedBadge')} /></span>}
                     {business.is_vip && <span className="pdp__biz-vip" title="VIP">&#9733;</span>}
                   </span>
                   <span className="pdp__biz-meta">
