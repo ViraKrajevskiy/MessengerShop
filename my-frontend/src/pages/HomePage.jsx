@@ -67,7 +67,7 @@ const MOBILE_MEDIA_QUERY = '(max-width: 500px)'
 
 export default function HomePage() {
   const navigate = useNavigate()
-  const { user, tokens } = useAuth()
+  const { user, tokens } = useAuth() || { user: null, tokens: null }
   const { t } = useLanguage()
 
   const [filters] = useState({
