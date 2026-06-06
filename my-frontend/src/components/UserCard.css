@@ -65,15 +65,51 @@
   color: var(--text-primary);
 }
 
+.user-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
 .user-card__city {
   font-size: 11.5px;
   color: var(--text-muted);
+  flex: 1;
 }
 
-/* ── Online dot ── */
+/* ── Favorite button (in footer next to city) ── */
+.user-card__fav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #999;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.user-card__fav-btn:hover {
+  color: #e53935;
+}
+
+.user-card__fav-btn--liked {
+  color: #e53935;
+}
+
+.user-card__fav-btn--liked:hover {
+  color: #d32f2f;
+}
+
+/* ── Online dot (top right, on image, same level as verified) ── */
 .user-card__online-dot {
   position: absolute;
-  top: 44px;
+  top: 13px;
   right: 10px;
   width: 16px;
   height: 16px;
@@ -214,54 +250,7 @@
 }
 
 
-/* ── Action buttons ── */
-.user-card__actions {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  opacity: 0;
-  transform: translateX(8px);
-  transition: opacity 0.22s, transform 0.22s;
-}
 
-.user-card:hover .user-card__actions {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.user-card__action-btn {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 7px 10px;
-  border-radius: 20px;
-  border: none;
-  background: rgba(0,0,0,0.55);
-  backdrop-filter: blur(8px);
-  color: #fff;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.18s;
-  white-space: nowrap;
-}
-
-.user-card__action-btn:hover {
-  background: rgba(0,0,0,0.8);
-  transform: scale(1.06);
-}
-
-.user-card__action-btn--liked {
-  background: rgba(229, 57, 53, 0.75);
-  color: #fff;
-}
-
-.user-card__action-btn--liked:hover {
-  background: rgba(229, 57, 53, 0.9);
-}
 
 /* ── Plan-based styling ── */
 .user-card--vip-plan {
@@ -294,10 +283,7 @@
 
 /* ── Responsive ── */
 @media (hover: none) {
-  .user-card__actions {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  /* On touch devices, show online indicator if present */
 }
 
 @media (max-width: 768px) {
@@ -313,19 +299,25 @@
   .user-card__name {
     font-size: 13px;
   }
+  .user-card__footer {
+    gap: 4px;
+  }
   .user-card__city {
     font-size: 11.5px;
+  }
+  .user-card__fav-btn {
+    width: 22px;
+    height: 22px;
+  }
+  .user-card__fav-btn svg {
+    width: 12px;
+    height: 12px;
   }
   .user-card__badge {
     font-size: 9px;
     padding: 3px 9px;
     bottom: 8px;
     left: 8px;
-  }
-  .user-card__action-btn {
-    padding: 6px 9px;
-    font-size: 11.5px;
-    gap: 4px;
   }
 }
 
@@ -344,9 +336,20 @@
     margin: 0;
     line-height: 1.3;
   }
+  .user-card__footer {
+    gap: 3px;
+  }
   .user-card__city {
     font-size: 11px;
     margin: 0;
+  }
+  .user-card__fav-btn {
+    width: 20px;
+    height: 20px;
+  }
+  .user-card__fav-btn svg {
+    width: 11px;
+    height: 11px;
   }
   .user-card__badge {
     font-size: 8.5px;
@@ -354,16 +357,6 @@
     bottom: 6px;
     left: 6px;
     border-radius: 6px;
-  }
-  .user-card__actions {
-    top: 6px;
-    right: 6px;
-    gap: 4px;
-  }
-  .user-card__action-btn {
-    padding: 5px 8px;
-    font-size: 10px;
-    gap: 3px;
   }
   .user-card:hover {
     transform: translateY(-2px);

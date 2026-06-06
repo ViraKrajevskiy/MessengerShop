@@ -92,22 +92,21 @@ export default function UserCard({ id, name = 'Имя', city = 'Город', bad
           )}
 
           {isOnline && <span className="user-card__online-dot" />}
-
-          <div className="user-card__actions">
+        </div>
+        <div className="user-card__info">
+          <span className="user-card__name">{name}</span>
+          <div className="user-card__footer">
+            <span className="user-card__city">{city}</span>
             <button
-              className={`user-card__action-btn${fav ? ' user-card__action-btn--liked' : ''}`}
+              className={`user-card__fav-btn${fav ? ' user-card__fav-btn--liked' : ''}`}
               onClick={toggleFav}
               title={fav ? t('user_removeFav') : t('user_addFav')}
             >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill={fav ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill={fav ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
                 <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
               </svg>
             </button>
           </div>
-        </div>
-        <div className="user-card__info">
-          <span className="user-card__name">{name}</span>
-          <span className="user-card__city">{city}</span>
         </div>
       </div>
       <AuthModal />
