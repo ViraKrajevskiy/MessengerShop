@@ -1,5 +1,6 @@
 from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiParameter
 from rest_framework import status
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -66,11 +67,13 @@ class BusinessListView(APIView):
 @extend_schema(tags=['Business'])
 class BusinessCreateView(APIView):
     permission_classes = [IsBusinessman]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     @extend_schema(
         summary='Создать бизнес-профиль',
-        description='Доступно только бизнесменам (role=BUSINESS). Один аккаунт — один профиль.',
-        request=BusinessCreateUpdateSerializer,
+        description='Доступно только бизнесменам (role=BUSINESS). Один аккаунт — один профиль. Файлы (logo/cover/card_media) передавайте через multipart/form-data.',
+        request={'multipart/form-data': BusinessCreateUpdateSerializer,
+                 'application/json': BusinessCreateUpdateSerializer},
         responses={
             201: BusinessDetailSerializer,
             400: OpenApiResponse(description='Ошибки валидации или профиль уже существует'),
@@ -95,6 +98,8 @@ class BusinessCreateView(APIView):
 
 @extend_schema(tags=['Business'])
 class BusinessDetailView(APIView):
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+
     def get_permissions(self):
         if self.request.method == 'GET':
             return [AllowAny()]
@@ -138,7 +143,8 @@ class BusinessDetailView(APIView):
 
     @extend_schema(
         summary='Обновить бизнес-профиль',
-        request=BusinessCreateUpdateSerializer,
+        request={'multipart/form-data': BusinessCreateUpdateSerializer,
+                 'application/json': BusinessCreateUpdateSerializer},
         responses={200: BusinessDetailSerializer, 403: OpenApiResponse(description='Нет прав')},
     )
     def patch(self, request, pk):
@@ -170,6 +176,7 @@ class BusinessDetailView(APIView):
 @extend_schema(tags=['Business'])
 class MyBusinessView(APIView):
     permission_classes = [IsBusinessman]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     @extend_schema(
         summary='Мой бизнес-профиль',
@@ -184,7 +191,8 @@ class MyBusinessView(APIView):
 
     @extend_schema(
         summary='Обновить мой бизнес-профиль (включая FAQ)',
-        request=BusinessCreateUpdateSerializer,
+        request={'multipart/form-data': BusinessCreateUpdateSerializer,
+                 'application/json': BusinessCreateUpdateSerializer},
         responses={200: BusinessDetailSerializer},
     )
     def patch(self, request):

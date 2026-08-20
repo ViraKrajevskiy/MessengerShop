@@ -1,5 +1,6 @@
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework import status
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -26,6 +27,8 @@ class AllProductsListView(APIView):
 
 @extend_schema(tags=['Products'])
 class BusinessProductListView(APIView):
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+
     def get_permissions(self):
         if self.request.method == 'GET':
             return [AllowAny()]
@@ -40,7 +43,12 @@ class BusinessProductListView(APIView):
         products = biz.products.filter(is_available=True)
         return Response(ProductSerializer(products, many=True, context={'request': request}).data)
 
-    @extend_schema(summary='Добавить товар (только владелец)', request=ProductCreateUpdateSerializer, responses={201: ProductSerializer})
+    @extend_schema(
+        summary='Добавить товар (только владелец)',
+        request={'multipart/form-data': ProductCreateUpdateSerializer,
+                 'application/json': ProductCreateUpdateSerializer},
+        responses={201: ProductSerializer},
+    )
     def post(self, request, pk):
         try:
             biz = Business.objects.get(pk=pk)
@@ -62,6 +70,8 @@ class BusinessProductListView(APIView):
 
 @extend_schema(tags=['Products'])
 class ProductDetailView(APIView):
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+
     def get_permissions(self):
         if self.request.method == 'GET':
             return [AllowAny()]
@@ -82,7 +92,12 @@ class ProductDetailView(APIView):
         bump_view(Product, pk, request, 'product')
         return Response(ProductSerializer(product, context={'request': request}).data)
 
-    @extend_schema(summary='Обновить товар', request=ProductCreateUpdateSerializer, responses={200: ProductSerializer})
+    @extend_schema(
+        summary='Обновить товар',
+        request={'multipart/form-data': ProductCreateUpdateSerializer,
+                 'application/json': ProductCreateUpdateSerializer},
+        responses={200: ProductSerializer},
+    )
     def patch(self, request, pk):
         product = self.get_object(pk)
         if not product:
