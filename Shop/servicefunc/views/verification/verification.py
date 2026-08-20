@@ -1,6 +1,7 @@
 from django.utils import timezone
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework import status
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -12,6 +13,8 @@ from Shop.servicefunc.serializers.verification_serializer import (
     VerificationListSerializer,
     VerificationMessageSerializer,
     ReviewSerializer,
+    VerificationDocumentUploadSerializer,
+    VerificationChatMessageSerializer,
 )
 
 
@@ -87,10 +90,12 @@ class MyVerificationView(APIView):
 @extend_schema(tags=['Verification'])
 class UploadDocumentView(APIView):
     permission_classes = [IsBusinessman]
+    parser_classes = [MultiPartParser, FormParser]
 
     @extend_schema(
         summary='Загрузить документ',
         description='Бизнесмен загружает документ для верификации (паспорт, свидетельство, лицензия и т.д.)',
+        request={'multipart/form-data': VerificationDocumentUploadSerializer},
         responses={
             201: OpenApiResponse(description='Документ загружен'),
             400: OpenApiResponse(description='Нет файла или заявки'),
@@ -125,6 +130,7 @@ class UploadDocumentView(APIView):
 @extend_schema(tags=['Verification'])
 class VerificationChatView(APIView):
     permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_request(self, user):
         """Возвращает заявку для бизнесмена или по ID для модератора"""
@@ -137,9 +143,12 @@ class VerificationChatView(APIView):
 
     @extend_schema(
         summary='Отправить сообщение в чат верификации',
+        description='Можно передать текст, файл, либо и то и другое (multipart/form-data).',
+        request={'multipart/form-data': VerificationChatMessageSerializer,
+                 'application/json': VerificationChatMessageSerializer},
         responses={
             201: VerificationMessageSerializer,
-            400: OpenApiResponse(description='Нет заявки или пустое сообщение'),
+            400: OpenApiResponse(description='Нет заявки или пустое сообщение без файла'),
         },
     )
     def post(self, request, req_id=None):
@@ -157,11 +166,18 @@ class VerificationChatView(APIView):
         else:
             return Response({'detail': 'Нет доступа.'}, status=status.HTTP_403_FORBIDDEN)
 
-        text = request.data.get('text', '').strip()
-        if not text:
+        text = (request.data.get('text') or '').strip()
+        upload = request.FILES.get('file')
+        if not text and not upload:
             return Response({'detail': 'Сообщение не может быть пустым.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        msg = VerificationMessage.objects.create(request=ver_req, sender=request.user, text=text)
+        msg = VerificationMessage.objects.create(
+            request=ver_req,
+            sender=request.user,
+            text=text,
+            file=upload if upload else None,
+            file_name=upload.name if upload else '',
+        )
         return Response(
             VerificationMessageSerializer(msg, context={'request': request}).data,
             status=status.HTTP_201_CREATED,

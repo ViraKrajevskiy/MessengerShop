@@ -1,5 +1,6 @@
 from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiParameter
 from rest_framework import status
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -15,6 +16,7 @@ from Shop.servicefunc.serializers.story_serializer import (
 
 @extend_schema(tags=['Stories'])
 class StoryListCreateView(APIView):
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_permissions(self):
         if self.request.method == 'POST':
@@ -47,8 +49,9 @@ class StoryListCreateView(APIView):
 
     @extend_schema(
         summary='Создать сторис',
-        description='Только для бизнесменов (role=BUSINESS). Сторис автоматически истекает через 24 часа.',
-        request=StoryCreateSerializer,
+        description='Только для бизнесменов (role=BUSINESS). Сторис автоматически истекает через 24 часа. Медиафайл передавайте через multipart/form-data.',
+        request={'multipart/form-data': StoryCreateSerializer,
+                 'application/json': StoryCreateSerializer},
         responses={
             201: StorySerializer,
             400: OpenApiResponse(description='Ошибки валидации'),

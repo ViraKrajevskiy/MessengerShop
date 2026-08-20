@@ -1,6 +1,8 @@
+from drf_spectacular.utils import extend_schema
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.db.models import Count, Exists, OuterRef, Q
 
@@ -49,6 +51,7 @@ class PostListView(APIView):
 
 class BusinessPostListView(APIView):
     permission_classes = [AllowAny]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get(self, request, pk):
         qs = Post.objects.filter(business_id=pk, is_blocked=False).select_related(
@@ -70,6 +73,12 @@ class BusinessPostListView(APIView):
         serializer = PostSerializer(qs, many=True, context={'request': request})
         return Response(serializer.data)
 
+    @extend_schema(
+        summary='Создать пост/твит для бизнеса',
+        request={'multipart/form-data': PostCreateSerializer,
+                 'application/json': PostCreateSerializer},
+        responses={201: PostSerializer},
+    )
     def post(self, request, pk):
         if not request.user.is_authenticated:
             return Response({'detail': 'Требуется авторизация'}, status=status.HTTP_401_UNAUTHORIZED)

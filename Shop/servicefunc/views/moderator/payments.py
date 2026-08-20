@@ -6,6 +6,8 @@ Payment proof views.
 from datetime import timedelta
 
 from django.utils import timezone
+from drf_spectacular.utils import extend_schema, OpenApiResponse
+from rest_framework import serializers
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -15,6 +17,28 @@ from Shop.models import PaymentRequest, Business
 from Shop.permissions import IsBusinessman
 from Shop.servicefunc.views.moderator.tariffs import PERIOD_DAYS
 from Shop.servicefunc.views.verification.verification import IsModerator
+
+
+class PaymentRequestCreateSerializer(serializers.Serializer):
+    plan_type   = serializers.ChoiceField(
+        choices=[('PRO', 'PRO'), ('VIP', 'VIP')],
+        help_text='Тариф: PRO или VIP',
+    )
+    plan_period = serializers.ChoiceField(
+        choices=[('MONTH', 'MONTH'), ('QUARTER', 'QUARTER'), ('YEAR', 'YEAR')],
+        required=False, allow_blank=True,
+        help_text='Период оплаты',
+    )
+    message     = serializers.CharField(required=False, allow_blank=True,
+                                        help_text='Комментарий к оплате')
+    proof_file  = serializers.FileField(required=False, allow_null=True,
+                                        help_text='Файл со скриншотом/фото оплаты')
+
+
+class PaymentReviewSerializer(serializers.Serializer):
+    action         = serializers.ChoiceField(choices=[('approve', 'approve'), ('reject', 'reject')])
+    rejection_note = serializers.CharField(required=False, allow_blank=True,
+                                           help_text='Причина отклонения (для action=reject)')
 
 
 def _serialize_payment(req, request=None):
@@ -53,6 +77,7 @@ def _serialize_payment(req, request=None):
 
 
 # ── Business: submit payment proof ────────────────────────────────────────────
+@extend_schema(tags=['Tariff / Payment'])
 class PaymentRequestCreateView(APIView):
     """
     POST /api/tariff/payment/
@@ -61,6 +86,16 @@ class PaymentRequestCreateView(APIView):
     permission_classes = [IsBusinessman]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
+    @extend_schema(
+        summary='Отправить заявку на оплату тарифа',
+        description='Бизнесмен прикладывает скрин/фото оплаты. Передавайте через multipart/form-data.',
+        request={'multipart/form-data': PaymentRequestCreateSerializer,
+                 'application/json': PaymentRequestCreateSerializer},
+        responses={
+            201: OpenApiResponse(description='Заявка создана'),
+            400: OpenApiResponse(description='Ошибки валидации'),
+        },
+    )
     def post(self, request):
         try:
             business = request.user.business_profile
@@ -96,6 +131,7 @@ class PaymentRequestCreateView(APIView):
         return Response(_serialize_payment(payment, request), status=201)
 
 
+@extend_schema(tags=['Tariff / Payment'])
 class PaymentRequestStatusView(APIView):
     """GET /api/tariff/payment/ — бизнес видит свои заявки"""
     permission_classes = [IsBusinessman]
@@ -110,6 +146,7 @@ class PaymentRequestStatusView(APIView):
 
 
 # ── Moderator: review payment requests ────────────────────────────────────────
+@extend_schema(tags=['Tariff / Payment (Moderator)'])
 class ModeratorPaymentListView(APIView):
     """GET /api/moderator/payments/?status=PENDING"""
     permission_classes = [IsAuthenticated, IsModerator]
@@ -124,10 +161,16 @@ class ModeratorPaymentListView(APIView):
         return Response([_serialize_payment(p, request) for p in qs])
 
 
+@extend_schema(tags=['Tariff / Payment (Moderator)'])
 class ModeratorPaymentDetailView(APIView):
     """PATCH /api/moderator/payments/<pk>/ → { action: approve|reject, rejection_note? }"""
     permission_classes = [IsAuthenticated, IsModerator]
 
+    @extend_schema(
+        summary='Подтвердить или отклонить заявку на оплату',
+        request=PaymentReviewSerializer,
+        responses={200: OpenApiResponse(description='Обновлено')},
+    )
     def patch(self, request, pk):
         try:
             payment = PaymentRequest.objects.select_related('business').get(pk=pk)

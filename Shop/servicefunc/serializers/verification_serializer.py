@@ -62,3 +62,14 @@ class VerificationListSerializer(serializers.ModelSerializer):
 class ReviewSerializer(serializers.Serializer):
     action  = serializers.ChoiceField(choices=['approve', 'reject'])
     comment = serializers.CharField(required=False, allow_blank=True, default='')
+
+
+class VerificationDocumentUploadSerializer(serializers.Serializer):
+    file = serializers.FileField(help_text='Документ для верификации (паспорт, свидетельство и т.д.)')
+
+
+class VerificationChatMessageSerializer(serializers.Serializer):
+    text = serializers.CharField(required=False, allow_blank=True, default='',
+                                 help_text='Текст сообщения (можно пустым, если приложен файл)')
+    file = serializers.FileField(required=False, allow_null=True,
+                                 help_text='Опциональный файл-вложение')
